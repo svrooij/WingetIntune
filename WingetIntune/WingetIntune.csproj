@@ -27,4 +27,8 @@
     <PackageReference Include="System.CommandLine.Hosting" Version="0.4.0-alpha.22272.1" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\WingetIntune.Abstractions\WingetIntune.Abstractions.csproj" />
+  </ItemGroup>
+
 </Project>

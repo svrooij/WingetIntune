@@ -1,11 +1,7 @@
 ﻿// source: https://github.com/oleg-shilo/wixsharp/blob/7601893a5e9e14408ce9ef63415290d5c56254a6/Source/src/WixSharp.Msi/WixSharp.Msi/MsiParser.cs
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using WindowsInstaller;
-using WixSharp.Msi;
 
 namespace WixSharp.UI
 {
@@ -14,7 +10,7 @@ namespace WixSharp.UI
     /// </summary>
     public class MsiParser : IDisposable
     {
-        bool disposedValue = false;
+        private bool disposedValue = false;
 
         /// <summary>
         /// The msi file
@@ -180,7 +176,7 @@ namespace WixSharp.UI
         //    return string.Join(@"\", subDirs);
         //}
 
-        string[] GetDirectoryPathParts(string name)
+        private string[] GetDirectoryPathParts(string name)
         {
             var path = new List<string>();
             var names = new Queue<string>(new[] { name });
@@ -270,7 +266,7 @@ namespace WixSharp.UI
             }
         }
 
-        string GetStringValue(string select)
+        private string GetStringValue(string select)
         {
             IntPtr view = IntPtr.Zero;
             try

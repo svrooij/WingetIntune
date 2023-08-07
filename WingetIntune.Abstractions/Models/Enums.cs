@@ -1,6 +1,6 @@
 ﻿namespace WingetIntune.Models;
 
-internal enum IsInstalledResult
+public enum IsInstalledResult
 {
     Error = -1,
     Installed,

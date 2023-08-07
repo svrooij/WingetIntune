@@ -1,9 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using Microsoft.Extensions.DependencyInjection;
 using System.CommandLine;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.CommandLine.Hosting;
+using System.CommandLine.Invocation;
+using System.CommandLine.NamingConventionBinder;
 
 namespace WingetIntune.Commands
 {
@@ -11,7 +10,6 @@ namespace WingetIntune.Commands
     {
         private const string name = "install";
         private const string description = "Installs or upgrades a package";
-
 
         public InstallOrUpgradeCommand() : base(name, description)
         {
@@ -38,38 +36,40 @@ namespace WingetIntune.Commands
             //AddOption(new Option<string>(new string[] { "--accept-package-modified", "-u" }, "Accept package modified"));
             //AddOption(new Option<string>(new string[] { "--accept-package"}))
 
-            this.SetHandler(HandleCommand, WinGetRootCommand.IdArgument, WinGetRootCommand.VersionOption, WinGetRootCommand.SourceOption, WinGetRootCommand.ForceOption);
+            this.Handler = CommandHandler.Create(HandleCommand);
         }
 
-        private async Task<int> HandleCommand(string id, string? version, string? source, bool force)
+        private async Task<int> HandleCommand(WinGetRootCommand.DefaultOptions options, InvocationContext context)
         {
-            var installed = await WingetManager.CheckInstalled(id, version);
+            var winget = context.GetHost().Services.GetRequiredService<IWingetRepository>();
+            var installed = await winget.CheckInstalled(options.PackageId, options.Version);
             ProcessResult? result = null;
             switch (installed)
             {
                 case Models.IsInstalledResult.Error:
-                    Console.WriteLine($"Error checking if package {id} {version} is installed");
+                    Console.WriteLine($"Error checking if package {options.PackageId} {options.Version} is installed");
                     return -1;
+
                 case Models.IsInstalledResult.Installed:
-                    Console.WriteLine($"Package {id} {version} is already installed");
+                    Console.WriteLine($"Package {options.PackageId} {options.Version} is already installed");
                     return 0;
+
                 case Models.IsInstalledResult.NotInstalled:
-                    result = await WingetManager.Install(id, version, source, force);
+                    result = await winget.Install(options.PackageId, options.Version, options.Source, options.Force);
                     break;
+
                 case Models.IsInstalledResult.UpgradeAvailable:
-                    result = await WingetManager.Upgrade(id, version, source, force);
+                    result = await winget.Upgrade(options.PackageId, options.Version, options.Source, options.Force);
                     break;
             }
 
-            if(result == null || result.ExitCode != 0)
+            if (result == null || result.ExitCode != 0)
             {
-                Console.WriteLine($"Error installing/upgrading package {id} {version}\r\n{result?.Error}\r\n{result?.Output}");
+                Console.WriteLine($"Error installing/upgrading package {options.PackageId} {options.Version}\r\n{result?.Error}\r\n{result?.Output}");
                 return result?.ExitCode ?? 1;
             }
-            Console.WriteLine($"Package {id} {version} installed/updated successfully");
+            Console.WriteLine($"Package {options.PackageId} {options.Version} installed/updated successfully");
             return 0;
         }
-
-
     }
 }

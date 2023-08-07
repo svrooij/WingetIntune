@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace WingetIntune.Models;
+﻿namespace WingetIntune.Models;
 
 public class PackageInfo
 {
@@ -75,8 +69,6 @@ public class PackageInfo
             packageInfo.SupportUrl = new Uri(supportUrlLine.Substring("Publisher Support Url: ".Length));
         }
 
-
-
         if (wingetOutput.Contains("Installer Type: msstore"))
         {
             packageInfo.Source = PackageSource.Store;
@@ -110,10 +102,8 @@ public class PackageInfo
             {
                 packageInfo.Hash = hashLine.Substring("Installer SHA256: ".Length);
             }
-
         }
 
         return packageInfo;
     }
-
 }

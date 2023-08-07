@@ -1,15 +1,20 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using Microsoft.Extensions.Logging;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace WingetIntune;
 
-internal class ProcessManager
+public partial class ProcessManager : IProcessManager
 {
-    public static async Task<ProcessResult> RunProcessAsync(string fileName, string arguments, CancellationToken cancellationToken = default, bool admin = false)//, string workingDirectory, bool waitForExit)
+    private readonly ILogger<ProcessManager> logger;
+
+    public ProcessManager(ILogger<ProcessManager> logger)
     {
+        this.logger = logger;
+    }
+
+    public async Task<ProcessResult> RunProcessAsync(string fileName, string arguments, CancellationToken cancellationToken = default, bool admin = false)//, string workingDirectory, bool waitForExit)
+    {
+        LogProcessStarting(fileName, arguments);
         using var process = new System.Diagnostics.Process();
         process.StartInfo.FileName = fileName;
         process.StartInfo.Arguments = arguments;
@@ -41,20 +46,17 @@ internal class ProcessManager
         process.BeginOutputReadLine();
         process.BeginErrorReadLine();
 
-        //if (waitForExit)
-        //{
-        //    process.WaitForExit();
-        //}
         await process.WaitForExitAsync(cancellationToken);
 
         var exitCode = process.ExitCode;
-
-        //if (exitCode != 0)
-        //{
-        //    throw new Exception($"Process exited with code {exitCode}.\n{error}");
-        //}
+        LogProcessExited(exitCode, error.ToString());
 
         return new ProcessResult(exitCode, output.ToString(), error.ToString());
     }
+
+    [LoggerMessage(EventId = 1, Level = LogLevel.Information, Message = "Running {FileName} {Arguments}")]
+    private partial void LogProcessStarting(string fileName, string arguments);
+
+    [LoggerMessage(EventId = 2, Level = LogLevel.Information, Message = "Process exited with code {ExitCode}.\n{Error}")]
+    private partial void LogProcessExited(int ExitCode, string? Error);
 }
-internal record ProcessResult(int ExitCode, string Output, string Error);

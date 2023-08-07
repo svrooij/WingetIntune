@@ -13,6 +13,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "scripts", "scripts", "{0D5E
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WingetIntune.Tests", "WingetIntune.Tests\WingetIntune.Tests.csproj", "{A0ACA653-C1FF-4C98-AABC-7FB154D626E1}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WingetIntune.Abstractions", "WingetIntune.Abstractions\WingetIntune.Abstractions.csproj", "{C32DB1BC-299E-4742-8372-278C8843026C}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -27,6 +29,10 @@ Global
 		{A0ACA653-C1FF-4C98-AABC-7FB154D626E1}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A0ACA653-C1FF-4C98-AABC-7FB154D626E1}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A0ACA653-C1FF-4C98-AABC-7FB154D626E1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C32DB1BC-299E-4742-8372-278C8843026C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C32DB1BC-299E-4742-8372-278C8843026C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C32DB1BC-299E-4742-8372-278C8843026C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C32DB1BC-299E-4742-8372-278C8843026C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
