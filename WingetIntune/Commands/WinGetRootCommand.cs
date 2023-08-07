@@ -16,6 +16,7 @@ internal class WinGetRootCommand : RootCommand
         AddCommand(new CheckCommand());
         AddCommand(new InfoCommand());
         AddCommand(new PackageCommand());
+        AddCommand(new MsiCommand());
     }
 
     internal class DefaultOptions

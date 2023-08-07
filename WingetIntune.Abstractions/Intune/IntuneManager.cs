@@ -67,7 +67,7 @@ public partial class IntuneManager
         return installerPath;
     }
 
-    private (string, string) GetMsiInfo(string setupFile)
+    public static (string, string) GetMsiInfo(string setupFile, ILogger logger)
     {
         try
         {
@@ -83,7 +83,7 @@ public partial class IntuneManager
 
     private async Task GenerateMsiDetails(string packageFolder, PackageInfo packageInfo, string installerPath, CancellationToken cancellationToken)
     {
-        var (productCode, msiVersion) = GetMsiInfo(installerPath);
+        var (productCode, msiVersion) = GetMsiInfo(installerPath, logger);
         logger.LogInformation("Writing detection info for msi package {packageId} {productCode}", packageInfo.PackageId, productCode);
         var sb = new StringBuilder();
         sb.AppendFormat("Package {0} {1} from {2}\r\n", packageInfo.PackageId, packageInfo.Version, packageInfo.Source);
