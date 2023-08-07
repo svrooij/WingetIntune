@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "WingetIntune": {
+      "commandName": "Project",
+      "commandLineArgs": "package \"Microsoft.AzureCLI\" --output-folder C:\\Tools\\packages"
+    }
+  }
+}
