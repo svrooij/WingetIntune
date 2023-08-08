@@ -13,15 +13,6 @@ internal class PackageCommand : Command
     private const string name = "package";
     private const string description = "Package an app for Intune";
 
-    private const string IntuneWinAppUtil = "IntuneWinAppUtil.exe";
-
-    //private ILogger<PackageCommand>? _logger;
-    //private HttpClient? _httpClient;
-    //private IHost? _host;
-
-    private string packageFolder;
-    private string tempPackageFolder;
-
     public PackageCommand() : base(name, description)
     {
         AddArgument(WinGetRootCommand.IdArgument);
