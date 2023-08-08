@@ -35,3 +35,11 @@ jobs:
         run: dotnet build --configuration Release --no-restore
       - name: Run tests with code coverage
         run: dotnet test --configuration Release --no-restore --collect:"XPlat Code Coverage" --no-build --verbosity minimal --logger trx
+      - name: Test Report
+        uses: dorny/test-reporter@v1.6.0
+        if: success() || failure()            # run this step even if previous step failed
+        with:
+          name: Test results           # Name of the check run which will be created
+          path: tests/**/TestResults/*.trx    # Path to test results
+          reporter: dotnet-trx                # Format of test results
+          list-tests: failed                  # Only list failed tests vs all tests
