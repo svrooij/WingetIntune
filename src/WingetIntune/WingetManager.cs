@@ -99,6 +99,7 @@ public partial class WingetManager : IWingetRepository
             args.Add("--force");
         }
         args.Add("--silent");
+        args.Add("--accept-package-agreements");
         args.Add("--accept-source-agreements");
         args.Add("--disable-interactivity");
         return await processManager.RunProcessAsync("winget", string.Join(" ", args), cancellationToken, true);
