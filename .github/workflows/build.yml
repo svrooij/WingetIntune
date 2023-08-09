@@ -23,12 +23,15 @@ jobs:
     steps:
       - name: 👨‍💻 Check-out code
         uses: actions/checkout@v3
+
       - name: 👨‍🔧 Setup .NET Core SDK
         uses: actions/setup-dotnet@v3
         with:
           dotnet-version: 7.x
+
       - name: 🔍 Enable problem matchers
         run: echo "::add-matcher::.github/matchers/dotnet.json"
+
       - name: 🦸‍♂️ Restore steriods
         uses: actions/cache@v3
         with:
@@ -37,9 +40,18 @@ jobs:
           key: ${{ runner.os }}-nuget-${{ hashFiles('**/packages.lock.json') }}
           restore-keys: |
             ${{ runner.os }}-nuget
+
       - name: 🎒 Load packages
         run: dotnet restore
+
       - name: 🛠️ Build code
         run: dotnet build --configuration Release --no-restore
+
       - name: 🫣 Testing code
-        run: dotnet test --configuration Release -v minimal --no-build --logger GitHubActions '/p:CollectCoverage=true;CoverletOutputFormat="json,lcov";MergeWith=${{github.workspace}}/coverage.json;CoverletOutput=${{github.workspace}}/coverage' -- RunConfiguration.CollectSourceInformation=true
+        run: dotnet test --configuration Release -v minimal --no-build --logger GitHubActions '/p:CollectCoverage=true;CoverletOutputFormat="json,lcov,cobertura";MergeWith=${{github.workspace}}/coverage.json;CoverletOutput=${{github.workspace}}/coverage' -- RunConfiguration.CollectSourceInformation=true
+
+      - name: 📝 Code Coverage report
+        run: |
+          dotnet tool install --global dotnet-reportgenerator-globaltool --version 5.1.23
+          reportgenerator -reports:${{github.workspace}}/coverage.cobertura.xml -targetdir:${{github.workspace}}/report -reporttypes:MarkdownSummaryGithub -filefilters:-*.g.cs
+          cat ${{github.workspace}}/report/*.md >> $GITHUB_STEP_SUMMARY
