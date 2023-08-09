@@ -8,6 +8,21 @@
         "resolved": "6.0.0",
         "contentHash": "tW3lsNS+dAEII6YGUX/VMoJjBS1QvsxqJeqLaJXub08y1FSjasFPtQ4UBUsudE9PNrzLjooClMsPtY2cZLdXpQ=="
       },
+      "coverlet.msbuild": {
+        "type": "Direct",
+        "requested": "[6.0.0, )",
+        "resolved": "6.0.0",
+        "contentHash": "cUKI50VSVBqDQDFIdBnjN0Jk5JYhjtD0geP2BZZv71/ZrKORJXcLRswFsojI+cHdV+rFUL2XDJEpuhK3x1YqLA=="
+      },
+      "GitHubActionsTestLogger": {
+        "type": "Direct",
+        "requested": "[2.3.2, )",
+        "resolved": "2.3.2",
+        "contentHash": "RKJ/mmHSqaY/Mzrxt/5qfbeGCc1s23aIH9uR61sDxkI/uqv0fAWNL5onthWtQVVtlp10XHYUx2qZZrF4irUQpg==",
+        "dependencies": {
+          "Microsoft.TestPlatform.ObjectModel": "17.6.0"
+        }
+      },
       "Microsoft.NET.Test.Sdk": {
         "type": "Direct",
         "requested": "[17.7.0, )",

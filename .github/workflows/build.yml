@@ -21,36 +21,25 @@ jobs:
       issues: read
       checks: write
     steps:
-      - uses: actions/checkout@v3
-      - name: Setup .NET Core SDK
+      - name: 👨‍💻 Check-out code
+        uses: actions/checkout@v3
+      - name: 👨‍🔧 Setup .NET Core SDK
         uses: actions/setup-dotnet@v3
         with:
           dotnet-version: 7.x
-      - uses: actions/cache@v3
+      - name: 🔍 Enable problem matchers
+        run: echo "::add-matcher::.github/matchers/dotnet.json"
+      - name: 🦸‍♂️ Restore steriods
+        uses: actions/cache@v3
         with:
           path: ~/.nuget/packages
           # Look to see if there is a cache hit for the corresponding requirements file
           key: ${{ runner.os }}-nuget-${{ hashFiles('**/packages.lock.json') }}
           restore-keys: |
             ${{ runner.os }}-nuget
-      - name: Install dependencies
+      - name: 🎒 Load packages
         run: dotnet restore
-      - name: Build
+      - name: 🛠️ Build code
         run: dotnet build --configuration Release --no-restore
-      - name: Run tests with code coverage
-        run: dotnet test --configuration Release --no-restore --collect:"XPlat Code Coverage" --no-build --verbosity minimal --logger trx
-      # - name: Test Report
-      #   uses: dorny/test-reporter@v1.6.0
-      #   if: success() || failure()            # run this step even if previous step failed
-      #   with:
-      #     name: Test results           # Name of the check run which will be created
-      #     path: tests/**/TestResults/*.trx    # Path to test results
-      #     reporter: dotnet-trx                # Format of test results
-      #     list-tests: failed                  # Only list failed tests vs all tests
-      - name: Publish Test Results
-        uses: EnricoMi/publish-unit-test-result-action@v2
-        if: always()
-        with:
-          files: |
-            **/*.trx
-          comment_mode: off
+      - name: 🫣 Testing code
+        run: dotnet test --configuration Release -v minimal --no-build --logger GitHubActions '/p:CollectCoverage=true;CoverletOutputFormat="json,lcov";MergeWith=${{github.workspace}}/coverage.json;CoverletOutput=${{github.workspace}}/coverage' -- RunConfiguration.CollectSourceInformation=true
