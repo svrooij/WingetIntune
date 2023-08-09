@@ -16,12 +16,13 @@ public partial class WingetManager : IWingetRepository
 
     public async Task<Models.IsInstalledResult> CheckInstalled(string id, string? version, CancellationToken cancellationToken = default)
     {
-        Console.WriteLine($"Checking if package {id} {version} is installed");
+        LogCheckInstalled(id, version);
         var result = await processManager.RunProcessAsync("winget", $"list --id {id} --exact --disable-interactivity --accept-source-agreements", cancellationToken);
 
         if (result.ExitCode != 0)
         {
-            Console.Error.WriteLine(result.Error);
+            var exception = CreateExceptionForFailedProcess(result);
+            LogErrorCheckInstalled(exception, id, version, result.Error);
             return IsInstalledResult.Error;
         }
 
@@ -65,14 +66,25 @@ public partial class WingetManager : IWingetRepository
         var result = await processManager.RunProcessAsync("winget", string.Join(" ", args), cancellationToken);
         if (result.ExitCode != 0)
         {
-            var exception = new Exception("Winget exited with non-zero exitcode");
-            exception.Data.Add("ExitCode", result.ExitCode);
-            exception.Data.Add("Error", result.Error);
+            var exception = CreateExceptionForFailedProcess(result);
             LogErrorGetPackageInfo(exception, id, version, result.Error);
             throw exception;
         }
 
         return Models.PackageInfo.Parse(result.Output);
+    }
+
+    private static Exception CreateExceptionForFailedProcess(ProcessResult processResult)
+    {
+        if (processResult.ExitCode == 0)
+        {
+            throw new ArgumentException("Process exited with exitcode 0");
+        }
+
+        var exception = new Exception("Winget exited with non-zero exitcode");
+        exception.Data.Add("ExitCode", processResult.ExitCode);
+        exception.Data.Add("Error", processResult.Error);
+        return exception;
     }
 
     public async Task<ProcessResult> Install(string id, string? version, string? source, bool force, CancellationToken cancellationToken = default)
@@ -150,6 +162,9 @@ public partial class WingetManager : IWingetRepository
     [LoggerMessage(EventId = 4, Level = LogLevel.Information, Message = "Getting package info for {id} {version}")]
     private partial void LogGetPackageInfo(string id, string? version);
 
-    [LoggerMessage(EventId = 100, Level = LogLevel.Warning, Message = "Error getting package info for {id} {version}: {error}")]
+    [LoggerMessage(EventId = 100, Level = LogLevel.Warning, Message = "Error getting package info for {id} {version}:\r\n{error}")]
     private partial void LogErrorGetPackageInfo(Exception exception, string id, string? version, string error);
+
+    [LoggerMessage(EventId = 101, Level = LogLevel.Warning, Message = "Error checking installed {id} {version}:\r\n{error}")]
+    private partial void LogErrorCheckInstalled(Exception exception, string id, string? version, string error);
 }
