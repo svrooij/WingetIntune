@@ -53,5 +53,5 @@ jobs:
       - name: 📝 Code Coverage report
         run: |
           dotnet tool install --global dotnet-reportgenerator-globaltool --version 5.1.23
-          reportgenerator -reports:${{github.workspace}}/coverage.cobertura.xml -targetdir:${{github.workspace}}/report -reporttypes:MarkdownSummaryGithub -filefilters:-*.g.cs
+          reportgenerator -reports:${{github.workspace}}/coverage.cobertura.xml -targetdir:${{github.workspace}}/report -reporttypes:MarkdownSummaryGithub -filefilters:-*.g.cs -title:"📝 Code Coverage" -verbosity:Warning
           cat ${{github.workspace}}/report/*.md >> $GITHUB_STEP_SUMMARY
