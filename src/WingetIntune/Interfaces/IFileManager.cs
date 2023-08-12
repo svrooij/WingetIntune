@@ -8,6 +8,8 @@ public interface IFileManager
 
     bool FileExists(string path);
 
+    Task<byte[]> ReadAllBytesAsync(string path, CancellationToken cancellationToken);
+
     Task WriteAllBytesAsync(string path, byte[] bytes, CancellationToken cancellationToken);
 
     Task WriteAllTextAsync(string path, string text, CancellationToken cancellationToken);

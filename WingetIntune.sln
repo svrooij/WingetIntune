@@ -18,6 +18,13 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{DF47944D-435C-4C46-B2F5-B7F939F069E6}"
 	ProjectSection(SolutionItems) = preProject
 		.editorconfig = .editorconfig
+		.github\workflows\build.yml = .github\workflows\build.yml
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "http-requests", "http-requests", "{142B288C-B1E8-4A76-92CE-1D2459CD20C9}"
+	ProjectSection(SolutionItems) = preProject
+		graph-apps.http = graph-apps.http
+		http-requests\test.txt = http-requests\test.txt
 	EndProjectSection
 EndProject
 Global

@@ -32,6 +32,11 @@ public partial class DefaultFileManager : IFileManager
         return File.Exists(path);
     }
 
+    public Task<byte[]> ReadAllBytesAsync(string path, CancellationToken cancellationToken)
+    {
+        return File.ReadAllBytesAsync(path, cancellationToken);
+    }
+
     public Task WriteAllBytesAsync(string path, byte[] bytes, CancellationToken cancellationToken)
     {
         LogWritingBytes(bytes.Length, path);

@@ -22,6 +22,7 @@ internal class Program
                                    services.AddTransient<IProcessManager, ProcessManager>();
                                    services.AddTransient<IWingetRepository, WingetManager>();
                                    services.AddHttpClient<IntuneManager>();
+                                   services.AddSingleton<Internal.Msal.PublicClientAuth>();
                                });
                            })
             .UseDefaults()

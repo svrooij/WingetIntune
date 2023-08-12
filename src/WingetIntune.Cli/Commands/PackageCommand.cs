@@ -4,7 +4,6 @@ using System.CommandLine;
 using System.CommandLine.Hosting;
 using System.CommandLine.Invocation;
 using System.CommandLine.NamingConventionBinder;
-using WingetIntune.Models;
 
 namespace WingetIntune.Commands;
 
@@ -15,6 +14,8 @@ internal class PackageCommand : Command
 
     public PackageCommand() : base(name, description)
     {
+        AddCommand(new PackageImageCommand());
+
         AddArgument(WinGetRootCommand.IdArgument);
         AddOption(WinGetRootCommand.VersionOption);
         AddOption(WinGetRootCommand.SourceOption);
@@ -22,7 +23,7 @@ internal class PackageCommand : Command
         {
             IsRequired = true
         });
-        AddOption(new Option<string>("--output-folder", "Output folder for the package")
+        AddOption(new Option<string>("--package-folder", "Folder for the packaged apps")
         {
             IsRequired = false,
         });
@@ -47,25 +48,26 @@ internal class PackageCommand : Command
 
         if (packageInfo == null)
         {
-            Console.WriteLine($"Package {options.PackageId} not found");
+            logger.LogWarning("Package {packageId} not found", options.PackageId);
             return 1;
         }
 
-        logger.LogInformation("Package {PackageId} {Version} from {Source}", packageInfo.PackageId, packageInfo.Version, packageInfo.Source);
+        logger.LogInformation("Package {PackageId} {Version} from {Source}", packageInfo.PackageIdentifier, packageInfo.Version, packageInfo.Source);
 
-        if (packageInfo.Source == Models.PackageSource.Winget && packageInfo.InstallerType == InstallerType.Msi)
+        if (packageInfo.Source == Models.PackageSource.Winget)
         {
-            await intuneManager.GenerateMsiPackage(options.TempFolder, options.OutputFolder!, packageInfo, cancellationToken);
+            await intuneManager.GenerateInstallerPackage(options.TempFolder, options.PackageFolder!, packageInfo, options.ContentPrepToolUrl, cancellationToken);
+
             return 0;
         }
 
-        throw new NotImplementedException("Only MSI packages are supported at this time");
+        throw new NotImplementedException("Only WinGet packages are supported at this time");
     }
 }
 
 internal class PackageCommandOptions : WinGetRootCommand.DefaultOptions
 {
-    public string? OutputFolder { get; set; }
+    public string? PackageFolder { get; set; }
     public string TempFolder { get; set; }
     public Uri ContentPrepToolUrl { get; set; }
 }

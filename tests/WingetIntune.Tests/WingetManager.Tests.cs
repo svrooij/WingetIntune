@@ -1,12 +1,13 @@
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using WingetIntune.Models;
+
 namespace WingetIntune.Tests
 {
     public class WingetManagerTests
     {
         private readonly ILogger<WingetManager> logger;
-        
+
         public WingetManagerTests()
         {
             logger = new NullLogger<WingetManager>();
@@ -66,14 +67,14 @@ namespace WingetIntune.Tests
             processManager.VerifyAll();
 
             // Check PackageId, Name, Version, Publisher, PublisherUrl, HomePageUrl, InstallerType, InstallerUrl, Hash
-            Assert.Equal("JanDeDobbeleer.OhMyPosh", info.PackageId);
-            Assert.Equal("Oh My Posh", info.Name);
+            Assert.Equal("JanDeDobbeleer.OhMyPosh", info.PackageIdentifier);
+            Assert.Equal("Oh My Posh", info.DisplayName);
             Assert.Equal("18.3.1", info.Version);
             Assert.Equal("Jan De Dobbeleer", info.Publisher);
             Assert.Equal("Prompt theme engine for any shell", info.Description);
             Assert.Equal("https://github.com/JanDeDobbeleer/oh-my-posh/", info.PublisherUrl!.ToString());
             Assert.Equal("https://github.com/JanDeDobbeleer/oh-my-posh/issues", info.SupportUrl!.ToString());
-            Assert.Equal("https://ohmyposh.dev/", info.HomePageUrl!.ToString());
+            Assert.Equal("https://ohmyposh.dev/", info.InformationUrl!.ToString());
             Assert.Equal(InstallerType.InnoSetup, info.InstallerType);
             Assert.Equal("https://github.com/JanDeDobbeleer/oh-my-posh/releases/download/v18.3.1/install-amd64.exe", info.InstallerUrl!.ToString());
             Assert.Equal("fc587e29525d2a9db7a46a98997b351ba1c2b699167f6ad8e22a23e261d526e9", info.Hash);
@@ -96,8 +97,8 @@ namespace WingetIntune.Tests
             processManager.VerifyAll();
 
             // Check PackageId, Name, Version, Publisher, PublisherUrl, HomePageUrl, InstallerType, InstallerUrl, Hash
-            Assert.Equal("9MZ1SNWT0N5D", info.PackageId);
-            Assert.Equal("PowerShell", info.Name);
+            Assert.Equal("9MZ1SNWT0N5D", info.PackageIdentifier);
+            Assert.Equal("PowerShell", info.DisplayName);
             Assert.Equal("Unknown", info.Version);
             Assert.Equal("Microsoft Corporation", info.Publisher);
             Assert.Equal("https://github.com/powershell/powershell", info.PublisherUrl!.ToString());
@@ -124,15 +125,13 @@ namespace WingetIntune.Tests
         }
 
         [Theory]
-        [InlineData(null, null , false)]
-        [InlineData(null, null , true)]
+        [InlineData(null, null, false)]
+        [InlineData(null, null, true)]
         [InlineData("0.1.1", null, false)]
         [InlineData("0.1.1", null, true)]
         [InlineData("0.1.1", "winget", true)]
         [InlineData("0.1.1", "store", false)]
         [InlineData(null, "winget", true)]
-
-
         public async Task Install_CallsCorrectProcess(string? version, string? source, bool force)
         {
             var packageId = "Notepad++.Notepad++";
@@ -162,7 +161,6 @@ namespace WingetIntune.Tests
             await wingetManager.Install(packageId, version, source, force);
 
             processManager.Verify();
-
         }
 
         [Theory]
@@ -173,8 +171,6 @@ namespace WingetIntune.Tests
         [InlineData("0.1.1", "winget", true)]
         [InlineData("0.1.1", "store", false)]
         [InlineData(null, "winget", true)]
-
-
         public async Task Upgrade_CallsCorrectProcess(string? version, string? source, bool force)
         {
             var packageId = "Notepad++.Notepad++";
@@ -204,7 +200,6 @@ namespace WingetIntune.Tests
             await wingetManager.Upgrade(packageId, version, source, force);
 
             processManager.Verify();
-
         }
     }
 }

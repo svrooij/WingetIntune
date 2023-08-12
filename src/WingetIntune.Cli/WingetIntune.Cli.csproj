@@ -19,6 +19,7 @@
     <PackageProjectUrl>https://github.com/svrooij/WingetIntune</PackageProjectUrl>
     <RepositoryUrl>https://github.com/svrooij/WingetIntune.git</RepositoryUrl>
     <PackageTags>Intune;Winget</PackageTags>
+    <DefaultNamespace>WingetIntune</DefaultNamespace>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
@@ -40,12 +41,13 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Content Include="appSettings.json">
+    <Content Include="appsettings.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="Azure.Identity" Version="1.9.0" />
     <PackageReference Include="Microsoft.Extensions.Http" Version="7.0.0" />
     <PackageReference Include="System.CommandLine" Version="2.0.0-beta4.22272.1" />
     <PackageReference Include="System.CommandLine.Hosting" Version="0.4.0-alpha.22272.1" />

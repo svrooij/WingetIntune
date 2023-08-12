@@ -22,6 +22,16 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="Azure.Storage.Blobs" Version="12.17.0" />
     <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="7.0.1" />
+    <PackageReference Include="Microsoft.Extensions.Options" Version="7.0.1" />
+    <PackageReference Include="Microsoft.Graph.Beta" Version="5.43.0-preview" />
+    <PackageReference Include="Microsoft.Identity.Client.Broker" Version="4.55.0" />
+    <PackageReference Include="Microsoft.Identity.Client.Extensions.Msal" Version="2.32.0" />
+    <PackageReference Include="Riok.Mapperly" Version="3.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="GraphExtensions\" />
   </ItemGroup>
 </Project>

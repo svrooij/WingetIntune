@@ -2,18 +2,23 @@
 
 public class PackageInfo
 {
-    public string? PackageId { get; set; }
-    public string? Name { get; set; }
+    public string? PackageIdentifier { get; set; }
+    public string? DisplayName { get; set; }
     public string? Description { get; set; }
     public string? Version { get; set; }
     public PackageSource Source { get; set; } = PackageSource.Unknown;
     public string? Publisher { get; set; }
-    public Uri? HomePageUrl { get; set; }
+    public Uri? InformationUrl { get; set; }
     public Uri? PublisherUrl { get; set; }
     public Uri? SupportUrl { get; set; }
     public InstallerType InstallerType { get; set; } = InstallerType.Unknown;
     public Uri? InstallerUrl { get; set; }
     public string? Hash { get; set; }
+    public string? InstallCommandLine { get; set; }
+    public string? UninstallCommandLine { get; set; }
+    public string? MsiVersion { get; set; }
+    public string? MsiProductCode { get; set; }
+    public string? InstallerFilename { get; set; }
 
     public static PackageInfo Parse(string wingetOutput)
     {
@@ -24,8 +29,8 @@ public class PackageInfo
         if (packageIdLine != null)
         {
             var packageIdDetails = packageIdLine.Split(" ");
-            packageInfo.Name = string.Join(" ", packageIdDetails.Skip(1).Take(packageIdDetails.Length - 2));
-            packageInfo.PackageId = packageIdDetails[packageIdDetails.Length - 1].Trim('[', ']');
+            packageInfo.DisplayName = string.Join(" ", packageIdDetails.Skip(1).Take(packageIdDetails.Length - 2));
+            packageInfo.PackageIdentifier = packageIdDetails[packageIdDetails.Length - 1].Trim('[', ']');
         }
 
         var versionLine = lines.FirstOrDefault(l => l.StartsWith("Version: "));
@@ -49,7 +54,7 @@ public class PackageInfo
         var homepageUrlLine = lines.FirstOrDefault(l => l.StartsWith("Homepage: "));
         if (homepageUrlLine != null)
         {
-            packageInfo.HomePageUrl = new Uri(homepageUrlLine.Substring("Homepage: ".Length));
+            packageInfo.InformationUrl = new Uri(homepageUrlLine.Substring("Homepage: ".Length));
         }
 
         var descriptionIndex = Array.FindIndex(lines, l => l.StartsWith("Description:"));
@@ -95,6 +100,7 @@ public class PackageInfo
             if (installerUrlLine != null)
             {
                 packageInfo.InstallerUrl = new Uri(installerUrlLine.Substring("Installer Url: ".Length));
+                packageInfo.InstallerFilename = Path.GetFileName(packageInfo.InstallerUrl.AbsolutePath).Replace(" ", "");
             }
 
             var hashLine = lines.FirstOrDefault(l => l.Contains("Installer SHA256:"))?.Trim();

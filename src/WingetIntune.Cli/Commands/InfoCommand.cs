@@ -4,6 +4,7 @@ using System.CommandLine.Hosting;
 using System.CommandLine.Invocation;
 using System.CommandLine.NamingConventionBinder;
 using System.Text.Json;
+using WingetIntune.Models;
 
 namespace WingetIntune.Commands;
 
@@ -27,13 +28,8 @@ internal class InfoCommand : Command
 
         var winget = context.GetHost().Services.GetRequiredService<IWingetRepository>();
         var packageInfo = await winget.GetPackageInfoAsync(options.PackageId, options.Version, options.Source, combinedCancellation.Token);
-        var jsonContext = new Models.MyJsonContext(new JsonSerializerOptions()
-        {
-            WriteIndented = true,
-            Converters = { new System.Text.Json.Serialization.JsonStringEnumConverter() }
-        });
 
-        Console.WriteLine(JsonSerializer.Serialize<Models.PackageInfo>(packageInfo!, jsonContext.PackageInfo));
+        Console.WriteLine(JsonSerializer.Serialize(packageInfo!, MyJsonContext.Default.PackageInfo));
         return 0;
     }
 }
