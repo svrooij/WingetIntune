@@ -2,9 +2,18 @@
 
 public interface IFileManager
 {
+    void CopyFile(string sourcePath, string destinationPath, bool overwrite = false);
     void CreateFolder(string path);
 
     string CreateFolderForPackage(string parentFolder, string packageName, string packageVersion);
+
+    void DeleteFileOrFolder(string path);
+
+    Task DownloadFileAsync(string url, string path, bool overrideFile = false, CancellationToken cancellationToken = default);
+
+    void ExtractFileToFolder(string zipPath, string folderPath);
+
+    string FindFile(string folder, string filename);
 
     bool FileExists(string path);
 

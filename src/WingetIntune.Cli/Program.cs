@@ -17,12 +17,7 @@ internal class Program
                            {
                                host.ConfigureServices(services =>
                                {
-                                   services.AddHttpClient();
-                                   services.AddTransient<IFileManager, DefaultFileManager>();
-                                   services.AddTransient<IProcessManager, ProcessManager>();
-                                   services.AddTransient<IWingetRepository, WingetManager>();
-                                   services.AddHttpClient<IntuneManager>();
-                                   services.AddSingleton<Internal.Msal.PublicClientAuth>();
+                                   services.AddWingetServices();
                                });
                            })
             .UseDefaults()

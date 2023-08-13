@@ -790,6 +790,7 @@
         "type": "Project",
         "dependencies": {
           "Azure.Storage.Blobs": "[12.17.0, )",
+          "Microsoft.Extensions.Http": "[7.0.0, )",
           "Microsoft.Extensions.Logging.Abstractions": "[7.0.1, )",
           "Microsoft.Extensions.Options": "[7.0.1, )",
           "Microsoft.Graph.Beta": "[5.43.0-preview, )",

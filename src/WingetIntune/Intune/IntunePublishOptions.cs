@@ -10,6 +10,7 @@ public class IntunePublishOptions
 
     internal GraphServiceClient CreateGraphServiceClient(params string[] scopes)
     {
+
         return Credential is not null
             ? new GraphServiceClient(Credential, scopes)
             : new GraphServiceClient(new StaticAuthenticationProvider(Token!));
