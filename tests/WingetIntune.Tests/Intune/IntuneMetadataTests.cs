@@ -1,6 +1,6 @@
 ﻿using WingetIntune.Intune;
 
-namespace WingetIntune.Tests;
+namespace WingetIntune.Tests.Intune;
 
 public class IntuneMetadataTests
 {
