@@ -14,7 +14,7 @@ on:
 
 jobs:
   test:
-    name: Build and Test
+    name: 🛠️ Build and Test
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -47,7 +47,7 @@ jobs:
       - name: 🛠️ Build code
         run: dotnet build --configuration Release --no-restore
 
-      - name: 🫣 Testing code
+      - name: ✔️ Testing code
         run: dotnet test --configuration Release -v minimal --no-build --logger GitHubActions '/p:CollectCoverage=true;CoverletOutputFormat="json,lcov,cobertura";MergeWith=${{github.workspace}}/coverage.json;CoverletOutput=${{github.workspace}}/coverage' -- RunConfiguration.CollectSourceInformation=true
 
       - name: 📝 Code Coverage report
@@ -61,7 +61,7 @@ jobs:
   publish:
     name: 📦 Publish nuget library
     runs-on: ubuntu-latest
-    if: (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop') && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
+    if: (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop' || github.ref == 'refs/heads/dev') && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
     needs: [test]
     steps:
     - name: 👨‍💻 Check-out code
