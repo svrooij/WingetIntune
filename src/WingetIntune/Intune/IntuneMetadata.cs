@@ -15,13 +15,15 @@ public class IntuneMetadata
         var xml = Encoding.UTF8.GetString(data);
         var serializer = new System.Xml.Serialization.XmlSerializer(typeof(ApplicationInfo));
         using var reader = new System.IO.StringReader(xml);
-        return (ApplicationInfo)serializer.Deserialize(reader);
+        return serializer.Deserialize(reader) as ApplicationInfo;
     }
 
     public static string GetMetadataPath(string extractedFolderPath) => System.IO.Path.Combine(extractedFolderPath, MainFolder, MetadataFolder, MetadataFilename);
 
     public static string GetContentsPath(string extractedFolderPath) => System.IO.Path.Combine(extractedFolderPath, MainFolder, ContentsFolder, ContentsFilename);
 }
+
+#pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
 
 // NOTE: Generated code may require at least .NET Framework 4.5 or .NET Core/Standard 2.0.
 /// <remarks/>
@@ -31,6 +33,7 @@ public class IntuneMetadata
 [System.Xml.Serialization.XmlRootAttribute(Namespace = "", IsNullable = false)]
 public partial class ApplicationInfo
 {
+
     private string nameField;
 
     private uint unencryptedContentSizeField;
@@ -144,7 +147,9 @@ public partial class ApplicationInfo
 [System.Xml.Serialization.XmlTypeAttribute(AnonymousType = true)]
 public partial class ApplicationInfoEncryptionInfo
 {
+
     private string encryptionKeyField;
+
 
     private string macKeyField;
 
@@ -466,3 +471,5 @@ public partial class ApplicationInfoMsiInfo
         }
     }
 }
+
+#pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.

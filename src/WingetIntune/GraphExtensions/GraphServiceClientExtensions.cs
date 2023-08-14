@@ -54,7 +54,7 @@ internal static class GraphServiceClientExtensions
 
     public static async Task<MobileAppContentFile?> Intune_WaitForFinalCommitStateAsync(this GraphServiceClient graphServiceClient, string win32LobAppId, string contentVersionId, string mobileAppContentFileId, CancellationToken cancellationToken)
     {
-        while(true)
+        while(!cancellationToken.IsCancellationRequested)
         {
             var result = await graphServiceClient.Intune_GetWin32LobAppContentVersionFileAsync(win32LobAppId, contentVersionId, mobileAppContentFileId, cancellationToken)!;
             switch(result!.UploadState)
@@ -73,6 +73,8 @@ internal static class GraphServiceClientExtensions
                     throw new Exception("Unexpected state");
             }
         }
+
+        throw new TaskCanceledException();
     }
 
     public static Task Intune_CommitWin32LobAppContentVersionFileAsync(this GraphServiceClient graphServiceClient, string win32LobAppId, string contentVersionId, string mobileAppContentFileId, FileEncryptionInfo fileEncryptionInfo, CancellationToken cancellationToken)

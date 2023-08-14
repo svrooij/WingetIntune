@@ -154,5 +154,128 @@ public class GraphServiceExtensionsTests
         var result = await graphServiceClient.Intune_GetWin32LobAppContentVersionFileAsync(appId, contentVersionId.ToString(), fileId, CancellationToken.None)!;
 
         Assert.NotNull(result);
+
+        Assert.Equal("Name value", result.Name);
+        Assert.Equal(4, result.Size);
+        Assert.Equal(13, result.SizeEncrypted);
+    }
+
+    [Fact]
+    public async Task Intune_WaitForFinalCommitStateAsync_ReturnsOnSuccess()
+    {
+        var appId = Guid.NewGuid().ToString();
+        int contentVersionId = 1;
+        var token = Guid.NewGuid().ToString();
+        var fileId = Guid.NewGuid().ToString();
+        var handlerMock = new Mock<HttpMessageHandler>();
+
+        var response = new HttpResponseMessage(HttpStatusCode.Created);
+        response.Content = new StringContent(@"{
+  ""@odata.type"": ""#microsoft.graph.mobileAppContentFile"",
+  ""azureStorageUri"": ""Azure Storage Uri value"",
+  ""isCommitted"": true,
+  ""id"": ""eab2e29b-e29b-eab2-9be2-b2ea9be2b2ea"",
+  ""createdDateTime"": ""2017-01-01T00:02:43.5775965-08:00"",
+  ""name"": ""Name value"",
+  ""size"": 4,
+  ""sizeEncrypted"": 13,
+  ""azureStorageUriExpirationDateTime"": ""2017-01-01T00:00:08.4940464-08:00"",
+  ""manifest"": ""bWFuaWZlc3Q="",
+  ""uploadState"": ""commitFileSuccess"",
+  ""isFrameworkFile"": true,
+  ""isDependency"": true
+}");
+        response.Content.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue("application/json");
+
+        handlerMock.AddMockResponse(
+            $"https://graph.microsoft.com/beta/deviceAppManagement/mobileApps/{appId}/microsoft.graph.win32LobApp/contentVersions/{contentVersionId}/files/{fileId}",
+            HttpMethod.Get,
+            response);
+
+        var httpClient = new HttpClient(handlerMock.Object);
+        var graphServiceClient = new GraphServiceClient(httpClient, new Internal.Msal.StaticAuthenticationProvider(token));
+        var result = await graphServiceClient.Intune_WaitForFinalCommitStateAsync(appId, contentVersionId.ToString(), fileId, CancellationToken.None)!;
+
+        Assert.NotNull(result);
+
+        Assert.Equal("Name value", result.Name);
+        Assert.Equal(4, result.Size);
+        Assert.Equal(13, result.SizeEncrypted);
+    }
+
+    [Fact]
+    public async Task Intune_WaitForFinalCommitStateAsync_ThrowsOnFailure()
+    {
+        var appId = Guid.NewGuid().ToString();
+        int contentVersionId = 1;
+        var token = Guid.NewGuid().ToString();
+        var fileId = Guid.NewGuid().ToString();
+        var handlerMock = new Mock<HttpMessageHandler>();
+
+        var response = new HttpResponseMessage(HttpStatusCode.Created);
+        response.Content = new StringContent(@"{
+  ""@odata.type"": ""#microsoft.graph.mobileAppContentFile"",
+  ""azureStorageUri"": ""Azure Storage Uri value"",
+  ""isCommitted"": true,
+  ""id"": ""eab2e29b-e29b-eab2-9be2-b2ea9be2b2ea"",
+  ""createdDateTime"": ""2017-01-01T00:02:43.5775965-08:00"",
+  ""name"": ""Name value"",
+  ""size"": 4,
+  ""sizeEncrypted"": 13,
+  ""azureStorageUriExpirationDateTime"": ""2017-01-01T00:00:08.4940464-08:00"",
+  ""manifest"": ""bWFuaWZlc3Q="",
+  ""uploadState"": ""commitFileFailed"",
+  ""isFrameworkFile"": true,
+  ""isDependency"": true
+}");
+        response.Content.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue("application/json");
+
+        handlerMock.AddMockResponse(
+            $"https://graph.microsoft.com/beta/deviceAppManagement/mobileApps/{appId}/microsoft.graph.win32LobApp/contentVersions/{contentVersionId}/files/{fileId}",
+            HttpMethod.Get,
+            response);
+
+        var httpClient = new HttpClient(handlerMock.Object);
+        var graphServiceClient = new GraphServiceClient(httpClient, new Internal.Msal.StaticAuthenticationProvider(token));
+        await Assert.ThrowsAsync<Exception>(async () => await graphServiceClient.Intune_WaitForFinalCommitStateAsync(appId, contentVersionId.ToString(), fileId, CancellationToken.None)!);
+
+    }
+
+    [Fact]
+    public async Task Intune_WaitForFinalCommitStateAsync_ThrowsOnTimedOut()
+    {
+        var appId = Guid.NewGuid().ToString();
+        int contentVersionId = 1;
+        var token = Guid.NewGuid().ToString();
+        var fileId = Guid.NewGuid().ToString();
+        var handlerMock = new Mock<HttpMessageHandler>();
+
+        var response = new HttpResponseMessage(HttpStatusCode.Created);
+        response.Content = new StringContent(@"{
+  ""@odata.type"": ""#microsoft.graph.mobileAppContentFile"",
+  ""azureStorageUri"": ""Azure Storage Uri value"",
+  ""isCommitted"": true,
+  ""id"": ""eab2e29b-e29b-eab2-9be2-b2ea9be2b2ea"",
+  ""createdDateTime"": ""2017-01-01T00:02:43.5775965-08:00"",
+  ""name"": ""Name value"",
+  ""size"": 4,
+  ""sizeEncrypted"": 13,
+  ""azureStorageUriExpirationDateTime"": ""2017-01-01T00:00:08.4940464-08:00"",
+  ""manifest"": ""bWFuaWZlc3Q="",
+  ""uploadState"": ""commitFileTimedOut"",
+  ""isFrameworkFile"": true,
+  ""isDependency"": true
+}");
+        response.Content.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue("application/json");
+
+        handlerMock.AddMockResponse(
+            $"https://graph.microsoft.com/beta/deviceAppManagement/mobileApps/{appId}/microsoft.graph.win32LobApp/contentVersions/{contentVersionId}/files/{fileId}",
+            HttpMethod.Get,
+            response);
+
+        var httpClient = new HttpClient(handlerMock.Object);
+        var graphServiceClient = new GraphServiceClient(httpClient, new Internal.Msal.StaticAuthenticationProvider(token));
+        await Assert.ThrowsAsync<Exception>(async () => await graphServiceClient.Intune_WaitForFinalCommitStateAsync(appId, contentVersionId.ToString(), fileId, CancellationToken.None)!);
+
     }
 }

@@ -169,8 +169,6 @@ public partial class IntuneManager
                 cancellationToken);
 
             logger.LogDebug("Committed content file {id}", mobileAppContentFile.Id);
-            // Check file status
-            bool shouldCheck = true;
 
             MobileAppContentFile? commitedFile = await graphServiceClient.Intune_WaitForFinalCommitStateAsync(app.Id!, contentVersion!.Id!, mobileAppContentFile!.Id!, cancellationToken);
 

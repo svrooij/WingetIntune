@@ -45,8 +45,9 @@ internal class AzCopyAzureUploader : IAzureFileUploader
     {
         await DownloadAzCopyIfNeeded(cancellationToken);
         var args = $"copy \"{filename}\" \"{sasUri}\" --output-type \"json\"";
-        var result = await processManager.RunProcessAsync(azCopyPath, args, cancellationToken);
-        logger.LogInformation("AzCopy result: {result}", result);
+        var result = await processManager.RunProcessAsync(azCopyPath, args, cancellationToken, false);
+        
+        logger.LogDebug("AzCopy result: {result}", result);
         if (result.ExitCode != 0)
         {
             var exception = new Exception($"AzCopy resulted in a non-zero exitcode.");
@@ -56,5 +57,7 @@ internal class AzCopyAzureUploader : IAzureFileUploader
             logger.LogWarning(exception, "AzCopy resulted in a non-zero exitcode.");
             throw exception;
         }
+
+        logger.LogInformation("AzCopy upload {filename} to {sasUri} successfully", filename, sasUri);
     }
 }
