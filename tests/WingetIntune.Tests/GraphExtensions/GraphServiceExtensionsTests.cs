@@ -3,7 +3,7 @@ using Microsoft.Graph.Beta.Models;
 using System.Net;
 using WingetIntune.GraphExtensions;
 
-namespace WingetIntune.Tests;
+namespace WingetIntune.Tests.GraphExtensions;
 
 public class GraphServiceExtensionsTests
 {

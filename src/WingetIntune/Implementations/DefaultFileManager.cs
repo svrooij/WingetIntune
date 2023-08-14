@@ -1,6 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
 
-namespace WingetIntune;
+namespace WingetIntune.Os;
 
 public partial class DefaultFileManager : IFileManager
 {

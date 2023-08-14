@@ -1,7 +1,7 @@
 ﻿using Microsoft.Extensions.Logging;
 using System.Text;
 
-namespace WingetIntune;
+namespace WingetIntune.Os;
 
 public partial class ProcessManager : IProcessManager
 {
