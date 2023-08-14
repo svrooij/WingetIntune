@@ -178,7 +178,7 @@ public partial class IntuneManager
             var uploadedApp = await graphServiceClient.DeviceAppManagement.MobileApps[app.Id].PatchAsync(new Win32LobApp
             {
                 CommittedContentVersion = contentVersion.Id,
-            }, cancellationToken: cancellationToken);
+            }, cancellationToken);
 
             logger.LogInformation("App CommitedContentVersion patched successfully");
 

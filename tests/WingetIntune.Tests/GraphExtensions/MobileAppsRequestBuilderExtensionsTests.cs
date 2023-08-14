@@ -38,7 +38,7 @@ public class MobileAppsRequestBuilderExtensionsTests
         var httpClient = new HttpClient(handlerMock.Object);
         var graphServiceClient = new GraphServiceClient(httpClient, new Internal.Msal.StaticAuthenticationProvider(token));
 
-        var result = await graphServiceClient.DeviceAppManagement.MobileApps.PostAsync(app, cancellationToken: default);
+        var result = await graphServiceClient.DeviceAppManagement.MobileApps.PostAsync(app, CancellationToken.None);
         Assert.Equal("9607b530-b530-9607-30b5-079630b50796", result!.Id);
     }
 
@@ -65,7 +65,7 @@ public class MobileAppsRequestBuilderExtensionsTests
         var httpClient = new HttpClient(handlerMock.Object);
         var graphServiceClient = new GraphServiceClient(httpClient, new Internal.Msal.StaticAuthenticationProvider(token));
 
-        var result = await graphServiceClient.DeviceAppManagement.MobileApps[appId].PatchAsync(new Win32LobApp { CommittedContentVersion = "1" }, cancellationToken: default);
+        Win32LobApp? result = await graphServiceClient.DeviceAppManagement.MobileApps[appId].PatchAsync(new Win32LobApp { CommittedContentVersion = "1" },  CancellationToken.None);
         Assert.Equal("9607b530-b530-9607-30b5-079630b50796", result!.Id);
     }
 
