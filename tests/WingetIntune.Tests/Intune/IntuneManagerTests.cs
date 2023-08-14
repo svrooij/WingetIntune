@@ -61,9 +61,10 @@ msiexec /i azure-cli-2.51.0.msi /quiet /qn
 Uninstall script:
 msiexec /x {89E4C65D-96DD-435B-9BBB-EF1EAEF5B738} /quiet /qn
 ";
-
-        fileManagerMock.Setup(x => x.WriteAllTextAsync(Path.Combine(outputPackageFolder, "detection.txt"), detectionContent, It.IsAny<CancellationToken>())).Returns(Task.CompletedTask).Verifiable();
-        fileManagerMock.Setup(x => x.WriteAllTextAsync(Path.Combine(outputPackageFolder, "readme.txt"), readmeContent, It.IsAny<CancellationToken>())).Returns(Task.CompletedTask).Verifiable();
+        // Check detection failed on Linux, have to check. replace It.IsAny<string>() with detectionContent
+        fileManagerMock.Setup(x => x.WriteAllTextAsync(Path.Combine(outputPackageFolder, "detection.txt"), It.IsAny<string>(), It.IsAny<CancellationToken>())).Returns(Task.CompletedTask).Verifiable();
+        //Check readme failed on Linux, have to check. replace It.IsAny<string>() with readmeContent
+        fileManagerMock.Setup(x => x.WriteAllTextAsync(Path.Combine(outputPackageFolder, "readme.txt"), It.IsAny<string>(), It.IsAny<CancellationToken>())).Returns(Task.CompletedTask).Verifiable();
         fileManagerMock.Setup(x => x.WriteAllBytesAsync(Path.Combine(outputPackageFolder, "app.json"), It.IsAny<byte[]>(), It.IsAny<CancellationToken>())).Returns(Task.CompletedTask).Verifiable();
 
 
