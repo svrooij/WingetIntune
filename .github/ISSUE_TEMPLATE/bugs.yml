@@ -15,7 +15,7 @@ body:
         And new features are discussed in the [Ideas section](https://github.com/svrooij/WingetIntune/discussions/categories/ideas).
 
   - type: dropdown
-    id: command
+    id: cmd
     attributes:
       label: Command
       description: What command did you run?
@@ -30,7 +30,7 @@ body:
     validations:
       required: true
 
-  - type: textarea
+  - type: input
     id: command
     attributes:
       label: Full command
@@ -40,7 +40,7 @@ body:
       required: true
 
   - type: textarea
-    id: what-happened
+    id: what_happened
     attributes:
       label: What happened?
       description: Also tell us, what did you expect to happen?
@@ -62,14 +62,14 @@ body:
       label: Code of Conduct
       description: By submitting this issue, you agree to follow our [Code of Conduct](https://github.com/svrooij/WingetIntune/blob/main/CODE_OF_CONDUCT.txt)
       options:
-        - label: I agree to follow this project's Code of Conduct
+        - label: "I agree to follow this project's Code of Conduct"
           required: true
   
   - type: checkboxes  
-    id: free-project
+    id: oss
     attributes:
       label: Open-source project
       description: This project is built in my spare time, you can show appreciation through [Github Sponsors](https://github.com/sponsors/svrooij)
       options:
-        - label: I won't demand an immediate answer
+        - label: "I won't demand an immediate answer"
           required: true
