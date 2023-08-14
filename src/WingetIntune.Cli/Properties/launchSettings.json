@@ -1,10 +1,21 @@
 {
   "profiles": {
-    "WingetIntune": {
+    "WingetIntune.Cli no args": {
       "commandName": "Project",
-      "commandLineArgs": "publish \"Microsoft.AzureCLI\" --package-folder C:\\Tools\\packages --tenant svrooij.io --username admin@CodingStephan.onmicrosoft.com",
+      "commandLineArgs": "",
       "environmentVariables": {
-        "MSI_ENDPOINT": "http://localhost:5616/api/Msi/df68aa03-48eb-4b09-9f3e-8aecc58e207c/forward"
+      }
+    },
+    "WingetIntune.Cli package": {
+      "commandName": "Project",
+      "commandLineArgs": "package",
+      "environmentVariables": {
+      }
+    },
+    "WingetIntune.Cli publish": {
+      "commandName": "Project",
+      "commandLineArgs": "publish",
+      "environmentVariables": {
       }
     }
   }

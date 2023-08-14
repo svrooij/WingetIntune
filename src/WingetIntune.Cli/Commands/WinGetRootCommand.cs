@@ -12,12 +12,13 @@ internal class WinGetRootCommand : RootCommand
     public WinGetRootCommand()
     {
         Description = "Enhanced Winget CLI for automations";
+        AddCommand(new PackageCommand());
+        AddCommand(new PublishCommand());
         AddCommand(new InstallOrUpgradeCommand());
         AddCommand(new CheckCommand());
         AddCommand(new InfoCommand());
-        AddCommand(new PackageCommand());
-        AddCommand(new PublishCommand());
         AddCommand(new MsiCommand());
+        AddCommand(new AboutCommand());
     }
 
     internal class DefaultOptions

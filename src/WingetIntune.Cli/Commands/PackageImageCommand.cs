@@ -7,9 +7,9 @@ namespace WingetIntune.Commands;
 internal class PackageImageCommand : Command
 {
     private const string name = "image";
-    private const string description = "Package an app image for Intune";
+    private const string description = "Convert an image to base64, to upload to Intune.";
 
-    private static Argument<string> ImagePathArgument = new Argument<string>("image-path", "Path to the image to package")
+    private static Argument<string> ImagePathArgument = new Argument<string>("image-path", "Path to the image to convert")
     {
         Arity = ArgumentArity.ExactlyOne
     };

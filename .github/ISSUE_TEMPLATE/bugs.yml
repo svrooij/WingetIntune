@@ -1,0 +1,75 @@
+name: Bug Report
+description: File a bug report
+title: "[Bug]: "
+labels: ["bug", "triage"]
+assignees:
+  - svrooij
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to fill out this bug report!
+        Duplicate issues will be closed, please [search issues](https://github.com/svrooij/WingetIntune/issues) before creating a new one.
+
+        This form is for bugs only, you can a questions in the [Q&A section](https://github.com/svrooij/WingetIntune/discussions/categories/q-a).
+        And new features are discussed in the [Ideas section](https://github.com/svrooij/WingetIntune/discussions/categories/ideas).
+
+  - type: dropdown
+    id: command
+    attributes:
+      label: Command
+      description: What command did you run?
+      options:
+        - "-"
+        - package
+        - publish
+        - install
+        - check
+        - info
+        - msi
+    validations:
+      required: true
+
+  - type: textarea
+    id: command
+    attributes:
+      label: Full command
+      description: Show us the full command
+      placeholder: winget-intune package ...
+    validations:
+      required: true
+
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened?
+      description: Also tell us, what did you expect to happen?
+      placeholder: Tell us what you see!
+      value: "A bug happened!"
+    validations:
+      required: true
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Relevant log output
+      description: Please copy and paste any relevant log output. This will be automatically formatted into code, so no need for backticks.
+      render: Shell
+
+  - type: checkboxes
+    id: terms
+    attributes:
+      label: Code of Conduct
+      description: By submitting this issue, you agree to follow our [Code of Conduct](https://github.com/svrooij/WingetIntune/blob/main/CODE_OF_CONDUCT.txt)
+      options:
+        - label: I agree to follow this project's Code of Conduct
+          required: true
+  
+  - type: checkboxes  
+    id: free-project
+    attributes:
+      label: Open-source project
+      description: This project is built in my spare time, you can show appreciation through [Github Sponsors](https://github.com/sponsors/svrooij)
+      options:
+        - label: I won't demand an immediate answer
+          required: true

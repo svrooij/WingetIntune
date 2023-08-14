@@ -57,3 +57,53 @@ jobs:
           sed -i 's/# Summary/## 📝 Code Coverage/g' ${{github.workspace}}/report/SummaryGithub.md
           sed -i 's/## Coverage/### 📝 Code Coverage details/g' ${{github.workspace}}/report/SummaryGithub.md
           cat ${{github.workspace}}/report/*.md >> $GITHUB_STEP_SUMMARY
+
+  publish:
+    name: 📦 Publish nuget library
+    runs-on: ubuntu-latest
+    if: (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop') && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
+    needs: [test]
+    steps:
+    - name: 👨‍💻 Check-out code
+      uses: actions/checkout@v3
+      with:
+        fetch-depth: 0
+
+    - name: 👨‍🔧 Setup .NET Core SDK
+      uses: actions/setup-dotnet@v3
+      with:
+        dotnet-version: 7.x
+
+    - name: 🛠️ Compute version with GitVersion
+      run: |
+        dotnet tool install --global GitVersion.Tool --version 5.*
+        echo "## 📦 Calculated version" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        dotnet-gitversion /updateprojectfiles /output buildserver /nofetch
+        dotnet-gitversion /nofetch /output json /showvariable NuGetVersionV2 >> $GITHUB_STEP_SUMMARY
+
+    - name: 🔍 Enable problem matchers
+      run: echo "::add-matcher::.github/matchers/dotnet.json"
+
+    - name: 🦸‍♂️ Restore steriods
+      uses: actions/cache@v3
+      with:
+        path: ~/.nuget/packages
+        # Look to see if there is a cache hit for the corresponding requirements file
+        key: ${{ runner.os }}-nuget-${{ hashFiles('**/packages.lock.json') }}
+        restore-keys: |
+          ${{ runner.os }}-nuget
+
+    - name: 🎒 Load packages
+      run: dotnet restore
+
+    - name: 🛠️ Build code
+      run: dotnet build --configuration Release --no-restore
+
+    - name: 📦 Pack WingetIntune CLI
+      run: dotnet pack --configuration Release --no-build --no-restore ./src/WingetIntune.Cli/WingetIntune.Cli.csproj
+
+    - name: ✈️ Publish Svrooij.Winget-Intune.Cli to nuget.org
+      run: dotnet nuget push ./src/WingetIntune.Cli/bin/Release/SvRooij.Winget-Intune.Cli.*.nupkg -k $NUGET_AUTH_TOKEN -s https://api.nuget.org/v3/index.json
+      env:
+        NUGET_AUTH_TOKEN: ${{ secrets.NUGET_TOKEN }}
