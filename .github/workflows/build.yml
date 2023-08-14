@@ -1,0 +1,109 @@
+name: CI for WingetIntune
+
+on:
+  push:
+    branches:
+      - main
+      - dev
+      - feature/*
+  pull_request:
+    branches:
+      - main
+      - dev
+  workflow_dispatch:
+
+jobs:
+  test:
+    name: 🛠️ Build and Test
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      issues: read
+      checks: write
+    steps:
+      - name: 👨‍💻 Check-out code
+        uses: actions/checkout@v3
+
+      - name: 👨‍🔧 Setup .NET Core SDK
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: 7.x
+
+      - name: 🔍 Enable problem matchers
+        run: echo "::add-matcher::.github/matchers/dotnet.json"
+
+      - name: 🦸‍♂️ Restore steriods
+        uses: actions/cache@v3
+        with:
+          path: ~/.nuget/packages
+          # Look to see if there is a cache hit for the corresponding requirements file
+          key: ${{ runner.os }}-nuget-${{ hashFiles('**/packages.lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-nuget
+
+      - name: 🎒 Load packages
+        run: dotnet restore
+
+      - name: 🛠️ Build code
+        run: dotnet build --configuration Release --no-restore
+
+      - name: ✔️ Testing code
+        run: dotnet test --configuration Release -v minimal --no-build --logger GitHubActions '/p:CollectCoverage=true;CoverletOutputFormat="json,lcov,cobertura";MergeWith=${{github.workspace}}/coverage.json;CoverletOutput=${{github.workspace}}/coverage' -- RunConfiguration.CollectSourceInformation=true
+
+      - name: 📝 Code Coverage report
+        run: |
+          dotnet tool install --global dotnet-reportgenerator-globaltool --version 5.1.23
+          reportgenerator -reports:${{github.workspace}}/coverage.cobertura.xml -targetdir:${{github.workspace}}/report -reporttypes:MarkdownSummaryGithub -filefilters:-*.g.cs "-classfilters:-WixSharp.*;-WingetIntune.Os.*" -verbosity:Warning
+          sed -i 's/# Summary/## 📝 Code Coverage/g' ${{github.workspace}}/report/SummaryGithub.md
+          sed -i 's/## Coverage/### 📝 Code Coverage details/g' ${{github.workspace}}/report/SummaryGithub.md
+          cat ${{github.workspace}}/report/*.md >> $GITHUB_STEP_SUMMARY
+
+  publish:
+    name: 📦 Publish nuget library
+    runs-on: ubuntu-latest
+    if: (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop' || github.ref == 'refs/heads/dev') && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
+    needs: [test]
+    steps:
+    - name: 👨‍💻 Check-out code
+      uses: actions/checkout@v3
+      with:
+        fetch-depth: 0
+
+    - name: 👨‍🔧 Setup .NET Core SDK
+      uses: actions/setup-dotnet@v3
+      with:
+        dotnet-version: 7.x
+
+    - name: 🛠️ Compute version with GitVersion
+      run: |
+        dotnet tool install --global GitVersion.Tool --version 5.*
+        echo "## 📦 Calculated version" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        dotnet-gitversion /updateprojectfiles /output buildserver /nofetch
+        dotnet-gitversion /nofetch /output json /showvariable NuGetVersionV2 >> $GITHUB_STEP_SUMMARY
+
+    - name: 🔍 Enable problem matchers
+      run: echo "::add-matcher::.github/matchers/dotnet.json"
+
+    - name: 🦸‍♂️ Restore steriods
+      uses: actions/cache@v3
+      with:
+        path: ~/.nuget/packages
+        # Look to see if there is a cache hit for the corresponding requirements file
+        key: ${{ runner.os }}-nuget-${{ hashFiles('**/packages.lock.json') }}
+        restore-keys: |
+          ${{ runner.os }}-nuget
+
+    - name: 🎒 Load packages
+      run: dotnet restore
+
+    - name: 🛠️ Build code
+      run: dotnet build --configuration Release --no-restore
+
+    - name: 📦 Pack WingetIntune CLI
+      run: dotnet pack --configuration Release --no-build --no-restore ./src/WingetIntune.Cli/WingetIntune.Cli.csproj
+
+    - name: ✈️ Publish Svrooij.Winget-Intune.Cli to nuget.org
+      run: dotnet nuget push ./src/WingetIntune.Cli/bin/Release/SvRooij.Winget-Intune.Cli.*.nupkg -k $NUGET_AUTH_TOKEN -s https://api.nuget.org/v3/index.json
+      env:
+        NUGET_AUTH_TOKEN: ${{ secrets.NUGET_TOKEN }}

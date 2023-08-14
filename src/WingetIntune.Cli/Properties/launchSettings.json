@@ -1,0 +1,22 @@
+{
+  "profiles": {
+    "WingetIntune.Cli no args": {
+      "commandName": "Project",
+      "commandLineArgs": "",
+      "environmentVariables": {
+      }
+    },
+    "WingetIntune.Cli package": {
+      "commandName": "Project",
+      "commandLineArgs": "package",
+      "environmentVariables": {
+      }
+    },
+    "WingetIntune.Cli publish": {
+      "commandName": "Project",
+      "commandLineArgs": "publish",
+      "environmentVariables": {
+      }
+    }
+  }
+}

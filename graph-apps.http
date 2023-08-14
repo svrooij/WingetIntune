@@ -1,0 +1,90 @@
+@host=graph.microsoft.com
+@endpoint=beta
+@token=xxx
+// https://graph.microsoft.com/beta/deviceAppManagement/mobileApps?$filter=(isof('microsoft.graph.windowsStoreApp') or isof('microsoft.graph.microsoftStoreForBusinessApp') or isof('microsoft.graph.officeSuiteApp') or isof('microsoft.graph.win32LobApp') or isof('microsoft.graph.windowsMicrosoftEdgeApp') or isof('microsoft.graph.windowsPhone81AppX') or isof('microsoft.graph.windowsPhone81StoreApp') or isof('microsoft.graph.windowsPhoneXAP') or isof('microsoft.graph.windowsAppX') or isof('microsoft.graph.windowsMobileMSI') or isof('microsoft.graph.windowsUniversalAppX') or isof('microsoft.graph.webApp') or isof('microsoft.graph.windowsWebApp') or isof('microsoft.graph.winGetApp')) and (microsoft.graph.managedApp/appAvailability eq null or microsoft.graph.managedApp/appAvailability eq 'lineOfBusiness' or isAssigned eq true)&$orderby=displayName&
+
+GET https://{{host}}/{{endpoint}}/deviceAppManagement/mobileApps?$filter=(isof('microsoft.graph.windowsStoreApp') or isof('microsoft.graph.microsoftStoreForBusinessApp') or isof('microsoft.graph.officeSuiteApp') or isof('microsoft.graph.win32LobApp') or isof('microsoft.graph.windowsMicrosoftEdgeApp') or isof('microsoft.graph.windowsPhone81AppX') or isof('microsoft.graph.windowsPhone81StoreApp') or isof('microsoft.graph.windowsPhoneXAP') or isof('microsoft.graph.windowsAppX') or isof('microsoft.graph.windowsMobileMSI') or isof('microsoft.graph.windowsUniversalAppX') or isof('microsoft.graph.webApp') or isof('microsoft.graph.windowsWebApp') or isof('microsoft.graph.winGetApp')) and (microsoft.graph.managedApp/appAvailability eq null or microsoft.graph.managedApp/appAvailability eq 'lineOfBusiness' or isAssigned eq true)&$orderby=displayName
+Content-Type application/json
+Authorization Bearer {{token}}
+
+### Create a WinGetApp
+
+
+POST https://{{host}}/{{endpoint}}/deviceAppManagement/mobileApps
+Content-type: application/json
+Authorization Bearer {{token}}
+
+{
+  "@odata.type": "#microsoft.graph.winGetApp",
+  "displayName": "Oh My Posh",
+  "description": "Prompt theme engine for any shell",
+  "publisher": "Jan De Dobbeleer",
+  "largeIcon": {
+    "@odata.type": "microsoft.graph.mimeContent",
+    "type": "String",
+    "value": "iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAACXBIWXMAAAsSAAALEgHS3X78AAAA0klEQVQ4y93TPwtBURjH8YfBYPBnVjeTmCziBZhsbtktvAGD4jWYpLB4HQYDSpHNYGeyid2f77k9ysB1GD31ubdO/X7n3FtHRCSEGOJPYpZMVoaYqDHmWGFpwWTlhhH6aGOtazYupuCKjTbOsMX+gx0Oj4ITysihiCQcfb/jaMZk5ajhFHpoIoOg+E9Bs96joIsRVDFFSf+yKezorm8L8oiiji4aSOgp0sgi7FeQ02PXdKeAfJ6Xn/DN/FPBGS24qFhyNWOyMsDiRyb78jrb8K7zHYaPWivChOFWAAAAAElFTkSuQmCC"
+  },
+  "isFeatured": true,
+  "privacyInformationUrl": "https://github.com/JanDeDobbeleer/oh-my-posh/raw/main/COPYING",
+  "informationUrl": "https://github.com/JanDeDobbeleer/oh-my-posh/",
+  "owner": "Jan De Dobbeleer",
+  "developer": "Jan De Dobbeleer",
+  "notes": "Notes value",
+  "uploadState": 2,
+  "publishingState": "processing",
+  "isAssigned": false,
+  "roleScopeTagIds": [],
+  "dependentAppCount": 0,
+  "supersedingAppCount": 0,
+  "supersededAppCount": 0,
+  "manifestHash": "Manifest Hash value",
+  "packageIdentifier": "JanDeDobbeleer.OhMyPosh",
+  "installExperience": {
+    "@odata.type": "microsoft.graph.winGetAppInstallExperience",
+    "runAsAccount": "user"
+  }
+}
+
+### Get an app by id
+
+GET https://{{host}}/{{endpoint}}/deviceAppManagement/mobileApps/625fac12-63ea-482a-a811-2dba7f524998
+Content-Type application/json
+Authorization Bearer {{token}}
+
+### Get App Content Versions
+GET https://{{host}}/{{endpoint}}/deviceAppManagement/mobileApps/16ff30dc-d064-405e-a1e4-7b675a5a8625/microsoft.graph.win32LobApp/contentVersions
+Content-Type application/json
+Authorization Bearer {{token}}
+
+### Commit app
+POST https://{{host}}/{{endpoint}}/deviceAppManagement/mobileApps/66a1e76b-37b9-48a5-bc43-f55dd1e6bcad/microsoft.graph.win32LobApp/contentVersions/1/files/735718b0-5187-4c6a-8c7f-c10d68f3bed6/commit
+Content-Type application/json
+Authorization Bearer {{token}}
+
+{
+  "fileEncryptionInfo": {
+    "encryptionKey": "zItIfv4tKhpfVFEAHQRJBNPHWe1y0HbHIksD5VNwscg=",
+    "initializationVector": "mPxbxFv1PeGxMHmsUYTLJw==",
+    "mac": "61FnckpV9Hla6CXLa2xUyzd2F5IaTO7KFln6RfOSSQ8=",
+    "macKey": "H9DU/pt/cRPhDaGrriFTUYhQtSSomBXkRYGNY3zhwRQ=",
+    "profileIdentifier": "ProfileVersion1",
+    "fileDigest": "/O1hIjB5L/V2CqbNczKhHsUALm54xW6+jWRnIuKhuIM=",
+    "fileDigestAlgorithm": "SHA256"
+  }
+}
+
+### Get App Content File
+GET https://{{host}}/{{endpoint}}/deviceAppManagement/mobileApps/66a1e76b-37b9-48a5-bc43-f55dd1e6bcad/microsoft.graph.win32LobApp/contentVersions/1/files/735718b0-5187-4c6a-8c7f-c10d68f3bed6
+Content-Type application/json
+Authorization Bearer {{token}}
+
+### Patch app
+PATCH https://graph.microsoft.com/beta/deviceAppManagement/mobileApps/66a1e76b-37b9-48a5-bc43-f55dd1e6bcad
+Content-Type application/json
+Authorization Bearer {{token}}
+
+{
+  "@odata.type": "#microsoft.graph.win32LobApp",
+  "committedContentVersion": "1"
+}
+
