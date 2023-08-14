@@ -222,25 +222,32 @@ public partial class IntuneManager
         return installerPath;
     }
 
-    public static (string, string) GetMsiInfo(string setupFile, ILogger logger)
+    public static (string?, string?) GetMsiInfo(string setupFile, ILogger logger)
     {
         try
         {
             using var msi = new WixSharp.UI.MsiParser(setupFile);
             return (msi.GetProductCode(), msi.GetProductVersion());
         }
+        catch (DllNotFoundException)
+        {
+            // WixSharp.UI.MsiParser uses Microsoft.Deployment.WindowsInstaller.dll which is not available on Linux
+            logger.LogWarning("Unable to get product code from {setupFile} because Microsoft.Deployment.WindowsInstaller.dll is not available on Linux", setupFile);
+        }
         catch (Exception ex)
         {
             logger.LogError(ex, "Error getting product code from {setupFile}", setupFile);
             throw;
         }
+        return (null, null);
+
     }
 
     private void LoadMsiDetails(string installerPath, ref PackageInfo packageInfo)
     {
         var (productCode, msiVersion) = GetMsiInfo(installerPath, logger);
-        packageInfo.MsiProductCode = productCode;
-        packageInfo.MsiVersion = msiVersion;
+        packageInfo.MsiProductCode = productCode ?? packageInfo.MsiProductCode;
+        packageInfo.MsiVersion = msiVersion ?? packageInfo.MsiVersion;
         packageInfo.InstallCommandLine = $"msiexec /i {packageInfo.InstallerFilename!} /qn /norestart";
         packageInfo.UninstallCommandLine = $"msiexec /x {productCode} /qn /norestart";
     }
