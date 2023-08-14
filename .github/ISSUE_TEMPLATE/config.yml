@@ -2,10 +2,10 @@ blank_issues_enabled: false
 contact_links:
   - name: I have a question about WingetIntune (CLI)
     url: https://github.com/svrooij/WingetIntune/discussions/categories/q-a
-    about: Use the *Q & A* section in discussions to ask your questions
+    about: "Use the Q & A section in discussions to ask your questions"
   - name: Feature requests
     url: https://github.com/svrooij/WingetIntune/discussions/categories/ideas
     about: Discuss new ideas, improvements and feature requests
-  - name: Contact owner
-    url: mailto:opensource@svrooij.io?subject=WingetIntune
-    about: Contact project owner for paid support or security issues
+  - name: Blog
+    url: https://svrooij.io
+    about: Check my blog for more interesting posts
