@@ -47,12 +47,16 @@ public partial class DefaultFileManager : IFileManager
         }
     }
 
-    public async Task DownloadFileAsync(string url, string path, bool overrideFile = false, CancellationToken cancellationToken = default)
+    public async Task DownloadFileAsync(string url, string path, bool throwOnFailure = true, bool overrideFile = false, CancellationToken cancellationToken = default)
     {
         if(overrideFile || !File.Exists(path))
         {
             logger.LogInformation("Downloading {url} to {path}", url, path);
             var result = await httpClient.GetAsync(url, cancellationToken);
+            if (!result.IsSuccessStatusCode && !throwOnFailure)
+            {
+                return;
+            }
             result.EnsureSuccessStatusCode();
             var data = await result.Content.ReadAsByteArrayAsync(cancellationToken);
             await File.WriteAllBytesAsync(path, data, cancellationToken);

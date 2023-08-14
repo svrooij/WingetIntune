@@ -1,8 +1,9 @@
 ﻿using Microsoft.Kiota.Abstractions;
 using Microsoft.Kiota.Abstractions.Authentication;
+using System.Runtime.CompilerServices;
+[assembly:InternalsVisibleTo("WingetIntune.Tests")]
 
-namespace WingetIntune.Intune;
-
+namespace WingetIntune.Internal.Msal;
 internal class StaticAuthenticationProvider : IAuthenticationProvider
 {
     private readonly string _token;

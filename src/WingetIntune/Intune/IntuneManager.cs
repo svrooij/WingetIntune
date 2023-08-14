@@ -88,7 +88,7 @@ public partial class IntuneManager
     public async Task<MobileApp> PublishAppAsync(string packagesFolder, PackageInfo packageInfo, IntunePublishOptions options, CancellationToken cancellationToken = default)
     {
         var token = await options.GetToken(cancellationToken);
-        GraphServiceClient graphServiceClient = new GraphServiceClient(httpClient, new StaticAuthenticationProvider(token), "https://graph.microsoft.com/beta");
+        GraphServiceClient graphServiceClient = new GraphServiceClient(httpClient, new Internal.Msal.StaticAuthenticationProvider(token), "https://graph.microsoft.com/beta");
         
         Win32LobApp? app = mapper.ToWin32LobApp(packageInfo);
         var packageFolder = Path.Join(packagesFolder, packageInfo.PackageIdentifier!, packageInfo.Version!);
@@ -201,9 +201,9 @@ public partial class IntuneManager
     private Task DownloadLogoAsync(string packageFolder, string packageId, CancellationToken cancellationToken)
     {
         var logoPath = Path.Combine(packageFolder, "..", "logo.png");
-        var logoUri = new Uri($"https://api.winstall.app/icons/{packageId}.png");//new Uri($"https://winget.azureedge.net/cache/icons/48x48/{packageId}.png");
+        var logoUri = $"https://api.winstall.app/icons/{packageId}.png";//new Uri($"https://winget.azureedge.net/cache/icons/48x48/{packageId}.png");
         LogDownloadLogo(logoUri);
-        return DownloadFileIfNotExists(logoPath, logoUri, false, cancellationToken);
+        return fileManager.DownloadFileAsync(logoPath, logoUri, throwOnFailure: false, overrideFile: false, cancellationToken);
     }
 
     private async Task<string> DownloadContentPrepTool(string tempFolder, Uri contentPrepUri, CancellationToken cancellationToken)
@@ -212,7 +212,7 @@ public partial class IntuneManager
         fileManager.CreateFolder(tempFolder);
 
         var contentPrepToolPath = Path.Combine(tempFolder, IntuneWinAppUtil);
-        await DownloadFileIfNotExists(contentPrepToolPath, contentPrepUri, true, cancellationToken);
+        await fileManager.DownloadFileAsync(contentPrepToolPath, contentPrepUri.ToString(), throwOnFailure: true, overrideFile: false, cancellationToken);
         return contentPrepToolPath;
     }
 
@@ -220,7 +220,7 @@ public partial class IntuneManager
     {
         var installerPath = Path.Combine(tempPackageFolder, packageInfo.InstallerFilename!);
         LogDownloadInstaller(packageInfo.InstallerUrl!, installerPath);
-        await DownloadFileIfNotExists(installerPath, packageInfo.InstallerUrl!, true, cancellationToken);
+        await fileManager.DownloadFileAsync(installerPath, packageInfo.InstallerUrl!.ToString(), throwOnFailure: true, overrideFile: false, cancellationToken);
         return installerPath;
     }
 
@@ -296,32 +296,8 @@ public partial class IntuneManager
         }
     }
 
-    private async Task DownloadFileIfNotExists(string path, Uri uri, bool throwOnFailure, CancellationToken cancellationToken)
-    {
-        LogDownloadStarted(uri, path);
-
-        if (fileManager.FileExists(path))
-        {
-            return;
-        }
-
-        var response = await httpClient.GetAsync(uri, cancellationToken);
-        if (!response.IsSuccessStatusCode)
-        {
-            logger.LogWarning("Error downloading {uri} to {path}", uri, path);
-            if (throwOnFailure)
-                response.EnsureSuccessStatusCode();
-            return;
-        }
-        var imageData = await response.Content.ReadAsByteArrayAsync(cancellationToken);
-        await fileManager.WriteAllBytesAsync(path, imageData, cancellationToken);
-    }
-
     [LoggerMessage(EventId = 1, Level = LogLevel.Information, Message = "Generating IntuneWin package for {PackageId} {Version} in {OutputFolder}")]
     private partial void LogGeneratePackage(string PackageId, string Version, string OutputFolder);
-
-    [LoggerMessage(EventId = 2, Level = LogLevel.Debug, Message = "Downloading started for {Uri} to {Path}")]
-    private partial void LogDownloadStarted(Uri Uri, string Path);
 
     [LoggerMessage(EventId = 3, Level = LogLevel.Information, Message = "Downloading content prep tool from {ContentPrepUri}")]
     private partial void LogDownloadContentPrepTool(Uri ContentPrepUri);
@@ -333,7 +309,7 @@ public partial class IntuneManager
     private partial void LogGenerateIntuneWinFile(string TempPackageFolder, string OutputFolder, string InstallerFilename);
 
     [LoggerMessage(EventId = 6, Level = LogLevel.Information, Message = "Downloading logo from {LogoUri}")]
-    private partial void LogDownloadLogo(Uri LogoUri);
+    private partial void LogDownloadLogo(string LogoUri);
 
     public static Uri DefaultIntuneWinAppUrl => new Uri(IntuneWinAppUtilUrl);
 }

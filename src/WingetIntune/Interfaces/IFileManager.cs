@@ -9,7 +9,7 @@ public interface IFileManager
 
     void DeleteFileOrFolder(string path);
 
-    Task DownloadFileAsync(string url, string path, bool overrideFile = false, CancellationToken cancellationToken = default);
+    Task DownloadFileAsync(string url, string path, bool throwOnFailure = true, bool overrideFile = false, CancellationToken cancellationToken = default);
 
     void ExtractFileToFolder(string zipPath, string folderPath);
 

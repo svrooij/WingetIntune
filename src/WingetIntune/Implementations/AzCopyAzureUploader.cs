@@ -28,7 +28,7 @@ internal class AzCopyAzureUploader : IAzureFileUploader
             logger.LogInformation("Downloading AzCopy to {azCopyPath}", azCopyPath);
             var azCopyDownloadUrl = "https://aka.ms/downloadazcopy-v10-windows";
             var downloadPath = Path.GetTempFileName();
-            await fileManager.DownloadFileAsync(azCopyDownloadUrl, downloadPath, overrideFile: true, cancellationToken);
+            await fileManager.DownloadFileAsync(azCopyDownloadUrl, downloadPath, throwOnFailure: true, overrideFile: true, cancellationToken);
 
             
             var extractFolder = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
