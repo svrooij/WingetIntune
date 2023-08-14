@@ -32,6 +32,31 @@ public class AzCopyAzureUploaderTests
     }
 
     [Fact]
+    public async Task UploadAsync_ThrowsOnNonZeroReturnCode()
+    {
+        var file = "C:\\test\\file.txt";
+        var url = "https://localhost/test/uri";
+
+        var fileManagerMock = new Mock<IFileManager>();
+        fileManagerMock
+            .Setup(x => x.FileExists(azCopyPath))
+            .Returns(true)
+            .Verifiable();
+
+        var processManagerMock = new Mock<IProcessManager>();
+        processManagerMock
+            .Setup(x => x.RunProcessAsync(azCopyPath, $"copy \"{file}\" \"{url}\" --output-type \"json\"", It.IsAny<CancellationToken>(), false))
+            .ReturnsAsync(new ProcessResult(100, "Test Output", "Test Result"))
+            .Verifiable();
+
+        var azCopyAzureUploader = new AzCopyAzureUploader(new NullLogger<AzCopyAzureUploader>(), processManagerMock.Object, fileManagerMock.Object);
+        await Assert.ThrowsAsync<Exception>(() => azCopyAzureUploader.UploadFileToAzureAsync(file, new Uri(url), CancellationToken.None));
+
+        fileManagerMock.VerifyAll();
+        processManagerMock.VerifyAll();
+    }
+
+    [Fact]
     public async Task UploadAsync_DownloadsAzCopy()
     {
         var file = "C:\\test\\file.txt";
