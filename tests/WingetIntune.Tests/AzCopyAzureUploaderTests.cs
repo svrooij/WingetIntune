@@ -1,14 +1,11 @@
 ﻿using Microsoft.Extensions.Logging.Abstractions;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace WingetIntune.Tests;
+
 public class AzCopyAzureUploaderTests
 {
-    static string azCopyPath = Path.Combine(Path.GetTempPath(), "intunewin", "azcopy.exe");
+    private static string azCopyPath = Path.Combine(Path.GetTempPath(), "intunewin", "azcopy.exe");
+
     [Fact]
     public async Task UploadAsync_CallsProcessManager()
     {
@@ -32,7 +29,6 @@ public class AzCopyAzureUploaderTests
 
         fileManagerMock.VerifyAll();
         processManagerMock.VerifyAll();
-
     }
 
     [Fact]
@@ -52,7 +48,7 @@ public class AzCopyAzureUploaderTests
             .Verifiable();
 
         fileManagerMock.Setup(fileManagerMock => fileManagerMock.ExtractFileToFolder(It.IsAny<string>(), It.IsAny<string>())).Verifiable();
-        
+
         fileManagerMock.Setup(fileManagerMock => fileManagerMock.FindFile(It.IsAny<string>(), "azcopy.exe")).Returns(azCopyPath).Verifiable();
 
         fileManagerMock.Setup(fileManagerMock => fileManagerMock.CopyFile(azCopyPath, azCopyPath, false)).Verifiable();
@@ -70,6 +66,5 @@ public class AzCopyAzureUploaderTests
 
         fileManagerMock.VerifyAll();
         processManagerMock.VerifyAll();
-
     }
 }

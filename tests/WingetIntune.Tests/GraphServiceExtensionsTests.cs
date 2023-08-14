@@ -114,7 +114,6 @@ public class GraphServiceExtensionsTests
         };
 
         await graphServiceClient.Intune_CommitWin32LobAppContentVersionFileAsync(appId, contentVersionId.ToString(), fileId, body, CancellationToken.None)!;
-        
     }
 
     [Fact]
@@ -238,7 +237,6 @@ public class GraphServiceExtensionsTests
         var httpClient = new HttpClient(handlerMock.Object);
         var graphServiceClient = new GraphServiceClient(httpClient, new Internal.Msal.StaticAuthenticationProvider(token));
         await Assert.ThrowsAsync<Exception>(async () => await graphServiceClient.Intune_WaitForFinalCommitStateAsync(appId, contentVersionId.ToString(), fileId, CancellationToken.None)!);
-
     }
 
     [Fact]
@@ -276,6 +274,5 @@ public class GraphServiceExtensionsTests
         var httpClient = new HttpClient(handlerMock.Object);
         var graphServiceClient = new GraphServiceClient(httpClient, new Internal.Msal.StaticAuthenticationProvider(token));
         await Assert.ThrowsAsync<Exception>(async () => await graphServiceClient.Intune_WaitForFinalCommitStateAsync(appId, contentVersionId.ToString(), fileId, CancellationToken.None)!);
-
     }
 }

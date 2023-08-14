@@ -102,6 +102,6 @@ public class PublicClientAuth
 
 public class PublicClientOptions
 {
-    public string ClientId { get; set; }
+    public string? ClientId { get; set; }
     public bool UseBroker { get; set; } = true;
 }

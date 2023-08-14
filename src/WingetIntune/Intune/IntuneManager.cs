@@ -19,8 +19,8 @@ public partial class IntuneManager
     private readonly Mapper mapper = new Mapper();
     private readonly IAzureFileUploader azureFileUploader;
 
-    private const string IntuneWinAppUtil = "IntuneWinAppUtil.exe";
-    private const string IntuneWinAppUtilUrl = "https://github.com/microsoft/Microsoft-Win32-Content-Prep-Tool/raw/master/IntuneWinAppUtil.exe";
+    internal const string IntuneWinAppUtil = "IntuneWinAppUtil.exe";
+    internal const string IntuneWinAppUtilUrl = "https://github.com/microsoft/Microsoft-Win32-Content-Prep-Tool/raw/master/IntuneWinAppUtil.exe";
 
     public IntuneManager(ILogger<IntuneManager> logger, IFileManager fileManager, IProcessManager processManager, HttpClient httpClient, IAzureFileUploader azureFileUploader)
     {
@@ -43,8 +43,8 @@ public partial class IntuneManager
         LogGeneratePackage(packageInfo.PackageIdentifier!, packageInfo.Version!, outputFolder);
         var packageTempFolder = fileManager.CreateFolderForPackage(tempFolder, packageInfo.PackageIdentifier!, packageInfo.Version!);
         var packageFolder = fileManager.CreateFolderForPackage(outputFolder, packageInfo.PackageIdentifier!, packageInfo.Version!);
-        var contentPrepToolLocation = await DownloadContentPrepTool(tempFolder, contentPrepUri, cancellationToken);
-        var installerPath = await DownloadInstaller(packageTempFolder, packageInfo, cancellationToken);
+        var contentPrepToolLocation = await DownloadContentPrepToolAsync(tempFolder, contentPrepUri, cancellationToken);
+        var installerPath = await DownloadInstallerAsync(packageTempFolder, packageInfo, cancellationToken);
         LoadMsiDetails(installerPath, ref packageInfo);
         await GenerateIntuneWinFile(contentPrepToolLocation, packageTempFolder, packageFolder, packageInfo.InstallerFilename!, cancellationToken);
         await DownloadLogoAsync(packageFolder, packageInfo.PackageIdentifier!, cancellationToken);
@@ -66,8 +66,8 @@ public partial class IntuneManager
         LogGeneratePackage(packageInfo.PackageIdentifier!, packageInfo.Version!, outputFolder);
         var packageTempFolder = fileManager.CreateFolderForPackage(tempFolder, packageInfo.PackageIdentifier!, packageInfo.Version!);
         var packageFolder = fileManager.CreateFolderForPackage(outputFolder, packageInfo.PackageIdentifier!, packageInfo.Version!);
-        var contentPrepToolLocation = await DownloadContentPrepTool(tempFolder, contentPrepUri, cancellationToken);
-        var installerPath = await DownloadInstaller(packageTempFolder, packageInfo, cancellationToken);
+        var contentPrepToolLocation = await DownloadContentPrepToolAsync(tempFolder, contentPrepUri, cancellationToken);
+        var installerPath = await DownloadInstallerAsync(packageTempFolder, packageInfo, cancellationToken);
         await GenerateIntuneWinFile(contentPrepToolLocation, packageTempFolder, packageFolder, packageInfo.InstallerFilename!, cancellationToken);
         await DownloadLogoAsync(packageFolder, packageInfo.PackageIdentifier!, cancellationToken);
         //await GenerateMsiDetails(packageFolder, packageInfo, installerPath, cancellationToken);
@@ -196,29 +196,29 @@ public partial class IntuneManager
         }
     }
 
-    private Task DownloadLogoAsync(string packageFolder, string packageId, CancellationToken cancellationToken)
+    internal Task DownloadLogoAsync(string packageFolder, string packageId, CancellationToken cancellationToken)
     {
-        var logoPath = Path.Combine(packageFolder, "..", "logo.png");
+        var logoPath = Path.GetFullPath(Path.Combine(packageFolder, "..", "logo.png"));
         var logoUri = $"https://api.winstall.app/icons/{packageId}.png";//new Uri($"https://winget.azureedge.net/cache/icons/48x48/{packageId}.png");
         LogDownloadLogo(logoUri);
-        return fileManager.DownloadFileAsync(logoPath, logoUri, throwOnFailure: false, overrideFile: false, cancellationToken);
+        return fileManager.DownloadFileAsync(logoUri, logoPath, throwOnFailure: false, overrideFile: false, cancellationToken);
     }
 
-    private async Task<string> DownloadContentPrepTool(string tempFolder, Uri contentPrepUri, CancellationToken cancellationToken)
+    internal async Task<string> DownloadContentPrepToolAsync(string tempFolder, Uri contentPrepUri, CancellationToken cancellationToken)
     {
         LogDownloadContentPrepTool(contentPrepUri);
         fileManager.CreateFolder(tempFolder);
 
         var contentPrepToolPath = Path.Combine(tempFolder, IntuneWinAppUtil);
-        await fileManager.DownloadFileAsync(contentPrepToolPath, contentPrepUri.ToString(), throwOnFailure: true, overrideFile: false, cancellationToken);
+        await fileManager.DownloadFileAsync(contentPrepUri.ToString(), contentPrepToolPath, throwOnFailure: true, overrideFile: false, cancellationToken);
         return contentPrepToolPath;
     }
 
-    private async Task<string> DownloadInstaller(string tempPackageFolder, PackageInfo packageInfo, CancellationToken cancellationToken)
+    internal async Task<string> DownloadInstallerAsync(string tempPackageFolder, PackageInfo packageInfo, CancellationToken cancellationToken)
     {
         var installerPath = Path.Combine(tempPackageFolder, packageInfo.InstallerFilename!);
         LogDownloadInstaller(packageInfo.InstallerUrl!, installerPath);
-        await fileManager.DownloadFileAsync(installerPath, packageInfo.InstallerUrl!.ToString(), throwOnFailure: true, overrideFile: false, cancellationToken);
+        await fileManager.DownloadFileAsync(packageInfo.InstallerUrl!.ToString(), installerPath, throwOnFailure: true, overrideFile: false, cancellationToken);
         return installerPath;
     }
 
