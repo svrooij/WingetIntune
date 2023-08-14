@@ -1,18 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using WingetIntune.Intune;
+﻿using WingetIntune.Intune;
 
 namespace WingetIntune.Tests;
+
 public class IntuneMetadataTests
 {
-
     [Fact]
     public void IntuneMetadata_GetApplicationData_ReturnsResult()
     {
-
         var result = IntuneMetadata.GetApplicationInfo(System.Text.Encoding.UTF8.GetBytes(DetectionsXml));
         Assert.NotNull(result);
         Assert.Equal("Microsoft Azure CLI (32-bit)", result.Name);
@@ -62,7 +56,7 @@ public class IntuneMetadataTests
         Assert.Equal(expected, result);
     }
 
-    const string DetectionsXml = @"<ApplicationInfo xmlns:xsd=""http://www.w3.org/2001/XMLSchema"" xmlns:xsi=""http://www.w3.org/2001/XMLSchema-instance"" ToolVersion=""1.8.4.0"">
+    private const string DetectionsXml = @"<ApplicationInfo xmlns:xsd=""http://www.w3.org/2001/XMLSchema"" xmlns:xsi=""http://www.w3.org/2001/XMLSchema-instance"" ToolVersion=""1.8.4.0"">
   <Name>Microsoft Azure CLI (32-bit)</Name>
   <UnencryptedContentSize>49718336</UnencryptedContentSize>
   <FileName>IntunePackage.intunewin</FileName>
@@ -93,5 +87,4 @@ public class IntuneMetadataTests
     <MsiPublisher>Microsoft Corporation</MsiPublisher>
   </MsiInfo>
 </ApplicationInfo>";
-
 }
