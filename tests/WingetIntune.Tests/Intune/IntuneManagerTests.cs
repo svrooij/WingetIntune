@@ -19,7 +19,7 @@ public class IntuneManagerTests
     }
 
     [Fact]
-    public async Task GenerateMsiPackage_MsiPackage_Returns()
+    public async Task GenerateInstallerPackage_MsiPackage_Returns()
     {
         var packageId = "Microsoft.AzureCLI";
         var version = "2.51.0";
@@ -74,7 +74,7 @@ msiexec /x {89E4C65D-96DD-435B-9BBB-EF1EAEF5B738} /quiet /qn
 
         var intuneManager = new IntuneManager(new NullLogger<IntuneManager>(), fileManagerMock.Object, processManagerMock.Object, null, null);
 
-        await intuneManager.GenerateMsiPackage(tempFolder, outputFolder, IntuneTestConstants.azureCliPackageInfo, CancellationToken.None);
+        await intuneManager.GenerateInstallerPackage(tempFolder, outputFolder, IntuneTestConstants.azureCliPackageInfo, IntuneManager.DefaultIntuneWinAppUrl, CancellationToken.None);
         fileManagerMock.VerifyAll();
         processManagerMock.VerifyAll();
     }
