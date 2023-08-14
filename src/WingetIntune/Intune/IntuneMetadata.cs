@@ -4,11 +4,11 @@ namespace WingetIntune.Intune;
 
 public class IntuneMetadata
 {
-    private const string MainFolder = "IntuneWinPackage";
-    private const string MetadataFolder = "Metadata";
-    private const string MetadataFilename = "Detection.xml";
-    private const string ContentsFolder = "Contents";
-    private const string ContentsFilename = "IntunePackage.intunewin";
+    internal const string MainFolder = "IntuneWinPackage";
+    internal const string MetadataFolder = "Metadata";
+    internal const string MetadataFilename = "Detection.xml";
+    internal const string ContentsFolder = "Contents";
+    internal const string ContentsFilename = "IntunePackage.intunewin";
 
     public static ApplicationInfo? GetApplicationInfo(byte[] data)
     {
