@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Graph.Beta.DeviceManagement.ApplePushNotificationCertificate.GenerateApplePushNotificationCertificateSigningRequest;
 using Microsoft.Graph.Beta.Models;
+using System.Runtime.InteropServices;
 using WingetIntune.Models;
 using Xunit.Sdk;
 
@@ -62,11 +63,20 @@ Uninstall script:
 msiexec /x {89E4C65D-96DD-435B-9BBB-EF1EAEF5B738} /quiet /qn
 ";
         // Check detection failed on Linux, have to check. replace It.IsAny<string>() with detectionContent
-        fileManagerMock.Setup(x => x.WriteAllTextAsync(Path.Combine(outputPackageFolder, "detection.txt"), It.IsAny<string>(), It.IsAny<CancellationToken>())).Returns(Task.CompletedTask).Verifiable();
         //Check readme failed on Linux, have to check. replace It.IsAny<string>() with readmeContent
-        fileManagerMock.Setup(x => x.WriteAllTextAsync(Path.Combine(outputPackageFolder, "readme.txt"), It.IsAny<string>(), It.IsAny<CancellationToken>())).Returns(Task.CompletedTask).Verifiable();
+        if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+        {
+            fileManagerMock.Setup(x => x.WriteAllTextAsync(Path.Combine(outputPackageFolder, "detection.txt"), detectionContent, It.IsAny<CancellationToken>())).Returns(Task.CompletedTask).Verifiable();
+            fileManagerMock.Setup(x => x.WriteAllTextAsync(Path.Combine(outputPackageFolder, "readme.txt"), readmeContent, It.IsAny<CancellationToken>())).Returns(Task.CompletedTask).Verifiable();
+        }
+        else
+        {
+            fileManagerMock.Setup(x => x.WriteAllTextAsync(Path.Combine(outputPackageFolder, "detection.txt"), It.IsAny<string>(), It.IsAny<CancellationToken>())).Returns(Task.CompletedTask).Verifiable();
+            fileManagerMock.Setup(x => x.WriteAllTextAsync(Path.Combine(outputPackageFolder, "readme.txt"), It.IsAny<string>(), It.IsAny<CancellationToken>())).Returns(Task.CompletedTask).Verifiable();
+        }
+        
+        
         fileManagerMock.Setup(x => x.WriteAllBytesAsync(Path.Combine(outputPackageFolder, "app.json"), It.IsAny<byte[]>(), It.IsAny<CancellationToken>())).Returns(Task.CompletedTask).Verifiable();
-
 
         var processManagerMock = new Mock<IProcessManager>(MockBehavior.Strict);
         processManagerMock.Setup(x => x.RunProcessAsync(contentPrepToolPath, $"-c {tempPackageFolder} -s {IntuneTestConstants.azureCliPackageInfo.InstallerFilename} -o {outputPackageFolder} -q", It.IsAny<CancellationToken>(), false))
