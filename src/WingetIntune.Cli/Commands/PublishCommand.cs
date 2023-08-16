@@ -52,6 +52,7 @@ internal class PublishCommand : Command
         var intuneManager = host.Services.GetRequiredService<IntuneManager>();
         var publicClient = host.Services.GetRequiredService<Internal.Msal.PublicClientAuth>();
 
+
         PackageInfo? packageInfo = null;
         if (options.Version == null)
         {
@@ -61,7 +62,7 @@ internal class PublishCommand : Command
                 //logger.LogWarning("Package {packageId} not found", options.PackageId);
                 return 1;
             }
-            if (options.AutoPackage)
+            if (options.AutoPackage && tempInfo.Source == PackageSource.Winget)
             {
                 tempInfo = await winget.GetPackageInfoAsync(tempInfo.PackageIdentifier!, tempInfo.Version, tempInfo.Source.ToString().ToLower(), cancellationToken);
                 await intuneManager.GenerateInstallerPackage(options.TempFolder,
@@ -70,7 +71,9 @@ internal class PublishCommand : Command
                 new PackageOptions { Architecture = options.Architecture, ContentPrepUri = options.ContentPrepToolUrl, InstallerContext = options.InstallerContext },
                 cancellationToken);
             }
-            packageInfo = await intuneManager.LoadPackageInfoFromFolder(options.PackageFolder!, options.PackageId, tempInfo.Version!, cancellationToken);
+            packageInfo = tempInfo.Source == PackageSource.Store
+                ? tempInfo
+                : await intuneManager.LoadPackageInfoFromFolder(options.PackageFolder!, options.PackageId, tempInfo.Version!, cancellationToken);
         }
         else
         {
@@ -78,32 +81,33 @@ internal class PublishCommand : Command
         }
 
         logger.LogInformation("Publishing package {packageIdentifier} {packageVersion}", options.PackageId, options.Version);
-        string? token = null;
-        if (options.Token != null)
-        {
-            token = options.Token;
-        }
-        else
-        {
-            try
-            {
-                var authResult = await publicClient.AccuireTokenAsync(IntuneManager.RequiredScopes, options.Tenant, options.Username, cancellationToken);
-                logger.LogInformation("Got token for {username}", authResult.Account.Username);
-                token = authResult.AccessToken;
-            }
-            catch (Exception ex)
-            {
-                logger.LogError(ex, "Failed to get token");
-                return 1;
-            }
-        }
+        string? token = options.Token ?? await GetTokenAsync(logger, publicClient, options, cancellationToken) ?? throw new ArgumentException("No Token");
+        var publishOptions = new Intune.IntunePublishOptions { Token = token };
+
 
         // new InteractiveBrowserCredential(new InteractiveBrowserCredentialOptions { ClientId = "d5a8a406-3b1d-4069-91cc-d76acdd812fe", TenantId = "svrooij.io", RedirectUri = new Uri("http://localhost:9005/"),  })
-        var app = await intuneManager.PublishAppAsync(options.PackageFolder!, packageInfo, new Intune.IntunePublishOptions { Token = token }, cancellationToken);
+        var app = packageInfo.Source == PackageSource.Store
+            ? await intuneManager.PublishStoreAppAsync(publishOptions, packageInfo.PackageIdentifier, cancellationToken: cancellationToken)
+            : await intuneManager.PublishAppAsync(options.PackageFolder!, packageInfo, publishOptions, cancellationToken);
 
         logger.LogInformation("App {packageIdentifier} {packageVersion} created in Azure {appId}", packageInfo.PackageIdentifier, packageInfo.Version, app.Id); ;
 
         return 0;
+    }
+
+    private static async Task<string?> GetTokenAsync(ILogger logger, Internal.Msal.PublicClientAuth publicClient, PublishCommandOptions options, CancellationToken cancellationToken)
+    {
+        try
+        {
+            var authResult = await publicClient.AccuireTokenAsync(IntuneManager.RequiredScopes, options.Tenant, options.Username, cancellationToken);
+            logger.LogInformation("Got token for {username}", authResult.Account.Username);
+            return authResult.AccessToken;
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "Failed to get token");
+        }
+        return null;
     }
 }
 

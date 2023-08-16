@@ -11,6 +11,7 @@ public static class WingetServiceCollectionExtension
         services.AddHttpClient<IntuneManager>();
         services.AddTransient<IAzureFileUploader, AzCopyAzureUploader>();
         services.AddSingleton<Internal.Msal.PublicClientAuth>();
+        services.AddTransient<Internal.MsStore.MicrosoftStoreClient>();
         return services;
     }
 }

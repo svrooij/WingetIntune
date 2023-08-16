@@ -1,5 +1,6 @@
 ﻿using Microsoft.Graph.Beta.Models;
 using Riok.Mapperly.Abstractions;
+using WingetIntune.Internal.MsStore;
 using WingetIntune.Intune;
 
 namespace WingetIntune.Models;
@@ -94,6 +95,25 @@ internal partial class Mapper
     }
 
     private partial Win32LobApp _ToWin32LobApp(PackageInfo packageInfo);
+
+    public WinGetApp ToWinGetApp(MicrosoftStoreManifest storeManifest)
+    {
+        var locale = storeManifest.Data.Versions.LastOrDefault()?.DefaultLocale!;
+        var app = _ToWinGetApp(locale);
+        app.DisplayName = locale.PackageName;
+        app.PackageIdentifier = storeManifest.Data.PackageIdentifier;
+        app.InformationUrl = locale.PublisherSupportUrl;
+        app.PrivacyInformationUrl = locale.PrivacyUrl;
+        app.AdditionalData.Add("repositoryType", "microsoftstore");
+        app.InstallExperience = new WinGetAppInstallExperience()
+        {
+            RunAsAccount = storeManifest.Data.Versions?.LastOrDefault()?.Installers?.LastOrDefault()?.Scope == "user" ? RunAsAccountType.User : RunAsAccountType.System,
+        };
+        app.Developer = app.Publisher;
+        app.Description ??= locale.ShortDescription;
+        return app;
+    }
+    private partial WinGetApp _ToWinGetApp(MicrosoftStoreManifestDefaultlocale locale);
 
     internal partial FileEncryptionInfo ToFileEncryptionInfo(ApplicationInfoEncryptionInfo packageInfo);
 }

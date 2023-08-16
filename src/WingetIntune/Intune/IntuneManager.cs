@@ -18,17 +18,19 @@ public partial class IntuneManager
     private readonly HttpClient httpClient;
     private readonly Mapper mapper = new Mapper();
     private readonly IAzureFileUploader azureFileUploader;
+    private readonly Internal.MsStore.MicrosoftStoreClient microsoftStoreClient;
 
     internal const string IntuneWinAppUtil = "IntuneWinAppUtil.exe";
     internal const string IntuneWinAppUtilUrl = "https://github.com/microsoft/Microsoft-Win32-Content-Prep-Tool/raw/master/IntuneWinAppUtil.exe";
 
-    public IntuneManager(ILogger<IntuneManager> logger, IFileManager fileManager, IProcessManager processManager, HttpClient httpClient, IAzureFileUploader azureFileUploader)
+    public IntuneManager(ILogger<IntuneManager> logger, IFileManager fileManager, IProcessManager processManager, HttpClient httpClient, IAzureFileUploader azureFileUploader, Internal.MsStore.MicrosoftStoreClient microsoftStoreClient)
     {
         this.logger = logger;
         this.fileManager = fileManager;
         this.processManager = processManager;
         this.httpClient = httpClient;
         this.azureFileUploader = azureFileUploader;
+        this.microsoftStoreClient = microsoftStoreClient;
     }
 
     public async Task GenerateMsiPackage(string tempFolder, string outputFolder, Models.PackageInfo packageInfo, PackageOptions packageOptions, CancellationToken cancellationToken = default)
@@ -144,6 +146,10 @@ public partial class IntuneManager
 
     public async Task<MobileApp> PublishAppAsync(string packagesFolder, PackageInfo packageInfo, IntunePublishOptions options, CancellationToken cancellationToken = default)
     {
+        if (packageInfo.Source == PackageSource.Store)
+        {
+            return await PublishStoreAppAsync(options, packageId: packageInfo.PackageIdentifier, cancellationToken: cancellationToken);
+        }
         var token = await options.GetToken(cancellationToken);
         GraphServiceClient graphServiceClient = new GraphServiceClient(httpClient, new Internal.Msal.StaticAuthenticationProvider(token), "https://graph.microsoft.com/beta");
 
@@ -250,6 +256,52 @@ public partial class IntuneManager
             logger.LogError(ex, "Error publishing app");
             throw;
         }
+    }
+
+    public async Task<MobileApp> PublishStoreAppAsync(IntunePublishOptions options, string? packageId = null, string? searchString = null, CancellationToken cancellationToken = default)
+    {
+        if (string.IsNullOrEmpty(packageId) && string.IsNullOrEmpty(searchString))
+        {
+            throw new ArgumentException("Either id or searchString must be specified");
+        }
+
+        if (!string.IsNullOrEmpty(searchString) && !string.IsNullOrEmpty(packageId))
+        {
+            throw new ArgumentException("Only one of id or searchString must be specified");
+        }
+
+        if (!string.IsNullOrEmpty(searchString))
+        {
+            var id = await microsoftStoreClient.GetPackageIdForFirstMatchAsync(searchString, cancellationToken);
+            return await PublishStoreAppAsync(options, id, null, cancellationToken);
+        }
+
+        var manifest = await microsoftStoreClient.GetManifestAsync(packageId!, cancellationToken);
+        var app = mapper.ToWinGetApp(manifest!);
+        var details = await microsoftStoreClient.GetStoreDetailsAsync(packageId!, cancellationToken);
+        var imagePath = Path.GetTempFileName();
+        await fileManager.DownloadFileAsync(details!.iconUrl, imagePath, overrideFile: true, cancellationToken: cancellationToken);
+        app.LargeIcon = new MimeContent
+        {
+            Type = "image/png",
+            Value = await fileManager.ReadAllBytesAsync(imagePath, cancellationToken)
+        };
+
+        var token = await options.GetToken(cancellationToken);
+        GraphServiceClient graphServiceClient = new GraphServiceClient(httpClient, new Internal.Msal.StaticAuthenticationProvider(token), "https://graph.microsoft.com/beta");
+
+        try
+        {
+            var appCreated = await graphServiceClient.DeviceAppManagement.MobileApps.PostAsync(app, cancellationToken: cancellationToken);
+            return appCreated!;
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "Error publishing app");
+            throw;
+        }
+
+
     }
 
     internal Task DownloadLogoAsync(string packageFolder, string packageId, CancellationToken cancellationToken)
