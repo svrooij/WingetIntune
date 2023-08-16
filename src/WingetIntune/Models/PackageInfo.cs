@@ -43,7 +43,9 @@ public class PackageInfo
 
     public static PackageInfo Parse(string wingetOutput)
     {
-        var lines = wingetOutput.Split(Environment.NewLine);
+        // This should work on all platforms
+        // var lines = wingetOutput.Split(Environment.NewLine) did not work on Linux
+        var lines = wingetOutput.Split('\n').Select(x =>  x.TrimEnd('\r')).ToArray();
         var packageInfo = new PackageInfo();
 
         var packageIdLine = lines.FirstOrDefault(l => l.StartsWith("Found "));
