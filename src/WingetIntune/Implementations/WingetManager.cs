@@ -135,7 +135,7 @@ public partial class WingetManager : IWingetRepository
                 ?? installerManifestObject.Installers.SingleOrDefault(InstallerType.Unknown, Architecture.X64, InstallerContext.Unknown)?.InstallerType
                 ?? installerManifestObject.Installers?.FirstOrDefault()?.InstallerType;
 
-            
+
 
             return new PackageInfo
             {
