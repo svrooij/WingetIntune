@@ -1,5 +1,8 @@
 # Winget Intune packager CLI
 
+[![GitHub issues](https://img.shields.io/github/issues/svrooij/wingetintune?style=for-the-badge)](https://github.com/svrooij/WingetIntune/issues)
+[![Github sponsors](https://img.shields.io/github/sponsors/svrooij?style=for-the-badge&logo=github&logoColor=white)](https://github.com/sponsors/svrooij)
+
 Take any (just msi installers for now) app from winget and upload it to Intune in minutes.
 
 - Downloading the installer and the logo
@@ -8,7 +11,12 @@ Take any (just msi installers for now) app from winget and upload it to Intune i
 - Publish the app to Intune.
 
 This application is **Windows only** and requires **Dotnet 7** to be installed on your computer. It's also a [beta application](#beta-application), so please report any issues you find.
-A lot of commands run the `winget` command, so make sure you have the [App Installer](https://www.microsoft.com/en-us/p/app-installer/9nblggh4nns1) installed on your computer as well. 
+A lot of commands run the `winget` command, so make sure you have the [App Installer](https://www.microsoft.com/en-us/p/app-installer/9nblggh4nns1) installed on your computer as well.
+
+[![LinkedIn Profile][badge_linkedin]][link_linkedin]
+[![Link Mastodon][badge_mastodon]][link_mastodon]
+[![Follow on Twitter][badge_twitter]][link_twitter]
+[![Check my blog][badge_blog]][link_blog]
 
 ## Installing
 
@@ -63,7 +71,6 @@ You should definitely try the `package` command. as it's the most important one.
 You can also expect a `detection.ps1` file, that you should configure to be used as detection script in Intune, provided it's not a MSI installer, in that case you can find the detection information in the readme.
 It will also write a `app.json` file with all the information about the app, for automation purposes.
 
-
 ```Shell
 winget-intune package {PackageId} [--version {version}] [--source winget] --package-folder {PackageFolder}
 ```
@@ -92,4 +99,13 @@ I'm planning to release the actual intune specific code as a separate library, s
 
 ## Contributing
 
-If you want to contribute to this project, please check out the [contributing](CONTRIBUTING.md) page.
+If you want to contribute to this project, please check out the [contributing](https://github.com/svrooij/WingetIntune/blob/main/CONTRIBUTING.md) page and the [Code of Conduct](https://github.com/svrooij/WingetIntune/blob/main/CODE_OF_CONDUCT.md).
+
+[badge_blog]: https://img.shields.io/badge/blog-svrooij.io-blue?style=for-the-badge
+[badge_linkedin]: https://img.shields.io/badge/LinkedIn-stephanvanrooij-blue?style=for-the-badge&logo=linkedin
+[badge_mastodon]: https://img.shields.io/mastodon/follow/109502876771613420?domain=https%3A%2F%2Fdotnet.social&label=%40svrooij%40dotnet.social&logo=mastodon&logoColor=white&style=for-the-badge
+[badge_twitter]: https://img.shields.io/twitter/follow/svrooij?logo=twitter&style=for-the-badge
+[link_blog]: https://svrooij.io/
+[link_linkedin]: https://www.linkedin.com/in/stephanvanrooij
+[link_mastodon]: https://dotnet.social/@svrooij
+[link_twitter]: https://twitter.com/svrooij
