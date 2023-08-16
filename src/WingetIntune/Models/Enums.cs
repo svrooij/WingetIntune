@@ -89,11 +89,6 @@ internal static class EnumParsers
         };
     }
 
-    public static bool IsMsi(this InstallerType? installerType)
-    {
-        return installerType == InstallerType.Msi || installerType == InstallerType.Wix;
-    }
-
     public static bool IsMsi(this InstallerType installerType)
     {
         return installerType == InstallerType.Msi || installerType == InstallerType.Wix;
