@@ -35,13 +35,13 @@ internal static class MockHttpMessageHandlerExtensions
     {
         var result = requestMessage.RequestUri!.ToString() == uri && requestMessage.Method == httpMethod;
 
-        if(result && requestMessage.Content != null)
+        if (result && requestMessage.Content != null)
         {
             var bodyString = requestMessage.Content.ReadAsStringAsync().Result;
             Assert.Equal(body, bodyString);
             result = bodyString == body;
         }
-            
+
 
         return result;
     }

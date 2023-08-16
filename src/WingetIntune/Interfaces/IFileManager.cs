@@ -3,6 +3,7 @@
 public interface IFileManager
 {
     void CopyFile(string sourcePath, string destinationPath, bool overwrite = false);
+
     void CreateFolder(string path);
 
     string CreateFolderForPackage(string parentFolder, string packageName, string packageVersion);
@@ -10,6 +11,8 @@ public interface IFileManager
     void DeleteFileOrFolder(string path);
 
     Task DownloadFileAsync(string url, string path, bool throwOnFailure = true, bool overrideFile = false, CancellationToken cancellationToken = default);
+
+    Task<string?> DownloadStringAsync(string url, bool throwOnFailure = true, CancellationToken cancellationToken = default);
 
     void ExtractFileToFolder(string zipPath, string folderPath);
 

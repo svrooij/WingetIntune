@@ -1,9 +1,6 @@
 ﻿using Microsoft.Extensions.Logging.Abstractions;
-using Microsoft.Graph.Beta.DeviceManagement.ApplePushNotificationCertificate.GenerateApplePushNotificationCertificateSigningRequest;
-using Microsoft.Graph.Beta.Models;
 using System.Runtime.InteropServices;
 using WingetIntune.Models;
-using Xunit.Sdk;
 
 namespace WingetIntune.Tests.Intune;
 
@@ -16,7 +13,7 @@ public class IntuneManagerTests
         var tempFolder = Path.Combine(Path.GetTempPath(), "intunewin");
         var outputFolder = Path.Combine(Path.GetTempPath(), "packages");
 
-        await Assert.ThrowsAsync<ArgumentException>(() => intuneManager.GenerateMsiPackage(tempFolder, outputFolder, new PackageInfo(), CancellationToken.None));
+        await Assert.ThrowsAsync<ArgumentException>(() => intuneManager.GenerateMsiPackage(tempFolder, outputFolder, new PackageInfo(), PackageOptions.Create(), CancellationToken.None));
     }
 
     [Fact]
@@ -26,14 +23,13 @@ public class IntuneManagerTests
         var version = "2.51.0";
         var tempFolder = Path.Combine(Path.GetTempPath(), "intunewin");
         var tempPackageFolder = Path.Combine(tempFolder, packageId, version);
-        
+
         var outputFolder = Path.Combine(Path.GetTempPath(), "packages");
         var outputPackageFolder = Path.Combine(outputFolder, packageId, version);
         var contentPrepToolPath = Path.Combine(tempFolder, IntuneManager.IntuneWinAppUtil);
         var installerPath = Path.Combine(tempPackageFolder, IntuneTestConstants.azureCliPackageInfo.InstallerFilename!);
 
         var logoPath = Path.GetFullPath(Path.Combine(outputPackageFolder, "..", "logo.png"));
-
 
         var fileManagerMock = new Mock<IFileManager>(MockBehavior.Strict);
         fileManagerMock.Setup(x => x.CreateFolderForPackage(tempFolder, packageId, version)).Returns(Path.Combine(tempFolder, packageId, version)).Verifiable();
@@ -54,13 +50,21 @@ public class IntuneManagerTests
 MsiProductCode={89E4C65D-96DD-435B-9BBB-EF1EAEF5B738}
 MsiVersion=2.51.0
 ";
+
         var readmeContent = @"Package Microsoft.AzureCLI 2.51.0 from Winget
+
+Display name: Microsoft Azure CLI
+Publisher: Microsoft Corporation
+Homepage: 
 
 Install script:
 msiexec /i azure-cli-2.51.0.msi /quiet /qn
 
 Uninstall script:
 msiexec /x {89E4C65D-96DD-435B-9BBB-EF1EAEF5B738} /quiet /qn
+
+Description:
+The Azure command-line interface (Azure CLI) is a set of commands used to create and manage Azure resources. The Azure CLI is available across Azure services and is designed to get you working quickly with Azure, with an emphasis on automation.
 ";
         // Check detection failed on Linux, have to check. replace It.IsAny<string>() with detectionContent
         //Check readme failed on Linux, have to check. replace It.IsAny<string>() with readmeContent
@@ -74,23 +78,20 @@ msiexec /x {89E4C65D-96DD-435B-9BBB-EF1EAEF5B738} /quiet /qn
             fileManagerMock.Setup(x => x.WriteAllTextAsync(Path.Combine(outputPackageFolder, "detection.txt"), It.IsAny<string>(), It.IsAny<CancellationToken>())).Returns(Task.CompletedTask).Verifiable();
             fileManagerMock.Setup(x => x.WriteAllTextAsync(Path.Combine(outputPackageFolder, "readme.txt"), It.IsAny<string>(), It.IsAny<CancellationToken>())).Returns(Task.CompletedTask).Verifiable();
         }
-        
-        
+
         fileManagerMock.Setup(x => x.WriteAllBytesAsync(Path.Combine(outputPackageFolder, "app.json"), It.IsAny<byte[]>(), It.IsAny<CancellationToken>())).Returns(Task.CompletedTask).Verifiable();
 
         var processManagerMock = new Mock<IProcessManager>(MockBehavior.Strict);
         processManagerMock.Setup(x => x.RunProcessAsync(contentPrepToolPath, $"-c {tempPackageFolder} -s {IntuneTestConstants.azureCliPackageInfo.InstallerFilename} -o {outputPackageFolder} -q", It.IsAny<CancellationToken>(), false))
-            .ReturnsAsync(new ProcessResult(0, null,null))
+            .ReturnsAsync(new ProcessResult(0, null, null))
             .Verifiable();
 
         var intuneManager = new IntuneManager(new NullLogger<IntuneManager>(), fileManagerMock.Object, processManagerMock.Object, null, null);
 
-        await intuneManager.GenerateInstallerPackage(tempFolder, outputFolder, IntuneTestConstants.azureCliPackageInfo, IntuneManager.DefaultIntuneWinAppUrl, CancellationToken.None);
+        await intuneManager.GenerateInstallerPackage(tempFolder, outputFolder, IntuneTestConstants.azureCliPackageInfo, null, CancellationToken.None);
         fileManagerMock.VerifyAll();
         processManagerMock.VerifyAll();
     }
-
-
 
     [Fact]
     public async Task DownloadLogoAsync_CallsFilemanager()
@@ -155,6 +156,4 @@ msiexec /x {89E4C65D-96DD-435B-9BBB-EF1EAEF5B738} /quiet /qn
 
         fileManagerMock.Verify();
     }
-
-
 }

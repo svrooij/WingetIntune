@@ -8,7 +8,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Text.Json;
-using System.Threading.Tasks;
 using WingetIntune.Intune;
 
 namespace WingetIntune.GraphExtensions;
@@ -26,7 +25,7 @@ internal static class GraphServiceClientExtensions
         };
         requestInfo.Headers.Add("Content-Type", "application/json");
         requestInfo.Content = new MemoryStream(Encoding.UTF8.GetBytes("{}"));
-        
+
         return graphServiceClient.RequestAdapter.SendAsync<Entity>(requestInfo, Entity.CreateFromDiscriminatorValue, errorMapping: ErrorMapping, cancellationToken: cancellationToken);
 
     }
@@ -54,10 +53,10 @@ internal static class GraphServiceClientExtensions
 
     public static async Task<MobileAppContentFile?> Intune_WaitForFinalCommitStateAsync(this GraphServiceClient graphServiceClient, string win32LobAppId, string contentVersionId, string mobileAppContentFileId, CancellationToken cancellationToken)
     {
-        while(!cancellationToken.IsCancellationRequested)
+        while (!cancellationToken.IsCancellationRequested)
         {
             var result = await graphServiceClient.Intune_GetWin32LobAppContentVersionFileAsync(win32LobAppId, contentVersionId, mobileAppContentFileId, cancellationToken)!;
-            switch(result!.UploadState)
+            switch (result!.UploadState)
             {
                 case MobileAppContentFileUploadState.CommitFileSuccess:
                     return result;
@@ -68,7 +67,7 @@ internal static class GraphServiceClientExtensions
                     throw new Exception("Commit failed");
                 case MobileAppContentFileUploadState.CommitFileTimedOut:
                     throw new Exception("Commit timed out");
-                
+
                 default:
                     throw new Exception("Unexpected state");
             }

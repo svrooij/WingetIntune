@@ -1,5 +1,5 @@
-$packageId = "Microsoft.AzureCLI"
-$version = "2.51.0"
+$packageId = "7zip.7zip"
+$version = "23.02.0.0"
 
 $wingetOutput = & "winget" "list" "--id" $packageId "--exact" "--disable-interactivity" "--accept-source-agreements"
 
@@ -9,9 +9,19 @@ if($wingetOutput -is [array]) {
         Write-Host "$($packageId) version $($version) is installed"
         Exit 0
     } elseif ($lastRow.Contains($packageId)) {
-        Write-Host "$($packageId) is installed but not the correct version"
-        Write-Host "Winget output: $($lastRow)"
-        Exit 5
+        [reflection.assembly]::LoadWithPartialName("System.Version")
+        $i = $lastRow.IndexOf(" $packageId ") + $packageId.Length + 1
+        $nextSpace = $lastRow.IndexOf(" ", $i + 1)
+        $installedVersion = $lastRow.Substring($i+1, $nextSpace - $i -1)
+        $versionExpected = New-Object System.Version($version)
+        $versionInstalled = New-Object System.Version($installedVersion)
+        Write-Host "$($packageId) version $($installedVersion) is installed"
+        $result = $versionExpected.CompareTo($versionInstalled);
+        if (1 -eq $result) {
+            Write-Host "Installed version is lower"
+            Exit 5
+        }
+        Exit 0
     }
 }
 

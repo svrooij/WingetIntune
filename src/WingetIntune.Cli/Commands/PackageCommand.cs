@@ -4,6 +4,7 @@ using System.CommandLine;
 using System.CommandLine.Hosting;
 using System.CommandLine.Invocation;
 using System.CommandLine.NamingConventionBinder;
+using WingetIntune.Models;
 
 namespace WingetIntune.Commands;
 
@@ -25,8 +26,10 @@ internal class PackageCommand : Command
         });
         AddOption(new Option<string>("--package-folder", "Folder for the packaged apps")
         {
-            IsRequired = false,
+            IsRequired = true,
         });
+        AddOption(new Option<Architecture>("--architecture", () => Architecture.X64, "Architecture to package for"));
+        AddOption(new Option<InstallerContext>("--installer-context", () => InstallerContext.User, "Installer context to use"));
         AddOption(new Option<Uri>("--content-prep-tool-url", () => IntuneManager.DefaultIntuneWinAppUrl, "Url to download content prep tool")
         {
             IsRequired = true,
@@ -56,7 +59,17 @@ internal class PackageCommand : Command
 
         if (packageInfo.Source == Models.PackageSource.Winget)
         {
-            await intuneManager.GenerateInstallerPackage(options.TempFolder, options.PackageFolder!, packageInfo, options.ContentPrepToolUrl, cancellationToken);
+            if (packageInfo.Installers?.Any() != true)
+            {
+                // Load the installers from the manifest
+                // This is done automatically if the `--source winget` option is used and the version is specified
+                packageInfo = await winget.GetPackageInfoAsync(packageInfo.PackageIdentifier!, packageInfo.Version!, "winget", cancellationToken);
+            }
+            await intuneManager.GenerateInstallerPackage(options.TempFolder,
+                options.PackageFolder!,
+                packageInfo,
+                new PackageOptions { Architecture = options.Architecture, ContentPrepUri = options.ContentPrepToolUrl, InstallerContext = options.InstallerContext },
+                cancellationToken);
 
             return 0;
         }
@@ -70,4 +83,6 @@ internal class PackageCommandOptions : WinGetRootCommand.DefaultOptions
     public string? PackageFolder { get; set; }
     public string TempFolder { get; set; }
     public Uri ContentPrepToolUrl { get; set; }
+    public InstallerContext InstallerContext { get; set; }
+    public Architecture Architecture { get; set; }
 }

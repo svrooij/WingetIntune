@@ -786,6 +786,11 @@
         "resolved": "2.0.0",
         "contentHash": "GbetWNcPIaXvWtanHlBqlEp2KflFrsJf8RBNXmI8Yyeft9CSGxNrcsoKWEiEzyrn7gGVQ25ZC6ep9UfWPR0Otw=="
       },
+      "YamlDotNet": {
+        "type": "Transitive",
+        "resolved": "13.2.0",
+        "contentHash": "FxEsylcQt59+dhxPTD2I/lNFbnJzb/uvUiDkjUA3J0cNTzBSLep6ZxhE9ma2vJp/QrK09xi0LvP4aEUzl0ggCQ=="
+      },
       "wingetintune": {
         "type": "Project",
         "dependencies": {
@@ -796,7 +801,8 @@
           "Microsoft.Graph.Beta": "[5.43.0-preview, )",
           "Microsoft.Identity.Client.Broker": "[4.55.0, )",
           "Microsoft.Identity.Client.Extensions.Msal": "[2.32.0, )",
-          "Riok.Mapperly": "[3.0.0, )"
+          "Riok.Mapperly": "[3.0.0, )",
+          "YamlDotNet": "[13.2.0, )"
         }
       }
     }

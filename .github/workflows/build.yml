@@ -58,6 +58,10 @@ jobs:
           sed -i 's/## Coverage/### 📝 Code Coverage details/g' ${{github.workspace}}/report/SummaryGithub.md
           cat ${{github.workspace}}/report/*.md >> $GITHUB_STEP_SUMMARY
 
+      - name: 📃 Check code formatting
+        if: always()
+        run: dotnet format --verify-no-changes
+
   publish:
     name: 📦 Publish nuget library
     runs-on: ubuntu-latest

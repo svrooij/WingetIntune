@@ -1,7 +1,7 @@
 ﻿using Microsoft.Kiota.Abstractions;
 using Microsoft.Kiota.Abstractions.Authentication;
 using System.Runtime.CompilerServices;
-[assembly:InternalsVisibleTo("WingetIntune.Tests")]
+[assembly: InternalsVisibleTo("WingetIntune.Tests")]
 
 namespace WingetIntune.Internal.Msal;
 internal class StaticAuthenticationProvider : IAuthenticationProvider

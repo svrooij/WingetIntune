@@ -1,4 +1,6 @@
-﻿namespace WingetIntune.Models;
+﻿using WingetIntune.Models.Manifest;
+
+namespace WingetIntune.Models;
 
 public class PackageInfo
 {
@@ -19,10 +21,31 @@ public class PackageInfo
     public string? MsiVersion { get; set; }
     public string? MsiProductCode { get; set; }
     public string? InstallerFilename { get; set; }
+    public List<Manifest.WingetInstaller>? Installers { get; set; }
+    public Manifest.WingetInstaller? Installer { get; set; }
+
+    public InstallerContext? InstallerContext { get; set; }
+    public Architecture? Architecture { get; set; }
+
+    public string? DetectionScript { get; set; }
+
+    internal WingetInstaller? GetBestFit(Architecture architecture, InstallerContext context)
+    {
+        if (Installers is null) { return null; }
+        return Installers.SingleOrDefault(Models.InstallerType.Msi, architecture, context)
+            ?? Installers.SingleOrDefault(Models.InstallerType.Msi, architecture, Models.InstallerContext.Unknown)
+            ?? Installers.SingleOrDefault(Models.InstallerType.Wix, architecture, context)
+            ?? Installers.SingleOrDefault(Models.InstallerType.Wix, architecture, Models.InstallerContext.Unknown)
+            ?? Installers.SingleOrDefault(Models.InstallerType.Unknown, architecture, context)
+            ?? Installers.SingleOrDefault(Models.InstallerType.Unknown, architecture, Models.InstallerContext.Unknown)
+            ;
+    }
 
     public static PackageInfo Parse(string wingetOutput)
     {
-        var lines = wingetOutput.Split(Environment.NewLine);
+        // This should work on all platforms
+        // var lines = wingetOutput.Split(Environment.NewLine) did not work on Linux
+        var lines = wingetOutput.Split('\n').Select(x => x.TrimEnd('\r')).ToArray();
         var packageInfo = new PackageInfo();
 
         var packageIdLine = lines.FirstOrDefault(l => l.StartsWith("Found "));
@@ -86,14 +109,7 @@ public class PackageInfo
             if (installerTypeLine != null)
             {
                 var installerType = installerTypeLine.Substring("Installer Type: ".Length);
-                if (installerType == "msi")
-                {
-                    packageInfo.InstallerType = InstallerType.Msi;
-                }
-                else if (installerType == "inno")
-                {
-                    packageInfo.InstallerType = InstallerType.InnoSetup;
-                }
+                packageInfo.InstallerType = EnumParsers.ParseInstallerType(installerType);
             }
 
             var installerUrlLine = lines.FirstOrDefault(l => l.Contains("Installer Url:"))?.Trim();
