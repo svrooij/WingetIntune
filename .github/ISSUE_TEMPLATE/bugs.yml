@@ -39,6 +39,15 @@ body:
     validations:
       required: true
 
+  - type: input
+    id: version
+    attributes:
+      label: App version
+      description: "Execute winget-intune --version"
+      placeholder: 0.2.2+Branch.main.Sha.82a43446642d6cde48c18fe5e8c2e286b7ad6709
+    validations:
+      required: true
+
   - type: textarea
     id: what_happened
     attributes:
@@ -60,16 +69,10 @@ body:
     id: terms
     attributes:
       label: Code of Conduct
-      description: By submitting this issue, you agree to follow our [Code of Conduct](https://github.com/svrooij/WingetIntune/blob/main/CODE_OF_CONDUCT.txt)
+      description: By submitting this issue, you agree to follow our [Code of Conduct](https://github.com/svrooij/WingetIntune/blob/main/CODE_OF_CONDUCT.txt). This is an open-source project, don't demand support, I'll do my best. And if you really like the project, check out [Github Sponsors](https://github.com/sponsors/svrooij)
       options:
         - label: "I agree to follow this project's Code of Conduct"
           required: true
-  
-  - type: checkboxes  
-    id: oss
-    attributes:
-      label: Open-source project
-      description: This project is built in my spare time, you can show appreciation through [Github Sponsors](https://github.com/sponsors/svrooij)
-      options:
         - label: "I won't demand an immediate answer"
           required: true
+

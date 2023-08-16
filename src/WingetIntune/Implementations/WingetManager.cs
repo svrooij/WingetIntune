@@ -1,5 +1,8 @@
 ﻿using Microsoft.Extensions.Logging;
 using WingetIntune.Models;
+using WingetIntune.Models.Manifest;
+using YamlDotNet.Serialization;
+using YamlDotNet.Serialization.NamingConventions;
 
 namespace WingetIntune;
 
@@ -7,11 +10,13 @@ public partial class WingetManager : IWingetRepository
 {
     private readonly ILogger<WingetManager> logger;
     private readonly IProcessManager processManager;
+    private readonly IFileManager fileManager;
 
-    public WingetManager(ILogger<WingetManager> logger, IProcessManager processManager)
+    public WingetManager(ILogger<WingetManager> logger, IProcessManager processManager, IFileManager fileManager)
     {
         this.logger = logger;
         this.processManager = processManager;
+        this.fileManager = fileManager;
     }
 
     public async Task<Models.IsInstalledResult> CheckInstalled(string id, string? version, CancellationToken cancellationToken = default)
@@ -41,6 +46,18 @@ public partial class WingetManager : IWingetRepository
     }
 
     public async Task<PackageInfo> GetPackageInfoAsync(string id, string? version, string? source, CancellationToken cancellationToken = default)
+    {
+        if (string.IsNullOrEmpty(version) || source != "winget")
+        {
+            return await GetPackageInfoFromWingetAsync(id, version, source, cancellationToken);
+        }
+        else
+        {
+            return await GetPackageInfoFromWingetManifestAsync(id, version, cancellationToken);
+        }
+    }
+
+    private async Task<PackageInfo> GetPackageInfoFromWingetAsync(string id, string? version, string? source, CancellationToken cancellationToken = default)
     {
         // Show package info from winget like the Install command
         LogGetPackageInfo(id, version);
@@ -72,6 +89,82 @@ public partial class WingetManager : IWingetRepository
         }
 
         return Models.PackageInfo.Parse(result.Output);
+    }
+
+    private async Task<PackageInfo> GetPackageInfoFromWingetManifestAsync(string id, string version, CancellationToken cancellationToken)
+    {
+        try
+        {
+
+
+            var mainUri = CreateManifestUri(id, version, null);
+            var installerUri = CreateManifestUri(id, version, ".installer");
+            var mainManifest = await fileManager.DownloadStringAsync(mainUri, cancellationToken: cancellationToken);
+            var installerManifest = await fileManager.DownloadStringAsync(installerUri, cancellationToken: cancellationToken);
+
+            var deserializer = new DeserializerBuilder()
+                .WithNamingConvention(PascalCaseNamingConvention.Instance)
+                .Build();
+
+            var mainManifestObject = deserializer.Deserialize<Models.Manifest.WingetMainManifest>(mainManifest!);
+            var installerManifestObject = deserializer.Deserialize<Models.Manifest.WingetInstallerManifest>(installerManifest!);
+
+            var localizedManifestUri = CreateManifestUri(id, version, $".locale.{mainManifestObject.DefaultLocale}");
+            var localizedManifest = await fileManager.DownloadStringAsync(localizedManifestUri, cancellationToken: cancellationToken);
+            var localizedManifestObject = deserializer.Deserialize<Models.Manifest.WingetLocalizedManifest>(localizedManifest!);
+
+            installerManifestObject.Installers?.ForEach(i =>
+            {
+                if (i.Scope is null)
+                {
+                    i.Scope = installerManifestObject.Scope ?? "system";
+                }
+                if (i.InstallerSwitches is null && installerManifestObject.InstallerSwitches is not null)
+                {
+                    i.InstallerSwitches = installerManifestObject.InstallerSwitches;
+                }
+                if (i.InstallerType is null && installerManifestObject.InstallerType is not null)
+                {
+                    i.InstallerType = installerManifestObject.InstallerType;
+                }
+            });
+
+            var installer = installerManifestObject.InstallerType
+                ?? installerManifestObject.Installers.SingleOrDefault(InstallerType.Msi, Architecture.X64, InstallerContext.Unknown)?.InstallerType
+                ?? installerManifestObject.Installers.SingleOrDefault(InstallerType.Wix, Architecture.X64, InstallerContext.Unknown)?.InstallerType
+                ?? installerManifestObject.Installers.SingleOrDefault(InstallerType.Unknown, Architecture.X64, InstallerContext.Unknown)?.InstallerType
+                ?? installerManifestObject.Installers?.FirstOrDefault()?.InstallerType;
+
+            
+
+            return new PackageInfo
+            {
+                Version = mainManifestObject.PackageVersion,
+                DisplayName = localizedManifestObject.PackageName,
+                Source = PackageSource.Winget,
+                Publisher = localizedManifestObject.Publisher,
+                PublisherUrl = localizedManifestObject.PublisherUrl,
+                InformationUrl = localizedManifestObject.PackageUrl,
+                SupportUrl = localizedManifestObject.PublisherSupportUrl,
+                InstallerType = EnumParsers.ParseInstallerType(installer ?? "unknown"),
+                InstallerContext = EnumParsers.ParseInstallerContext(installerManifestObject.Scope ?? "system"),
+                Description = localizedManifestObject.Description ?? localizedManifestObject.ShortDescription,
+                Installers = installerManifestObject.Installers,
+                PackageIdentifier = mainManifestObject.PackageIdentifier,
+            };
+        }
+        catch (Exception ex)
+        {
+            LogErrorGetPackageInfo(ex, id, version, ex.Message);
+            throw;
+        }
+
+    }
+
+    internal static string CreateManifestUri(string id, string version, string? addition)
+    {
+        var idParts = id.Split('.');
+        return $"https://github.com/microsoft/winget-pkgs/raw/master/manifests/{id[0].ToString().ToLower()}/{idParts[0]}/{idParts[1]}/{version}/{id}{addition}.yaml";
     }
 
     private static Exception CreateExceptionForFailedProcess(ProcessResult processResult)

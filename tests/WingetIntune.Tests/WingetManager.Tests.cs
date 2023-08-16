@@ -24,7 +24,7 @@ namespace WingetIntune.Tests
                                $"list --id {packageId} --exact --disable-interactivity --accept-source-agreements",
                                               It.IsAny<CancellationToken>(), false))
                 .ReturnsAsync(new ProcessResult(0, mockedResponse, string.Empty));
-            var wingetManager = new WingetManager(logger, processManager.Object);
+            var wingetManager = new WingetManager(logger, processManager.Object, null);
             var result = await wingetManager.CheckInstalled(packageId, null);
 
             Assert.Equal(expectedResult, result);
@@ -42,7 +42,7 @@ namespace WingetIntune.Tests
                                $"list --id {packageId} --exact --disable-interactivity --accept-source-agreements",
                                               It.IsAny<CancellationToken>(), false))
                 .ReturnsAsync(new ProcessResult(0, mockedResponse, string.Empty));
-            var wingetManager = new WingetManager(logger, processManager.Object);
+            var wingetManager = new WingetManager(logger, processManager.Object, null);
             var result = await wingetManager.CheckInstalled(packageId, version);
 
             Assert.Equal(expectedResult, result);
@@ -56,13 +56,13 @@ namespace WingetIntune.Tests
             var source = "winget";
             var processManager = new Mock<IProcessManager>(MockBehavior.Strict);
             processManager.Setup(x => x.RunProcessAsync("winget",
-                $"show --id {packageId} --version {version} --source {source} --exact --accept-source-agreements --disable-interactivity",
+                $"show --id {packageId} --version {version} --exact --accept-source-agreements --disable-interactivity",
                 It.IsAny<CancellationToken>(),
                 false))
                 .ReturnsAsync(new ProcessResult(0, WingetManagerTestConstants.ohMyPoshOutput, string.Empty))
                 .Verifiable();
-            var wingetManager = new WingetManager(logger, processManager.Object);
-            var info = await wingetManager.GetPackageInfoAsync(packageId, version, source);
+            var wingetManager = new WingetManager(logger, processManager.Object, null);
+            var info = await wingetManager.GetPackageInfoAsync(packageId, version, null);
 
             processManager.VerifyAll();
 
@@ -75,9 +75,44 @@ namespace WingetIntune.Tests
             Assert.Equal("https://github.com/JanDeDobbeleer/oh-my-posh/", info.PublisherUrl!.ToString());
             Assert.Equal("https://github.com/JanDeDobbeleer/oh-my-posh/issues", info.SupportUrl!.ToString());
             Assert.Equal("https://ohmyposh.dev/", info.InformationUrl!.ToString());
-            Assert.Equal(InstallerType.InnoSetup, info.InstallerType);
+            Assert.Equal(InstallerType.Inno, info.InstallerType);
             Assert.Equal("https://github.com/JanDeDobbeleer/oh-my-posh/releases/download/v18.3.1/install-amd64.exe", info.InstallerUrl!.ToString());
             Assert.Equal("fc587e29525d2a9db7a46a98997b351ba1c2b699167f6ad8e22a23e261d526e9", info.Hash);
+        }
+
+        [Fact]
+        public async Task GetPackageInfoAsync_DownloadsData_WingetResult()
+        {
+            var packageId = "JanDeDobbeleer.OhMyPosh";
+            var version = "18.3.3";
+            var source = "winget";
+            var processManager = new Mock<IProcessManager>(MockBehavior.Strict);
+            var filemanagerMock = new Mock<IFileManager>(MockBehavior.Strict);
+            filemanagerMock.Setup(x => x.DownloadStringAsync(WingetManager.CreateManifestUri(packageId, version, null), true, It.IsAny<CancellationToken>()))
+                .ReturnsAsync(WingetManagerTestConstants.ohMyPoshYaml)
+                .Verifiable();
+            filemanagerMock.Setup(x => x.DownloadStringAsync(WingetManager.CreateManifestUri(packageId, version, ".installer"), true, It.IsAny<CancellationToken>()))
+                .ReturnsAsync(WingetManagerTestConstants.ohMyPoshInstallYaml)
+                .Verifiable();
+            filemanagerMock.Setup(x => x.DownloadStringAsync(WingetManager.CreateManifestUri(packageId, version, ".locale.en-US"), true, It.IsAny<CancellationToken>()))
+                .ReturnsAsync(WingetManagerTestConstants.ohMyPoshLocaleYaml)
+                .Verifiable();
+            var wingetManager = new WingetManager(logger, processManager.Object, filemanagerMock.Object);
+            var info = await wingetManager.GetPackageInfoAsync(packageId, version, source);
+
+            filemanagerMock.VerifyAll();
+
+            // Check PackageId, Name, Version, Publisher, PublisherUrl, HomePageUrl, InstallerType, InstallerUrl, Hash
+            Assert.Equal("JanDeDobbeleer.OhMyPosh", info.PackageIdentifier);
+            Assert.Equal("Oh My Posh", info.DisplayName);
+            Assert.Equal("18.3.3", info.Version);
+            Assert.Equal("Jan De Dobbeleer", info.Publisher);
+            Assert.Equal("Prompt theme engine for any shell", info.Description);
+            Assert.Equal("https://github.com/JanDeDobbeleer/oh-my-posh/", info.PublisherUrl!.ToString());
+            Assert.Equal("https://github.com/JanDeDobbeleer/oh-my-posh/issues", info.SupportUrl!.ToString());
+            Assert.Equal("https://ohmyposh.dev/", info.InformationUrl!.ToString());
+            Assert.Equal(InstallerType.Inno, info.InstallerType);
+            Assert.NotEmpty(info.Installers!);
         }
 
         [Fact]
@@ -91,7 +126,7 @@ namespace WingetIntune.Tests
                 false))
                 .ReturnsAsync(new ProcessResult(0, WingetManagerTestConstants.powershellOutput, string.Empty))
                 .Verifiable();
-            var wingetManager = new WingetManager(logger, processManager.Object);
+            var wingetManager = new WingetManager(logger, processManager.Object, null);
             var info = await wingetManager.GetPackageInfoAsync(packageId, null, null);
 
             processManager.VerifyAll();
@@ -118,7 +153,7 @@ namespace WingetIntune.Tests
                 false))
                 .ReturnsAsync(new ProcessResult(10, string.Empty, "Something went terribly wrong"))
                 .Verifiable();
-            var wingetManager = new WingetManager(logger, processManager.Object);
+            var wingetManager = new WingetManager(logger, processManager.Object, null);
             await Assert.ThrowsAsync<Exception>(() => wingetManager.GetPackageInfoAsync(packageId, null, null));
 
             processManager.VerifyAll();
@@ -156,7 +191,7 @@ namespace WingetIntune.Tests
                 true))
                 .ReturnsAsync(new ProcessResult(0, WingetManagerTestConstants.powershellOutput, string.Empty))
                 .Verifiable();
-            var wingetManager = new WingetManager(logger, processManager.Object);
+            var wingetManager = new WingetManager(logger, processManager.Object, null);
 
             await wingetManager.Install(packageId, version, source, force);
 
@@ -195,7 +230,7 @@ namespace WingetIntune.Tests
                 true))
                 .ReturnsAsync(new ProcessResult(0, WingetManagerTestConstants.powershellOutput, string.Empty))
                 .Verifiable();
-            var wingetManager = new WingetManager(logger, processManager.Object);
+            var wingetManager = new WingetManager(logger, processManager.Object, null);
 
             await wingetManager.Upgrade(packageId, version, source, force);
 

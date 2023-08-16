@@ -27,6 +27,18 @@ internal class PublishCommand : Command
         AddOption(new Option<string?>("--tenant", "Tenant ID to use for authentication"));
         AddOption(new Option<string?>("--username", "Username to use for authentication"));
         AddOption(new Option<string?>("--token", "Token to use against Intune (instead of tenant & username)"));
+        AddOption(new Option<string>("--temp-folder", () => Path.Combine(Path.GetTempPath(), "intunewin"), "Folder to store temporaty files")
+        {
+            IsHidden = true
+        });
+        AddOption(new Option<bool>("--auto-package", "Automatically package the app if it's not found in the package folder") { IsHidden = true });
+        AddOption(new Option<Architecture>("--architecture", () => Architecture.X64, "Architecture to package for") { IsHidden = true });
+        AddOption(new Option<InstallerContext>("--installer-context", () => InstallerContext.User, "Installer context to use") { IsHidden = true });
+        AddOption(new Option<Uri>("--content-prep-tool-url", () => IntuneManager.DefaultIntuneWinAppUrl, "Url to download content prep tool")
+        {
+            IsRequired = true,
+            IsHidden = true
+        });
         this.Handler = CommandHandler.Create(HandleCommand);
     }
 
@@ -48,6 +60,15 @@ internal class PublishCommand : Command
             {
                 //logger.LogWarning("Package {packageId} not found", options.PackageId);
                 return 1;
+            }
+            if (options.AutoPackage)
+            {
+                tempInfo = await winget.GetPackageInfoAsync(tempInfo.PackageIdentifier!, tempInfo.Version, tempInfo.Source.ToString().ToLower(), cancellationToken);
+                await intuneManager.GenerateInstallerPackage(options.TempFolder,
+                options.PackageFolder!,
+                tempInfo,
+                new PackageOptions { Architecture = options.Architecture, ContentPrepUri = options.ContentPrepToolUrl, InstallerContext = options.InstallerContext },
+                cancellationToken);
             }
             packageInfo = await intuneManager.LoadPackageInfoFromFolder(options.PackageFolder!, options.PackageId, tempInfo.Version!, cancellationToken);
         }
@@ -92,4 +113,9 @@ internal class PublishCommandOptions : WinGetRootCommand.DefaultOptions
     public string? Tenant { get; set; }
     public string? Username { get; set; }
     public string? Token { get; set; }
+    public bool AutoPackage { get; set; }
+    public string TempFolder { get; set; }
+    public Uri ContentPrepToolUrl { get; set; }
+    public InstallerContext InstallerContext { get; set; }
+    public Architecture Architecture { get; set; }
 }

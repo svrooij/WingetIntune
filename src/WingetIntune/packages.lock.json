@@ -76,6 +76,12 @@
         "resolved": "3.0.0",
         "contentHash": "cGxHzY5QM+8A1dF6at7KSwHbz3x8UI/7Rlw4LUEUhzTN+j5i/Ch0m+lSa/i5cxUrIHHE2Uj5wlNR1mJqliSOPg=="
       },
+      "YamlDotNet": {
+        "type": "Direct",
+        "requested": "[13.2.0, )",
+        "resolved": "13.2.0",
+        "contentHash": "FxEsylcQt59+dhxPTD2I/lNFbnJzb/uvUiDkjUA3J0cNTzBSLep6ZxhE9ma2vJp/QrK09xi0LvP4aEUzl0ggCQ=="
+      },
       "Azure.Core": {
         "type": "Transitive",
         "resolved": "1.33.0",

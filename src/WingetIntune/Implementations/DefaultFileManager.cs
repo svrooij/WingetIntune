@@ -38,7 +38,7 @@ public partial class DefaultFileManager : IFileManager
 
     public void DeleteFileOrFolder(string path)
     {
-        if(Path.Exists(path))
+        if (Path.Exists(path))
         {
             if (Directory.Exists(path))
                 Directory.Delete(path, recursive: true);
@@ -49,7 +49,7 @@ public partial class DefaultFileManager : IFileManager
 
     public async Task DownloadFileAsync(string url, string path, bool throwOnFailure = true, bool overrideFile = false, CancellationToken cancellationToken = default)
     {
-        if(overrideFile || !File.Exists(path))
+        if (overrideFile || !File.Exists(path))
         {
             logger.LogInformation("Downloading {url} to {path}", url, path);
             var result = await httpClient.GetAsync(url, cancellationToken);
@@ -65,6 +65,17 @@ public partial class DefaultFileManager : IFileManager
         {
             logger.LogInformation("Skipping download of {url} to {path} because the file already exists", url, path);
         }
+    }
+
+    public async Task<string?> DownloadStringAsync(string url, bool throwOnFailure = true, CancellationToken cancellationToken = default)
+    {
+        var response = await httpClient.GetAsync(url, cancellationToken);
+        if (!response.IsSuccessStatusCode && !throwOnFailure)
+        {
+            return null;
+        }
+        response.EnsureSuccessStatusCode();
+        return await response.Content.ReadAsStringAsync(cancellationToken);
     }
 
     public void ExtractFileToFolder(string zipPath, string folderPath)

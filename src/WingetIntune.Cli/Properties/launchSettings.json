@@ -6,15 +6,33 @@
       "environmentVariables": {
       }
     },
-    "WingetIntune.Cli package": {
+    "WingetIntune.Cli package AzureCLI": {
       "commandName": "Project",
-      "commandLineArgs": "package",
+      "commandLineArgs": "package Microsoft.AzureCLI --package-folder c:\\tools\\packages",
       "environmentVariables": {
       }
     },
-    "WingetIntune.Cli publish": {
+    "WingetIntune.Cli package 7zip": {
       "commandName": "Project",
-      "commandLineArgs": "publish",
+      "commandLineArgs": "package 7zip.7zip --package-folder c:\\tools\\packages",
+      "environmentVariables": {
+      }
+    },
+    "WingetIntune.Cli package ohmyposh": {
+      "commandName": "Project",
+      "commandLineArgs": "package JanDeDobbeleer.OhMyPosh --package-folder c:\\tools\\packages",
+      "environmentVariables": {
+      }
+    },
+    "WingetIntune.Cli publish ohmyposh": {
+      "commandName": "Project",
+      "commandLineArgs": "publish JanDeDobbeleer.OhMyPosh --package-folder c:\\tools\\packages",
+      "environmentVariables": {
+      }
+    },
+    "WingetIntune.Cli publish 7zip": {
+      "commandName": "Project",
+      "commandLineArgs": "publish 7zip.7zip --package-folder c:\\tools\\packages",
       "environmentVariables": {
       }
     }

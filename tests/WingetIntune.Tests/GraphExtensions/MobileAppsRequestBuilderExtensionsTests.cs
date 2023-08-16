@@ -65,7 +65,7 @@ public class MobileAppsRequestBuilderExtensionsTests
         var httpClient = new HttpClient(handlerMock.Object);
         var graphServiceClient = new GraphServiceClient(httpClient, new Internal.Msal.StaticAuthenticationProvider(token));
 
-        Win32LobApp? result = await graphServiceClient.DeviceAppManagement.MobileApps[appId].PatchAsync(new Win32LobApp { CommittedContentVersion = "1" },  CancellationToken.None);
+        Win32LobApp? result = await graphServiceClient.DeviceAppManagement.MobileApps[appId].PatchAsync(new Win32LobApp { CommittedContentVersion = "1" }, CancellationToken.None);
         Assert.Equal("9607b530-b530-9607-30b5-079630b50796", result!.Id);
     }
 

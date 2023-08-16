@@ -30,5 +30,6 @@
     <PackageReference Include="Microsoft.Identity.Client.Broker" Version="4.55.0" />
     <PackageReference Include="Microsoft.Identity.Client.Extensions.Msal" Version="2.32.0" />
     <PackageReference Include="Riok.Mapperly" Version="3.0.0" />
+    <PackageReference Include="YamlDotNet" Version="13.2.0" />
   </ItemGroup>
 </Project>

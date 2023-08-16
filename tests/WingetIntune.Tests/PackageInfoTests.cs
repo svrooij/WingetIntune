@@ -17,7 +17,7 @@ namespace WingetIntune.Tests
             Assert.Equal("https://github.com/JanDeDobbeleer/oh-my-posh/", info.PublisherUrl!.ToString());
             Assert.Equal("https://github.com/JanDeDobbeleer/oh-my-posh/issues", info.SupportUrl!.ToString());
             Assert.Equal("https://ohmyposh.dev/", info.InformationUrl!.ToString());
-            Assert.Equal(InstallerType.InnoSetup, info.InstallerType);
+            Assert.Equal(InstallerType.Inno, info.InstallerType);
             Assert.Equal("https://github.com/JanDeDobbeleer/oh-my-posh/releases/download/v18.3.1/install-amd64.exe", info.InstallerUrl!.ToString());
             Assert.Equal("fc587e29525d2a9db7a46a98997b351ba1c2b699167f6ad8e22a23e261d526e9", info.Hash);
         }

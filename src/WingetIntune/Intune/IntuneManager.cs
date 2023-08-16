@@ -3,9 +3,9 @@ using Microsoft.Graph.Beta;
 using Microsoft.Graph.Beta.Models;
 using System.Text;
 using System.Text.Json;
+using WingetIntune.GraphExtensions;
 using WingetIntune.Intune;
 using WingetIntune.Models;
-using WingetIntune.GraphExtensions;
 
 namespace WingetIntune;
 
@@ -31,46 +31,103 @@ public partial class IntuneManager
         this.azureFileUploader = azureFileUploader;
     }
 
-    public Task GenerateMsiPackage(string tempFolder, string outputFolder, Models.PackageInfo packageInfo, CancellationToken cancellationToken = default)
-        => GenerateMsiPackage(tempFolder, outputFolder, packageInfo, DefaultIntuneWinAppUrl, cancellationToken);
-
-    public async Task GenerateMsiPackage(string tempFolder, string outputFolder, Models.PackageInfo packageInfo, Uri contentPrepUri, CancellationToken cancellationToken = default)
+    public async Task GenerateMsiPackage(string tempFolder, string outputFolder, Models.PackageInfo packageInfo, PackageOptions packageOptions, CancellationToken cancellationToken = default)
     {
-        if (packageInfo.InstallerType != InstallerType.Msi)
+        if (!packageInfo.InstallerType.IsMsi())
         {
             throw new ArgumentException("Package is not an MSI package", nameof(packageInfo));
+        }
+        if (packageInfo.Architecture == Architecture.Unknown)
+        {
+            ComputeInstallerDetails(ref packageInfo, packageOptions);
         }
         LogGeneratePackage(packageInfo.PackageIdentifier!, packageInfo.Version!, outputFolder);
         var packageTempFolder = fileManager.CreateFolderForPackage(tempFolder, packageInfo.PackageIdentifier!, packageInfo.Version!);
         var packageFolder = fileManager.CreateFolderForPackage(outputFolder, packageInfo.PackageIdentifier!, packageInfo.Version!);
-        var contentPrepToolLocation = await DownloadContentPrepToolAsync(tempFolder, contentPrepUri, cancellationToken);
+        var contentPrepToolLocation = await DownloadContentPrepToolAsync(tempFolder, packageOptions.ContentPrepUri, cancellationToken);
         var installerPath = await DownloadInstallerAsync(packageTempFolder, packageInfo, cancellationToken);
         LoadMsiDetails(installerPath, ref packageInfo);
         await GenerateIntuneWinFile(contentPrepToolLocation, packageTempFolder, packageFolder, packageInfo.InstallerFilename!, cancellationToken);
         await DownloadLogoAsync(packageFolder, packageInfo.PackageIdentifier!, cancellationToken);
-        await WriteMsiDetails(packageFolder, packageInfo, cancellationToken);
+        await WriteReadmeAsync(packageFolder, packageInfo, cancellationToken);
         await WritePackageInfo(packageFolder, packageInfo, cancellationToken);
     }
 
-    public async Task GenerateInstallerPackage(string tempFolder, string outputFolder, Models.PackageInfo packageInfo, Uri contentPrepUri, CancellationToken cancellationToken = default)
+    public async Task GenerateInstallerPackage(string tempFolder, string outputFolder, Models.PackageInfo packageInfo, PackageOptions? packageOptions = null, CancellationToken cancellationToken = default)
     {
+        if (packageOptions is null)
+        {
+            packageOptions = PackageOptions.Create();
+        }
         if (packageInfo.Source != PackageSource.Winget)
         {
             throw new ArgumentException("Package is not a winget package", nameof(packageInfo));
         }
-        if (packageInfo.InstallerType == InstallerType.Msi)
+        ComputeInstallerDetails(ref packageInfo, packageOptions);
+        if (packageInfo.InstallerType.IsMsi())
         {
-            await GenerateMsiPackage(tempFolder, outputFolder, packageInfo, contentPrepUri, cancellationToken);
+            await GenerateMsiPackage(tempFolder, outputFolder, packageInfo, packageOptions, cancellationToken);
             return;
         }
         LogGeneratePackage(packageInfo.PackageIdentifier!, packageInfo.Version!, outputFolder);
+        await GenerateNoneMsiInstaller(tempFolder, outputFolder, packageInfo, packageOptions, cancellationToken);
+    }
+
+    private async Task GenerateNoneMsiInstaller(string tempFolder, string outputFolder, PackageInfo packageInfo, PackageOptions packageOptions, CancellationToken cancellationToken)
+    {
         var packageTempFolder = fileManager.CreateFolderForPackage(tempFolder, packageInfo.PackageIdentifier!, packageInfo.Version!);
         var packageFolder = fileManager.CreateFolderForPackage(outputFolder, packageInfo.PackageIdentifier!, packageInfo.Version!);
-        var contentPrepToolLocation = await DownloadContentPrepToolAsync(tempFolder, contentPrepUri, cancellationToken);
-        var installerPath = await DownloadInstallerAsync(packageTempFolder, packageInfo, cancellationToken);
+        var contentPrepToolLocation = await DownloadContentPrepToolAsync(tempFolder, packageOptions.ContentPrepUri, cancellationToken);
+        // TODO : If installer is not supported (yet) should it be downloaded?
+        if (SupportedInstallers.Contains(packageInfo.InstallerType))
+        {
+            var installerPath = await DownloadInstallerAsync(packageTempFolder, packageInfo, cancellationToken);
+        }
+        else
+        {
+            // Generate scripts
+            if (packageInfo.InstallCommandLine!.StartsWith("winget"))
+            {
+                // TODO Create Winget Install script
+                await fileManager.WriteAllTextAsync(
+                    Path.Combine(packageTempFolder, "install.ps1"),
+                    GetPsCommandContent(packageInfo.InstallCommandLine, "installed", $"Package {packageInfo.PackageIdentifier} v{packageInfo.Version} installed successfully"),
+                    cancellationToken);
+                packageInfo.InstallCommandLine = $"powershell.exe -WindowStyle Hidden -ExecutionPolicy Bypass -File install.ps1";
+                packageInfo.InstallerFilename = "install.ps1";
+            }
+        }
+
+        if (packageInfo.UninstallCommandLine!.StartsWith("winget"))
+        {
+            await fileManager.WriteAllTextAsync(
+                    Path.Combine(packageTempFolder, "uninstall.ps1"),
+                    GetPsCommandContent(packageInfo.UninstallCommandLine, "uninstalled", $"Package {packageInfo.PackageIdentifier} uninstalled successfully"),
+                    cancellationToken);
+            packageInfo.UninstallCommandLine = $"powershell.exe -WindowStyle Hidden -ExecutionPolicy Bypass -File uninstall.ps1";
+        }
+
         await GenerateIntuneWinFile(contentPrepToolLocation, packageTempFolder, packageFolder, packageInfo.InstallerFilename!, cancellationToken);
         await DownloadLogoAsync(packageFolder, packageInfo.PackageIdentifier!, cancellationToken);
-        //await GenerateMsiDetails(packageFolder, packageInfo, installerPath, cancellationToken);
+
+
+
+        var detectionScript = IntuneManagerConstants.PsDetectionCommandTemplate.Replace("{packageId}", packageInfo.PackageIdentifier!).Replace("{version}", packageInfo.Version);
+        await fileManager.WriteAllTextAsync(
+            Path.Combine(packageFolder, "detection.ps1"),
+            detectionScript,
+            cancellationToken);
+        packageInfo.DetectionScript = detectionScript;
+
+        await WritePackageInfo(packageFolder, packageInfo, cancellationToken);
+        await WriteReadmeAsync(packageFolder, packageInfo, cancellationToken);
+    }
+
+
+    private static string GetPsCommandContent(string command, string successSearch, string message)
+    {
+        var commandWithQuotes = string.Join(" ", command.Split(" ").Select(x => $"\"{x}\""));
+        return IntuneManagerConstants.PsCommandTemplate.Replace("{command}", commandWithQuotes).Replace("{success}", successSearch).Replace("{message}", message);
     }
 
     public async Task<PackageInfo> LoadPackageInfoFromFolder(string packageFolder, string packageId, string version, CancellationToken cancellationToken = default)
@@ -89,7 +146,7 @@ public partial class IntuneManager
     {
         var token = await options.GetToken(cancellationToken);
         GraphServiceClient graphServiceClient = new GraphServiceClient(httpClient, new Internal.Msal.StaticAuthenticationProvider(token), "https://graph.microsoft.com/beta");
-        
+
         Win32LobApp? app = mapper.ToWin32LobApp(packageInfo);
         var packageFolder = Path.Join(packagesFolder, packageInfo.PackageIdentifier!, packageInfo.Version!);
         var logoFile = Path.Combine(packageFolder, "..", "logo.png");
@@ -187,7 +244,6 @@ public partial class IntuneManager
             // Remove the folder with the extracted package.
             fileManager.DeleteFileOrFolder(tempFolder);
             return app!;
-
         }
         catch (Exception ex)
         {
@@ -240,7 +296,6 @@ public partial class IntuneManager
             throw;
         }
         return (null, null);
-
     }
 
     private void LoadMsiDetails(string installerPath, ref PackageInfo packageInfo)
@@ -252,27 +307,124 @@ public partial class IntuneManager
         packageInfo.UninstallCommandLine = $"msiexec /x {productCode} /qn /norestart";
     }
 
-    private async Task WriteMsiDetails(string packageFolder, PackageInfo packageInfo, CancellationToken cancellationToken)
+    private void ComputeInstallerDetails(ref PackageInfo package, PackageOptions packageOptions)
     {
-        logger.LogInformation("Writing detection info for msi package {packageId} {productCode}", packageInfo.PackageIdentifier, packageInfo.MsiProductCode!);
+        var installer = package.GetBestFit(packageOptions.Architecture, packageOptions.InstallerContext)
+            ?? package.GetBestFit(packageOptions.Architecture, InstallerContext.Unknown);
+        if (installer != null)
+        {
+            package.InstallerUrl = new Uri(installer.InstallerUrl!);
+            package.InstallerFilename = package.InstallerUrl.Segments.Last();
+            package.Hash = installer.InstallerSha256;
+            package.Architecture = installer.InstallerArchitecture;
+            package.InstallerContext = installer.InstallerContext == InstallerContext.Unknown ? (package.InstallerContext ?? packageOptions.InstallerContext) : installer.InstallerContext;
+            package.InstallerType = installer.ParsedInstallerType;
+            package.Installer = installer;
+            if (package.InstallerType.IsMsi())
+            {
+                package.MsiVersion ??= installer.AppsAndFeaturesEntries?.FirstOrDefault()?.DisplayVersion;
+                package.MsiProductCode ??= installer.ProductCode;
+            }
+            else
+            {
+                ComputeInstallerCommands(ref package, packageOptions);
+            }
+        }
+    }
+
+    private static readonly InstallerType[] SupportedInstallers = new[] { InstallerType.Inno, InstallerType.Msi, InstallerType.Burn, InstallerType.Wix };
+    private static readonly Dictionary<InstallerType, string> DefaultInstallerSwitches = new()
+    {
+        { InstallerType.Inno, "/VERYSILENT /SUPPRESSMSGBOXES /NORESTART /SP-" },
+        { InstallerType.Burn, "/quiet /norestart" },
+        //{ InstallerType.Wix, "/quiet /norestart" },
+    };
+    private void ComputeInstallerCommands(ref PackageInfo package, PackageOptions packageOptions)
+    {
+        // TODO: Add support for other installer types and adjust `SupportedInstallers` accordingly
+
+
+        string? installerSwitches = package.Installer?.InstallerSwitches?.GetPreferred();
+        switch (package.InstallerType)
+        {
+            case InstallerType.Inno:
+                if (installerSwitches?.Contains("/VERYSILENT") != true)
+                {
+                    installerSwitches += " " + DefaultInstallerSwitches[InstallerType.Inno];
+                    installerSwitches = installerSwitches.Trim();
+                }
+                package.InstallCommandLine = $"\"{package.InstallerFilename}\" {installerSwitches ?? DefaultInstallerSwitches[InstallerType.Inno]}";
+                // Don't know the uninstall command
+                // Configure the uninstall command for Inno Setup
+                //package.UninstallCommandLine = $"\"{package.InstallerFilename}\" /VERYSILENT /SUPPRESSMSGBOXES /NORESTART /SP- /D={{0}}";
+                break;
+            case InstallerType.Burn:
+                package.InstallCommandLine = $"\"{package.InstallerFilename}\" {installerSwitches ?? DefaultInstallerSwitches[InstallerType.Burn]}";
+                // Have to check the uninstall command
+                package.UninstallCommandLine = $"\"{package.InstallerFilename}\" /quiet /norestart /uninstall /passive"; // /burn.ignoredependencies=\"{package.PackageIdentifier}\"
+                break;
+        }
+
+        if (string.IsNullOrWhiteSpace(package.InstallCommandLine))
+        {
+            // This seems like a hack I know, but it's the only way to get the install command for now.
+            package.InstallCommandLine = $"winget install --id {package.PackageIdentifier} --version {package.Version} --source winget --exact --accept-package-agreements --accecpt-source-agreements --disable-interactivity --silent";
+        }
+
+        if (string.IsNullOrWhiteSpace(package.UninstallCommandLine))
+        {
+            // This seems like a hack I know, but it's the only way to get the uninstall command for now.
+            package.UninstallCommandLine = $"winget uninstall --id {package.PackageIdentifier} --version {package.Version} --source winget --exact --accept-source-agreements --silent --force --disable-interactivity --scope {(package.InstallerContext == InstallerContext.User ? "user" : "system")}";
+        }
+    }
+
+    private async Task WriteReadmeAsync(string packageFolder, PackageInfo packageInfo, CancellationToken cancellationToken)
+    {
         var sb = new StringBuilder();
+        if (packageInfo.InstallerType.IsMsi())
+        {
+            logger.LogInformation("Writing detection info for msi package {packageId} {productCode}", packageInfo.PackageIdentifier, packageInfo.MsiProductCode!);
+
+            sb.AppendFormat("Package {0} {1} from {2}\r\n", packageInfo.PackageIdentifier, packageInfo.Version, packageInfo.Source);
+            sb.AppendLine();
+            sb.AppendFormat("MsiProductCode={0}\r\n", packageInfo.MsiProductCode);
+            sb.AppendFormat("MsiVersion={0}\r\n", packageInfo.MsiVersion!);
+
+            var detectionFile = Path.Combine(packageFolder, "detection.txt");
+            await fileManager.WriteAllTextAsync(detectionFile, sb.ToString(), cancellationToken);
+            sb.Clear();
+        }
+
+        logger.LogInformation("Writing package readme for package {packageId}", packageInfo.PackageIdentifier);
         sb.AppendFormat("Package {0} {1} from {2}\r\n", packageInfo.PackageIdentifier, packageInfo.Version, packageInfo.Source);
         sb.AppendLine();
-        sb.AppendFormat("MsiProductCode={0}\r\n", packageInfo.MsiProductCode);
-        sb.AppendFormat("MsiVersion={0}\r\n", packageInfo.MsiVersion!);
-
-        var detectionFile = Path.Combine(packageFolder, "detection.txt");
-        await fileManager.WriteAllTextAsync(detectionFile, sb.ToString(), cancellationToken);
-        sb.Clear();
-
-        logger.LogInformation("Writing package readme for msi package {packageId}", packageInfo.PackageIdentifier);
-        sb.AppendFormat("Package {0} {1} from {2}\r\n", packageInfo.PackageIdentifier, packageInfo.Version, packageInfo.Source);
+        sb.AppendFormat("Display name: {0}\r\n", packageInfo.DisplayName);
+        sb.AppendFormat("Publisher: {0}\r\n", packageInfo.Publisher);
+        sb.AppendFormat("Homepage: {0}\r\n", packageInfo.InformationUrl);
         sb.AppendLine();
         sb.AppendLine("Install script:");
-        sb.AppendFormat("msiexec /i {0} /quiet /qn\r\n", packageInfo.InstallerUrl!.Segments.Last());
+        if (packageInfo.InstallerType.IsMsi())
+        {
+            sb.AppendFormat("msiexec /i {0} /quiet /qn\r\n", packageInfo.InstallerFilename);
+        }
+        else
+        {
+            sb.AppendFormat("{0}\r\n", packageInfo.InstallCommandLine);
+        }
         sb.AppendLine();
         sb.AppendLine("Uninstall script:");
-        sb.AppendFormat("msiexec /x {0} /quiet /qn\r\n", packageInfo.MsiProductCode);
+        if (packageInfo.InstallerType.IsMsi())
+        {
+            sb.AppendFormat("msiexec /x {0} /quiet /qn\r\n", packageInfo.MsiProductCode);
+        }
+        else
+        {
+            sb.AppendFormat("{0}\r\n", packageInfo.UninstallCommandLine);
+        }
+
+        sb.AppendLine();
+        sb.AppendLine("Description:");
+        sb.AppendLine(packageInfo.Description);
 
         var readme = Path.Combine(packageFolder, "readme.txt");
         await fileManager.WriteAllTextAsync(readme, sb.ToString(), cancellationToken);
