@@ -1,6 +1,5 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-
 using System.CommandLine;
 using System.CommandLine.Hosting;
 using System.CommandLine.Invocation;
@@ -12,33 +11,28 @@ namespace WingetIntune.Commands;
 internal class PublishCommand : Command
 {
     private const string name = "publish";
-    private const string description = "Publish an packaged app to Intune";
+    private const string description = "Publish a packaged app to Intune";
+
+    internal static readonly Option<string?> TenantOption = new Option<string?>("--tenant", "Tenant ID to use for authentication");
+    internal static readonly Option<string?> UsernameOption = new Option<string?>("--username", "Username to use for authentication");
+    internal static readonly Option<string?> TokenOption = new Option<string?>("--token", "Token to use against Intune (instead of tenant & username)");
 
     public PublishCommand() : base(name, description)
     {
+        AddCommand(new PublishStoreCommand());
         AddCommand(new PackageImageCommand());
 
         AddArgument(WinGetRootCommand.IdArgument);
         AddOption(WinGetRootCommand.VersionOption);
-        AddOption(new Option<string>("--package-folder", "Folder with your packaged apps")
-        {
-            IsRequired = true,
-        });
-        AddOption(new Option<string?>("--tenant", "Tenant ID to use for authentication"));
-        AddOption(new Option<string?>("--username", "Username to use for authentication"));
-        AddOption(new Option<string?>("--token", "Token to use against Intune (instead of tenant & username)"));
-        AddOption(new Option<string>("--temp-folder", () => Path.Combine(Path.GetTempPath(), "intunewin"), "Folder to store temporaty files")
-        {
-            IsHidden = true
-        });
+        AddOption(PackageCommand.GetPackageFolderOption(isRequired: true, isHidden: false));
+        AddOption(TenantOption);
+        AddOption(UsernameOption);
+        AddOption(TokenOption);
+        AddOption(PackageCommand.TempFolderOption);
         AddOption(new Option<bool>("--auto-package", "Automatically package the app if it's not found in the package folder") { IsHidden = true });
-        AddOption(new Option<Architecture>("--architecture", () => Architecture.X64, "Architecture to package for") { IsHidden = true });
-        AddOption(new Option<InstallerContext>("--installer-context", () => InstallerContext.User, "Installer context to use") { IsHidden = true });
-        AddOption(new Option<Uri>("--content-prep-tool-url", () => IntuneManager.DefaultIntuneWinAppUrl, "Url to download content prep tool")
-        {
-            IsRequired = true,
-            IsHidden = true
-        });
+        AddOption(PackageCommand.GetArchitectureOption(isHidden: true));
+        AddOption(PackageCommand.GetInstallerContextOption(isHidden: true));
+        AddOption(PackageCommand.ContentPrepToolUriOption);
         this.Handler = CommandHandler.Create(HandleCommand);
     }
 
@@ -50,8 +44,6 @@ internal class PublishCommand : Command
         var logger = host.Services.GetRequiredService<ILogger<PackageCommand>>();
         var winget = host.Services.GetRequiredService<IWingetRepository>();
         var intuneManager = host.Services.GetRequiredService<IntuneManager>();
-        var publicClient = host.Services.GetRequiredService<Internal.Msal.PublicClientAuth>();
-
 
         PackageInfo? packageInfo = null;
         if (options.Version == null)
@@ -81,11 +73,9 @@ internal class PublishCommand : Command
         }
 
         logger.LogInformation("Publishing package {packageIdentifier} {packageVersion}", options.PackageId, options.Version);
-        string? token = options.Token ?? await GetTokenAsync(logger, publicClient, options, cancellationToken) ?? throw new ArgumentException("No Token");
-        var publishOptions = new Intune.IntunePublishOptions { Token = token };
 
+        var publishOptions = new Intune.IntunePublishOptions { Username = options.Username, Tenant = options.Tenant, Token = options.Token };
 
-        // new InteractiveBrowserCredential(new InteractiveBrowserCredentialOptions { ClientId = "d5a8a406-3b1d-4069-91cc-d76acdd812fe", TenantId = "svrooij.io", RedirectUri = new Uri("http://localhost:9005/"),  })
         var app = packageInfo.Source == PackageSource.Store
             ? await intuneManager.PublishStoreAppAsync(publishOptions, packageInfo.PackageIdentifier, cancellationToken: cancellationToken)
             : await intuneManager.PublishAppAsync(options.PackageFolder!, packageInfo, publishOptions, cancellationToken);
@@ -93,21 +83,6 @@ internal class PublishCommand : Command
         logger.LogInformation("App {packageIdentifier} {packageVersion} created in Azure {appId}", packageInfo.PackageIdentifier, packageInfo.Version, app.Id); ;
 
         return 0;
-    }
-
-    private static async Task<string?> GetTokenAsync(ILogger logger, Internal.Msal.PublicClientAuth publicClient, PublishCommandOptions options, CancellationToken cancellationToken)
-    {
-        try
-        {
-            var authResult = await publicClient.AccuireTokenAsync(IntuneManager.RequiredScopes, options.Tenant, options.Username, cancellationToken);
-            logger.LogInformation("Got token for {username}", authResult.Account.Username);
-            return authResult.AccessToken;
-        }
-        catch (Exception ex)
-        {
-            logger.LogError(ex, "Failed to get token");
-        }
-        return null;
     }
 }
 

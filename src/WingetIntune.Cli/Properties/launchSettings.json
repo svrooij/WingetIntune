@@ -30,9 +30,9 @@
       "environmentVariables": {
       }
     },
-    "WingetIntune.Cli publish firefox": {
+    "WingetIntune.Cli publish store Adobe Reader": {
       "commandName": "Project",
-      "commandLineArgs": "publish 9NZVDKPMR9RD --package-folder c:\\tools\\packages",
+      "commandLineArgs": "publish store --id XPDP273C0XHQH2",
       "environmentVariables": {
       }
     }

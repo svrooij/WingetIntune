@@ -1,9 +1,11 @@
 ﻿using Microsoft.Extensions.Logging;
 using Microsoft.Graph.Beta;
 using Microsoft.Graph.Beta.Models;
+using Microsoft.Kiota.Abstractions.Authentication;
 using System.Text;
 using System.Text.Json;
 using WingetIntune.GraphExtensions;
+using WingetIntune.Internal.Msal;
 using WingetIntune.Intune;
 using WingetIntune.Models;
 
@@ -13,24 +15,28 @@ public partial class IntuneManager
 {
     public static string[] RequiredScopes = new[] { "DeviceManagementConfiguration.ReadWrite.All", "DeviceManagementApps.ReadWrite.All" };
     private readonly ILogger<IntuneManager> logger;
+    private readonly ILoggerFactory loggerFactory;
     private readonly IFileManager fileManager;
     private readonly IProcessManager processManager;
     private readonly HttpClient httpClient;
     private readonly Mapper mapper = new Mapper();
     private readonly IAzureFileUploader azureFileUploader;
     private readonly Internal.MsStore.MicrosoftStoreClient microsoftStoreClient;
+    private readonly PublicClientAuth publicClient;
 
     internal const string IntuneWinAppUtil = "IntuneWinAppUtil.exe";
     internal const string IntuneWinAppUtilUrl = "https://github.com/microsoft/Microsoft-Win32-Content-Prep-Tool/raw/master/IntuneWinAppUtil.exe";
 
-    public IntuneManager(ILogger<IntuneManager> logger, IFileManager fileManager, IProcessManager processManager, HttpClient httpClient, IAzureFileUploader azureFileUploader, Internal.MsStore.MicrosoftStoreClient microsoftStoreClient)
+    public IntuneManager(ILoggerFactory loggerFactory, IFileManager fileManager, IProcessManager processManager, HttpClient httpClient, IAzureFileUploader azureFileUploader, Internal.MsStore.MicrosoftStoreClient microsoftStoreClient, PublicClientAuth publicClient)
     {
-        this.logger = logger;
+        this.loggerFactory = loggerFactory;
+        this.logger = loggerFactory.CreateLogger<IntuneManager>();
         this.fileManager = fileManager;
         this.processManager = processManager;
         this.httpClient = httpClient;
         this.azureFileUploader = azureFileUploader;
         this.microsoftStoreClient = microsoftStoreClient;
+        this.publicClient = publicClient;
     }
 
     public async Task GenerateMsiPackage(string tempFolder, string outputFolder, Models.PackageInfo packageInfo, PackageOptions packageOptions, CancellationToken cancellationToken = default)
@@ -112,8 +118,6 @@ public partial class IntuneManager
         await GenerateIntuneWinFile(contentPrepToolLocation, packageTempFolder, packageFolder, packageInfo.InstallerFilename!, cancellationToken);
         await DownloadLogoAsync(packageFolder, packageInfo.PackageIdentifier!, cancellationToken);
 
-
-
         var detectionScript = IntuneManagerConstants.PsDetectionCommandTemplate.Replace("{packageId}", packageInfo.PackageIdentifier!).Replace("{version}", packageInfo.Version);
         await fileManager.WriteAllTextAsync(
             Path.Combine(packageFolder, "detection.ps1"),
@@ -124,7 +128,6 @@ public partial class IntuneManager
         await WritePackageInfo(packageFolder, packageInfo, cancellationToken);
         await WriteReadmeAsync(packageFolder, packageInfo, cancellationToken);
     }
-
 
     private static string GetPsCommandContent(string command, string successSearch, string message)
     {
@@ -150,8 +153,8 @@ public partial class IntuneManager
         {
             return await PublishStoreAppAsync(options, packageId: packageInfo.PackageIdentifier, cancellationToken: cancellationToken);
         }
-        var token = await options.GetToken(cancellationToken);
-        GraphServiceClient graphServiceClient = new GraphServiceClient(httpClient, new Internal.Msal.StaticAuthenticationProvider(token), "https://graph.microsoft.com/beta");
+
+        GraphServiceClient graphServiceClient = CreateGraphClientFromOptions(options);
 
         Win32LobApp? app = mapper.ToWin32LobApp(packageInfo);
         var packageFolder = Path.Join(packagesFolder, packageInfo.PackageIdentifier!, packageInfo.Version!);
@@ -258,7 +261,7 @@ public partial class IntuneManager
         }
     }
 
-    public async Task<MobileApp> PublishStoreAppAsync(IntunePublishOptions options, string? packageId = null, string? searchString = null, CancellationToken cancellationToken = default)
+    public async Task<WinGetApp> PublishStoreAppAsync(IntunePublishOptions options, string? packageId = null, string? searchString = null, CancellationToken cancellationToken = default)
     {
         if (string.IsNullOrEmpty(packageId) && string.IsNullOrEmpty(searchString))
         {
@@ -287,12 +290,11 @@ public partial class IntuneManager
             Value = await fileManager.ReadAllBytesAsync(imagePath, cancellationToken)
         };
 
-        var token = await options.GetToken(cancellationToken);
-        GraphServiceClient graphServiceClient = new GraphServiceClient(httpClient, new Internal.Msal.StaticAuthenticationProvider(token), "https://graph.microsoft.com/beta");
+        GraphServiceClient graphServiceClient = CreateGraphClientFromOptions(options);
 
         try
         {
-            var appCreated = await graphServiceClient.DeviceAppManagement.MobileApps.PostAsync(app, cancellationToken: cancellationToken);
+            var appCreated = await graphServiceClient.DeviceAppManagement.MobileApps.PostAsync(app, cancellationToken);
             return appCreated!;
         }
         catch (Exception ex)
@@ -300,8 +302,6 @@ public partial class IntuneManager
             logger.LogError(ex, "Error publishing app");
             throw;
         }
-
-
     }
 
     internal Task DownloadLogoAsync(string packageFolder, string packageId, CancellationToken cancellationToken)
@@ -385,16 +385,17 @@ public partial class IntuneManager
     }
 
     private static readonly InstallerType[] SupportedInstallers = new[] { InstallerType.Inno, InstallerType.Msi, InstallerType.Burn, InstallerType.Wix };
+
     private static readonly Dictionary<InstallerType, string> DefaultInstallerSwitches = new()
     {
         { InstallerType.Inno, "/VERYSILENT /SUPPRESSMSGBOXES /NORESTART /SP-" },
         { InstallerType.Burn, "/quiet /norestart" },
         //{ InstallerType.Wix, "/quiet /norestart" },
     };
+
     private void ComputeInstallerCommands(ref PackageInfo package, PackageOptions packageOptions)
     {
         // TODO: Add support for other installer types and adjust `SupportedInstallers` accordingly
-
 
         string? installerSwitches = package.Installer?.InstallerSwitches?.GetPreferred();
         switch (package.InstallerType)
@@ -410,6 +411,7 @@ public partial class IntuneManager
                 // Configure the uninstall command for Inno Setup
                 //package.UninstallCommandLine = $"\"{package.InstallerFilename}\" /VERYSILENT /SUPPRESSMSGBOXES /NORESTART /SP- /D={{0}}";
                 break;
+
             case InstallerType.Burn:
                 package.InstallCommandLine = $"\"{package.InstallerFilename}\" {installerSwitches ?? DefaultInstallerSwitches[InstallerType.Burn]}";
                 // Have to check the uninstall command
@@ -503,6 +505,24 @@ public partial class IntuneManager
             logger.LogWarning(exception, "Generating .intunewin resulted in a non-zero exitcode.");
             throw exception;
         }
+    }
+
+    private GraphServiceClient CreateGraphClientFromOptions(IntunePublishOptions options)
+    {
+        IAuthenticationProvider provider = publicClient;
+        if (!string.IsNullOrEmpty(options.Username) || !string.IsNullOrEmpty(options.Tenant))
+        {
+            publicClient.SetAccountSuggestion(new AccountSuggestion(options.Username, options.Tenant));
+        }
+        if (options.Credential is not null)
+        {
+            provider = new TokenCredentialAuthenticationProvider(options.Credential, RequiredScopes, loggerFactory.CreateLogger<TokenCredentialAuthenticationProvider>());
+        }
+        else if (!string.IsNullOrEmpty(options.Token))
+        {
+            provider = new StaticAuthenticationProvider(options.Token);
+        }
+        return new GraphServiceClient(httpClient, provider, "https://graph.microsoft.com/beta");
     }
 
     [LoggerMessage(EventId = 1, Level = LogLevel.Information, Message = "Generating IntuneWin package for {PackageId} {Version} in {OutputFolder}")]
