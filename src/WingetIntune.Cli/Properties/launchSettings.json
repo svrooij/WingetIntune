@@ -30,9 +30,9 @@
       "environmentVariables": {
       }
     },
-    "WingetIntune.Cli publish 7zip": {
+    "WingetIntune.Cli publish store Adobe Reader": {
       "commandName": "Project",
-      "commandLineArgs": "publish 7zip.7zip --package-folder c:\\tools\\packages",
+      "commandLineArgs": "publish store --id XPDP273C0XHQH2",
       "environmentVariables": {
       }
     }

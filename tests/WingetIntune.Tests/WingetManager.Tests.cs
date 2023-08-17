@@ -53,7 +53,6 @@ namespace WingetIntune.Tests
         {
             var packageId = "JanDeDobbeleer.OhMyPosh";
             var version = "18.3.1";
-            var source = "winget";
             var processManager = new Mock<IProcessManager>(MockBehavior.Strict);
             processManager.Setup(x => x.RunProcessAsync("winget",
                 $"show --id {packageId} --version {version} --exact --accept-source-agreements --disable-interactivity",

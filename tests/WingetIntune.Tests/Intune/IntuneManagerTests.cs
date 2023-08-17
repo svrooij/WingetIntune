@@ -9,7 +9,7 @@ public class IntuneManagerTests
     [Fact]
     public async Task GenerateMsiPackage_OtherPackage_ThrowsError()
     {
-        var intuneManager = new IntuneManager(new NullLogger<IntuneManager>(), null, null, null, null);
+        var intuneManager = new IntuneManager(new NullLoggerFactory(), null, null, null, null, null, null);
         var tempFolder = Path.Combine(Path.GetTempPath(), "intunewin");
         var outputFolder = Path.Combine(Path.GetTempPath(), "packages");
 
@@ -86,7 +86,7 @@ The Azure command-line interface (Azure CLI) is a set of commands used to create
             .ReturnsAsync(new ProcessResult(0, null, null))
             .Verifiable();
 
-        var intuneManager = new IntuneManager(new NullLogger<IntuneManager>(), fileManagerMock.Object, processManagerMock.Object, null, null);
+        var intuneManager = new IntuneManager(new NullLoggerFactory(), fileManagerMock.Object, processManagerMock.Object, null, null, null, null);
 
         await intuneManager.GenerateInstallerPackage(tempFolder, outputFolder, IntuneTestConstants.azureCliPackageInfo, null, CancellationToken.None);
         fileManagerMock.VerifyAll();
@@ -107,7 +107,7 @@ The Azure command-line interface (Azure CLI) is a set of commands used to create
             .Returns(Task.CompletedTask)
             .Verifiable();
 
-        var intuneManager = new IntuneManager(new NullLogger<IntuneManager>(), fileManagerMock.Object, null, null, null);
+        var intuneManager = new IntuneManager(new NullLoggerFactory(), fileManagerMock.Object, null, null, null, null, null);
         await intuneManager.DownloadLogoAsync(folder, packageId, CancellationToken.None);
 
         fileManagerMock.Verify();
@@ -133,7 +133,7 @@ The Azure command-line interface (Azure CLI) is a set of commands used to create
             .Returns(Task.CompletedTask)
             .Verifiable();
 
-        var intuneManager = new IntuneManager(new NullLogger<IntuneManager>(), fileManagerMock.Object, null, null, null);
+        var intuneManager = new IntuneManager(new NullLoggerFactory(), fileManagerMock.Object, null, null, null, null, null);
         await intuneManager.DownloadInstallerAsync(folder, packageInfo, CancellationToken.None);
 
         fileManagerMock.Verify();
@@ -151,7 +151,7 @@ The Azure command-line interface (Azure CLI) is a set of commands used to create
             .Returns(Task.CompletedTask)
             .Verifiable();
 
-        var intuneManager = new IntuneManager(new NullLogger<IntuneManager>(), fileManagerMock.Object, null, null, null);
+        var intuneManager = new IntuneManager(new NullLoggerFactory(), fileManagerMock.Object, null, null, null, null, null);
         await intuneManager.DownloadContentPrepToolAsync(tempFolder, IntuneManager.DefaultIntuneWinAppUrl, CancellationToken.None);
 
         fileManagerMock.Verify();

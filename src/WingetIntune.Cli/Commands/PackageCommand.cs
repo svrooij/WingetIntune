@@ -13,6 +13,34 @@ internal class PackageCommand : Command
     private const string name = "package";
     private const string description = "Package an app for Intune";
 
+    internal static readonly Option<string> TempFolderOption = new Option<string>("--temp-folder", () => Path.Combine(Path.GetTempPath(), "intunewin"), "Folder to store temporaty files")
+    {
+        IsHidden = true,
+        IsRequired = true,
+    };
+
+    internal static readonly Option<Uri> ContentPrepToolUriOption = new Option<Uri>("--content-prep-tool-url", () => IntuneManager.DefaultIntuneWinAppUrl, "Url to download content prep tool")
+    {
+        IsRequired = true,
+        IsHidden = true
+    };
+
+    internal static Option<string> GetPackageFolderOption(bool isRequired = false, bool isHidden = false) => new Option<string>("--package-folder", "Folder with your packaged apps")
+    {
+        IsRequired = isRequired,
+        IsHidden = isHidden,
+    };
+
+    internal static Option<Architecture> GetArchitectureOption(bool isHidden = false) => new Option<Architecture>("--architecture", () => Architecture.X64, "Architecture to package for")
+    {
+        IsHidden = isHidden,
+    };
+
+    internal static Option<InstallerContext> GetInstallerContextOption(bool isHidden = false) => new Option<InstallerContext>("--installer-context", () => InstallerContext.User, "Installer context to use")
+    {
+        IsHidden = isHidden,
+    };
+
     public PackageCommand() : base(name, description)
     {
         AddCommand(new PackageImageCommand());
@@ -20,21 +48,11 @@ internal class PackageCommand : Command
         AddArgument(WinGetRootCommand.IdArgument);
         AddOption(WinGetRootCommand.VersionOption);
         AddOption(WinGetRootCommand.SourceOption);
-        AddOption(new Option<string>("--temp-folder", () => Path.Combine(Path.GetTempPath(), "intunewin"), "Folder to store temporaty files")
-        {
-            IsRequired = true
-        });
-        AddOption(new Option<string>("--package-folder", "Folder for the packaged apps")
-        {
-            IsRequired = true,
-        });
-        AddOption(new Option<Architecture>("--architecture", () => Architecture.X64, "Architecture to package for"));
-        AddOption(new Option<InstallerContext>("--installer-context", () => InstallerContext.User, "Installer context to use"));
-        AddOption(new Option<Uri>("--content-prep-tool-url", () => IntuneManager.DefaultIntuneWinAppUrl, "Url to download content prep tool")
-        {
-            IsRequired = true,
-            IsHidden = true
-        });
+        AddOption(TempFolderOption);
+        AddOption(GetPackageFolderOption(isRequired: true));
+        AddOption(GetArchitectureOption(isHidden: false));
+        AddOption(GetInstallerContextOption(isHidden: false));
+        AddOption(ContentPrepToolUriOption);
         this.Handler = CommandHandler.Create(HandleCommand);
     }
 
