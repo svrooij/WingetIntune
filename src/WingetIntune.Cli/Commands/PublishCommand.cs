@@ -41,6 +41,7 @@ internal class PublishCommand : Command
         var cancellationToken = context.GetCancellationToken();
 
         var host = context.GetHost();
+        options.AdjustLogging(host);
         var logger = host.Services.GetRequiredService<ILogger<PackageCommand>>();
         var winget = host.Services.GetRequiredService<IWingetRepository>();
         var intuneManager = host.Services.GetRequiredService<IntuneManager>();

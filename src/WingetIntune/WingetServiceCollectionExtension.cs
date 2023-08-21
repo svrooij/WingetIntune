@@ -5,10 +5,11 @@ public static class WingetServiceCollectionExtension
 {
     public static IServiceCollection AddWingetServices(this IServiceCollection services)
     {
-        services.AddHttpClient<IFileManager, Os.DefaultFileManager>();
+        services.AddHttpClient();
+        services.AddTransient<IFileManager, Os.DefaultFileManager>();
         services.AddTransient<IProcessManager, Os.ProcessManager>();
         services.AddTransient<IWingetRepository, WingetManager>();
-        services.AddHttpClient<IntuneManager>();
+        services.AddSingleton<IntuneManager>();
         services.AddTransient<IAzureFileUploader, AzCopyAzureUploader>();
         services.AddSingleton<Internal.Msal.PublicClientAuth>();
         services.AddTransient<Internal.MsStore.MicrosoftStoreClient>();

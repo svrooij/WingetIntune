@@ -4,6 +4,7 @@ using System.CommandLine;
 using System.CommandLine.Hosting;
 using System.CommandLine.Invocation;
 using System.CommandLine.NamingConventionBinder;
+using WingetIntune.Cli.Configuration;
 
 namespace WingetIntune.Commands;
 
@@ -19,13 +20,26 @@ internal class MsiCommand : Command
         this.Handler = CommandHandler.Create(HandleCommand);
     }
 
-    private Task HandleCommand(string msiFile, InvocationContext invocationContext)
+    private Task HandleCommand(string msiFile, bool json, bool verbose, InvocationContext invocationContext)
     {
-        var logger = invocationContext.GetHost().Services.GetRequiredService<ILogger<MsiCommand>>();
+        var host = invocationContext.GetHost();
+        var logger = host.Services.GetRequiredService<ILogger<MsiCommand>>();
+        if (json || verbose)
+        {
+            var logConfiguration = host.Services.GetRequiredService<ControlableLoggingProvider>();
+            if (json)
+            {
+                logConfiguration.SetOutputFormat("json");
+            }
+            if (verbose)
+            {
+                logConfiguration.SetVerbose();
+            }
+        }
         var absolutePath = Path.GetFullPath(msiFile);
         var (productCode, msiVersion) = IntuneManager.GetMsiInfo(absolutePath, logger);
-        Console.WriteLine($"ProductCode: {productCode}");
-        Console.WriteLine($"Version: {msiVersion}");
+        logger.LogInformation($"ProductCode: {productCode}");
+        logger.LogInformation($"Version: {msiVersion}");
 
         return Task.CompletedTask;
     }

@@ -38,6 +38,7 @@ internal class PublishStoreCommand : Command
         var cancellationToken = context.GetCancellationToken();
 
         var host = context.GetHost();
+        options.AdjustLogging(host);
         var logger = host.Services.GetRequiredService<ILogger<PublishStoreCommand>>();
         var intuneManager = host.Services.GetRequiredService<IntuneManager>();
 
@@ -72,7 +73,7 @@ internal class PublishStoreCommand : Command
     }
 }
 
-internal class PublishStoreCommandOptions
+internal class PublishStoreCommandOptions : WinGetRootCommand.DefaultOptions
 {
     public string? Id { get; set; }
     public string? Search { get; set; }

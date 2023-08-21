@@ -8,7 +8,7 @@
     },
     "WingetIntune.Cli package AzureCLI": {
       "commandName": "Project",
-      "commandLineArgs": "package Microsoft.AzureCLI --package-folder c:\\tools\\packages",
+      "commandLineArgs": "package Microsoft.AzureCLI --package-folder c:\\tools\\packages --verbose",
       "environmentVariables": {
       }
     },
