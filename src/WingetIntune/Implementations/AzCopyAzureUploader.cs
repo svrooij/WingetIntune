@@ -1,11 +1,7 @@
 ﻿using Microsoft.Extensions.Logging;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace WingetIntune;
+namespace WingetIntune.Implementations;
+
 internal class AzCopyAzureUploader : IAzureFileUploader
 {
     private readonly string azCopyPath;
@@ -29,7 +25,6 @@ internal class AzCopyAzureUploader : IAzureFileUploader
             var azCopyDownloadUrl = "https://aka.ms/downloadazcopy-v10-windows";
             var downloadPath = Path.GetTempFileName();
             await fileManager.DownloadFileAsync(azCopyDownloadUrl, downloadPath, throwOnFailure: true, overrideFile: true, cancellationToken);
-
 
             var extractFolder = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
             logger.LogInformation("Extracting AzCopy to {path}", extractFolder);

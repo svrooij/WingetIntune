@@ -49,14 +49,20 @@ public partial class ProcessManager : IProcessManager
         await process.WaitForExitAsync(cancellationToken);
 
         var exitCode = process.ExitCode;
-        LogProcessExited(exitCode, error.ToString());
+        if (exitCode == 0)
+            LogProcessSuccess(exitCode);
+        else
+            LogProcessError(exitCode, error.ToString());
 
         return new ProcessResult(exitCode, output.ToString(), error.ToString());
     }
 
-    [LoggerMessage(EventId = 1, Level = LogLevel.Information, Message = "Running {FileName} {Arguments}")]
+    [LoggerMessage(EventId = 1, Level = LogLevel.Debug, Message = "Running {FileName} {Arguments}")]
     private partial void LogProcessStarting(string fileName, string arguments);
 
-    [LoggerMessage(EventId = 2, Level = LogLevel.Information, Message = "Process exited with code {ExitCode}.\n{Error}")]
-    private partial void LogProcessExited(int ExitCode, string? Error);
+    [LoggerMessage(EventId = 2, Level = LogLevel.Debug, Message = "Process exited with code {ExitCode}.")]
+    private partial void LogProcessSuccess(int ExitCode);
+
+    [LoggerMessage(EventId = 3, Level = LogLevel.Warning, Message = "Process exited with code {ExitCode}. {Error}")]
+    private partial void LogProcessError(int ExitCode, string? Error);
 }

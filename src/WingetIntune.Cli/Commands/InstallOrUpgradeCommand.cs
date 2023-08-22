@@ -1,8 +1,10 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using System.CommandLine;
 using System.CommandLine.Hosting;
 using System.CommandLine.Invocation;
 using System.CommandLine.NamingConventionBinder;
+using WingetIntune.Cli.Configuration;
 
 namespace WingetIntune.Commands
 {
@@ -41,17 +43,21 @@ namespace WingetIntune.Commands
 
         private async Task<int> HandleCommand(WinGetRootCommand.DefaultOptions options, InvocationContext context)
         {
-            var winget = context.GetHost().Services.GetRequiredService<IWingetRepository>();
+            var host = context.GetHost();
+            options.AdjustLogging(host);
+            var logger = host.Services.GetRequiredService<ILogger<InstallOrUpgradeCommand>>();
+
+            var winget = host.Services.GetRequiredService<IWingetRepository>();
             var installed = await winget.CheckInstalled(options.PackageId, options.Version);
             ProcessResult? result = null;
             switch (installed)
             {
                 case Models.IsInstalledResult.Error:
-                    Console.WriteLine($"Error checking if package {options.PackageId} {options.Version} is installed");
+                    logger.LogWarning("Error checking if package {PackageId} {Version} is installed", options.PackageId, options.Version);
                     return -1;
 
                 case Models.IsInstalledResult.Installed:
-                    Console.WriteLine($"Package {options.PackageId} {options.Version} is already installed");
+                    logger.LogInformation("Package {PackageId} {Version} is already installed", options.PackageId, options.Version);
                     return 0;
 
                 case Models.IsInstalledResult.NotInstalled:
@@ -65,10 +71,10 @@ namespace WingetIntune.Commands
 
             if (result == null || result.ExitCode != 0)
             {
-                Console.WriteLine($"Error installing/upgrading package {options.PackageId} {options.Version}\r\n{result?.Error}\r\n{result?.Output}");
+                logger.LogError("Error installing/upgrading package {PackageId} {Version}\r\n{Error}\r\n{Output}", options.PackageId, options.Version, result?.Error, result?.Output);
                 return result?.ExitCode ?? 1;
             }
-            Console.WriteLine($"Package {options.PackageId} {options.Version} installed/updated successfully");
+            logger.LogInformation("Package {PackageId} {Version} installed/upgraded successfully", options.PackageId, options.Version);
             return 0;
         }
     }

@@ -5,6 +5,7 @@ using Microsoft.Kiota.Abstractions.Authentication;
 using System.Text;
 using System.Text.Json;
 using WingetIntune.GraphExtensions;
+using WingetIntune.Implementations;
 using WingetIntune.Internal.Msal;
 using WingetIntune.Intune;
 using WingetIntune.Models;
@@ -186,7 +187,7 @@ public partial class IntuneManager
         try
         {
             app = await graphServiceClient.DeviceAppManagement.MobileApps.PostAsync(app, cancellationToken);
-            logger.LogDebug("Created app {id}", app!.Id);
+            logger.LogInformation("Created app {id}, starting with content", app!.Id);
 
             // TODO Check if delay is needed
             await Task.Delay(1000, cancellationToken);
@@ -225,7 +226,7 @@ public partial class IntuneManager
 
             logger.LogDebug("Uploaded content file {id} {blobUri}", updatedMobileAppContentFile.Id, updatedMobileAppContentFile.AzureStorageUri);
 
-            await Task.Delay(3000, cancellationToken);
+            await Task.Delay(5000, cancellationToken);
 
             // Commit the file
             await graphServiceClient.Intune_CommitWin32LobAppContentVersionFileAsync(app.Id!,
@@ -363,34 +364,41 @@ public partial class IntuneManager
     {
         var installer = package.GetBestFit(packageOptions.Architecture, packageOptions.InstallerContext)
             ?? package.GetBestFit(packageOptions.Architecture, InstallerContext.Unknown);
-        if (installer != null)
+        if (installer == null && packageOptions.Architecture == Architecture.X64)
         {
-            package.InstallerUrl = new Uri(installer.InstallerUrl!);
-            package.InstallerFilename = package.InstallerUrl.Segments.Last();
-            package.Hash = installer.InstallerSha256;
-            package.Architecture = installer.InstallerArchitecture;
-            package.InstallerContext = installer.InstallerContext == InstallerContext.Unknown ? (package.InstallerContext ?? packageOptions.InstallerContext) : installer.InstallerContext;
-            package.InstallerType = installer.ParsedInstallerType;
-            package.Installer = installer;
-            if (package.InstallerType.IsMsi())
-            {
-                package.MsiVersion ??= installer.AppsAndFeaturesEntries?.FirstOrDefault()?.DisplayVersion;
-                package.MsiProductCode ??= installer.ProductCode;
-            }
-            else
-            {
-                ComputeInstallerCommands(ref package, packageOptions);
-            }
+            installer = package.GetBestFit(Architecture.X86, packageOptions.InstallerContext)
+                ?? package.GetBestFit(Architecture.X86, InstallerContext.Unknown);
+        }
+        if (installer is null)
+        {
+            throw new ArgumentException($"No installer found for {package.PackageIdentifier} {package.Version} {packageOptions.Architecture}");
+        }
+
+        package.InstallerUrl = new Uri(installer.InstallerUrl!);
+        package.InstallerFilename = package.InstallerUrl.Segments.Last();
+        package.Hash = installer.InstallerSha256;
+        package.Architecture = installer.InstallerArchitecture;
+        package.InstallerContext = installer.InstallerContext == InstallerContext.Unknown ? (package.InstallerContext ?? packageOptions.InstallerContext) : installer.InstallerContext;
+        package.InstallerType = installer.ParsedInstallerType;
+        package.Installer = installer;
+        if (package.InstallerType.IsMsi())
+        {
+            package.MsiVersion ??= installer.AppsAndFeaturesEntries?.FirstOrDefault()?.DisplayVersion;
+            package.MsiProductCode ??= installer.ProductCode;
+        }
+        else
+        {
+            ComputeInstallerCommands(ref package, packageOptions);
         }
     }
 
-    private static readonly InstallerType[] SupportedInstallers = new[] { InstallerType.Inno, InstallerType.Msi, InstallerType.Burn, InstallerType.Wix };
+    private static readonly InstallerType[] SupportedInstallers = new[] { InstallerType.Inno, InstallerType.Msi, InstallerType.Burn, InstallerType.Wix, InstallerType.Nullsoft };
 
     private static readonly Dictionary<InstallerType, string> DefaultInstallerSwitches = new()
     {
         { InstallerType.Inno, "/VERYSILENT /SUPPRESSMSGBOXES /NORESTART /SP-" },
         { InstallerType.Burn, "/quiet /norestart" },
-        //{ InstallerType.Wix, "/quiet /norestart" },
+        { InstallerType.Nullsoft, "/S" },
     };
 
     private void ComputeInstallerCommands(ref PackageInfo package, PackageOptions packageOptions)
@@ -421,14 +429,16 @@ public partial class IntuneManager
 
         if (string.IsNullOrWhiteSpace(package.InstallCommandLine))
         {
+            var installArguments = WingetHelper.GetInstallArgumentsForPackage(package.PackageIdentifier!, package.Version, installerContext: package.InstallerContext ?? InstallerContext.Unknown);
             // This seems like a hack I know, but it's the only way to get the install command for now.
-            package.InstallCommandLine = $"winget install --id {package.PackageIdentifier} --version {package.Version} --source winget --exact --accept-package-agreements --accecpt-source-agreements --disable-interactivity --silent";
+            package.InstallCommandLine = $"winget {installArguments}";
         }
 
         if (string.IsNullOrWhiteSpace(package.UninstallCommandLine))
         {
+            var uninstallArguments = WingetHelper.GetUninstallArgumentsForPackage(package.PackageIdentifier!, package.Version, installerContext: package.InstallerContext ?? InstallerContext.Unknown);
             // This seems like a hack I know, but it's the only way to get the uninstall command for now.
-            package.UninstallCommandLine = $"winget uninstall --id {package.PackageIdentifier} --version {package.Version} --source winget --exact --accept-source-agreements --silent --force --disable-interactivity --scope {(package.InstallerContext == InstallerContext.User ? "user" : "system")}";
+            package.UninstallCommandLine = $"winget {uninstallArguments}";
         }
     }
 

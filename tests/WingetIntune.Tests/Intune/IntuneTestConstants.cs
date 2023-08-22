@@ -36,13 +36,20 @@ Installer:
         Description = "The Azure command-line interface (Azure CLI) is a set of commands used to create and manage Azure resources. The Azure CLI is available across Azure services and is designed to get you working quickly with Azure, with an emphasis on automation.",
         Version = "2.51.0",
         Source = PackageSource.Winget,
-        InstallerType = InstallerType.Msi,
-        InstallerFilename = "azure-cli-2.51.0.msi",
         Hash = "00f8f78b0e85ca0ba3966fef43fbe9d456ccc3cf7058a0cacc5d39399ccff905",
         Publisher = "Microsoft Corporation",
         PublisherUrl = new Uri("https://github.com/Azure/azure-cli"),
         SupportUrl = new Uri("https://github.com/Azure/azure-cli/issues"),
-        InstallerUrl = new Uri("https://azcliprod.azureedge.net/msi/azure-cli-2.51.0.msi"),
+        Installers = new List<Models.Manifest.WingetInstaller>
+        {
+            new Models.Manifest.WingetInstaller
+            {
+                Architecture = "x64",
+                Scope = "system",
+                InstallerType = "msi",
+                InstallerUrl = "https://azcliprod.azureedge.net/msi/azure-cli-2.51.0-x64.msi",
+            }
+        },
         MsiProductCode = "{89E4C65D-96DD-435B-9BBB-EF1EAEF5B738}",
         MsiVersion = "2.51.0",
     };

@@ -1,6 +1,9 @@
-﻿using System.CommandLine;
+﻿using Microsoft.Extensions.DependencyInjection;
+using System.CommandLine;
+using System.CommandLine.Hosting;
 using System.CommandLine.Invocation;
 using System.CommandLine.NamingConventionBinder;
+using WingetIntune.Cli.Configuration;
 
 namespace WingetIntune.Commands;
 
@@ -23,6 +26,10 @@ internal class PackageImageCommand : Command
 
     private async Task<int> HandleCommand(string imagePath, InvocationContext context)
     {
+        var host = context.GetHost();
+        var loggingProvider = host.Services.GetRequiredService<ControlableLoggingProvider>();
+        loggingProvider.SetOutputFormat("json");
+        loggingProvider.SetLogLevel(Microsoft.Extensions.Logging.LogLevel.Warning);
         var cancellationToken = context.GetCancellationToken();
 
         var path = Path.GetFullPath(imagePath);
