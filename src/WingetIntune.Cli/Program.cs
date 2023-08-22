@@ -23,8 +23,12 @@ internal class Program
                                {
                                    if (AssemblyFolder() != Environment.CurrentDirectory)
                                    {
-                                       config.Sources.Insert(0, new JsonConfigurationSource { Path = Path.Combine(AssemblyFolder() + "appsettings.json"), Optional = true, ReloadOnChange = true });
-                                       
+                                       config.Sources.Insert(0, new JsonConfigurationSource
+                                       {
+                                           Path = Path.Combine(AssemblyFolder() + "appsettings.json"),
+                                           Optional = true,
+                                           ReloadOnChange = true
+                                       });
                                    }
                                    config.Add(new ControlableLoggingSource());
 
