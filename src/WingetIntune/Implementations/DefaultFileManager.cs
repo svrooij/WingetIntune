@@ -29,7 +29,7 @@ public partial class DefaultFileManager : IFileManager
 
     public string CreateFolderForPackage(string parentFolder, string packageName, string packageVersion)
     {
-        LogCreatingFolder(packageName, packageVersion);
+        LogCreatingFolder(parentFolder, packageName, packageVersion);
         string folder = Path.Combine(parentFolder, packageName, packageVersion);
         if (!Directory.Exists(folder))
             Directory.CreateDirectory(folder);
@@ -118,8 +118,8 @@ public partial class DefaultFileManager : IFileManager
         return File.WriteAllTextAsync(path, text, cancellationToken);
     }
 
-    [LoggerMessage(EventId = 100, Level = LogLevel.Debug, Message = "Creating folder for package {PackageName} {PackageVersion}")]
-    private partial void LogCreatingFolder(string packageName, string packageVersion);
+    [LoggerMessage(EventId = 100, Level = LogLevel.Debug, Message = "Creating folder for package {PackageName} {PackageVersion} in {Folder}")]
+    private partial void LogCreatingFolder(string folder, string PackageName, string PackageVersion);
 
     [LoggerMessage(EventId = 101, Level = LogLevel.Debug, Message = "Checking if file exists: {Path}")]
     private partial void LogFileExists(string Path);

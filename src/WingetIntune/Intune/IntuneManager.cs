@@ -186,7 +186,7 @@ public partial class IntuneManager
         try
         {
             app = await graphServiceClient.DeviceAppManagement.MobileApps.PostAsync(app, cancellationToken);
-            logger.LogDebug("Created app {id}", app!.Id);
+            logger.LogInformation("Created app {id}, starting with content", app!.Id);
 
             // TODO Check if delay is needed
             await Task.Delay(1000, cancellationToken);
@@ -225,7 +225,7 @@ public partial class IntuneManager
 
             logger.LogDebug("Uploaded content file {id} {blobUri}", updatedMobileAppContentFile.Id, updatedMobileAppContentFile.AzureStorageUri);
 
-            await Task.Delay(3000, cancellationToken);
+            await Task.Delay(5000, cancellationToken);
 
             // Commit the file
             await graphServiceClient.Intune_CommitWin32LobAppContentVersionFileAsync(app.Id!,
@@ -363,24 +363,31 @@ public partial class IntuneManager
     {
         var installer = package.GetBestFit(packageOptions.Architecture, packageOptions.InstallerContext)
             ?? package.GetBestFit(packageOptions.Architecture, InstallerContext.Unknown);
-        if (installer != null)
+        if (installer == null && packageOptions.Architecture == Architecture.X64)
         {
-            package.InstallerUrl = new Uri(installer.InstallerUrl!);
-            package.InstallerFilename = package.InstallerUrl.Segments.Last();
-            package.Hash = installer.InstallerSha256;
-            package.Architecture = installer.InstallerArchitecture;
-            package.InstallerContext = installer.InstallerContext == InstallerContext.Unknown ? (package.InstallerContext ?? packageOptions.InstallerContext) : installer.InstallerContext;
-            package.InstallerType = installer.ParsedInstallerType;
-            package.Installer = installer;
-            if (package.InstallerType.IsMsi())
-            {
-                package.MsiVersion ??= installer.AppsAndFeaturesEntries?.FirstOrDefault()?.DisplayVersion;
-                package.MsiProductCode ??= installer.ProductCode;
-            }
-            else
-            {
-                ComputeInstallerCommands(ref package, packageOptions);
-            }
+            installer = package.GetBestFit(Architecture.X86, packageOptions.InstallerContext)
+                ?? package.GetBestFit(Architecture.X86, InstallerContext.Unknown);
+        }
+        if (installer is null)
+        {
+            throw new ArgumentException($"No installer found for {package.PackageIdentifier} {package.Version} {packageOptions.Architecture}");
+        }
+
+        package.InstallerUrl = new Uri(installer.InstallerUrl!);
+        package.InstallerFilename = package.InstallerUrl.Segments.Last();
+        package.Hash = installer.InstallerSha256;
+        package.Architecture = installer.InstallerArchitecture;
+        package.InstallerContext = installer.InstallerContext == InstallerContext.Unknown ? (package.InstallerContext ?? packageOptions.InstallerContext) : installer.InstallerContext;
+        package.InstallerType = installer.ParsedInstallerType;
+        package.Installer = installer;
+        if (package.InstallerType.IsMsi())
+        {
+            package.MsiVersion ??= installer.AppsAndFeaturesEntries?.FirstOrDefault()?.DisplayVersion;
+            package.MsiProductCode ??= installer.ProductCode;
+        }
+        else
+        {
+            ComputeInstallerCommands(ref package, packageOptions);
         }
     }
 
@@ -422,7 +429,7 @@ public partial class IntuneManager
         if (string.IsNullOrWhiteSpace(package.InstallCommandLine))
         {
             // This seems like a hack I know, but it's the only way to get the install command for now.
-            package.InstallCommandLine = $"winget install --id {package.PackageIdentifier} --version {package.Version} --source winget --exact --accept-package-agreements --accecpt-source-agreements --disable-interactivity --silent";
+            package.InstallCommandLine = $"winget install --id {package.PackageIdentifier} --version {package.Version} --source winget --exact --accept-package-agreements --accept-source-agreements --disable-interactivity --silent";
         }
 
         if (string.IsNullOrWhiteSpace(package.UninstallCommandLine))
