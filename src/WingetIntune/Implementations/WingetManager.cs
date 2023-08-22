@@ -4,7 +4,7 @@ using WingetIntune.Models.Manifest;
 using YamlDotNet.Serialization;
 using YamlDotNet.Serialization.NamingConventions;
 
-namespace WingetIntune;
+namespace WingetIntune.Implementations;
 
 public partial class WingetManager : IWingetRepository
 {
@@ -61,26 +61,8 @@ public partial class WingetManager : IWingetRepository
     {
         // Show package info from winget like the Install command
         LogGetPackageInfo(id, version);
-        var args = new List<string>
-        {
-            "show",
-            "--id",
-            id
-        };
-        if (!string.IsNullOrEmpty(version))
-        {
-            args.Add("--version");
-            args.Add(version);
-        }
-        if (!string.IsNullOrEmpty(source))
-        {
-            args.Add("--source");
-            args.Add(source);
-        }
-        args.Add("--exact");
-        args.Add("--accept-source-agreements");
-        args.Add("--disable-interactivity");
-        var result = await processManager.RunProcessAsync("winget", string.Join(" ", args), cancellationToken);
+        var showArgs = WingetHelper.GetShowArgumentsForPackage(id, version, source);
+        var result = await processManager.RunProcessAsync("winget", showArgs, cancellationToken);
         if (result.ExitCode != 0)
         {
             var exception = CreateExceptionForFailedProcess(result);
@@ -183,61 +165,15 @@ public partial class WingetManager : IWingetRepository
     public async Task<ProcessResult> Install(string id, string? version, string? source, bool force, CancellationToken cancellationToken = default)
     {
         LogInstall(id, version);
-        var args = new List<string>
-        {
-            "install",
-            "--id",
-            id
-        };
-        if (!string.IsNullOrEmpty(version))
-        {
-            args.Add("--version");
-            args.Add(version);
-        }
-        if (!string.IsNullOrEmpty(source))
-        {
-            args.Add("--source");
-            args.Add(source);
-        }
-        if (force)
-        {
-            args.Add("--force");
-        }
-        args.Add("--silent");
-        args.Add("--accept-package-agreements");
-        args.Add("--accept-source-agreements");
-        args.Add("--disable-interactivity");
-        return await processManager.RunProcessAsync("winget", string.Join(" ", args), cancellationToken, true);
+        var installArguments = WingetHelper.GetInstallArgumentsForPackage(id, version, source, force);
+        return await processManager.RunProcessAsync("winget", installArguments, cancellationToken, true);
     }
 
     public async Task<ProcessResult> Upgrade(string id, string? version, string? source, bool force, CancellationToken cancellationToken = default)
     {
         LogUpgrade(id, version);
-        var args = new List<string>
-        {
-            "upgrade",
-            "--id",
-            id
-        };
-        if (!string.IsNullOrEmpty(version))
-        {
-            args.Add("--version");
-            args.Add(version);
-        }
-        if (!string.IsNullOrEmpty(source))
-        {
-            args.Add("--source");
-            args.Add(source);
-        }
-        if (force)
-        {
-            args.Add("--force");
-        }
-        args.Add("--silent");
-        args.Add("--accept-package-agreements");
-        args.Add("--accept-source-agreements");
-        args.Add("--disable-interactivity");
-        return await processManager.RunProcessAsync("winget", string.Join(" ", args), cancellationToken, true);
+        var upgradeArgs = WingetHelper.GetUpgradeArgumentsForPackage(id, version, source, force);
+        return await processManager.RunProcessAsync("winget", upgradeArgs, cancellationToken, true);
     }
 
     // Console.WriteLine($"Checking if package {id} {version} is installed");

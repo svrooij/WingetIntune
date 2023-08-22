@@ -27,7 +27,8 @@ public class IntuneManagerTests
         var outputFolder = Path.Combine(Path.GetTempPath(), "packages");
         var outputPackageFolder = Path.Combine(outputFolder, packageId, version);
         var contentPrepToolPath = Path.Combine(tempFolder, IntuneManager.IntuneWinAppUtil);
-        var installerPath = Path.Combine(tempPackageFolder, IntuneTestConstants.azureCliPackageInfo.InstallerFilename!);
+        var installer = IntuneTestConstants.azureCliPackageInfo.Installers!.First();
+        var installerPath = Path.Combine(tempPackageFolder, installer.InstallerFilename!);
 
         var logoPath = Path.GetFullPath(Path.Combine(outputPackageFolder, "..", "logo.png"));
 
@@ -38,7 +39,7 @@ public class IntuneManagerTests
         fileManagerMock.Setup(x => x.DownloadFileAsync(IntuneManager.IntuneWinAppUtilUrl, contentPrepToolPath, true, false, It.IsAny<CancellationToken>()))
             .Returns(Task.CompletedTask)
             .Verifiable();
-        fileManagerMock.Setup(x => x.DownloadFileAsync(IntuneTestConstants.azureCliPackageInfo.InstallerUrl!.ToString(), installerPath, true, false, It.IsAny<CancellationToken>()))
+        fileManagerMock.Setup(x => x.DownloadFileAsync(installer.InstallerUrl!.ToString(), installerPath, true, false, It.IsAny<CancellationToken>()))
             .Returns(Task.CompletedTask)
             .Verifiable();
         fileManagerMock.Setup(x => x.DownloadFileAsync($"https://api.winstall.app/icons/{packageId}.png", logoPath, false, false, It.IsAny<CancellationToken>()))
@@ -47,7 +48,7 @@ public class IntuneManagerTests
 
         var detectionContent = @"Package Microsoft.AzureCLI 2.51.0 from Winget
 
-MsiProductCode={89E4C65D-96DD-435B-9BBB-EF1EAEF5B738}
+MsiProductCode={E428EC6E-E4F4-4DCA-9786-2653D0990AAD}
 MsiVersion=2.51.0
 ";
 
@@ -58,10 +59,10 @@ Publisher: Microsoft Corporation
 Homepage: 
 
 Install script:
-msiexec /i azure-cli-2.51.0.msi /quiet /qn
+msiexec /i azure-cli-2.51.0-x64.msi /quiet /qn
 
 Uninstall script:
-msiexec /x {89E4C65D-96DD-435B-9BBB-EF1EAEF5B738} /quiet /qn
+msiexec /x {E428EC6E-E4F4-4DCA-9786-2653D0990AAD} /quiet /qn
 
 Description:
 The Azure command-line interface (Azure CLI) is a set of commands used to create and manage Azure resources. The Azure CLI is available across Azure services and is designed to get you working quickly with Azure, with an emphasis on automation.
@@ -88,7 +89,7 @@ The Azure command-line interface (Azure CLI) is a set of commands used to create
 
         var intuneManager = new IntuneManager(new NullLoggerFactory(), fileManagerMock.Object, processManagerMock.Object, null, null, null, null);
 
-        await intuneManager.GenerateInstallerPackage(tempFolder, outputFolder, IntuneTestConstants.azureCliPackageInfo, null, CancellationToken.None);
+        await intuneManager.GenerateInstallerPackage(tempFolder, outputFolder, IntuneTestConstants.azureCliPackageInfo, new PackageOptions { Architecture = Models.Architecture.X64, InstallerContext = InstallerContext.User, ContentPrepUri = IntuneManager.DefaultIntuneWinAppUrl }, CancellationToken.None);
         fileManagerMock.VerifyAll();
         processManagerMock.VerifyAll();
     }

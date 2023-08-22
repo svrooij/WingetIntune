@@ -5,6 +5,7 @@ using Microsoft.Kiota.Abstractions.Authentication;
 using System.Text;
 using System.Text.Json;
 using WingetIntune.GraphExtensions;
+using WingetIntune.Implementations;
 using WingetIntune.Internal.Msal;
 using WingetIntune.Intune;
 using WingetIntune.Models;
@@ -391,13 +392,13 @@ public partial class IntuneManager
         }
     }
 
-    private static readonly InstallerType[] SupportedInstallers = new[] { InstallerType.Inno, InstallerType.Msi, InstallerType.Burn, InstallerType.Wix };
+    private static readonly InstallerType[] SupportedInstallers = new[] { InstallerType.Inno, InstallerType.Msi, InstallerType.Burn, InstallerType.Wix, InstallerType.Nullsoft };
 
     private static readonly Dictionary<InstallerType, string> DefaultInstallerSwitches = new()
     {
         { InstallerType.Inno, "/VERYSILENT /SUPPRESSMSGBOXES /NORESTART /SP-" },
         { InstallerType.Burn, "/quiet /norestart" },
-        //{ InstallerType.Wix, "/quiet /norestart" },
+        { InstallerType.Nullsoft, "/S" },
     };
 
     private void ComputeInstallerCommands(ref PackageInfo package, PackageOptions packageOptions)
@@ -428,14 +429,16 @@ public partial class IntuneManager
 
         if (string.IsNullOrWhiteSpace(package.InstallCommandLine))
         {
+            var installArguments = WingetHelper.GetInstallArgumentsForPackage(package.PackageIdentifier!, package.Version, installerContext: package.InstallerContext ?? InstallerContext.Unknown);
             // This seems like a hack I know, but it's the only way to get the install command for now.
-            package.InstallCommandLine = $"winget install --id {package.PackageIdentifier} --version {package.Version} --source winget --exact --accept-package-agreements --accept-source-agreements --disable-interactivity --silent";
+            package.InstallCommandLine = $"winget {installArguments}";
         }
 
         if (string.IsNullOrWhiteSpace(package.UninstallCommandLine))
         {
+            var uninstallArguments = WingetHelper.GetUninstallArgumentsForPackage(package.PackageIdentifier!, package.Version, installerContext: package.InstallerContext ?? InstallerContext.Unknown);
             // This seems like a hack I know, but it's the only way to get the uninstall command for now.
-            package.UninstallCommandLine = $"winget uninstall --id {package.PackageIdentifier} --version {package.Version} --source winget --exact --accept-source-agreements --silent --force --disable-interactivity --scope {(package.InstallerContext == InstallerContext.User ? "user" : "system")}";
+            package.UninstallCommandLine = $"winget {uninstallArguments}";
         }
     }
 

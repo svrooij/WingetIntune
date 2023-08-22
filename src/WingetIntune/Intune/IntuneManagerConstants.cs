@@ -1,10 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿namespace WingetIntune.Intune;
 
-namespace WingetIntune.Intune;
 internal class IntuneManagerConstants
 {
     internal const string PsCommandTemplate = @"$procOutput = & {command}
@@ -49,5 +44,4 @@ if($wingetOutput -is [array]) {
 
 Write-Host ""$($packageId) not detected using winget""
 Exit 10";
-
 }

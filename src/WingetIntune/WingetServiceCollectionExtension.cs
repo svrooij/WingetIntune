@@ -8,9 +8,9 @@ public static class WingetServiceCollectionExtension
         services.AddHttpClient();
         services.AddTransient<IFileManager, Os.DefaultFileManager>();
         services.AddTransient<IProcessManager, Os.ProcessManager>();
-        services.AddTransient<IWingetRepository, WingetManager>();
+        services.AddTransient<IWingetRepository, Implementations.WingetManager>();
         services.AddSingleton<IntuneManager>();
-        services.AddTransient<IAzureFileUploader, AzCopyAzureUploader>();
+        services.AddTransient<IAzureFileUploader, Implementations.AzCopyAzureUploader>();
         services.AddSingleton<Internal.Msal.PublicClientAuth>();
         services.AddTransient<Internal.MsStore.MicrosoftStoreClient>();
         return services;

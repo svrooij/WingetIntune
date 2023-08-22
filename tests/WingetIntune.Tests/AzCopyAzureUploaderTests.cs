@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.Logging.Abstractions;
+using WingetIntune.Implementations;
 
 namespace WingetIntune.Tests;
 

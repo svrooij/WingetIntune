@@ -1,6 +1,7 @@
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using WingetIntune.Models;
+using WingetIntune.Implementations;
 
 namespace WingetIntune.Tests
 {
