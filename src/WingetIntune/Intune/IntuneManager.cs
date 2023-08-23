@@ -187,7 +187,6 @@ public partial class IntuneManager
         {
             throw new FileNotFoundException("IntuneWin file not found", intuneFilePath);
         }
-
         string? appId = null;
 
         try

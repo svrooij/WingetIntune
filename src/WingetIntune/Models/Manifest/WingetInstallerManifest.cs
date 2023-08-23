@@ -67,6 +67,7 @@ public class WingetAppsAndFeatures
     public string? DisplayName { get; set; }
     public string? Publisher { get; set; }
     public string? DisplayVersion { get; set; }
+    public string? ProductCode { get; set; }
 }
 
 internal static class WingetInstallerExtensions
