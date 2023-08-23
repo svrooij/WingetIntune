@@ -9,7 +9,7 @@ public class IntuneManagerTests
     [Fact]
     public async Task GenerateMsiPackage_OtherPackage_ThrowsError()
     {
-        var intuneManager = new IntuneManager(new NullLoggerFactory(), null, null, null, null, null, null);
+        var intuneManager = new IntuneManager(null, null, null, null, null, null, null);
         var tempFolder = Path.Combine(Path.GetTempPath(), "intunewin");
         var outputFolder = Path.Combine(Path.GetTempPath(), "packages");
 

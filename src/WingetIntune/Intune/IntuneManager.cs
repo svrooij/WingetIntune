@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Graph.Beta;
 using Microsoft.Graph.Beta.Models;
 using Microsoft.Kiota.Abstractions.Authentication;
@@ -28,10 +29,10 @@ public partial class IntuneManager
     internal const string IntuneWinAppUtil = "IntuneWinAppUtil.exe";
     internal const string IntuneWinAppUtilUrl = "https://github.com/microsoft/Microsoft-Win32-Content-Prep-Tool/raw/master/IntuneWinAppUtil.exe";
 
-    public IntuneManager(ILoggerFactory loggerFactory, IFileManager fileManager, IProcessManager processManager, HttpClient httpClient, IAzureFileUploader azureFileUploader, Internal.MsStore.MicrosoftStoreClient microsoftStoreClient, PublicClientAuth publicClient)
+    public IntuneManager(ILoggerFactory? loggerFactory, IFileManager fileManager, IProcessManager processManager, HttpClient httpClient, IAzureFileUploader azureFileUploader, Internal.MsStore.MicrosoftStoreClient microsoftStoreClient, PublicClientAuth publicClient)
     {
-        this.loggerFactory = loggerFactory;
-        this.logger = loggerFactory.CreateLogger<IntuneManager>();
+        this.loggerFactory = loggerFactory ?? new NullLoggerFactory();
+        this.logger = this.loggerFactory.CreateLogger<IntuneManager>();
         this.fileManager = fileManager;
         this.processManager = processManager;
         this.httpClient = httpClient;
@@ -42,6 +43,10 @@ public partial class IntuneManager
 
     public async Task GenerateMsiPackage(string tempFolder, string outputFolder, Models.PackageInfo packageInfo, PackageOptions packageOptions, CancellationToken cancellationToken = default)
     {
+        ArgumentNullException.ThrowIfNullOrEmpty(tempFolder);
+        ArgumentNullException.ThrowIfNullOrEmpty(outputFolder);
+        ArgumentNullException.ThrowIfNull(packageInfo);
+        ArgumentNullException.ThrowIfNull(packageOptions);
         if (!packageInfo.InstallerType.IsMsi())
         {
             throw new ArgumentException("Package is not an MSI package", nameof(packageInfo));
@@ -64,6 +69,8 @@ public partial class IntuneManager
 
     public async Task GenerateInstallerPackage(string tempFolder, string outputFolder, Models.PackageInfo packageInfo, PackageOptions? packageOptions = null, CancellationToken cancellationToken = default)
     {
+        ArgumentNullException.ThrowIfNullOrEmpty(tempFolder);
+        ArgumentNullException.ThrowIfNullOrEmpty(outputFolder);
         if (packageOptions is null)
         {
             packageOptions = PackageOptions.Create();
@@ -84,6 +91,9 @@ public partial class IntuneManager
 
     private async Task GenerateNoneMsiInstaller(string tempFolder, string outputFolder, PackageInfo packageInfo, PackageOptions packageOptions, CancellationToken cancellationToken)
     {
+        ArgumentNullException.ThrowIfNullOrEmpty(tempFolder);
+        ArgumentNullException.ThrowIfNullOrEmpty(outputFolder);
+        ArgumentNullException.ThrowIfNull(packageInfo);
         var packageTempFolder = fileManager.CreateFolderForPackage(tempFolder, packageInfo.PackageIdentifier!, packageInfo.Version!);
         var packageFolder = fileManager.CreateFolderForPackage(outputFolder, packageInfo.PackageIdentifier!, packageInfo.Version!);
         var contentPrepToolLocation = await DownloadContentPrepToolAsync(tempFolder, packageOptions.ContentPrepUri, cancellationToken);
@@ -150,6 +160,9 @@ public partial class IntuneManager
 
     public async Task<MobileApp> PublishAppAsync(string packagesFolder, PackageInfo packageInfo, IntunePublishOptions options, CancellationToken cancellationToken = default)
     {
+        ArgumentNullException.ThrowIfNullOrEmpty(packagesFolder);
+        ArgumentNullException.ThrowIfNull(packageInfo);
+        ArgumentNullException.ThrowIfNull(options);
         if (packageInfo.Source == PackageSource.Store)
         {
             return await PublishStoreAppAsync(options, packageId: packageInfo.PackageIdentifier, cancellationToken: cancellationToken);
@@ -286,12 +299,9 @@ public partial class IntuneManager
 
         await Task.Delay(5000, cancellationToken);
 
-        logger.LogInformation("Going to commit file {encryptionInfo}", JsonSerializer.Serialize(info.EncryptionInfo));
-
         var encryptionInfo = mapper.ToFileEncryptionInfo(info.EncryptionInfo);
 
-        logger.LogInformation("Mapped encryption info {encryptionInfo}", JsonSerializer.Serialize(encryptionInfo));
-
+        logger.LogDebug("Mapped encryption info {encryptionInfo}", JsonSerializer.Serialize(encryptionInfo));
 
         // Commit the file
         await graphServiceClient.Intune_CommitWin32LobAppContentVersionFileAsync(appId,
@@ -310,6 +320,8 @@ public partial class IntuneManager
 
     public async Task<WinGetApp> PublishStoreAppAsync(IntunePublishOptions options, string? packageId = null, string? searchString = null, CancellationToken cancellationToken = default)
     {
+        ArgumentNullException.ThrowIfNull(options);
+
         if (string.IsNullOrEmpty(packageId) && string.IsNullOrEmpty(searchString))
         {
             throw new ArgumentException("Either id or searchString must be specified");
@@ -377,8 +389,9 @@ public partial class IntuneManager
         return installerPath;
     }
 
-    public static (string?, string?) GetMsiInfo(string setupFile, ILogger logger)
+    public static (string?, string?) GetMsiInfo(string setupFile, ILogger? logger)
     {
+        ArgumentNullException.ThrowIfNullOrEmpty(setupFile);
         try
         {
             using var msi = new WixSharp.UI.MsiParser(setupFile);
@@ -387,11 +400,11 @@ public partial class IntuneManager
         catch (DllNotFoundException)
         {
             // WixSharp.UI.MsiParser uses Microsoft.Deployment.WindowsInstaller.dll which is not available on Linux
-            logger.LogWarning("Unable to get product code from {setupFile} because Microsoft.Deployment.WindowsInstaller.dll is not available on Linux", setupFile);
+            logger?.LogWarning("Unable to get product code from {setupFile} because Microsoft.Deployment.WindowsInstaller.dll is not available on Linux", setupFile);
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, "Error getting product code from {setupFile}", setupFile);
+            logger?.LogError(ex, "Error getting product code from {setupFile}", setupFile);
             throw;
         }
         return (null, null);

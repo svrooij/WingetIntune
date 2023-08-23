@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
 
 namespace WingetIntune.Implementations;
 
@@ -9,12 +10,14 @@ internal class AzCopyAzureUploader : IAzureFileUploader
     private readonly IProcessManager processManager;
     private readonly IFileManager fileManager;
 
-    public AzCopyAzureUploader(ILogger<AzCopyAzureUploader> logger, IProcessManager processManager, IFileManager fileManager)
+    public AzCopyAzureUploader(ILogger<AzCopyAzureUploader>? logger, IProcessManager processManager, IFileManager fileManager)
     {
-        azCopyPath = Path.Combine(Path.GetTempPath(), "intunewin", "azcopy.exe");
-        this.logger = logger;
+        ArgumentNullException.ThrowIfNull(processManager);
+        ArgumentNullException.ThrowIfNull(fileManager);
+        this.logger = logger ?? new NullLogger<AzCopyAzureUploader>();
         this.processManager = processManager;
         this.fileManager = fileManager;
+        azCopyPath = Path.Combine(Path.GetTempPath(), "intunewin", "azcopy.exe");
     }
 
     private async Task DownloadAzCopyIfNeeded(CancellationToken cancellationToken)
@@ -36,8 +39,10 @@ internal class AzCopyAzureUploader : IAzureFileUploader
         }
     }
 
-    public async Task UploadFileToAzureAsync(string filename, Uri sasUri, CancellationToken cancellationToken)
+    public async Task UploadFileToAzureAsync(string filename, Uri sasUri, CancellationToken cancellationToken = default)
     {
+        ArgumentNullException.ThrowIfNullOrEmpty(filename);
+        ArgumentNullException.ThrowIfNull(sasUri);
         await DownloadAzCopyIfNeeded(cancellationToken);
         var args = $"copy \"{filename}\" \"{sasUri}\" --output-type \"json\"";
         var result = await processManager.RunProcessAsync(azCopyPath, args, cancellationToken, false);
