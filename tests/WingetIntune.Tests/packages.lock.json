@@ -170,8 +170,8 @@
       },
       "Microsoft.Graph.Beta": {
         "type": "Transitive",
-        "resolved": "5.43.0-preview",
-        "contentHash": "a2r6KeWpAw/UqDYdRM/vB5ClGiME/3++jbwIhaa3Aqt1261FyRgcvqK8RTJPzq5k7ger3z3p/I15M4A/jmAyEw==",
+        "resolved": "5.44.0-preview",
+        "contentHash": "m7TgwN16OXfywN+tQMYYEANTb9G/a0hZYf4RazKmjhPRBpMk+eyqC3E67eSmrPpeQ6jfvuYoHio0EaBkWb5EVw==",
         "dependencies": {
           "Microsoft.Graph.Core": "3.0.10"
         }
@@ -387,8 +387,8 @@
       },
       "Riok.Mapperly": {
         "type": "Transitive",
-        "resolved": "3.0.0",
-        "contentHash": "cGxHzY5QM+8A1dF6at7KSwHbz3x8UI/7Rlw4LUEUhzTN+j5i/Ch0m+lSa/i5cxUrIHHE2Uj5wlNR1mJqliSOPg=="
+        "resolved": "3.1.0",
+        "contentHash": "NLEHpzPOz6RzLiGdcL8mkzYZ1JX2W0CCGE+zpYAKT6P1RK6eLSvfQYrH04t3cs1XIne2LG0C80TB3MmFl2FXWg=="
       },
       "System.Collections": {
         "type": "Transitive",
@@ -685,10 +685,10 @@
           "Microsoft.Extensions.Http": "[7.0.0, )",
           "Microsoft.Extensions.Logging.Abstractions": "[7.0.1, )",
           "Microsoft.Extensions.Options": "[7.0.1, )",
-          "Microsoft.Graph.Beta": "[5.43.0-preview, )",
+          "Microsoft.Graph.Beta": "[5.44.0-preview, )",
           "Microsoft.Identity.Client.Broker": "[4.55.0, )",
           "Microsoft.Identity.Client.Extensions.Msal": "[2.32.0, )",
-          "Riok.Mapperly": "[3.0.0, )",
+          "Riok.Mapperly": "[3.1.0, )",
           "YamlDotNet": "[13.2.0, )"
         }
       }

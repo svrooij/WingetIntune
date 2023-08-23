@@ -16,8 +16,10 @@ internal static class GraphServiceClientExtensions
     // These extensions are on the service client, not the request builder.
     // until this issue is resolved: https://github.com/microsoft/kiota-abstractions-dotnet/issues/113
 
-    public static Task<Entity?> Intune_CreateWin32LobAppContentVersionAsync(this GraphServiceClient graphServiceClient, string win32LobAppId, CancellationToken cancellationToken)
+    public static Task<Entity?> Intune_CreateWin32LobAppContentVersionAsync(this GraphServiceClient graphServiceClient, string win32LobAppId, CancellationToken cancellationToken = default)
     {
+        ArgumentNullException.ThrowIfNull(graphServiceClient);
+        ArgumentNullException.ThrowIfNullOrEmpty(win32LobAppId);
         var requestInfo = new RequestInformation
         {
             HttpMethod = Method.POST,
@@ -30,8 +32,12 @@ internal static class GraphServiceClientExtensions
 
     }
 
-    public static Task<MobileAppContentFile?> Intune_CreateWin32LobAppContentVersionFileAsync(this GraphServiceClient graphServiceClient, string win32LobAppId, string contentVersionId, MobileAppContentFile mobileAppContentFile, CancellationToken cancellationToken)
+    public static Task<MobileAppContentFile?> Intune_CreateWin32LobAppContentVersionFileAsync(this GraphServiceClient graphServiceClient, string win32LobAppId, string contentVersionId, MobileAppContentFile mobileAppContentFile, CancellationToken cancellationToken = default)
     {
+        ArgumentNullException.ThrowIfNull(graphServiceClient);
+        ArgumentNullException.ThrowIfNullOrEmpty(win32LobAppId);
+        ArgumentNullException.ThrowIfNullOrEmpty(contentVersionId);
+        ArgumentNullException.ThrowIfNull(mobileAppContentFile);
         var requestInfo = new RequestInformation
         {
             HttpMethod = Method.POST,
@@ -41,8 +47,12 @@ internal static class GraphServiceClientExtensions
         return graphServiceClient.RequestAdapter.SendAsync<MobileAppContentFile>(requestInfo, MobileAppContentFile.CreateFromDiscriminatorValue, errorMapping: ErrorMapping, cancellationToken: cancellationToken);
     }
 
-    public static Task<MobileAppContentFile?> Intune_GetWin32LobAppContentVersionFileAsync(this GraphServiceClient graphServiceClient, string win32LobAppId, string contentVersionId, string mobileAppContentFileId, CancellationToken cancellationToken)
+    public static Task<MobileAppContentFile?> Intune_GetWin32LobAppContentVersionFileAsync(this GraphServiceClient graphServiceClient, string win32LobAppId, string contentVersionId, string mobileAppContentFileId, CancellationToken cancellationToken = default)
     {
+        ArgumentNullException.ThrowIfNull(graphServiceClient);
+        ArgumentNullException.ThrowIfNullOrEmpty(win32LobAppId);
+        ArgumentNullException.ThrowIfNullOrEmpty(contentVersionId);
+        ArgumentNullException.ThrowIfNullOrEmpty(mobileAppContentFileId);
         var requestInfo = new RequestInformation
         {
             HttpMethod = Method.GET,
@@ -51,8 +61,12 @@ internal static class GraphServiceClientExtensions
         return graphServiceClient.RequestAdapter.SendAsync<MobileAppContentFile>(requestInfo, MobileAppContentFile.CreateFromDiscriminatorValue, errorMapping: ErrorMapping, cancellationToken: cancellationToken);
     }
 
-    public static async Task<MobileAppContentFile?> Intune_WaitForFinalCommitStateAsync(this GraphServiceClient graphServiceClient, string win32LobAppId, string contentVersionId, string mobileAppContentFileId, CancellationToken cancellationToken)
+    public static async Task<MobileAppContentFile?> Intune_WaitForFinalCommitStateAsync(this GraphServiceClient graphServiceClient, string win32LobAppId, string contentVersionId, string mobileAppContentFileId, CancellationToken cancellationToken = default)
     {
+        ArgumentNullException.ThrowIfNull(graphServiceClient);
+        ArgumentNullException.ThrowIfNullOrEmpty(win32LobAppId);
+        ArgumentNullException.ThrowIfNullOrEmpty(contentVersionId);
+        ArgumentNullException.ThrowIfNullOrEmpty(mobileAppContentFileId);
         while (!cancellationToken.IsCancellationRequested)
         {
             var result = await graphServiceClient.Intune_GetWin32LobAppContentVersionFileAsync(win32LobAppId, contentVersionId, mobileAppContentFileId, cancellationToken)!;
@@ -76,8 +90,13 @@ internal static class GraphServiceClientExtensions
         throw new TaskCanceledException();
     }
 
-    public static Task Intune_CommitWin32LobAppContentVersionFileAsync(this GraphServiceClient graphServiceClient, string win32LobAppId, string contentVersionId, string mobileAppContentFileId, FileEncryptionInfo fileEncryptionInfo, CancellationToken cancellationToken)
+    public static Task Intune_CommitWin32LobAppContentVersionFileAsync(this GraphServiceClient graphServiceClient, string win32LobAppId, string contentVersionId, string mobileAppContentFileId, FileEncryptionInfo fileEncryptionInfo, CancellationToken cancellationToken = default)
     {
+        ArgumentNullException.ThrowIfNull(graphServiceClient);
+        ArgumentNullException.ThrowIfNullOrEmpty(win32LobAppId);
+        ArgumentNullException.ThrowIfNullOrEmpty(contentVersionId);
+        ArgumentNullException.ThrowIfNullOrEmpty(mobileAppContentFileId);
+        ArgumentNullException.ThrowIfNull(fileEncryptionInfo);
         var body = new MobileAppContentFileCommitBody
         {
             FileEncryptionInfo = fileEncryptionInfo,
