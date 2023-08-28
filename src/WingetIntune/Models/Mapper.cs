@@ -102,8 +102,8 @@ internal partial class Mapper
         var app = _ToWinGetApp(locale);
         app.DisplayName = locale.PackageName;
         app.PackageIdentifier = storeManifest.Data.PackageIdentifier;
-        app.InformationUrl = locale.PublisherSupportUrl;
-        app.PrivacyInformationUrl = locale.PrivacyUrl;
+        app.InformationUrl = locale.PublisherSupportUrl?.ValidUriOrNull();
+        app.PrivacyInformationUrl = locale.PrivacyUrl?.ValidUriOrNull();
         app.AdditionalData.Add("repositoryType", "microsoftstore");
         app.InstallExperience = new WinGetAppInstallExperience()
         {
@@ -117,4 +117,10 @@ internal partial class Mapper
     private partial WinGetApp _ToWinGetApp(MicrosoftStoreManifestDefaultlocale locale);
 
     internal partial FileEncryptionInfo ToFileEncryptionInfo(ApplicationInfoEncryptionInfo packageInfo);
+}
+
+internal static class MapperExtensions
+{
+    public static string? ValidUriOrNull(this string? input)
+        => Uri.TryCreate(input, UriKind.Absolute, out var uri) && uri.Scheme.StartsWith("http") ? uri.ToString() : null;
 }

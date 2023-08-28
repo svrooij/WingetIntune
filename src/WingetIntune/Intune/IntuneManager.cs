@@ -2,6 +2,7 @@
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Graph.Beta;
 using Microsoft.Graph.Beta.Models;
+using Microsoft.Graph.Beta.Models.ODataErrors;
 using Microsoft.Kiota.Abstractions.Authentication;
 using System.Text;
 using System.Text.Json;
@@ -213,6 +214,22 @@ public partial class IntuneManager
 
             return app!;
         }
+        catch (ODataError ex)
+        {
+            logger.LogError(ex, "Error publishing app, deleting the remains {message}", ex.Error?.Message);
+            if (appId != null)
+            {
+                try
+                {
+                    await graphServiceClient.DeviceAppManagement.MobileApps[appId].DeleteAsync(cancellationToken: cancellationToken);
+                }
+                catch (Exception ex2)
+                {
+                    logger.LogError(ex2, "Error deleting app");
+                }
+            }
+            throw;
+        }
         catch (Exception ex)
         {
             logger.LogError(ex, "Error publishing app, deleting the remains");
@@ -354,6 +371,11 @@ public partial class IntuneManager
         {
             var appCreated = await graphServiceClient.DeviceAppManagement.MobileApps.PostAsync(app, cancellationToken);
             return appCreated!;
+        }
+        catch (ODataError ex)
+        {
+            logger.LogError(ex, "Error publishing app {message}",ex.Error?.Message);
+            throw;
         }
         catch (Exception ex)
         {
