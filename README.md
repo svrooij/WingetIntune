@@ -27,6 +27,9 @@ I'm working to get a code signing certificate, but for now you might have to con
 # Install dotnet 7 sdk
 winget install --id Microsoft.DotNet.SDK.7 --source winget
 
+# Add the nuget feed, if that is not already done
+dotnet nuget add source https://api.nuget.org/v3/index.json --name nuget.org
+
 # This command will install the tool
 dotnet tool install --global Svrooij.Winget-Intune.Cli
 
