@@ -170,8 +170,8 @@
       },
       "Microsoft.Graph.Beta": {
         "type": "Transitive",
-        "resolved": "5.44.0-preview",
-        "contentHash": "m7TgwN16OXfywN+tQMYYEANTb9G/a0hZYf4RazKmjhPRBpMk+eyqC3E67eSmrPpeQ6jfvuYoHio0EaBkWb5EVw==",
+        "resolved": "5.45.0-preview",
+        "contentHash": "KwhldIMVjDTRZI/6IF7OXx/iTH/TsRzno/DBAhL2gEOvXIS87VkQjob115uR9BYdoy9SOZkTlu4BpFP6BCoTDg==",
         "dependencies": {
           "Microsoft.Graph.Core": "3.0.10"
         }
@@ -685,7 +685,7 @@
           "Microsoft.Extensions.Http": "[7.0.0, )",
           "Microsoft.Extensions.Logging.Abstractions": "[7.0.1, )",
           "Microsoft.Extensions.Options": "[7.0.1, )",
-          "Microsoft.Graph.Beta": "[5.44.0-preview, )",
+          "Microsoft.Graph.Beta": "[5.45.0-preview, )",
           "Microsoft.Identity.Client.Broker": "[4.55.0, )",
           "Microsoft.Identity.Client.Extensions.Msal": "[2.32.0, )",
           "Riok.Mapperly": "[3.1.0, )",

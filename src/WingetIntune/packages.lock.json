@@ -42,9 +42,9 @@
       },
       "Microsoft.Graph.Beta": {
         "type": "Direct",
-        "requested": "[5.44.0-preview, )",
-        "resolved": "5.44.0-preview",
-        "contentHash": "m7TgwN16OXfywN+tQMYYEANTb9G/a0hZYf4RazKmjhPRBpMk+eyqC3E67eSmrPpeQ6jfvuYoHio0EaBkWb5EVw==",
+        "requested": "[5.45.0-preview, )",
+        "resolved": "5.45.0-preview",
+        "contentHash": "KwhldIMVjDTRZI/6IF7OXx/iTH/TsRzno/DBAhL2gEOvXIS87VkQjob115uR9BYdoy9SOZkTlu4BpFP6BCoTDg==",
         "dependencies": {
           "Microsoft.Graph.Core": "3.0.10"
         }
