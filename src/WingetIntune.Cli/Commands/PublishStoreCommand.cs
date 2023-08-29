@@ -29,6 +29,10 @@ internal class PublishStoreCommand : Command
         AddOption(PublishCommand.TenantOption);
         AddOption(PublishCommand.UsernameOption);
         AddOption(PublishCommand.TokenOption);
+        AddOption(PublishCommand.CategoryOption);
+        AddOption(PublishCommand.AvailableForOption);
+        AddOption(PublishCommand.RequiredForOption);
+        AddOption(PublishCommand.UninstallForOption);
 
         this.Handler = CommandHandler.Create(HandleCommand);
     }
@@ -42,13 +46,17 @@ internal class PublishStoreCommand : Command
         var logger = host.Services.GetRequiredService<ILogger<PublishStoreCommand>>();
         var intuneManager = host.Services.GetRequiredService<IntuneManager>();
 
-        Graph.WinGetApp? app = null;
+        Microsoft.Graph.Beta.Models.WinGetApp? app = null;
 
         var publishOptions = new IntunePublishOptions
         {
             Tenant = options.Tenant,
             Username = options.Username,
-            Token = options.Token
+            Token = options.Token,
+            Categories = options.Category,
+            AvailableFor = options.Available,
+            RequiredFor = options.Required,
+            UninstallFor = options.Uninstall
         };
 
         if (string.IsNullOrEmpty(options.Id))
@@ -80,4 +88,9 @@ internal class PublishStoreCommandOptions : WinGetRootCommand.DefaultOptions
     public string? Tenant { get; set; }
     public string? Username { get; set; }
     public string? Token { get; set; }
+    public string[] Category { get; set; } = Array.Empty<string>();
+    public string[] Available { get; set; } = Array.Empty<string>();
+    public string[] Required { get; set; } = Array.Empty<string>();
+    public string[] Uninstall { get; set; } = Array.Empty<string>();
+
 }

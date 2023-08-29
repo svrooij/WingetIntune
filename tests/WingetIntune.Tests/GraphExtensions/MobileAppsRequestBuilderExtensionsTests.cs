@@ -6,7 +6,7 @@ using System.Linq;
 using System.Net;
 using System.Text;
 using System.Threading.Tasks;
-using WingetIntune.GraphExtensions;
+using WingetIntune.Graph;
 
 namespace WingetIntune.Tests.GraphExtensions;
 public class MobileAppsRequestBuilderExtensionsTests

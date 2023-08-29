@@ -6,8 +6,10 @@ using Microsoft.Graph.Beta.Models.ODataErrors;
 using Microsoft.Kiota.Abstractions.Authentication;
 using System.Text;
 using System.Text.Json;
-using WingetIntune.GraphExtensions;
+using WingetIntune.Extensions;
+using WingetIntune.Graph;
 using WingetIntune.Implementations;
+using WingetIntune.Interfaces;
 using WingetIntune.Internal.Msal;
 using WingetIntune.Intune;
 using WingetIntune.Models;
@@ -24,13 +26,11 @@ public partial class IntuneManager
     private readonly HttpClient httpClient;
     private readonly Mapper mapper = new Mapper();
     private readonly IAzureFileUploader azureFileUploader;
+    private readonly IIntunePackager intunePackager;
     private readonly Internal.MsStore.MicrosoftStoreClient microsoftStoreClient;
     private readonly PublicClientAuth publicClient;
 
-    internal const string IntuneWinAppUtil = "IntuneWinAppUtil.exe";
-    internal const string IntuneWinAppUtilUrl = "https://github.com/microsoft/Microsoft-Win32-Content-Prep-Tool/raw/master/IntuneWinAppUtil.exe";
-
-    public IntuneManager(ILoggerFactory? loggerFactory, IFileManager fileManager, IProcessManager processManager, HttpClient httpClient, IAzureFileUploader azureFileUploader, Internal.MsStore.MicrosoftStoreClient microsoftStoreClient, PublicClientAuth publicClient)
+    public IntuneManager(ILoggerFactory? loggerFactory, IFileManager fileManager, IProcessManager processManager, HttpClient httpClient, IAzureFileUploader azureFileUploader, Internal.MsStore.MicrosoftStoreClient microsoftStoreClient, PublicClientAuth publicClient, IIntunePackager intunePackager)
     {
         this.loggerFactory = loggerFactory ?? new NullLoggerFactory();
         this.logger = this.loggerFactory.CreateLogger<IntuneManager>();
@@ -40,12 +40,13 @@ public partial class IntuneManager
         this.azureFileUploader = azureFileUploader;
         this.microsoftStoreClient = microsoftStoreClient;
         this.publicClient = publicClient;
+        this.intunePackager = intunePackager;
     }
 
     public async Task GenerateMsiPackage(string tempFolder, string outputFolder, Models.PackageInfo packageInfo, PackageOptions packageOptions, CancellationToken cancellationToken = default)
     {
-        ArgumentNullException.ThrowIfNullOrEmpty(tempFolder);
-        ArgumentNullException.ThrowIfNullOrEmpty(outputFolder);
+        ArgumentException.ThrowIfNullOrEmpty(tempFolder);
+        ArgumentException.ThrowIfNullOrEmpty(outputFolder);
         ArgumentNullException.ThrowIfNull(packageInfo);
         ArgumentNullException.ThrowIfNull(packageOptions);
         if (!packageInfo.InstallerType.IsMsi())
@@ -59,10 +60,9 @@ public partial class IntuneManager
         LogGeneratePackage(packageInfo.PackageIdentifier!, packageInfo.Version!, outputFolder);
         var packageTempFolder = fileManager.CreateFolderForPackage(tempFolder, packageInfo.PackageIdentifier!, packageInfo.Version!);
         var packageFolder = fileManager.CreateFolderForPackage(outputFolder, packageInfo.PackageIdentifier!, packageInfo.Version!);
-        var contentPrepToolLocation = await DownloadContentPrepToolAsync(tempFolder, packageOptions.ContentPrepUri, cancellationToken);
         var installerPath = await DownloadInstallerAsync(packageTempFolder, packageInfo, cancellationToken);
         LoadMsiDetails(installerPath, ref packageInfo);
-        await GenerateIntuneWinFile(contentPrepToolLocation, packageTempFolder, packageFolder, packageInfo.InstallerFilename!, cancellationToken);
+        await intunePackager.CreatePackage(packageTempFolder, packageFolder, packageInfo.InstallerFilename!, cancellationToken);
         await DownloadLogoAsync(packageFolder, packageInfo.PackageIdentifier!, cancellationToken);
         await WriteReadmeAsync(packageFolder, packageInfo, cancellationToken);
         await WritePackageInfo(packageFolder, packageInfo, cancellationToken);
@@ -70,8 +70,8 @@ public partial class IntuneManager
 
     public async Task GenerateInstallerPackage(string tempFolder, string outputFolder, Models.PackageInfo packageInfo, PackageOptions? packageOptions = null, CancellationToken cancellationToken = default)
     {
-        ArgumentNullException.ThrowIfNullOrEmpty(tempFolder);
-        ArgumentNullException.ThrowIfNullOrEmpty(outputFolder);
+        ArgumentException.ThrowIfNullOrEmpty(tempFolder);
+        ArgumentException.ThrowIfNullOrEmpty(outputFolder);
         if (packageOptions is null)
         {
             packageOptions = PackageOptions.Create();
@@ -92,12 +92,11 @@ public partial class IntuneManager
 
     private async Task GenerateNoneMsiInstaller(string tempFolder, string outputFolder, PackageInfo packageInfo, PackageOptions packageOptions, CancellationToken cancellationToken)
     {
-        ArgumentNullException.ThrowIfNullOrEmpty(tempFolder);
-        ArgumentNullException.ThrowIfNullOrEmpty(outputFolder);
+        ArgumentException.ThrowIfNullOrEmpty(tempFolder);
+        ArgumentException.ThrowIfNullOrEmpty(outputFolder);
         ArgumentNullException.ThrowIfNull(packageInfo);
         var packageTempFolder = fileManager.CreateFolderForPackage(tempFolder, packageInfo.PackageIdentifier!, packageInfo.Version!);
         var packageFolder = fileManager.CreateFolderForPackage(outputFolder, packageInfo.PackageIdentifier!, packageInfo.Version!);
-        var contentPrepToolLocation = await DownloadContentPrepToolAsync(tempFolder, packageOptions.ContentPrepUri, cancellationToken);
         // TODO : If installer is not supported (yet) should it be downloaded?
         if (SupportedInstallers.Contains(packageInfo.InstallerType))
         {
@@ -126,8 +125,7 @@ public partial class IntuneManager
                     cancellationToken);
             packageInfo.UninstallCommandLine = $"powershell.exe -WindowStyle Hidden -ExecutionPolicy Bypass -File uninstall.ps1";
         }
-
-        await GenerateIntuneWinFile(contentPrepToolLocation, packageTempFolder, packageFolder, packageInfo.InstallerFilename!, cancellationToken);
+        await intunePackager.CreatePackage(packageTempFolder, packageFolder, packageInfo.InstallerFilename!, cancellationToken);
         await DownloadLogoAsync(packageFolder, packageInfo.PackageIdentifier!, cancellationToken);
 
         var detectionScript = IntuneManagerConstants.PsDetectionCommandTemplate.Replace("{packageId}", packageInfo.PackageIdentifier!).Replace("{version}", packageInfo.Version);
@@ -161,7 +159,7 @@ public partial class IntuneManager
 
     public async Task<MobileApp> PublishAppAsync(string packagesFolder, PackageInfo packageInfo, IntunePublishOptions options, CancellationToken cancellationToken = default)
     {
-        ArgumentNullException.ThrowIfNullOrEmpty(packagesFolder);
+        ArgumentException.ThrowIfNullOrEmpty(packagesFolder);
         ArgumentNullException.ThrowIfNull(packageInfo);
         ArgumentNullException.ThrowIfNull(options);
         if (packageInfo.Source == PackageSource.Store)
@@ -212,6 +210,16 @@ public partial class IntuneManager
 
             // TODO: Add Categories by ID (lookup by name?)
 
+            if (options.Categories != null && options.Categories.Any())
+            {
+                await AddCategoriesToApp(graphServiceClient, appId, options.Categories, cancellationToken);
+            }
+
+            if (options.AvailableFor.Any() || options.RequiredFor.Any() || options.UninstallFor.Any())
+            {
+                await AssignAppAsync(graphServiceClient, appId, options.AvailableFor, options.RequiredFor, options.UninstallFor, cancellationToken);
+            }
+
             return app!;
         }
         catch (ODataError ex)
@@ -251,8 +259,8 @@ public partial class IntuneManager
     public async Task<string> AddContentVersionToApp(IntunePublishOptions publishOptions, string appId, string intuneFilePath, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(publishOptions);
-        ArgumentNullException.ThrowIfNullOrEmpty(appId);
-        ArgumentNullException.ThrowIfNullOrEmpty(intuneFilePath);
+        ArgumentException.ThrowIfNullOrEmpty(appId);
+        ArgumentException.ThrowIfNullOrEmpty(intuneFilePath);
 
         var graphServiceClient = CreateGraphClientFromOptions(publishOptions);
 
@@ -262,8 +270,8 @@ public partial class IntuneManager
     internal async Task<string> AddContentVersionToApp(GraphServiceClient graphServiceClient, string appId, string intuneFilePath, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(graphServiceClient);
-        ArgumentNullException.ThrowIfNullOrEmpty(appId);
-        ArgumentNullException.ThrowIfNullOrEmpty(intuneFilePath);
+        ArgumentException.ThrowIfNullOrEmpty(appId);
+        ArgumentException.ThrowIfNullOrEmpty(intuneFilePath);
 
         if (!fileManager.FileExists(intuneFilePath))
         {
@@ -370,11 +378,24 @@ public partial class IntuneManager
         try
         {
             var appCreated = await graphServiceClient.DeviceAppManagement.MobileApps.PostAsync(app, cancellationToken);
-            return appCreated!;
+            logger.LogInformation("Store app published to Intune with id {id}", appCreated!.Id);
+            if (appCreated == null)
+            {
+                throw new Exception("App was not created");
+            }
+            if (options.Categories != null && options.Categories.Any())
+            {
+                await AddCategoriesToApp(graphServiceClient, appCreated.Id!, options.Categories, cancellationToken);
+            }
+            if (options.AvailableFor.Any() || options.RequiredFor.Any() || options.UninstallFor.Any())
+            {
+                await AssignAppAsync(graphServiceClient, appCreated.Id!, options.AvailableFor, options.RequiredFor, options.UninstallFor, cancellationToken);
+            }
+            return appCreated;
         }
         catch (ODataError ex)
         {
-            logger.LogError(ex, "Error publishing app {message}",ex.Error?.Message);
+            logger.LogError(ex, "Error publishing app {message}", ex.Error?.Message);
             throw;
         }
         catch (Exception ex)
@@ -384,22 +405,53 @@ public partial class IntuneManager
         }
     }
 
+    private async Task AddCategoriesToApp(GraphServiceClient graphServiceClient, string appId, string[] categories, CancellationToken cancellationToken)
+    {
+        ArgumentNullException.ThrowIfNull(graphServiceClient);
+        ArgumentException.ThrowIfNullOrEmpty(appId);
+        ArgumentNullException.ThrowIfNull(categories);
+
+        logger.LogInformation("Adding categories {categories} to app {appId}", string.Join(",", categories), appId);
+
+        try
+        {
+            await GraphWorkflows.AddIntuneCategoriesToApp(graphServiceClient, appId, categories, cancellationToken);
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "Error adding categories to app");
+            // Don't throw, just continue.
+            //throw;
+        }
+    }
+
+    private async Task AssignAppAsync(GraphServiceClient graphServiceClient, string appId, string[]? requiredFor, string[]? availableFor, string[]? uninstallFor, CancellationToken cancellationToken)
+    {
+        ArgumentNullException.ThrowIfNull(graphServiceClient);
+        ArgumentException.ThrowIfNullOrEmpty(appId);
+        ArgumentNullException.ThrowIfNull(cancellationToken);
+
+        try
+        {
+            var assignments = await GraphWorkflows.AssignAppAsync(graphServiceClient, appId, requiredFor, availableFor, uninstallFor, cancellationToken);
+            logger.LogInformation("Assigned app {appId} to {assignmentCount} assignments", appId, assignments);
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "Error assigning app to groups");
+            // Don't throw, just continue.
+            //throw;
+        }
+    }
+
+
+
     internal Task DownloadLogoAsync(string packageFolder, string packageId, CancellationToken cancellationToken)
     {
         var logoPath = Path.GetFullPath(Path.Combine(packageFolder, "..", "logo.png"));
         var logoUri = $"https://api.winstall.app/icons/{packageId}.png";//new Uri($"https://winget.azureedge.net/cache/icons/48x48/{packageId}.png");
         LogDownloadLogo(logoUri);
         return fileManager.DownloadFileAsync(logoUri, logoPath, throwOnFailure: false, overrideFile: false, cancellationToken);
-    }
-
-    internal async Task<string> DownloadContentPrepToolAsync(string tempFolder, Uri contentPrepUri, CancellationToken cancellationToken)
-    {
-        LogDownloadContentPrepTool(contentPrepUri);
-        fileManager.CreateFolder(tempFolder);
-
-        var contentPrepToolPath = Path.Combine(tempFolder, IntuneWinAppUtil);
-        await fileManager.DownloadFileAsync(contentPrepUri.ToString(), contentPrepToolPath, throwOnFailure: true, overrideFile: false, cancellationToken);
-        return contentPrepToolPath;
     }
 
     internal async Task<string> DownloadInstallerAsync(string tempPackageFolder, PackageInfo packageInfo, CancellationToken cancellationToken)
@@ -412,7 +464,7 @@ public partial class IntuneManager
 
     public static (string?, string?) GetMsiInfo(string setupFile, ILogger? logger)
     {
-        ArgumentNullException.ThrowIfNullOrEmpty(setupFile);
+        ArgumentException.ThrowIfNullOrEmpty(setupFile);
         try
         {
             using var msi = new WixSharp.UI.MsiParser(setupFile);
@@ -581,22 +633,6 @@ public partial class IntuneManager
         await fileManager.WriteAllBytesAsync(jsonFile, json, cancellationToken);
     }
 
-    private async Task GenerateIntuneWinFile(string contentPrepToolLocation, string tempPackageFolder, string packageFolder, string installerFilename, CancellationToken cancellationToken)
-    {
-        LogGenerateIntuneWinFile(tempPackageFolder, packageFolder, installerFilename);
-        var args = $"-c {tempPackageFolder} -s {installerFilename} -o {packageFolder} -q";
-        var result = await processManager.RunProcessAsync(contentPrepToolLocation, args, cancellationToken);
-        if (result.ExitCode != 0)
-        {
-            var exception = new Exception($"Generating .intunewin resulted in a non-zero exitcode.");
-            exception.Data.Add("ExitCode", result.ExitCode);
-            exception.Data.Add("Output", result.Output);
-            exception.Data.Add("Error", result.Error);
-            logger.LogWarning(exception, "Generating .intunewin resulted in a non-zero exitcode.");
-            throw exception;
-        }
-    }
-
     private GraphServiceClient CreateGraphClientFromOptions(IntunePublishOptions options)
     {
         IAuthenticationProvider provider = publicClient;
@@ -629,6 +665,4 @@ public partial class IntuneManager
 
     [LoggerMessage(EventId = 6, Level = LogLevel.Information, Message = "Downloading logo from {LogoUri}")]
     private partial void LogDownloadLogo(string LogoUri);
-
-    public static Uri DefaultIntuneWinAppUrl => new Uri(IntuneWinAppUtilUrl);
 }

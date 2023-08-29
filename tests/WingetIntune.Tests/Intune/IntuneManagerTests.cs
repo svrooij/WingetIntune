@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.Logging.Abstractions;
 using System.Runtime.InteropServices;
+using WingetIntune.Interfaces;
 using WingetIntune.Models;
 
 namespace WingetIntune.Tests.Intune;
@@ -9,7 +10,7 @@ public class IntuneManagerTests
     [Fact]
     public async Task GenerateMsiPackage_OtherPackage_ThrowsError()
     {
-        var intuneManager = new IntuneManager(null, null, null, null, null, null, null);
+        var intuneManager = new IntuneManager(null, null, null, null, null, null, null, null);
         var tempFolder = Path.Combine(Path.GetTempPath(), "intunewin");
         var outputFolder = Path.Combine(Path.GetTempPath(), "packages");
 
@@ -26,7 +27,6 @@ public class IntuneManagerTests
 
         var outputFolder = Path.Combine(Path.GetTempPath(), "packages");
         var outputPackageFolder = Path.Combine(outputFolder, packageId, version);
-        var contentPrepToolPath = Path.Combine(tempFolder, IntuneManager.IntuneWinAppUtil);
         var installer = IntuneTestConstants.azureCliPackageInfo.Installers!.First();
         var installerPath = Path.Combine(tempPackageFolder, installer.InstallerFilename!);
 
@@ -35,10 +35,6 @@ public class IntuneManagerTests
         var fileManagerMock = new Mock<IFileManager>(MockBehavior.Strict);
         fileManagerMock.Setup(x => x.CreateFolderForPackage(tempFolder, packageId, version)).Returns(Path.Combine(tempFolder, packageId, version)).Verifiable();
         fileManagerMock.Setup(x => x.CreateFolderForPackage(outputFolder, packageId, version)).Returns(Path.Combine(outputFolder, packageId, version)).Verifiable();
-        fileManagerMock.Setup(x => x.CreateFolder(tempFolder)).Verifiable();
-        fileManagerMock.Setup(x => x.DownloadFileAsync(IntuneManager.IntuneWinAppUtilUrl, contentPrepToolPath, true, false, It.IsAny<CancellationToken>()))
-            .Returns(Task.CompletedTask)
-            .Verifiable();
         fileManagerMock.Setup(x => x.DownloadFileAsync(installer.InstallerUrl!.ToString(), installerPath, true, false, It.IsAny<CancellationToken>()))
             .Returns(Task.CompletedTask)
             .Verifiable();
@@ -83,13 +79,12 @@ The Azure command-line interface (Azure CLI) is a set of commands used to create
         fileManagerMock.Setup(x => x.WriteAllBytesAsync(Path.Combine(outputPackageFolder, "app.json"), It.IsAny<byte[]>(), It.IsAny<CancellationToken>())).Returns(Task.CompletedTask).Verifiable();
 
         var processManagerMock = new Mock<IProcessManager>(MockBehavior.Strict);
-        processManagerMock.Setup(x => x.RunProcessAsync(contentPrepToolPath, $"-c {tempPackageFolder} -s {IntuneTestConstants.azureCliPackageInfo.InstallerFilename} -o {outputPackageFolder} -q", It.IsAny<CancellationToken>(), false))
-            .ReturnsAsync(new ProcessResult(0, null, null))
-            .Verifiable();
 
-        var intuneManager = new IntuneManager(new NullLoggerFactory(), fileManagerMock.Object, processManagerMock.Object, null, null, null, null);
+        var intunePackagerMock = new Mock<IIntunePackager>(MockBehavior.Loose);
 
-        await intuneManager.GenerateInstallerPackage(tempFolder, outputFolder, IntuneTestConstants.azureCliPackageInfo, new PackageOptions { Architecture = Models.Architecture.X64, InstallerContext = InstallerContext.User, ContentPrepUri = IntuneManager.DefaultIntuneWinAppUrl }, CancellationToken.None);
+        var intuneManager = new IntuneManager(new NullLoggerFactory(), fileManagerMock.Object, processManagerMock.Object, null, null, null, null, intunePackagerMock.Object);
+
+        await intuneManager.GenerateInstallerPackage(tempFolder, outputFolder, IntuneTestConstants.azureCliPackageInfo, new PackageOptions { Architecture = Models.Architecture.X64, InstallerContext = InstallerContext.User }, CancellationToken.None);
         fileManagerMock.VerifyAll();
         processManagerMock.VerifyAll();
     }
@@ -108,7 +103,7 @@ The Azure command-line interface (Azure CLI) is a set of commands used to create
             .Returns(Task.CompletedTask)
             .Verifiable();
 
-        var intuneManager = new IntuneManager(new NullLoggerFactory(), fileManagerMock.Object, null, null, null, null, null);
+        var intuneManager = new IntuneManager(new NullLoggerFactory(), fileManagerMock.Object, null, null, null, null, null, null);
         await intuneManager.DownloadLogoAsync(folder, packageId, CancellationToken.None);
 
         fileManagerMock.Verify();
@@ -134,27 +129,10 @@ The Azure command-line interface (Azure CLI) is a set of commands used to create
             .Returns(Task.CompletedTask)
             .Verifiable();
 
-        var intuneManager = new IntuneManager(new NullLoggerFactory(), fileManagerMock.Object, null, null, null, null, null);
+        var intuneManager = new IntuneManager(new NullLoggerFactory(), fileManagerMock.Object, null, null, null, null, null, null);
         await intuneManager.DownloadInstallerAsync(folder, packageInfo, CancellationToken.None);
 
         fileManagerMock.Verify();
     }
 
-    [Fact]
-    public async Task DownloadContentPrepToolAsync_CallsFilemanager()
-    {
-        var tempFolder = Path.GetTempPath();
-        var contentPrepToolPath = Path.Combine(tempFolder, IntuneManager.IntuneWinAppUtil);
-
-        var fileManagerMock = new Mock<IFileManager>();
-        fileManagerMock.Setup(x => x.CreateFolder(tempFolder));
-        fileManagerMock.Setup(x => x.DownloadFileAsync(IntuneManager.IntuneWinAppUtilUrl, contentPrepToolPath, true, false, It.IsAny<CancellationToken>()))
-            .Returns(Task.CompletedTask)
-            .Verifiable();
-
-        var intuneManager = new IntuneManager(new NullLoggerFactory(), fileManagerMock.Object, null, null, null, null, null);
-        await intuneManager.DownloadContentPrepToolAsync(tempFolder, IntuneManager.DefaultIntuneWinAppUrl, CancellationToken.None);
-
-        fileManagerMock.Verify();
-    }
 }

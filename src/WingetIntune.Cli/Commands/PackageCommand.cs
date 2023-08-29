@@ -19,12 +19,6 @@ internal class PackageCommand : Command
         IsRequired = true,
     };
 
-    internal static readonly Option<Uri> ContentPrepToolUriOption = new Option<Uri>("--content-prep-tool-url", () => IntuneManager.DefaultIntuneWinAppUrl, "Url to download content prep tool")
-    {
-        IsRequired = true,
-        IsHidden = true
-    };
-
     internal static Option<string> GetPackageFolderOption(bool isRequired = false, bool isHidden = false) => new Option<string>("--package-folder", "Folder with your packaged apps")
     {
         IsRequired = isRequired,
@@ -52,7 +46,6 @@ internal class PackageCommand : Command
         AddOption(GetPackageFolderOption(isRequired: true));
         AddOption(GetArchitectureOption(isHidden: false));
         AddOption(GetInstallerContextOption(isHidden: false));
-        AddOption(ContentPrepToolUriOption);
         this.Handler = CommandHandler.Create(HandleCommand);
     }
 
@@ -87,7 +80,7 @@ internal class PackageCommand : Command
             await intuneManager.GenerateInstallerPackage(options.TempFolder,
                 options.PackageFolder!,
                 packageInfo,
-                new PackageOptions { Architecture = options.Architecture, ContentPrepUri = options.ContentPrepToolUrl, InstallerContext = options.InstallerContext },
+                new PackageOptions { Architecture = options.Architecture, InstallerContext = options.InstallerContext },
                 cancellationToken);
 
             return 0;
@@ -101,7 +94,6 @@ internal class PackageCommandOptions : WinGetRootCommand.DefaultOptions
 {
     public string? PackageFolder { get; set; }
     public string TempFolder { get; set; }
-    public Uri ContentPrepToolUrl { get; set; }
     public InstallerContext InstallerContext { get; set; }
     public Architecture Architecture { get; set; }
 }

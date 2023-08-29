@@ -9,4 +9,8 @@ public class IntunePublishOptions
 
     public string? Tenant { get; set; }
     public string? Username { get; set; }
+    public string[] Categories { get; set; } = Array.Empty<string>();
+    public string[] AvailableFor { get; set; } = Array.Empty<string>();
+    public string[] RequiredFor { get; set; } = Array.Empty<string>();
+    public string[] UninstallFor { get; set; } = Array.Empty<string>();
 }

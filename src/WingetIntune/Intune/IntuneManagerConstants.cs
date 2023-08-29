@@ -2,6 +2,9 @@
 
 internal class IntuneManagerConstants
 {
+    internal const string AllUsers = "AllUsers";
+    internal const string AllDevices = "AllDevices";
+
     internal const string PsCommandTemplate = @"$procOutput = & {command}
 if($procOutput -is [array]) {
     $lastRow = $procOutput[$wingetOutput.Length -1]
