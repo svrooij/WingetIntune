@@ -6,7 +6,8 @@ namespace WingetIntune.Graph;
 
 public static class MobileAppsRequestBuilderExtensions
 {
-    const string Win32LobType = "microsoft.graph.win32LobApp";
+    private const string Win32LobType = "microsoft.graph.win32LobApp";
+
     public static async Task<Win32LobApp?> PostAsync(this MobileAppsRequestBuilder builder, Win32LobApp win32LobApp, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(builder);

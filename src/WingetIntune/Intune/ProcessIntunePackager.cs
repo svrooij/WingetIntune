@@ -3,6 +3,12 @@ using WingetIntune.Interfaces;
 
 namespace WingetIntune.Intune;
 
+/// <summary>
+/// Process based implementation of <see cref="IIntunePackager"/>. This implementation uses the IntuneWinAppUtil.exe tool to create the .intunewin package.
+/// </summary>
+/// <remarks>
+/// Will be removed when there is a proper API to create .intunewin packages. Maybe use https://github.com/volodymyrsmirnov/IntuneWin
+/// </remarks>
 public partial class ProcessIntunePackager : IIntunePackager
 {
     internal const string IntuneWinAppUtil = "IntuneWinAppUtil.exe";

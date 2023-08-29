@@ -134,5 +134,4 @@ The Azure command-line interface (Azure CLI) is a set of commands used to create
 
         fileManagerMock.Verify();
     }
-
 }

@@ -1,10 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿namespace WingetIntune.Models.Manifest;
 
-namespace WingetIntune.Models.Manifest;
 public class WingetLocalizedManifest
 {
     public string? PackageIdentifier { get; set; }
@@ -17,6 +12,7 @@ public class WingetLocalizedManifest
     public string? Author { get; set; }
     public string? PackageName { get; set; }
     public Uri? PackageUrl { get; set; }
+    public Uri? PurchaseUrl { get; set; }
     public string? License { get; set; }
     public Uri? LicenseUrl { get; set; }
     public string? Copyright { get; set; }
@@ -28,4 +24,12 @@ public class WingetLocalizedManifest
     public string? ReleaseNotesUrl { get; set; }
     public string? ManifestType { get; set; }
     public string? ManifestVersion { get; set; }
+
+    public WingetLocalizedManifestDocumentation[]? Documentations { get; set; }
+}
+
+public class WingetLocalizedManifestDocumentation
+{
+    public string? DocumentLabel { get; set; }
+    public Uri? DocumentUrl { get; set; }
 }

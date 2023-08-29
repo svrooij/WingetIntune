@@ -1,4 +1,5 @@
 ﻿namespace WingetIntune.Models.Manifest;
+
 public class WingetInstallerManifest
 {
     public string? PackageIdentifier { get; set; }

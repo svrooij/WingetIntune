@@ -80,8 +80,6 @@ public partial class WingetManager : IWingetRepository
         ArgumentNullException.ThrowIfNullOrEmpty(version);
         try
         {
-
-
             var mainUri = CreateManifestUri(id, version, null);
             var installerUri = CreateManifestUri(id, version, ".installer");
             var mainManifest = await fileManager.DownloadStringAsync(mainUri, cancellationToken: cancellationToken);
@@ -120,8 +118,6 @@ public partial class WingetManager : IWingetRepository
                 ?? installerManifestObject.Installers.SingleOrDefault(InstallerType.Unknown, Architecture.X64, InstallerContext.Unknown)?.InstallerType
                 ?? installerManifestObject.Installers?.FirstOrDefault()?.InstallerType;
 
-
-
             return new PackageInfo
             {
                 Version = mainManifestObject.PackageVersion,
@@ -143,7 +139,6 @@ public partial class WingetManager : IWingetRepository
             LogErrorGetPackageInfo(ex, id, version, ex.Message);
             throw;
         }
-
     }
 
     internal static string CreateManifestUri(string id, string version, string? addition)

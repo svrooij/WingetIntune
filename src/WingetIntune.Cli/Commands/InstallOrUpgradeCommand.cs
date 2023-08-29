@@ -4,7 +4,6 @@ using System.CommandLine;
 using System.CommandLine.Hosting;
 using System.CommandLine.Invocation;
 using System.CommandLine.NamingConventionBinder;
-using WingetIntune.Cli.Configuration;
 
 namespace WingetIntune.Commands
 {

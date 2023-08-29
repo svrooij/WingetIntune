@@ -6,7 +6,6 @@ using Microsoft.Graph.Beta.Models.ODataErrors;
 using Microsoft.Kiota.Abstractions.Authentication;
 using System.Text;
 using System.Text.Json;
-using WingetIntune.Extensions;
 using WingetIntune.Graph;
 using WingetIntune.Implementations;
 using WingetIntune.Interfaces;
@@ -443,8 +442,6 @@ public partial class IntuneManager
             //throw;
         }
     }
-
-
 
     internal Task DownloadLogoAsync(string packageFolder, string packageId, CancellationToken cancellationToken)
     {

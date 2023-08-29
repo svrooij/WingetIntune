@@ -1,11 +1,7 @@
 ﻿using Moq.Protected;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace WingetIntune.Tests;
+
 internal static class MockHttpMessageHandlerExtensions
 {
     public static void AddMockResponse(this Mock<HttpMessageHandler> handlerMock, string uri, HttpMethod httpMethod, HttpResponseMessage responseMessage)
@@ -41,7 +37,6 @@ internal static class MockHttpMessageHandlerExtensions
             Assert.Equal(body, bodyString);
             result = bodyString == body;
         }
-
 
         return result;
     }

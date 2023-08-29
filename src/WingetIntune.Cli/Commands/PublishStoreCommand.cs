@@ -5,7 +5,6 @@ using System.CommandLine.Hosting;
 using System.CommandLine.Invocation;
 using System.CommandLine.NamingConventionBinder;
 using WingetIntune.Intune;
-using Graph = Microsoft.Graph.Beta.Models;
 
 namespace WingetIntune.Commands;
 
@@ -92,5 +91,4 @@ internal class PublishStoreCommandOptions : WinGetRootCommand.DefaultOptions
     public string[] Available { get; set; } = Array.Empty<string>();
     public string[] Required { get; set; } = Array.Empty<string>();
     public string[] Uninstall { get; set; } = Array.Empty<string>();
-
 }

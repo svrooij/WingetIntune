@@ -1,15 +1,10 @@
-﻿using Microsoft.Extensions.Logging;
-using Microsoft.Graph.Beta;
+﻿using Microsoft.Graph.Beta;
 using Microsoft.Graph.Beta.Models;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using WingetIntune.Extensions;
 using WingetIntune.Intune;
 
 namespace WingetIntune.Graph;
+
 public static class GraphWorkflows
 {
     public static async Task AddIntuneCategoriesToApp(GraphServiceClient graphServiceClient, string appId, string[] categories, CancellationToken cancellationToken)
@@ -60,13 +55,11 @@ public static class GraphWorkflows
             return -1;
         }
 
-
         await graphServiceClient.DeviceAppManagement.MobileApps[appId].Assign.PostAsync(new Microsoft.Graph.Beta.DeviceAppManagement.MobileApps.Item.Assign.AssignPostRequestBody
         {
             MobileAppAssignments = assignments
         }, cancellationToken: cancellationToken);
         return assignments.Count;
-
     }
 
     private static List<MobileAppAssignment> GenerateAssignments(string[] groups, InstallIntent intent)

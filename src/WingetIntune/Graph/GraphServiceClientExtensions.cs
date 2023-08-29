@@ -3,14 +3,12 @@ using Microsoft.Graph.Beta.Models;
 using Microsoft.Graph.Beta.Models.ODataErrors;
 using Microsoft.Kiota.Abstractions;
 using Microsoft.Kiota.Abstractions.Serialization;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Text;
 using System.Text.Json;
 using WingetIntune.Intune;
 
 namespace WingetIntune.Graph;
+
 internal static class GraphServiceClientExtensions
 {
     // These extensions are on the service client, not the request builder.
@@ -29,7 +27,6 @@ internal static class GraphServiceClientExtensions
         requestInfo.Content = new MemoryStream(Encoding.UTF8.GetBytes("{}"));
 
         return graphServiceClient.RequestAdapter.SendAsync<Entity>(requestInfo, Entity.CreateFromDiscriminatorValue, errorMapping: ErrorMapping, cancellationToken: cancellationToken);
-
     }
 
     public static Task<MobileAppContentFile?> Intune_CreateWin32LobAppContentVersionFileAsync(this GraphServiceClient graphServiceClient, string win32LobAppId, string contentVersionId, MobileAppContentFile mobileAppContentFile, CancellationToken cancellationToken = default)
@@ -74,9 +71,11 @@ internal static class GraphServiceClientExtensions
             {
                 case MobileAppContentFileUploadState.CommitFileSuccess:
                     return result;
+
                 case MobileAppContentFileUploadState.CommitFilePending:
                     await Task.Delay(1000, cancellationToken);
                     break;
+
                 case MobileAppContentFileUploadState.CommitFileFailed:
                     throw new Exception("Commit failed");
                 case MobileAppContentFileUploadState.CommitFileTimedOut:

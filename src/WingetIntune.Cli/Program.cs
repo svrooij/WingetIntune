@@ -1,5 +1,4 @@
-﻿using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Configuration.Json;
+﻿using Microsoft.Extensions.Configuration.Json;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using System.CommandLine;
@@ -31,7 +30,6 @@ internal class Program
                                        });
                                    }
                                    config.Add(new ControlableLoggingSource());
-
                                });
                                host.ConfigureServices(services =>
                                {

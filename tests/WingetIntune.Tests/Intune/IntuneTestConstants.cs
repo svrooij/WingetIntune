@@ -1,11 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using WingetIntune.Models;
+﻿using WingetIntune.Models;
 
 namespace WingetIntune.Tests.Intune;
+
 internal class IntuneTestConstants
 {
     internal const string azureCliOutput = @"Found Microsoft Azure CLI [Microsoft.AzureCLI]

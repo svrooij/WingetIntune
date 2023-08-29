@@ -1,7 +1,4 @@
-﻿using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
-using System.CommandLine;
-using System.CommandLine.Hosting;
+﻿using System.CommandLine;
 using System.CommandLine.Invocation;
 using System.CommandLine.NamingConventionBinder;
 using System.Reflection;
@@ -35,13 +32,12 @@ internal class AboutCommand : Command
         Console.WriteLine("#");
         Console.WriteLine("#########################################################");
 
-
         return Task.CompletedTask;
     }
 
-    const string header = @"_ _ _ _ _  _ ____ ____ ___    _ _  _ ___ _  _ _  _ ____ 
-| | | | |\ | | __ |___  |  __ | |\ |  |  |  | |\ | |___ 
-|_|_| | | \| |__] |___  |     | | \|  |  |__| | \| |___ 
+    private const string header = @"_ _ _ _ _  _ ____ ____ ___    _ _  _ ___ _  _ _  _ ____
+| | | | |\ | | __ |___  |  __ | |\ |  |  |  | |\ | |___
+|_|_| | | \| |__] |___  |     | | \|  |  |__| | \| |___
 
 ";
 }
