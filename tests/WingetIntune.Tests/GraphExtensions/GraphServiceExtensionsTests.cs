@@ -1,7 +1,7 @@
 ﻿using Microsoft.Graph.Beta;
 using Microsoft.Graph.Beta.Models;
 using System.Net;
-using WingetIntune.GraphExtensions;
+using WingetIntune.Graph;
 
 namespace WingetIntune.Tests.GraphExtensions;
 

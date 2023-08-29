@@ -14,6 +14,7 @@ internal class MsiCommand : Command
     private const string description = "Extract info from MSI file";
 
     private Argument<string> msiFileArgument = new Argument<string>("msiFile", "Path to MSI file");
+
     public MsiCommand() : base(name, description)
     {
         AddArgument(msiFileArgument);

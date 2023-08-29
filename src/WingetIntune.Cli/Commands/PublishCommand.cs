@@ -16,6 +16,10 @@ internal class PublishCommand : Command
     internal static readonly Option<string?> TenantOption = new Option<string?>("--tenant", "Tenant ID to use for authentication");
     internal static readonly Option<string?> UsernameOption = new Option<string?>("--username", "Username to use for authentication");
     internal static readonly Option<string?> TokenOption = new Option<string?>("--token", "Token to use against Intune (instead of tenant & username)");
+    internal static readonly Option<string[]?> CategoryOption = new Option<string[]?>("--category", "Categories to use for the app");
+    internal static readonly Option<string[]?> AvailableForOption = new Option<string[]?>("--available", "Group guid or 'allusers' or 'alldevices'");
+    internal static readonly Option<string[]?> RequiredForOption = new Option<string[]?>("--required", "Group guid or 'allusers' or 'alldevices'");
+    internal static readonly Option<string[]?> UninstallForOption = new Option<string[]?>("--uninstall", "Group guid or 'allusers' or 'alldevices'");
 
     public PublishCommand() : base(name, description)
     {
@@ -29,10 +33,13 @@ internal class PublishCommand : Command
         AddOption(UsernameOption);
         AddOption(TokenOption);
         AddOption(PackageCommand.TempFolderOption);
+        AddOption(CategoryOption);
+        AddOption(AvailableForOption);
+        AddOption(RequiredForOption);
+        AddOption(UninstallForOption);
         AddOption(new Option<bool>("--auto-package", "Automatically package the app if it's not found in the package folder") { IsHidden = true });
         AddOption(PackageCommand.GetArchitectureOption(isHidden: true));
         AddOption(PackageCommand.GetInstallerContextOption(isHidden: true));
-        AddOption(PackageCommand.ContentPrepToolUriOption);
         this.Handler = CommandHandler.Create(HandleCommand);
     }
 
@@ -61,7 +68,7 @@ internal class PublishCommand : Command
                 await intuneManager.GenerateInstallerPackage(options.TempFolder,
                 options.PackageFolder!,
                 tempInfo,
-                new PackageOptions { Architecture = options.Architecture, ContentPrepUri = options.ContentPrepToolUrl, InstallerContext = options.InstallerContext },
+                new PackageOptions { Architecture = options.Architecture, InstallerContext = options.InstallerContext },
                 cancellationToken);
             }
             packageInfo = tempInfo.Source == PackageSource.Store
@@ -75,7 +82,16 @@ internal class PublishCommand : Command
 
         logger.LogInformation("Publishing package {packageIdentifier} {packageVersion}", options.PackageId, options.Version);
 
-        var publishOptions = new Intune.IntunePublishOptions { Username = options.Username, Tenant = options.Tenant, Token = options.Token };
+        var publishOptions = new Intune.IntunePublishOptions
+        {
+            Username = options.Username,
+            Tenant = options.Tenant,
+            Token = options.Token,
+            Categories = options.Category,
+            AvailableFor = options.Available,
+            RequiredFor = options.Required,
+            UninstallFor = options.Uninstall
+        };
 
         var app = packageInfo.Source == PackageSource.Store
             ? await intuneManager.PublishStoreAppAsync(publishOptions, packageInfo.PackageIdentifier, cancellationToken: cancellationToken)
@@ -93,6 +109,11 @@ internal class PublishCommandOptions : WinGetRootCommand.DefaultOptions
     public string? Tenant { get; set; }
     public string? Username { get; set; }
     public string? Token { get; set; }
+    public string[] Category { get; set; } = Array.Empty<string>();
+    public string[] Available { get; set; } = Array.Empty<string>();
+    public string[] Required { get; set; } = Array.Empty<string>();
+    public string[] Uninstall { get; set; } = Array.Empty<string>();
+
     public bool AutoPackage { get; set; }
     public string TempFolder { get; set; }
     public Uri ContentPrepToolUrl { get; set; }

@@ -47,6 +47,7 @@ public partial class WingetManager : IWingetRepository
 
     public async Task<PackageInfo> GetPackageInfoAsync(string id, string? version, string? source, CancellationToken cancellationToken = default)
     {
+        ArgumentNullException.ThrowIfNullOrEmpty(id);
         if (string.IsNullOrEmpty(version) || source != "winget")
         {
             return await GetPackageInfoFromWingetAsync(id, version, source, cancellationToken);
@@ -75,10 +76,10 @@ public partial class WingetManager : IWingetRepository
 
     private async Task<PackageInfo> GetPackageInfoFromWingetManifestAsync(string id, string version, CancellationToken cancellationToken)
     {
+        ArgumentNullException.ThrowIfNullOrEmpty(id);
+        ArgumentNullException.ThrowIfNullOrEmpty(version);
         try
         {
-
-
             var mainUri = CreateManifestUri(id, version, null);
             var installerUri = CreateManifestUri(id, version, ".installer");
             var mainManifest = await fileManager.DownloadStringAsync(mainUri, cancellationToken: cancellationToken);
@@ -117,8 +118,6 @@ public partial class WingetManager : IWingetRepository
                 ?? installerManifestObject.Installers.SingleOrDefault(InstallerType.Unknown, Architecture.X64, InstallerContext.Unknown)?.InstallerType
                 ?? installerManifestObject.Installers?.FirstOrDefault()?.InstallerType;
 
-
-
             return new PackageInfo
             {
                 Version = mainManifestObject.PackageVersion,
@@ -140,13 +139,12 @@ public partial class WingetManager : IWingetRepository
             LogErrorGetPackageInfo(ex, id, version, ex.Message);
             throw;
         }
-
     }
 
     internal static string CreateManifestUri(string id, string version, string? addition)
     {
         var idParts = id.Split('.');
-        return $"https://github.com/microsoft/winget-pkgs/raw/master/manifests/{id[0].ToString().ToLower()}/{idParts[0]}/{idParts[1]}/{version}/{id}{addition}.yaml";
+        return $"https://github.com/microsoft/winget-pkgs/raw/master/manifests/{id[0].ToString().ToLower()}/{string.Join("/", idParts)}/{version}/{id}{addition}.yaml";
     }
 
     private static Exception CreateExceptionForFailedProcess(ProcessResult processResult)

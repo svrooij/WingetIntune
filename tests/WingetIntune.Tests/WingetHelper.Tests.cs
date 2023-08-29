@@ -1,12 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using WingetIntune.Implementations;
+﻿using WingetIntune.Implementations;
 using WingetIntune.Models;
 
 namespace WingetIntune.Tests;
+
 public class WingetHelperTests
 {
     [Theory]
@@ -71,7 +67,6 @@ public class WingetHelperTests
     [InlineData("42.0.0", false, InstallerContext.User, "upgrade --id my-fake-id --version 42.0.0 --source winget --silent --accept-package-agreements --accept-source-agreements --disable-interactivity --scope user")]
     [InlineData("42.0.0", true, InstallerContext.Unknown, "upgrade --id my-fake-id --version 42.0.0 --source winget --force --silent --accept-package-agreements --accept-source-agreements --disable-interactivity")]
     [InlineData("42.0.0", false, InstallerContext.Unknown, "upgrade --id my-fake-id --version 42.0.0 --source winget --silent --accept-package-agreements --accept-source-agreements --disable-interactivity")]
-
     public void GetUpgradeArgumentsForPackage_ReturnsCorrectString(string? version, bool force, InstallerContext installerContext, string expected)
     {
         var packageId = "my-fake-id";

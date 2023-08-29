@@ -1,14 +1,10 @@
 ﻿using Microsoft.Graph.Beta;
 using Microsoft.Graph.Beta.Models;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Net;
-using System.Text;
-using System.Threading.Tasks;
-using WingetIntune.GraphExtensions;
+using WingetIntune.Graph;
 
 namespace WingetIntune.Tests.GraphExtensions;
+
 public class MobileAppsRequestBuilderExtensionsTests
 {
     [Fact]
@@ -49,8 +45,6 @@ public class MobileAppsRequestBuilderExtensionsTests
 
         var appId = "9607b530-b530-9607-30b5-079630b50796";
         var handlerMock = new Mock<HttpMessageHandler>();
-
-
 
         var response = new HttpResponseMessage(HttpStatusCode.OK);
         response.Content = new StringContent(win32LobAppResult);

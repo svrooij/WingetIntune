@@ -2,6 +2,7 @@
 using Microsoft.Extensions.Logging;
 
 namespace WingetIntune.Cli.Configuration;
+
 internal class ControlableLoggingProvider : ConfigurationProvider
 {
     private const string FormatterNameKey = "Logging:Console:FormatterName";
@@ -54,5 +55,4 @@ internal class ControlableLoggingProvider : ConfigurationProvider
     {
         throw new InvalidOperationException("This configuration provider is read-only");
     }
-
 }

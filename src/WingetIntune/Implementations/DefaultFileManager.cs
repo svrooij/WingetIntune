@@ -51,6 +51,8 @@ public partial class DefaultFileManager : IFileManager
     {
         if (overrideFile || !File.Exists(path))
         {
+            var directory = Path.GetDirectoryName(path);
+            this.CreateFolder(directory!);
             logger.LogInformation("Downloading {url} to {path}", url, path);
             var result = await httpClient.GetAsync(url, cancellationToken);
             if (!result.IsSuccessStatusCode && !throwOnFailure)

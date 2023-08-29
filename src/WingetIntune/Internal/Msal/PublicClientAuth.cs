@@ -81,7 +81,7 @@ public sealed class PublicClientAuth : IAuthenticationProvider
         try
         {
             var authResult = await publicClientApplication.AcquireTokenSilent(scopes, account).ExecuteAsync(cancellationToken);
-            logger.LogDebug("Acquired token silently {@scopes} {tenantId} {username}", scopes, tenantId ?? authResult.TenantId, authResult.Account.Username);
+            logger.LogTrace("Acquired token silently {@scopes} {tenantId} {username}", scopes, tenantId ?? authResult.TenantId, authResult.Account.Username);
             return authResult;
         }
         catch (MsalUiRequiredException)

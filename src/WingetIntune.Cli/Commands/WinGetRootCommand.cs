@@ -14,10 +14,8 @@ internal class WinGetRootCommand : RootCommand
     internal static Option<bool> VerboseOption { get; } = new Option<bool>(new string[] { "--verbose" }, "Super verbose logging");
     internal static Option<bool> JsonOption { get; } = new Option<bool>(new string[] { "--json" }, "Output json logging");
 
-
     public WinGetRootCommand()
     {
-
         Description = "Enhanced Winget CLI for automations";
         AddCommand(new PackageCommand());
         AddCommand(new PublishCommand());
@@ -54,6 +52,5 @@ internal class WinGetRootCommand : RootCommand
                 }
             }
         }
-
     }
 }
