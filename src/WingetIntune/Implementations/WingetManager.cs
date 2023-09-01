@@ -87,6 +87,7 @@ public partial class WingetManager : IWingetRepository
 
             var deserializer = new DeserializerBuilder()
                 .WithNamingConvention(PascalCaseNamingConvention.Instance)
+                .IgnoreUnmatchedProperties()
                 .Build();
 
             var mainManifestObject = deserializer.Deserialize<Models.Manifest.WingetMainManifest>(mainManifest!);
