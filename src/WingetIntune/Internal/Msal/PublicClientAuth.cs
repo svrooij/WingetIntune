@@ -17,6 +17,7 @@ public sealed class PublicClientAuth : IAuthenticationProvider
     private const string DefaultClientId = "d5a8a406-3b1d-4069-91cc-d76acdd812fe";
     private AccountSuggestion? accountSuggestion;
     private string[] Scopes = IntuneManager.RequiredScopes;
+    private AuthenticationResult? authenticationResult;
 
     public PublicClientAuth(ILogger<PublicClientAuth> logger, IOptions<PublicClientOptions>? options)
     {
@@ -58,6 +59,7 @@ public sealed class PublicClientAuth : IAuthenticationProvider
             .Build();
         var cacheHelper = await MsalCacheHelper.CreateAsync(storageProperties);
         cacheHelper.RegisterCache(publicClientApplication.UserTokenCache);
+        CacheLoaded = true;
     }
 
     public void SetAccountSuggestion(AccountSuggestion accountSuggestion)
@@ -73,6 +75,10 @@ public sealed class PublicClientAuth : IAuthenticationProvider
     public async Task<AuthenticationResult> AccuireTokenAsync(IEnumerable<string> scopes, string? tenantId = null, string? userId = null, CancellationToken cancellationToken = default)
     {
         await LoadCache();
+        if (authenticationResult is not null && authenticationResult.ExpiresOn > DateTimeOffset.UtcNow)
+        {
+            return authenticationResult;
+        }
         var accounts = await publicClientApplication.GetAccountsAsync();
         bool tenantIsGuid = Guid.TryParse(tenantId, out _);
         var account = accounts.FirstOrDefault(a => (string.IsNullOrWhiteSpace(tenantId) || tenantIsGuid == false || a.HomeAccountId.TenantId == tenantId)
@@ -80,9 +86,9 @@ public sealed class PublicClientAuth : IAuthenticationProvider
 
         try
         {
-            var authResult = await publicClientApplication.AcquireTokenSilent(scopes, account).ExecuteAsync(cancellationToken);
-            logger.LogTrace("Acquired token silently {@scopes} {tenantId} {username}", scopes, tenantId ?? authResult.TenantId, authResult.Account.Username);
-            return authResult;
+            authenticationResult = await publicClientApplication.AcquireTokenSilent(scopes, account).ExecuteAsync(cancellationToken);
+            logger.LogTrace("Acquired token silently {@scopes} {tenantId} {username}", scopes, tenantId ?? authenticationResult.TenantId, authenticationResult.Account.Username);
+            return authenticationResult;
         }
         catch (MsalUiRequiredException)
         {
@@ -111,7 +117,7 @@ public sealed class PublicClientAuth : IAuthenticationProvider
             builder = builder.WithParentActivityOrWindow(BrokerHandle.GetConsoleOrTerminalWindow());
         }
 
-        return await builder.ExecuteAsync(cancellationToken);
+        return authenticationResult = await builder.ExecuteAsync(cancellationToken);
     }
 
     public async Task AuthenticateRequestAsync(RequestInformation request, Dictionary<string, object>? additionalAuthenticationContext = null, CancellationToken cancellationToken = default)

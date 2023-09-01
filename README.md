@@ -78,6 +78,8 @@ It will also write a `app.json` file with all the information about the app, for
 winget-intune package {PackageId} [--version {version}] [--source winget] --package-folder {PackageFolder}
 ```
 
+> The `packageId` is case sensitive, so make sure you use the correct casing. Tip: Copy it from the result of the `winget search {name}` command.
+
 This command will download the [content-prep-tool](https://github.com/Microsoft/Microsoft-Win32-Content-Prep-Tool) automatically, and use it to create the `intunewin` file.
 In a future version this might be replaced with a custom implementation, but for now this works.
 
@@ -93,8 +95,6 @@ winget-intune publish {PackageId} --package-folder {PackageFolder} --tenant {Ten
 # You can also provide a token, this is useful for automation.
 winget-intune publish {PackageId} --package-folder {PackageFolder} --token {Token}
 ```
-
-Uploading the package will download [AzCopy](https://github.com/Azure/azure-storage-azcopy) automatically, and use it to upload the package to Intune. Since the Azure Storage SDK does not seem to work (need help with this).
 
 ## Library (soon)
 
