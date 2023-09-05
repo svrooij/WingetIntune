@@ -44,7 +44,7 @@ public class IntuneManagerTests
 
         var detectionContent = @"Package Microsoft.AzureCLI 2.51.0 from Winget
 
-MsiProductCode={E428EC6E-E4F4-4DCA-9786-2653D0990AAD}
+MsiProductCode={89E4C65D-96DD-435B-9BBB-EF1EAEF5B738}
 MsiVersion=2.51.0
 ";
 
@@ -58,7 +58,7 @@ Install script:
 msiexec /i azure-cli-2.51.0-x64.msi /quiet /qn
 
 Uninstall script:
-msiexec /x {E428EC6E-E4F4-4DCA-9786-2653D0990AAD} /quiet /qn
+msiexec /x {89E4C65D-96DD-435B-9BBB-EF1EAEF5B738} /quiet /qn
 
 Description:
 The Azure command-line interface (Azure CLI) is a set of commands used to create and manage Azure resources. The Azure CLI is available across Azure services and is designed to get you working quickly with Azure, with an emphasis on automation.

@@ -1,4 +1,6 @@
-﻿using WingetIntune.Models.Manifest;
+﻿using WingetIntune.Extensions;
+using WingetIntune.Implementations;
+using WingetIntune.Models.Manifest;
 
 namespace WingetIntune.Models;
 
@@ -43,12 +45,14 @@ public class PackageInfo
 
     public static PackageInfo Parse(string wingetOutput)
     {
+        var keys = wingetOutput.Trim().StartsWith(WingetManagerKeys.WingetPrefixFr) ? WingetManagerKeys.French() : WingetManagerKeys.English();
+
         // This should work on all platforms
         // var lines = wingetOutput.Split(Environment.NewLine) did not work on Linux
         var lines = wingetOutput.Split('\n').Select(x => x.TrimEnd('\r')).ToArray();
         var packageInfo = new PackageInfo();
 
-        var packageIdLine = lines.FirstOrDefault(l => l.StartsWith("Found "));
+        var packageIdLine = lines.FirstOrDefault(l => l.StartsWith(keys.Prefix));
         if (packageIdLine != null)
         {
             var packageIdDetails = packageIdLine.Split(" ");
@@ -56,48 +60,16 @@ public class PackageInfo
             packageInfo.PackageIdentifier = packageIdDetails[packageIdDetails.Length - 1].Trim('[', ']');
         }
 
-        var versionLine = lines.FirstOrDefault(l => l.StartsWith("Version: "));
-        if (versionLine != null)
-        {
-            packageInfo.Version = versionLine.Substring("Version: ".Length);
-        }
+        packageInfo.Version = lines.GetValue(keys.Version);
+        packageInfo.Publisher = lines.GetValue(keys.Publisher);
+        packageInfo.PublisherUrl = lines.GetUri(keys.PublisherUrl);
+        packageInfo.InformationUrl = lines.GetUri(keys.InformationUrl);
+        packageInfo.SupportUrl = lines.GetUri(keys.SupportUrl);
 
-        var publisherLine = lines.FirstOrDefault(l => l.StartsWith("Publisher: "));
-        if (publisherLine != null)
-        {
-            packageInfo.Publisher = publisherLine.Substring("Publisher: ".Length);
-        }
+        packageInfo.Description = lines.GetMultiLineValue(keys.Description);
 
-        var publisherUrlLine = lines.FirstOrDefault(l => l.StartsWith("Publisher Url: "));
-        if (publisherUrlLine != null)
-        {
-            packageInfo.PublisherUrl = new Uri(publisherUrlLine.Substring("Publisher Url: ".Length));
-        }
 
-        var homepageUrlLine = lines.FirstOrDefault(l => l.StartsWith("Homepage: "));
-        if (homepageUrlLine != null)
-        {
-            packageInfo.InformationUrl = new Uri(homepageUrlLine.Substring("Homepage: ".Length));
-        }
-
-        var descriptionIndex = Array.FindIndex(lines, l => l.StartsWith("Description:"));
-        if (descriptionIndex != -1)
-        {
-            packageInfo.Description = lines[descriptionIndex].Substring("Description:".Length).Trim();
-            var descriptionLines = lines.Skip(descriptionIndex + 1).TakeWhile(l => l.StartsWith("  ") || l == "");
-            if (descriptionLines.Any())
-            {
-                packageInfo.Description += $"{Environment.NewLine}" + string.Join(Environment.NewLine, descriptionLines.Select(l => l.Trim()));
-            }
-        }
-
-        var supportUrlLine = lines.FirstOrDefault(l => l.StartsWith("Publisher Support Url: "));
-        if (supportUrlLine != null)
-        {
-            packageInfo.SupportUrl = new Uri(supportUrlLine.Substring("Publisher Support Url: ".Length));
-        }
-
-        if (wingetOutput.Contains("Installer Type: msstore"))
+        if (wingetOutput.Contains($"{keys.InstallerType}: msstore"))
         {
             packageInfo.Source = PackageSource.Store;
         }
@@ -105,25 +77,21 @@ public class PackageInfo
         {
             packageInfo.Source = PackageSource.Winget;
 
-            var installerTypeLine = lines.FirstOrDefault(l => l.Contains("Installer Type:"))?.Trim();
-            if (installerTypeLine != null)
+            var installerType = lines.GetValueContains(keys.InstallerType);
+            if (installerType != null)
             {
-                var installerType = installerTypeLine.Substring("Installer Type: ".Length);
                 packageInfo.InstallerType = EnumParsers.ParseInstallerType(installerType);
             }
 
-            var installerUrlLine = lines.FirstOrDefault(l => l.Contains("Installer Url:"))?.Trim();
-            if (installerUrlLine != null)
+            var installerUrl = lines.GetValueContains(keys.InstallerUrl);
+            if (installerUrl != null)
             {
-                packageInfo.InstallerUrl = new Uri(installerUrlLine.Substring("Installer Url: ".Length));
+                packageInfo.InstallerUrl = new Uri(installerUrl);
                 packageInfo.InstallerFilename = Path.GetFileName(packageInfo.InstallerUrl.AbsolutePath).Replace(" ", "");
             }
 
-            var hashLine = lines.FirstOrDefault(l => l.Contains("Installer SHA256:"))?.Trim();
-            if (hashLine != null)
-            {
-                packageInfo.Hash = hashLine.Substring("Installer SHA256: ".Length);
-            }
+            packageInfo.Hash = lines.GetValueContains(keys.InstallerSha256);
+
         }
 
         return packageInfo;

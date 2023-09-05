@@ -53,7 +53,7 @@ namespace WingetIntune.Tests
         public async Task GetPackageInfoAsync_ParsesResponse_WingetResult()
         {
             var packageId = "JanDeDobbeleer.OhMyPosh";
-            var version = "18.3.1";
+            var version = "18.7.0";
             var processManager = new Mock<IProcessManager>(MockBehavior.Strict);
             processManager.Setup(x => x.RunProcessAsync("winget",
                 $"show --id {packageId} --version {version} --exact --accept-source-agreements --disable-interactivity",
@@ -67,17 +67,17 @@ namespace WingetIntune.Tests
             processManager.VerifyAll();
 
             // Check PackageId, Name, Version, Publisher, PublisherUrl, HomePageUrl, InstallerType, InstallerUrl, Hash
-            Assert.Equal("JanDeDobbeleer.OhMyPosh", info.PackageIdentifier);
+            Assert.Equal(packageId, info.PackageIdentifier);
             Assert.Equal("Oh My Posh", info.DisplayName);
-            Assert.Equal("18.3.1", info.Version);
+            Assert.Equal(version, info.Version);
             Assert.Equal("Jan De Dobbeleer", info.Publisher);
             Assert.Equal("Prompt theme engine for any shell", info.Description);
             Assert.Equal("https://github.com/JanDeDobbeleer/oh-my-posh/", info.PublisherUrl!.ToString());
             Assert.Equal("https://github.com/JanDeDobbeleer/oh-my-posh/issues", info.SupportUrl!.ToString());
             Assert.Equal("https://ohmyposh.dev/", info.InformationUrl!.ToString());
             Assert.Equal(InstallerType.Inno, info.InstallerType);
-            Assert.Equal("https://github.com/JanDeDobbeleer/oh-my-posh/releases/download/v18.3.1/install-amd64.exe", info.InstallerUrl!.ToString());
-            Assert.Equal("fc587e29525d2a9db7a46a98997b351ba1c2b699167f6ad8e22a23e261d526e9", info.Hash);
+            Assert.Equal("https://github.com/JanDeDobbeleer/oh-my-posh/releases/download/v18.7.0/install-amd64.exe", info.InstallerUrl!.ToString());
+            Assert.Equal("071ceebaafbfbce77352ab2752301aa51938f2601d112574bedbf58773dbda25", info.Hash);
         }
 
         [Fact]

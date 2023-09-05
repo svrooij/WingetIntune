@@ -9,7 +9,7 @@ internal class WingetManagerTestConstants
 Notepad++ (64-bit x64) Notepad++.Notepad++ 8.5.4   winget";
 
     internal const string ohMyPoshOutput = @"Found Oh My Posh [JanDeDobbeleer.OhMyPosh]
-Version: 18.3.1
+Version: 18.7.0
 Publisher: Jan De Dobbeleer
 Publisher Url: https://github.com/JanDeDobbeleer/oh-my-posh/
 Publisher Support Url: https://github.com/JanDeDobbeleer/oh-my-posh/issues
@@ -19,7 +19,7 @@ Description: Prompt theme engine for any shell
 Homepage: https://ohmyposh.dev/
 License: MIT
 License Url: https://github.com/JanDeDobbeleer/oh-my-posh/raw/main/COPYING
-Release Notes Url: https://github.com/JanDeDobbeleer/oh-my-posh/releases/tag/v18.3.1
+Release Notes Url: https://github.com/JanDeDobbeleer/oh-my-posh/releases/tag/v18.7.0
 Tags:
   console
   command-line
@@ -36,9 +36,42 @@ Tags:
   oh-my-posh
 Installer:
   Installer Type: inno
-  Installer Url: https://github.com/JanDeDobbeleer/oh-my-posh/releases/download/v18.3.1/install-amd64.exe
-  Installer SHA256: fc587e29525d2a9db7a46a98997b351ba1c2b699167f6ad8e22a23e261d526e9
-  Release Date: 2023-08-06";
+  Installer Url: https://github.com/JanDeDobbeleer/oh-my-posh/releases/download/v18.7.0/install-amd64.exe
+  Installer SHA256: 071ceebaafbfbce77352ab2752301aa51938f2601d112574bedbf58773dbda25
+  Release Date: 2023-09-04";
+
+    internal const string ohMyPoshOutputFrench = @"
+Encontrado Oh My Posh [JanDeDobbeleer.OhMyPosh]
+Versión: 18.7.0
+Editor: Jan De Dobbeleer
+Dirección URL del editor: https://github.com/JanDeDobbeleer/oh-my-posh/
+Dirección URL de soporte del editor: https://github.com/JanDeDobbeleer/oh-my-posh/issues
+Autor: Jan De Dobbeleer
+Moniker: oh-my-posh
+Descripción: Prompt theme engine for any shell
+Página principal: https://ohmyposh.dev/
+Licencia: MIT
+Dirección URL de la licencia: https://github.com/JanDeDobbeleer/oh-my-posh/raw/main/COPYING
+Dirección URL de notas de la versión: https://github.com/JanDeDobbeleer/oh-my-posh/releases/tag/v18.7.0
+Etiquetas:
+  console
+  command-line
+  shell
+  command-prompt
+  powershell
+  wsl
+  developer-tools
+  utilities
+  cli
+  cmd
+  ps
+  terminal
+  oh-my-posh
+Instalador:
+  Tipo de instalador: inno
+  Dirección URL del instalador: https://github.com/JanDeDobbeleer/oh-my-posh/releases/download/v18.7.0/install-amd64.exe
+  Instalador SHA256: 071ceebaafbfbce77352ab2752301aa51938f2601d112574bedbf58773dbda25
+  Fecha de lanzamiento: 2023-09-04";
 
     internal const string powershellOutput = @"Found PowerShell [9MZ1SNWT0N5D]
 Version: Unknown
