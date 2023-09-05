@@ -4,22 +4,24 @@ namespace WingetIntune.Tests
 {
     public class PackageInfoTests
     {
-        [Fact]
-        public void ParsesOhMyPosh()
+        [Theory]
+        [InlineData(WingetManagerTestConstants.ohMyPoshOutput)]
+        [InlineData(WingetManagerTestConstants.ohMyPoshOutputFrench)]
+        public void ParsesOhMyPosh(string wingetData)
         {
-            var info = PackageInfo.Parse(WingetManagerTestConstants.ohMyPoshOutput);
+            var info = PackageInfo.Parse(wingetData);
             // Check PackageId, Name, Version, Publisher, PublisherUrl, HomePageUrl, InstallerType, InstallerUrl, Hash
             Assert.Equal("JanDeDobbeleer.OhMyPosh", info.PackageIdentifier);
             Assert.Equal("Oh My Posh", info.DisplayName);
-            Assert.Equal("18.3.1", info.Version);
+            Assert.Equal("18.7.0", info.Version);
             Assert.Equal("Jan De Dobbeleer", info.Publisher);
             Assert.Equal("Prompt theme engine for any shell", info.Description);
             Assert.Equal("https://github.com/JanDeDobbeleer/oh-my-posh/", info.PublisherUrl!.ToString());
             Assert.Equal("https://github.com/JanDeDobbeleer/oh-my-posh/issues", info.SupportUrl!.ToString());
             Assert.Equal("https://ohmyposh.dev/", info.InformationUrl!.ToString());
             Assert.Equal(InstallerType.Inno, info.InstallerType);
-            Assert.Equal("https://github.com/JanDeDobbeleer/oh-my-posh/releases/download/v18.3.1/install-amd64.exe", info.InstallerUrl!.ToString());
-            Assert.Equal("fc587e29525d2a9db7a46a98997b351ba1c2b699167f6ad8e22a23e261d526e9", info.Hash);
+            Assert.Equal("https://github.com/JanDeDobbeleer/oh-my-posh/releases/download/v18.7.0/install-amd64.exe", info.InstallerUrl!.ToString());
+            Assert.Equal("071ceebaafbfbce77352ab2752301aa51938f2601d112574bedbf58773dbda25", info.Hash);
         }
 
         [Fact]

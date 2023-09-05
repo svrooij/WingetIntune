@@ -71,7 +71,15 @@ public partial class WingetManager : IWingetRepository
             throw exception;
         }
 
-        return Models.PackageInfo.Parse(result.Output);
+        var info = Models.PackageInfo.Parse(result.Output);
+        if (info is null || string.IsNullOrWhiteSpace(info.PackageIdentifier))
+        {
+            var exception = new Exception($"Winget output not parsed, locale might be unsupported {id} {version}");
+            LogErrorGetPackageInfo(exception, id, version, result.Error + result.Output);
+            throw exception;
+        }
+
+        return info;
     }
 
     private async Task<PackageInfo> GetPackageInfoFromWingetManifestAsync(string id, string version, CancellationToken cancellationToken)

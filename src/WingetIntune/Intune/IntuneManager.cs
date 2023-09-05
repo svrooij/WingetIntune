@@ -482,11 +482,14 @@ public partial class IntuneManager
 
     private void LoadMsiDetails(string installerPath, ref PackageInfo packageInfo)
     {
-        var (productCode, msiVersion) = GetMsiInfo(installerPath, logger);
-        packageInfo.MsiProductCode = productCode ?? packageInfo.MsiProductCode;
-        packageInfo.MsiVersion = msiVersion ?? packageInfo.MsiVersion;
+        if (string.IsNullOrEmpty(packageInfo.MsiProductCode) || string.IsNullOrEmpty(packageInfo.MsiVersion))
+        {
+            var (productCode, msiVersion) = GetMsiInfo(installerPath, logger);
+            packageInfo.MsiProductCode = productCode ?? packageInfo.MsiProductCode;
+            packageInfo.MsiVersion = msiVersion ?? packageInfo.MsiVersion;
+        }
         packageInfo.InstallCommandLine = $"msiexec /i {packageInfo.InstallerFilename!} /qn /norestart";
-        packageInfo.UninstallCommandLine = $"msiexec /x {productCode} /qn /norestart";
+        packageInfo.UninstallCommandLine = $"msiexec /x {packageInfo.MsiProductCode!} /qn /norestart";
     }
 
     private void ComputeInstallerDetails(ref PackageInfo package, PackageOptions packageOptions)
