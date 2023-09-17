@@ -31,7 +31,15 @@ public class WingetInstaller
     public string? ProductCode { get; set; }
     public List<WingetAppsAndFeatures>? AppsAndFeaturesEntries { get; set; }
     public string? ElevationRequirement { get; set; }
-    public string? InstallerFilename => InstallerUrl?.Split('/').Last();
+    public string? InstallerFilename
+    {
+        get
+        {
+            if (InstallerUrl is null) { return null; }
+            var uri = new Uri(InstallerUrl);
+            return Path.GetFileName(uri.LocalPath.Replace(" ", ""));
+        }
+    }
     public InstallerContext InstallerContext => EnumParsers.ParseInstallerContext(Scope);
     public Architecture InstallerArchitecture => EnumParsers.ParseArchitecture(Architecture);
     public InstallerType ParsedInstallerType => EnumParsers.ParseInstallerType(InstallerType);
