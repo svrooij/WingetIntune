@@ -106,7 +106,7 @@ public class GraphServiceExtensionsTests
         var httpClient = new HttpClient(handlerMock.Object);
         var graphServiceClient = new GraphServiceClient(httpClient, new Internal.Msal.StaticAuthenticationProvider(token));
 
-        var body = new WingetIntune.Intune.FileEncryptionInfo
+        var body = new WingetIntune.Graph.FileEncryptionInfo
         {
             EncryptionKey = "test",
             FileDigest = "test",

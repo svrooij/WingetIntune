@@ -87,7 +87,7 @@ public class PackageInfo
             if (installerUrl != null)
             {
                 packageInfo.InstallerUrl = new Uri(installerUrl);
-                packageInfo.InstallerFilename = Path.GetFileName(packageInfo.InstallerUrl.AbsolutePath).Replace(" ", "");
+                packageInfo.InstallerFilename = Path.GetFileName(packageInfo.InstallerUrl.LocalPath.Replace(" ", ""));
             }
 
             packageInfo.Hash = lines.GetValueContains(keys.InstallerSha256);

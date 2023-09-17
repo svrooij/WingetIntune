@@ -507,7 +507,7 @@ public partial class IntuneManager
         }
 
         package.InstallerUrl = new Uri(installer.InstallerUrl!);
-        package.InstallerFilename = package.InstallerUrl.Segments.Last();
+        package.InstallerFilename = Path.GetFileName(package.InstallerUrl.LocalPath.Replace(" ", ""));
         package.Hash = installer.InstallerSha256;
         package.Architecture = installer.InstallerArchitecture;
         package.InstallerContext = installer.InstallerContext == InstallerContext.Unknown ? (package.InstallerContext ?? packageOptions.InstallerContext) : installer.InstallerContext;
