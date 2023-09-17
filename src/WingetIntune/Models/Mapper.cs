@@ -1,5 +1,6 @@
 ﻿using Microsoft.Graph.Beta.Models;
 using Riok.Mapperly.Abstractions;
+using WingetIntune.Graph;
 using WingetIntune.Internal.MsStore;
 using WingetIntune.Intune;
 

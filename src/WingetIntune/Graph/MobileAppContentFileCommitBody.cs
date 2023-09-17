@@ -1,4 +1,4 @@
-﻿namespace WingetIntune.Intune;
+﻿namespace WingetIntune.Graph;
 
 public class MobileAppContentFileCommitBody
 {
