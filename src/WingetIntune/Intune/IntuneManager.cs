@@ -638,7 +638,7 @@ public partial class IntuneManager
         IAuthenticationProvider provider = publicClient;
         if (!string.IsNullOrEmpty(options.Username) || !string.IsNullOrEmpty(options.Tenant))
         {
-            publicClient.SetAccountSuggestion(new AccountSuggestion(options.Username, options.Tenant));
+            publicClient.SetAccountSuggestion(new AccountSuggestion(options.Tenant, options.Username));
         }
         if (options.Credential is not null)
         {
