@@ -524,7 +524,7 @@ public partial class IntuneManager
         }
     }
 
-    private static readonly InstallerType[] SupportedInstallers = new[] { InstallerType.Inno, InstallerType.Msi, InstallerType.Burn, InstallerType.Wix, InstallerType.Nullsoft };
+    private static readonly InstallerType[] SupportedInstallers = new[] { InstallerType.Inno, InstallerType.Msi, InstallerType.Burn, InstallerType.Wix, InstallerType.Nullsoft, InstallerType.Exe };
 
     private static readonly Dictionary<InstallerType, string> DefaultInstallerSwitches = new()
     {
@@ -556,6 +556,16 @@ public partial class IntuneManager
                 package.InstallCommandLine = $"\"{package.InstallerFilename}\" {installerSwitches ?? DefaultInstallerSwitches[InstallerType.Burn]}";
                 // Have to check the uninstall command
                 package.UninstallCommandLine = $"\"{package.InstallerFilename}\" /quiet /norestart /uninstall /passive"; // /burn.ignoredependencies=\"{package.PackageIdentifier}\"
+                break;
+
+            case InstallerType.Nullsoft:
+                package.InstallCommandLine = $"\"{package.InstallerFilename}\" {installerSwitches ?? DefaultInstallerSwitches[InstallerType.Nullsoft]}";
+                break;
+
+            case InstallerType.Exe:
+                package.InstallCommandLine = $"\"{package.InstallerFilename}\" {installerSwitches}";
+                // Have to check the uninstall command
+                //package.UninstallCommandLine = $"\"{package.InstallerFilename}\" /quiet /norestart /uninstall /passive"; // /burn.ignoredependencies=\"{package.PackageIdentifier}\"
                 break;
         }
 
