@@ -216,7 +216,7 @@ public partial class IntuneManager
 
             if (options.AvailableFor.Any() || options.RequiredFor.Any() || options.UninstallFor.Any())
             {
-                await AssignAppAsync(graphServiceClient, appId, options.AvailableFor, options.RequiredFor, options.UninstallFor, cancellationToken);
+                await AssignAppAsync(graphServiceClient, appId, options.RequiredFor, options.AvailableFor, options.UninstallFor, cancellationToken);
             }
 
             return app!;
@@ -388,7 +388,7 @@ public partial class IntuneManager
             }
             if (options.AvailableFor.Any() || options.RequiredFor.Any() || options.UninstallFor.Any())
             {
-                await AssignAppAsync(graphServiceClient, appCreated.Id!, options.AvailableFor, options.RequiredFor, options.UninstallFor, cancellationToken);
+                await AssignAppAsync(graphServiceClient, appCreated.Id!, options.RequiredFor, options.AvailableFor, options.UninstallFor, cancellationToken);
             }
             return appCreated;
         }
