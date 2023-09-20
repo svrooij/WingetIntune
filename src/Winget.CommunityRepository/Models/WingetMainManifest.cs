@@ -1,6 +1,6 @@
-﻿namespace WingetIntune.Models.Manifest;
+﻿namespace Winget.CommunityRepository.Models;
 
-public class WingetMainManifest
+public partial class WingetMainManifest
 {
     public string? PackageIdentifier { get; set; }
     public string? PackageVersion { get; set; }

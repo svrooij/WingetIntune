@@ -24,6 +24,7 @@ internal class WinGetRootCommand : RootCommand
         AddCommand(new InfoCommand());
         AddCommand(new MsiCommand());
         AddCommand(new AboutCommand());
+        AddCommand(new GenerateIndexCommand());
         AddGlobalOption(VerboseOption);
         AddGlobalOption(JsonOption);
     }

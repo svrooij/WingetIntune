@@ -1,6 +1,6 @@
-﻿namespace WingetIntune.Models.Manifest;
+﻿namespace Winget.CommunityRepository.Models;
 
-public class WingetInstallerManifest
+public partial class WingetInstallerManifest
 {
     public string? PackageIdentifier { get; set; }
     public string? PackageVersion { get; set; }
@@ -19,7 +19,7 @@ public class WingetInstallerManifest
     public string? ReleaseDate { get; set; }
 }
 
-public class WingetInstaller
+public partial class WingetInstaller
 {
     public string? InstallerLocale { get; set; }
     public string? Architecture { get; set; }
@@ -40,17 +40,14 @@ public class WingetInstaller
             return Path.GetFileName(uri.LocalPath.Replace(" ", ""));
         }
     }
-    public InstallerContext InstallerContext => EnumParsers.ParseInstallerContext(Scope);
-    public Architecture InstallerArchitecture => EnumParsers.ParseArchitecture(Architecture);
-    public InstallerType ParsedInstallerType => EnumParsers.ParseInstallerType(InstallerType);
 
     public override string ToString()
     {
-        return $"{InstallerArchitecture} {InstallerContext} {ParsedInstallerType}";
+        return $"{Architecture} {Scope} {InstallerType}";
     }
 }
 
-public class WingetInstallerSwitches
+public partial class WingetInstallerSwitches
 {
     public string? Silent { get; set; }
     public string? SilentWithProgress { get; set; }
@@ -71,7 +68,7 @@ public class WingetInstallerSwitches
     }
 }
 
-public class WingetAppsAndFeatures
+public partial class WingetAppsAndFeatures
 {
     public string? DisplayName { get; set; }
     public string? Publisher { get; set; }
@@ -79,14 +76,3 @@ public class WingetAppsAndFeatures
     public string? ProductCode { get; set; }
 }
 
-internal static class WingetInstallerExtensions
-{
-    public static WingetInstaller? SingleOrDefault(this IList<WingetInstaller>? installers, InstallerType installerType, Architecture architecture, InstallerContext installerContext)
-    {
-        if (installers is null || !installers.Any()) { return null; }
-        return installers.FirstOrDefault(i =>
-            (i.ParsedInstallerType == installerType || installerType == InstallerType.Unknown)
-            && (i.InstallerArchitecture == architecture || architecture == Architecture.Unknown)
-            && (i.InstallerContext == installerContext || installerContext == InstallerContext.Unknown));
-    }
-}

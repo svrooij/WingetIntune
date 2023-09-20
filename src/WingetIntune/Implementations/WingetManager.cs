@@ -1,6 +1,5 @@
 ﻿using Microsoft.Extensions.Logging;
 using WingetIntune.Models;
-using WingetIntune.Models.Manifest;
 using YamlDotNet.Serialization;
 using YamlDotNet.Serialization.NamingConventions;
 
@@ -93,17 +92,14 @@ public partial class WingetManager : IWingetRepository
             var mainManifest = await fileManager.DownloadStringAsync(mainUri, cancellationToken: cancellationToken);
             var installerManifest = await fileManager.DownloadStringAsync(installerUri, cancellationToken: cancellationToken);
 
-            var deserializer = new DeserializerBuilder()
-                .WithNamingConvention(PascalCaseNamingConvention.Instance)
-                .IgnoreUnmatchedProperties()
-                .Build();
+            var parser = new Winget.CommunityRepository.ManifestParser();
 
-            var mainManifestObject = deserializer.Deserialize<Models.Manifest.WingetMainManifest>(mainManifest!);
-            var installerManifestObject = deserializer.Deserialize<Models.Manifest.WingetInstallerManifest>(installerManifest!);
+            var mainManifestObject = parser.ParseMainManifest(mainManifest!);
+            var installerManifestObject = parser.ParseInstallerManifest(installerManifest!);
 
             var localizedManifestUri = CreateManifestUri(id, version, $".locale.{mainManifestObject.DefaultLocale}");
             var localizedManifest = await fileManager.DownloadStringAsync(localizedManifestUri, cancellationToken: cancellationToken);
-            var localizedManifestObject = deserializer.Deserialize<Models.Manifest.WingetLocalizedManifest>(localizedManifest!);
+            var localizedManifestObject = parser.ParseLocalizedManifest(localizedManifest!);
 
             installerManifestObject.Installers?.ForEach(i =>
             {
