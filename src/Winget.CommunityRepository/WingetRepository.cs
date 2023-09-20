@@ -36,7 +36,7 @@ public partial class WingetRepository
         await LoadEntries(cancellationToken, false, cacheFile);
 
         var entry = Entries!.FirstOrDefault(e => e.PackageId == packageId);
-        return entry!.Version;
+        return entry!.Version!;
     }
 
     public async ValueTask<IEnumerable<Models.WingetEntry>> SearchPackage(string query, CancellationToken cancellationToken = default)
@@ -71,7 +71,8 @@ public partial class WingetRepository
         if (UseRespository)
         {
             Entries = await LoadEntriesFromSqlLite(cancellationToken, DefaultIndexUri);
-        } else
+        }
+        else
         {
             var response = await httpClient.GetAsync(IndexUri!, cancellationToken);
             response.EnsureSuccessStatusCode();
@@ -116,7 +117,7 @@ public partial class WingetRepository
                 counter++;
                 if (counter % 50 == 0)
                 {
-                    LogProcessing(counter, totalCount);  
+                    LogProcessing(counter, totalCount);
                 }
 
                 try

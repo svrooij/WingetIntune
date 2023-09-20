@@ -14,7 +14,7 @@ public partial class IndexContext
         optionsBuilder.UseSqlite(connectionString);
         return optionsBuilder.Options;
     }
-    public IndexContext(string connectionString): base(optionsBuilder(connectionString))
+    public IndexContext(string connectionString) : base(optionsBuilder(connectionString))
     {
     }
     partial void OnModelCreatingPartial(ModelBuilder modelBuilder)

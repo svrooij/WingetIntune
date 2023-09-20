@@ -32,7 +32,7 @@ internal class GenerateIndexCommand : Command
         using var combinedCancellation = CancellationTokenSource.CreateLinkedTokenSource(context.GetCancellationToken(), timeoutCancellation.Token);
         var host = context.GetHost();
         var logging = host.Services.GetRequiredService<ControlableLoggingProvider>();
-        
+
         logging.SetLogLevel(Microsoft.Extensions.Logging.LogLevel.Information);
 
         var repo = host.Services.GetRequiredService<Winget.CommunityRepository.WingetRepository>();

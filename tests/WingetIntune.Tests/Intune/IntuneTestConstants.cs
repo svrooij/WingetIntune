@@ -36,9 +36,9 @@ Installer:
         Publisher = "Microsoft Corporation",
         PublisherUrl = new Uri("https://github.com/Azure/azure-cli"),
         SupportUrl = new Uri("https://github.com/Azure/azure-cli/issues"),
-        Installers = new List<Models.Manifest.WingetInstaller>
+        Installers = new List<Winget.CommunityRepository.Models.WingetInstaller>
         {
-            new Models.Manifest.WingetInstaller
+            new Winget.CommunityRepository.Models.WingetInstaller
             {
                 Architecture = "x64",
                 Scope = "system",

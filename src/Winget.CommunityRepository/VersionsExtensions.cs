@@ -26,10 +26,11 @@ internal class VersionComparer : IComparer<string>
             var xVersion = new Version(x);
             var yVersion = new Version(y);
             return xVersion.CompareTo(yVersion);
-        } catch 
+        }
+        catch
         {
             return x.CompareTo(y);
         }
-        
+
     }
 }

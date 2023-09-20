@@ -423,8 +423,8 @@
       },
       "Microsoft.NETCore.Targets": {
         "type": "Transitive",
-        "resolved": "5.0.0",
-        "contentHash": "XpSaRv9/+V4KQ5KPbvRoArKy1o9WHizFEdOXPBLHXRZ0zwPGK5cTcWo1SveD7uayrfhod1uAAscip65qLeAjCw=="
+        "resolved": "1.1.0",
+        "contentHash": "aOZA3BWfz9RXjpzt0sRJJMjAscAUm3Hoa4UWAfceV9UTYxgwZ1lZt5nO2myFf+/jetYQo4uTP7zS8sJY67BBxg=="
       },
       "Microsoft.TestPlatform.ObjectModel": {
         "type": "Transitive",
@@ -817,7 +817,6 @@
           "Microsoft.Identity.Client.Broker": "[4.56.0, )",
           "Microsoft.Identity.Client.Extensions.Msal": "[4.56.0, )",
           "Microsoft.NETCore.Platforms": "[7.0.4, )",
-          "Microsoft.NETCore.Targets": "[5.0.0, )",
           "Riok.Mapperly": "[3.2.0, )",
           "Winget.CommunityRepository": "[1.0.0, )"
         }
