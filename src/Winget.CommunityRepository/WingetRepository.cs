@@ -13,7 +13,7 @@ using System.Threading.Tasks;
 namespace Winget.CommunityRepository;
 public partial class WingetRepository
 {
-    public const string OpenSourceIndexUri = "https://github.com/svrooij/winget-pkgs-index/raw/main/index.json";
+    public const string OpenSourceIndexUri = "https://raw.githubusercontent.com/svrooij/winget-pkgs-index/main/index.json";
     public const string DefaultIndexUri = "https://winget.azureedge.net/cache/source.msix";
     public bool UseRespository { get; set; }
     public Uri IndexUri { get; set; } = new(OpenSourceIndexUri);
@@ -27,16 +27,17 @@ public partial class WingetRepository
     public WingetRepository(HttpClient? httpClient = null, ILogger<WingetRepository>? logger = null)
     {
         UseRespository = false;
-        this.httpClient = httpClient ?? new();
+        this.httpClient = httpClient ?? new HttpClient();
+        this.httpClient.DefaultRequestHeaders.Add("User-Agent", "WingetIntune");
         this.logger = logger ?? new NullLogger<WingetRepository>();
     }
 
-    public async ValueTask<string> GetLatestVersion(string packageId, CancellationToken cancellationToken = default)
+    public async ValueTask<string?> GetLatestVersion(string packageId, CancellationToken cancellationToken = default)
     {
         await LoadEntries(cancellationToken, false, cacheFile);
 
-        var entry = Entries!.FirstOrDefault(e => e.PackageId == packageId);
-        return entry!.Version!;
+        var entry = Entries!.FirstOrDefault(e => e.PackageId.Equals(packageId, StringComparison.OrdinalIgnoreCase));
+        return entry?.Version;
     }
 
     public async ValueTask<IEnumerable<Models.WingetEntry>> SearchPackage(string query, CancellationToken cancellationToken = default)
@@ -59,9 +60,11 @@ public partial class WingetRepository
 
         if (!string.IsNullOrEmpty(cacheFile) && File.Exists(cacheFile) && !refresh)
         {
+            logger.LogDebug("Loading package index from cache at {cacheFile}", cacheFile);
             var info = new FileInfo(cacheFile);
-            if (info.LastWriteTimeUtc > DateTime.UtcNow.AddDays(-1))
+            if (info.LastWriteTimeUtc > DateTime.UtcNow.AddHours(-3))
             {
+                logger.LogDebug("Cache is still valid, using cache");
                 var cacheData = await File.ReadAllTextAsync(cacheFile, cancellationToken);
                 Entries = JsonSerializer.Deserialize<List<Models.WingetEntry>>(cacheData);
                 return Entries!;
@@ -70,10 +73,12 @@ public partial class WingetRepository
 
         if (UseRespository)
         {
+            logger.LogInformation("Loading package index from repository");
             Entries = await LoadEntriesFromSqlLite(cancellationToken, DefaultIndexUri);
         }
         else
         {
+            logger.LogInformation("Loading package index from {indexUri}", IndexUri);
             var response = await httpClient.GetAsync(IndexUri!, cancellationToken);
             response.EnsureSuccessStatusCode();
             Entries = await response.Content.ReadFromJsonAsync<List<Models.WingetEntry>>(cancellationToken: cancellationToken);
@@ -81,6 +86,7 @@ public partial class WingetRepository
 
         if (!string.IsNullOrEmpty(cacheFile))
         {
+            logger.LogInformation("Saving package index to cache at {cacheFile}", cacheFile);
             var json = JsonSerializer.Serialize(Entries);
             var cachePath = Path.GetDirectoryName(cacheFile);
             Directory.CreateDirectory(cachePath!);
@@ -105,15 +111,12 @@ public partial class WingetRepository
         var results = new List<Models.WingetEntry>();
         using (var db = new DbModels.IndexContext(connectionString))
         {
-
-
-
             var ids = db.Ids.OrderBy(x => x.Id1).ToList();
             var totalCount = ids.Count;
             int counter = 0;
             foreach (var id in ids)
             {
-
+                cancellationToken.ThrowIfCancellationRequested();
                 counter++;
                 if (counter % 50 == 0)
                 {
@@ -138,7 +141,7 @@ public partial class WingetRepository
         }
 
 
-        await Task.Delay(2000);
+        await Task.Delay(2000, cancellationToken);
 
         Directory.Delete(folder, true);
 

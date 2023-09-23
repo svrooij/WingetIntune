@@ -18,7 +18,7 @@ internal class InfoCommand : Command
     {
         AddArgument(WinGetRootCommand.IdArgument);
         AddOption(WinGetRootCommand.VersionOption);
-        AddOption(WinGetRootCommand.SourceOption);
+        AddOption(WinGetRootCommand.SourceOption());
         this.Handler = CommandHandler.Create(HandleCommand);
     }
 

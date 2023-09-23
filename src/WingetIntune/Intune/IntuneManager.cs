@@ -22,6 +22,7 @@ public partial class IntuneManager
     private readonly ILoggerFactory loggerFactory;
     private readonly IFileManager fileManager;
     private readonly IProcessManager processManager;
+    private readonly IWingetRepository wingetRepository;
     private readonly HttpClient httpClient;
     private readonly Mapper mapper = new Mapper();
     private readonly IAzureFileUploader azureFileUploader;
@@ -29,7 +30,7 @@ public partial class IntuneManager
     private readonly Internal.MsStore.MicrosoftStoreClient microsoftStoreClient;
     private readonly PublicClientAuth publicClient;
 
-    public IntuneManager(ILoggerFactory? loggerFactory, IFileManager fileManager, IProcessManager processManager, HttpClient httpClient, IAzureFileUploader azureFileUploader, Internal.MsStore.MicrosoftStoreClient microsoftStoreClient, PublicClientAuth publicClient, IIntunePackager intunePackager)
+    public IntuneManager(ILoggerFactory? loggerFactory, IFileManager fileManager, IProcessManager processManager, HttpClient httpClient, IAzureFileUploader azureFileUploader, Internal.MsStore.MicrosoftStoreClient microsoftStoreClient, PublicClientAuth publicClient, IIntunePackager intunePackager, IWingetRepository wingetRepository)
     {
         this.loggerFactory = loggerFactory ?? new NullLoggerFactory();
         this.logger = this.loggerFactory.CreateLogger<IntuneManager>();
@@ -40,6 +41,7 @@ public partial class IntuneManager
         this.microsoftStoreClient = microsoftStoreClient;
         this.publicClient = publicClient;
         this.intunePackager = intunePackager;
+        this.wingetRepository = wingetRepository;
     }
 
     public async Task GenerateMsiPackage(string tempFolder, string outputFolder, Models.PackageInfo packageInfo, PackageOptions packageOptions, CancellationToken cancellationToken = default)
@@ -79,6 +81,11 @@ public partial class IntuneManager
         {
             throw new ArgumentException("Package is not a winget package", nameof(packageInfo));
         }
+        if (!packageInfo.InstallersLoaded)
+        {
+            packageInfo = await wingetRepository.GetPackageInfoAsync(packageInfo.PackageIdentifier!, packageInfo.Version, "winget", cancellationToken);
+        }
+
         ComputeInstallerDetails(ref packageInfo, packageOptions);
         if (packageInfo.InstallerType.IsMsi())
         {
@@ -186,6 +193,8 @@ public partial class IntuneManager
             throw new FileNotFoundException("IntuneWin file not found", intuneFilePath);
         }
         string? appId = null;
+
+        logger.LogDebug("App info collected, starting publishing");
 
         try
         {

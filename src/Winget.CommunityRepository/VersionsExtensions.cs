@@ -21,16 +21,11 @@ internal class VersionComparer : IComparer<string>
         if (x is null && y is null) { return 0; }
         if (x is null) { return -1; }
         if (y is null) { return 1; }
-        try
-        {
-            var xVersion = new Version(x);
-            var yVersion = new Version(y);
-            return xVersion.CompareTo(yVersion);
-        }
-        catch
-        {
-            return x.CompareTo(y);
-        }
+        Version? xVersion = Version.TryParse(x, out var xVersionResult) ? xVersionResult : null;
+        Version? yVersion = Version.TryParse(y, out var yVersionResult) ? yVersionResult : null;
+        if (xVersion is null || yVersion is null) { return x.CompareTo(y); }
+        return xVersion.CompareTo(yVersion);
+
 
     }
 }

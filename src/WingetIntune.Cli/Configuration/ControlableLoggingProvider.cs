@@ -11,11 +11,13 @@ internal class ControlableLoggingProvider : ConfigurationProvider
     {
         Data.Add("Logging:LogLevel:Default", "Warning");
         Data.Add("Logging:LogLevel:Microsoft", "Warning");
+        Data.Add("Logging:LogLevel:Microsoft.Extensions.Http.DefaultHttpClientFactory", "Warning");
         Data.Add("Logging:LogLevel:WingetIntune.Os.ProcessManager", "Warning");
         Data.Add("Logging:LogLevel:WingetIntune.Os.DefaultFileManager", "Warning");
         Data.Add("Logging:LogLevel:WingetIntune.WingetManager", "Information");
         Data.Add("Logging:LogLevel:System", "Warning");
         Data.Add("Logging:LogLevel:WingetIntune", "Information");
+        Data.Add("Logging:LogLevel:Winget", "Information");
 
         Data.Add(FormatterNameKey, "simple");
         Data.Add("Logging:Console:FormatterOptions:SingleLine", "true");
@@ -43,7 +45,7 @@ internal class ControlableLoggingProvider : ConfigurationProvider
 
     public void SetVerbose()
     {
-        var keys = Data.Keys.Where(k => k.StartsWith("Logging:LogLevel:")).ToList();
+        var keys = Data.Keys.Where(k => k.StartsWith("Logging:LogLevel:") && !k.Contains("Microsoft.Extensions.Http.DefaultHttpClientFactory")).ToList();
         foreach (var key in keys)
         {
             base.Set(key, "Debug");

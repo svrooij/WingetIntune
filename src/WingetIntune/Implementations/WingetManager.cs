@@ -85,6 +85,7 @@ public partial class WingetManager : IWingetRepository
     {
         ArgumentNullException.ThrowIfNullOrEmpty(id);
         ArgumentNullException.ThrowIfNullOrEmpty(version);
+        LogGetPackageInfoFromManifest(id, version);
         try
         {
             var mainUri = CreateManifestUri(id, version, null);
@@ -193,6 +194,9 @@ public partial class WingetManager : IWingetRepository
 
     [LoggerMessage(EventId = 4, Level = LogLevel.Information, Message = "Getting package info for {id} {version}")]
     private partial void LogGetPackageInfo(string id, string? version);
+
+    [LoggerMessage(EventId = 5, Level = LogLevel.Information, Message = "Getting package info for {id} {version} from github")]
+    private partial void LogGetPackageInfoFromManifest(string id, string? version);
 
     [LoggerMessage(EventId = 100, Level = LogLevel.Warning, Message = "Error getting package info for {id} {version}:\r\n{error}")]
     private partial void LogErrorGetPackageInfo(Exception exception, string id, string? version, string error);

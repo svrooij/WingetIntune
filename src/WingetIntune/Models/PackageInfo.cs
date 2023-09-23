@@ -43,6 +43,8 @@ public class PackageInfo
             ;
     }
 
+    internal bool InstallersLoaded => Installers?.Any() == true;
+
     public static PackageInfo Parse(string wingetOutput)
     {
         var keys = wingetOutput.Trim().StartsWith(WingetManagerKeys.WingetPrefixFr) ? WingetManagerKeys.French() : WingetManagerKeys.English();

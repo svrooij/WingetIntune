@@ -16,7 +16,7 @@ namespace WingetIntune.Commands
         {
             AddArgument(WinGetRootCommand.IdArgument);
             AddOption(WinGetRootCommand.VersionOption);
-            AddOption(WinGetRootCommand.SourceOption);
+            AddOption(WinGetRootCommand.SourceOption());
             //AddOption(new Option<string>(new string[] { "--arg", "-a" }, "Package arguments"));
             //AddOption(new Option<string>(new string[] { "--silent", "-q" }, "Silent install"));
             AddOption(WinGetRootCommand.ForceOption);
