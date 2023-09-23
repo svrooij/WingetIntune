@@ -73,7 +73,7 @@ internal class PublishCommand : Command
             }
             if (options.AutoPackage && tempInfo.Source == PackageSource.Winget)
             {
-                
+
                 await intuneManager.GenerateInstallerPackage(options.TempFolder,
                 options.PackageFolder!,
                 tempInfo,
