@@ -10,7 +10,7 @@ public class IntuneManagerTests
     [Fact]
     public async Task GenerateMsiPackage_OtherPackage_ThrowsError()
     {
-        var intuneManager = new IntuneManager(null, null, null, null, null, null, null, null);
+        var intuneManager = new IntuneManager(null, null, null, null, null, null, null, null, null);
         var tempFolder = Path.Combine(Path.GetTempPath(), "intunewin");
         var outputFolder = Path.Combine(Path.GetTempPath(), "packages");
 
@@ -82,7 +82,7 @@ The Azure command-line interface (Azure CLI) is a set of commands used to create
 
         var intunePackagerMock = new Mock<IIntunePackager>(MockBehavior.Loose);
 
-        var intuneManager = new IntuneManager(new NullLoggerFactory(), fileManagerMock.Object, processManagerMock.Object, null, null, null, null, intunePackagerMock.Object);
+        var intuneManager = new IntuneManager(new NullLoggerFactory(), fileManagerMock.Object, processManagerMock.Object, null, null, null, null, intunePackagerMock.Object, null);
 
         await intuneManager.GenerateInstallerPackage(tempFolder, outputFolder, IntuneTestConstants.azureCliPackageInfo, new PackageOptions { Architecture = Models.Architecture.X64, InstallerContext = InstallerContext.User }, CancellationToken.None);
         fileManagerMock.VerifyAll();
@@ -103,7 +103,7 @@ The Azure command-line interface (Azure CLI) is a set of commands used to create
             .Returns(Task.CompletedTask)
             .Verifiable();
 
-        var intuneManager = new IntuneManager(new NullLoggerFactory(), fileManagerMock.Object, null, null, null, null, null, null);
+        var intuneManager = new IntuneManager(new NullLoggerFactory(), fileManagerMock.Object, null, null, null, null, null, null, null);
         await intuneManager.DownloadLogoAsync(folder, packageId, CancellationToken.None);
 
         fileManagerMock.Verify();
@@ -129,7 +129,7 @@ The Azure command-line interface (Azure CLI) is a set of commands used to create
             .Returns(Task.CompletedTask)
             .Verifiable();
 
-        var intuneManager = new IntuneManager(new NullLoggerFactory(), fileManagerMock.Object, null, null, null, null, null, null);
+        var intuneManager = new IntuneManager(new NullLoggerFactory(), fileManagerMock.Object, null, null, null, null, null, null, null);
         await intuneManager.DownloadInstallerAsync(folder, packageInfo, CancellationToken.None);
 
         fileManagerMock.Verify();
