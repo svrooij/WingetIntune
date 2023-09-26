@@ -14,7 +14,7 @@ namespace Winget.CommunityRepository;
 public partial class WingetRepository
 {
     public const string OpenSourceIndexUri = "https://raw.githubusercontent.com/svrooij/winget-pkgs-index/main/index.json";
-    public const string DefaultIndexUri = "https://winget.azureedge.net/cache/source.msix";
+    public const string DefaultIndexUri = "https://cdn.winget.microsoft.com/cache/source.msix";
     public bool UseRespository { get; set; }
     public Uri IndexUri { get; set; } = new(OpenSourceIndexUri);
     private readonly HttpClient httpClient;
