@@ -81,7 +81,7 @@ winget-intune package {PackageId} [--version {version}] [--source winget] --pack
 > The `packageId` is case sensitive, so make sure you use the correct casing. Tip: Copy it from the result of the `winget search {name}` command.
 
 This command will download the [content-prep-tool](https://github.com/Microsoft/Microsoft-Win32-Content-Prep-Tool) automatically, and use it to create the `intunewin` file.
-In a future version this might be replaced with a custom implementation, but for now this works.
+In a future version this might be replaced with a custom implementation, but for now this works. The SHA265 hash of the installer is checked and compared to the one in the `winget` manifest, to make sure you won't package a tampered installer.
 
 ### Publish
 
@@ -103,6 +103,11 @@ I'm planning to release the actual intune specific code as a separate library, s
 ## Contributing
 
 If you want to contribute to this project, please check out the [contributing](https://github.com/svrooij/WingetIntune/blob/main/CONTRIBUTING.md) page and the [Code of Conduct](https://github.com/svrooij/WingetIntune/blob/main/CODE_OF_CONDUCT.md).
+
+## Usefull information
+
+- [Microsoft-Win32-Content-Prep-Tool](https://github.com/microsoft/Microsoft-Win32-Content-Prep-Tool)
+- [Blog articles on Intune](https://svrooij.io/tags/intune/)
 
 [badge_blog]: https://img.shields.io/badge/blog-svrooij.io-blue?style=for-the-badge
 [badge_linkedin]: https://img.shields.io/badge/LinkedIn-stephanvanrooij-blue?style=for-the-badge&logo=linkedin
