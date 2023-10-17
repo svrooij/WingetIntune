@@ -84,6 +84,17 @@
         "resolved": "3.2.0",
         "contentHash": "EChq4G7PmEXhaPH4Ztw/CiHQ9iVg30Ir58vTA2MgGLsI+ciza5H4boLNK+mk+ik3eStwuA+ZeAxb4mhXVeDgFQ=="
       },
+      "SvRooij.ContentPrep": {
+        "type": "Direct",
+        "requested": "[0.1.2-alpha0007, )",
+        "resolved": "0.1.2-alpha0007",
+        "contentHash": "Mtm1dyTtb+8yPalJwcXxscJeW5AjzqXuzTurOhB7tQcj8N6jTDNvmazrbWlCCUKOjnqwWAkepnmfHcl+hCjnHA==",
+        "dependencies": {
+          "Microsoft.Extensions.Logging.Abstractions": "7.0.1",
+          "Microsoft.NETCore.Platforms": "7.0.4",
+          "System.Runtime.CompilerServices.Unsafe": "6.0.0"
+        }
+      },
       "Azure.Core": {
         "type": "Transitive",
         "resolved": "1.33.0",
