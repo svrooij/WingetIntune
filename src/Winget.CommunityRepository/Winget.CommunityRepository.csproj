@@ -16,7 +16,7 @@
     <PackageReference Include="Mono.TextTemplating" Version="2.3.1" />
     <PackageReference Include="System.CodeDom" Version="7.0.0" />
     <PackageReference Include="System.Memory" Version="4.5.5" />
-    <PackageReference Include="YamlDotNet" Version="13.4.0" />
+    <PackageReference Include="YamlDotNet" Version="13.7.1" />
   </ItemGroup>
 
 </Project>

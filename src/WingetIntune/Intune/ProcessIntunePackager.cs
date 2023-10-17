@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
 using WingetIntune.Interfaces;
+using WingetIntune.Models;
 
 namespace WingetIntune.Intune;
 
@@ -26,7 +27,9 @@ public partial class ProcessIntunePackager : IIntunePackager
         this.logger = logger;
     }
 
-    public async Task CreatePackage(string inputFolder, string outputFolder, string installerFilename, CancellationToken cancellationToken)
+    public Task CreatePackage(string inputFolder, string outputFolder, string installerFilename, CancellationToken cancellationToken) => CreatePackage(inputFolder, outputFolder, installerFilename, null, cancellationToken);
+
+    public async Task CreatePackage(string inputFolder, string outputFolder, string installerFilename, PackageInfo? _ = null, CancellationToken cancellationToken = default)
     {
         ArgumentException.ThrowIfNullOrEmpty(inputFolder);
         ArgumentException.ThrowIfNullOrEmpty(outputFolder);

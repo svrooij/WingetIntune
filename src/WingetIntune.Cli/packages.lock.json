@@ -4,13 +4,13 @@
     "net7.0": {
       "Azure.Identity": {
         "type": "Direct",
-        "requested": "[1.9.0, )",
-        "resolved": "1.9.0",
-        "contentHash": "VGcyxE66Za9mO0MtTYG1+ABZGF84QS+KZW8RTbcpYXLomHHvGT+aAL/Yg/ayfN+Usk2Z+DKB0+hymBaOAokj/w==",
+        "requested": "[1.10.2, )",
+        "resolved": "1.10.2",
+        "contentHash": "jfq07QnxB7Rx15DWHxIfZbdbgICL1IARncBPIYmnmF+1Xqn6KqiF6ijlKv2hj82WFr9kUi+jzU8zVqrBocJZ8A==",
         "dependencies": {
-          "Azure.Core": "1.32.0",
-          "Microsoft.Identity.Client": "4.49.1",
-          "Microsoft.Identity.Client.Extensions.Msal": "2.25.3",
+          "Azure.Core": "1.35.0",
+          "Microsoft.Identity.Client": "4.54.1",
+          "Microsoft.Identity.Client.Extensions.Msal": "2.31.0",
           "System.Memory": "4.5.4",
           "System.Security.Cryptography.ProtectedData": "4.7.0",
           "System.Text.Json": "4.7.2",
@@ -48,11 +48,11 @@
       },
       "Azure.Core": {
         "type": "Transitive",
-        "resolved": "1.33.0",
-        "contentHash": "p06/5ueyCwKe09zqz7bPR6vbWRGrDy6Ot4aqjrjnowhFlXUBoljUdH+abDZP2vUuSZrOSstF4h860hBHWh8uHg==",
+        "resolved": "1.35.0",
+        "contentHash": "hENcx03Jyuqv05F4RBEPbxz29UrM3Nbhnr6Wl6NQpoU9BCIbL3XLentrxDCTrH54NLS11Exxi/o8MYgT/cnKFA==",
         "dependencies": {
           "Microsoft.Bcl.AsyncInterfaces": "1.1.1",
-          "System.Diagnostics.DiagnosticSource": "4.6.0",
+          "System.Diagnostics.DiagnosticSource": "6.0.1",
           "System.Memory.Data": "1.0.2",
           "System.Numerics.Vectors": "4.5.0",
           "System.Text.Encodings.Web": "4.7.2",
@@ -647,6 +647,16 @@
           "SQLitePCLRaw.core": "2.1.4"
         }
       },
+      "SvRooij.ContentPrep": {
+        "type": "Transitive",
+        "resolved": "0.1.2-alpha0007",
+        "contentHash": "Mtm1dyTtb+8yPalJwcXxscJeW5AjzqXuzTurOhB7tQcj8N6jTDNvmazrbWlCCUKOjnqwWAkepnmfHcl+hCjnHA==",
+        "dependencies": {
+          "Microsoft.Extensions.Logging.Abstractions": "7.0.1",
+          "Microsoft.NETCore.Platforms": "7.0.4",
+          "System.Runtime.CompilerServices.Unsafe": "6.0.0"
+        }
+      },
       "System.CodeDom": {
         "type": "Transitive",
         "resolved": "7.0.0",
@@ -672,8 +682,8 @@
       },
       "System.Diagnostics.DiagnosticSource": {
         "type": "Transitive",
-        "resolved": "6.0.0",
-        "contentHash": "frQDfv0rl209cKm1lnwTgFPzNigy2EKk1BS3uAvHvlBVKe5cymGyHO+Sj+NLv5VF/AhHsqPIUUwya5oV4CHMUw==",
+        "resolved": "6.0.1",
+        "contentHash": "KiLYDu2k2J82Q9BJpWiuQqCkFjRBWVq4jDzKKWawVi9KWzyD0XG3cmfX0vqTQlL14Wi9EufJrbL0+KCLTbqWiQ==",
         "dependencies": {
           "System.Runtime.CompilerServices.Unsafe": "6.0.0"
         }
@@ -918,6 +928,7 @@
           "Microsoft.Identity.Client.Extensions.Msal": "[4.56.0, )",
           "Microsoft.NETCore.Platforms": "[7.0.4, )",
           "Riok.Mapperly": "[3.2.0, )",
+          "SvRooij.ContentPrep": "[0.1.2-alpha0007, )",
           "Winget.CommunityRepository": "[1.0.0, )"
         }
       }
