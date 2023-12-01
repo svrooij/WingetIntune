@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.Logging;
+using System.Runtime.InteropServices;
 using System.Text;
 
 namespace WingetIntune.Os;
@@ -15,6 +16,7 @@ public partial class ProcessManager : IProcessManager
     public async Task<ProcessResult> RunProcessAsync(string fileName, string arguments, CancellationToken cancellationToken = default, bool admin = false)//, string workingDirectory, bool waitForExit)
     {
         LogProcessStarting(fileName, arguments);
+        CheckWindows(fileName);
         using var process = new System.Diagnostics.Process();
         process.StartInfo.FileName = fileName;
         process.StartInfo.Arguments = arguments;
@@ -55,6 +57,19 @@ public partial class ProcessManager : IProcessManager
             LogProcessError(exitCode, error.ToString());
 
         return new ProcessResult(exitCode, output.ToString(), error.ToString());
+    }
+
+    private bool requiresWindows(string filename)
+    {
+        return filename.EndsWith(".exe", StringComparison.OrdinalIgnoreCase)
+            || filename.EndsWith(".msi", StringComparison.OrdinalIgnoreCase)
+            || filename.Equals("winget", StringComparison.OrdinalIgnoreCase);
+    }
+
+    private void CheckWindows(string filename)
+    {
+        if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows) && requiresWindows(filename))
+            throw new PlatformNotSupportedException("This feature is only supported on Windows.");
     }
 
     [LoggerMessage(EventId = 1, Level = LogLevel.Debug, Message = "Running {FileName} {Arguments}")]

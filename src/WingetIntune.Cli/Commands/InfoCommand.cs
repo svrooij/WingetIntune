@@ -18,13 +18,13 @@ internal class InfoCommand : Command
     {
         AddArgument(WinGetRootCommand.IdArgument);
         AddOption(WinGetRootCommand.VersionOption);
-        AddOption(WinGetRootCommand.SourceOption());
+        AddOption(WinGetRootCommand.SourceOption("winget"));
         this.Handler = CommandHandler.Create(HandleCommand);
     }
 
     private async Task<int> HandleCommand(WinGetRootCommand.DefaultOptions options, InvocationContext context)
     {
-        using var timeoutCancellation = new CancellationTokenSource(600000);
+        using var timeoutCancellation = new CancellationTokenSource(60000);
         using var combinedCancellation = CancellationTokenSource.CreateLinkedTokenSource(context.GetCancellationToken(), timeoutCancellation.Token);
         var host = context.GetHost();
         var logging = host.Services.GetRequiredService<ControlableLoggingProvider>();

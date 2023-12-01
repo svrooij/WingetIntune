@@ -28,6 +28,7 @@ internal class LibraryIntunePackager : IIntunePackager
                 MsiProductVersion = packageInfo.MsiVersion,
             };
         }
-        return packager.CreatePackage(inputFolder, installerFilename, outputFolder, details, cancellationToken);
+
+        return packager.CreatePackage(inputFolder, Path.Combine(inputFolder, installerFilename), outputFolder, details, cancellationToken);
     }
 }

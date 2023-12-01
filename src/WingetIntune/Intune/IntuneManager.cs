@@ -230,6 +230,11 @@ public partial class IntuneManager
 
             return app!;
         }
+        catch (Microsoft.Identity.Client.MsalClientException ex)
+        {
+            logger.LogError(ex, "Error publishing app, auth failed {message}", ex.Message);
+            throw;
+        }
         catch (ODataError ex)
         {
             logger.LogError(ex, "Error publishing app, deleting the remains {message}", ex.Error?.Message);

@@ -10,8 +10,10 @@ Take any (just msi installers for now) app from winget and upload it to Intune i
 - Generating the needed script information
 - Publish the app to Intune.
 
-This application is **Windows only** and requires **Dotnet 7** to be installed on your computer. It's also a [beta application](#beta-application), so please report any issues you find.
-A lot of commands run the `winget` command, so make sure you have the [App Installer](https://www.microsoft.com/en-us/p/app-installer/9nblggh4nns1) installed on your computer as well.
+This application ~~is **Windows only** and~~ requires **Dotnet 7** to be installed on your computer. It's also a [beta application](#beta-application), so please report any issues you find.
+A lot of commands run the `winget` command, so make sure you have the [App Installer](https://www.microsoft.com/p/app-installer/9nblggh4nns1) installed on your computer as well.
+
+This application used to be Windows only, but recently the main functionality is ported to other platforms by reducing the [platform dependencies](https://svrooij.io/2023/10/24/create-intunewin-file/). This means that the `package` and `publish` commands should work on any platform that supports dotnet 7. The `msi` command is still windows only, as it uses the `Microsoft.Deployment.WindowsInstaller` package. Both the `package` and `publish` won't support other sources than `winget`, and will use my [open-source winget index](https://github.com/svrooij/winget-pkgs-index/), instead of running winget to get the required information.
 
 [![LinkedIn Profile][badge_linkedin]][link_linkedin]
 [![Link Mastodon][badge_mastodon]][link_mastodon]
@@ -24,7 +26,7 @@ This package can be downloaded as a dotnet tool. Make sure you have Dotnet 7 ins
 I'm working to get a code signing certificate, but for now you might have to configure an exception on your computer to run unsigned code.
 
 ```Shell
-# Install dotnet 7 sdk
+# Install dotnet 7 sdk (or the way specific for your platform)
 winget install --id Microsoft.DotNet.SDK.7 --source winget
 
 # Add the nuget feed, if that is not already done
