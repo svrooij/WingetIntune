@@ -69,6 +69,7 @@ internal class PackageCommand : Command
         if (options.Version is null && options.Source == "winget" && !options.UseWinget)
         {
             logger.LogInformation("Getting latest version for {PackageId}", options.PackageId);
+            options.PackageId = (await repo.GetPackageId(options.PackageId, cancellationToken))!;
             options.Version = await repo.GetLatestVersion(options.PackageId, cancellationToken);
         }
 

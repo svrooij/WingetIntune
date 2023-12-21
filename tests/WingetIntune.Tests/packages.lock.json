@@ -44,20 +44,20 @@
       },
       "xunit": {
         "type": "Direct",
-        "requested": "[2.6.2, )",
-        "resolved": "2.6.2",
-        "contentHash": "sErOyzTZBfgeLcdu5y3CkhCirZikCe9GwEv56jbQRjSa4FyI2tIHjfBRvlWqg7M78bfAGajrreH0IHnxrUOpVA==",
+        "requested": "[2.6.3, )",
+        "resolved": "2.6.3",
+        "contentHash": "4CoGp3iKZORZ9aaHdPrFcdlDBRI/ZFRyDZWJuP7r2idULEtWf+k0yGT80cF/v6nE/MQDXLMIuSGDIrHuPLC/+Q==",
         "dependencies": {
-          "xunit.analyzers": "1.6.0",
-          "xunit.assert": "2.6.2",
-          "xunit.core": "[2.6.2]"
+          "xunit.analyzers": "1.7.0",
+          "xunit.assert": "2.6.3",
+          "xunit.core": "[2.6.3]"
         }
       },
       "xunit.runner.visualstudio": {
         "type": "Direct",
-        "requested": "[2.5.4, )",
-        "resolved": "2.5.4",
-        "contentHash": "YUtEOBdArAISyb1cTWcHc6/bilSDB9q5lc8ughPQP1MqlAKSkxKMBqLQ+tiWMFRBd2o22E59nLD/4V5R3jfZxQ=="
+        "requested": "[2.5.5, )",
+        "resolved": "2.5.5",
+        "contentHash": "AJsBBn8S00ZxdXPSIp8s+NcBQMO9tcll1UVCfGNoEi1DUH2z3f4Y1epV9nYbhgG6wFoTKJP6YuLT2MeTPV9gnA=="
       },
       "Azure.Core": {
         "type": "Transitive",
@@ -137,10 +137,10 @@
       },
       "Microsoft.EntityFrameworkCore.Sqlite": {
         "type": "Transitive",
-        "resolved": "7.0.11",
-        "contentHash": "DFev72BUsvd+QI5aH+uwoXM8u3P1GwTsLToORj6CGQJrkd+8UukuSsCXOWxj0ThiGC11btcmjjFx4FGuB3F28g==",
+        "resolved": "7.0.14",
+        "contentHash": "8c8Hw2tmfy5YEsi9RL2/u2Qi9IwVbmj/yDlJy4iJPadeE3/AssLrgtobOBz4ftg2y5PVjFL59Gq7YzGLQH5q1A==",
         "dependencies": {
-          "Microsoft.EntityFrameworkCore.Sqlite.Core": "7.0.11",
+          "Microsoft.EntityFrameworkCore.Sqlite.Core": "7.0.14",
           "SQLitePCLRaw.bundle_e_sqlite3": "2.1.4"
         }
       },
@@ -275,8 +275,8 @@
       },
       "Microsoft.Identity.Client": {
         "type": "Transitive",
-        "resolved": "4.58.0",
-        "contentHash": "dRPo7/omWfLcxUniAvlsTduSm0YYpef6Mumlx1PjXfIeB8tWrXe5vK9h8Ld41u/5W569Sx5QKSz+VI4KtxsVjg==",
+        "resolved": "4.58.1",
+        "contentHash": "UOESBIUrJVhmJHOrZyKQSAbpVroV4kMYfCQG0rsEAnd4tocanCH3tqqnx9w++ToPCX5icznxBveFZxmyam0oqg==",
         "dependencies": {
           "Microsoft.IdentityModel.Abstractions": "6.22.0",
           "System.Diagnostics.DiagnosticSource": "7.0.2"
@@ -284,19 +284,19 @@
       },
       "Microsoft.Identity.Client.Broker": {
         "type": "Transitive",
-        "resolved": "4.58.0",
-        "contentHash": "pctWgSDxgibpO/Vxho94IeF6Nmsax9psxeylm5UH0J+1zm8Mbw8pmDmFpd16wIJZSR19XjXFkx38Gnz9oZeP+A==",
+        "resolved": "4.58.1",
+        "contentHash": "gQvW2wkN7CLlfWZxHpYv0OC8Xrf+TNP2u1z8bodyGyEqQdHVIE9Tk1KtsBUW8n1v/akN71SHkb4262IkmjXiMw==",
         "dependencies": {
-          "Microsoft.Identity.Client": "4.58.0",
+          "Microsoft.Identity.Client": "4.58.1",
           "Microsoft.Identity.Client.NativeInterop": "0.13.14"
         }
       },
       "Microsoft.Identity.Client.Extensions.Msal": {
         "type": "Transitive",
-        "resolved": "4.58.0",
-        "contentHash": "g799G8sjZmYmkbDn6jd+1mC/mxCHSHCDx3fm3z7U5OBpMhE1aiHpQ4pfXOibG6iD8JWBIckFME3JWf4oj8ttVQ==",
+        "resolved": "4.58.1",
+        "contentHash": "M1gK3sFPl9kVLHa0qwWEU3l3w13J/HmvDVM4QcTV+WvQh6aN0KWAsUKNPwlvMwGRHzFkVOWofoaM6xo5zbyADQ==",
         "dependencies": {
-          "Microsoft.Identity.Client": "4.58.0",
+          "Microsoft.Identity.Client": "4.58.1",
           "System.IO.FileSystem.AccessControl": "5.0.0",
           "System.Security.Cryptography.ProtectedData": "4.5.0"
         }
@@ -476,8 +476,8 @@
       },
       "Riok.Mapperly": {
         "type": "Transitive",
-        "resolved": "3.2.0",
-        "contentHash": "EChq4G7PmEXhaPH4Ztw/CiHQ9iVg30Ir58vTA2MgGLsI+ciza5H4boLNK+mk+ik3eStwuA+ZeAxb4mhXVeDgFQ=="
+        "resolved": "3.3.0",
+        "contentHash": "zncD+ur/lys3vdStUsJa8A/g6fLABsfVOHKx7aFjZ3xBCGmSde8BEGcoLdhuC1Tpcyo6pgWSTigJqB4aPXSFiw=="
       },
       "SQLitePCLRaw.bundle_e_sqlite3": {
         "type": "Transitive",
@@ -762,27 +762,27 @@
       },
       "xunit.analyzers": {
         "type": "Transitive",
-        "resolved": "1.6.0",
-        "contentHash": "b/Wbrqr/bFvcjqAbYdJyCCvjz+PjjKMnoK/K6sbcCBu94pqAkB2vBAHFo87wNq2awsLPAuq5MA7q0XexyQ3mJQ=="
+        "resolved": "1.7.0",
+        "contentHash": "lAcpaB0KnjWETbPDMsDPoQi6zS0uXUYopmyTQDWvILJWcL9jwMxXXGmDLptlMA6vGi5Z0LtudsYN+dEUTmuHaA=="
       },
       "xunit.assert": {
         "type": "Transitive",
-        "resolved": "2.6.2",
-        "contentHash": "JOj2+zWS08M59bCk3MkZFcKj2Izb2zwkHSPIKJLvnZYLR2Nw6HifjvBCpa8XhMF3mxDuGwZ0+ncmlhE9WoEaZw=="
+        "resolved": "2.6.3",
+        "contentHash": "7JWrjxDIAwF1vBZyENu4BZaddNJijIQcIQcc+73sJPWaqzDmseysTYv2jR0IWBsWIGa6LSfMO/3+dH0fsHL5Wg=="
       },
       "xunit.core": {
         "type": "Transitive",
-        "resolved": "2.6.2",
-        "contentHash": "LxJ06D9uTDyvHY52+Lym2TUlq3ObgAKSTuzM9gniau8qI1fd/CPag4PFaGs0RJfunUJtYHg9+XrS5EcW/5dxGA==",
+        "resolved": "2.6.3",
+        "contentHash": "rlrm//9cNAlCkh3p5mdggzfchZlcXowUVK3UPqKiaN7G0Wu7gOUNLLZej9twnwTCVe1h3FEi9PRwzXMMXpFwSQ==",
         "dependencies": {
-          "xunit.extensibility.core": "[2.6.2]",
-          "xunit.extensibility.execution": "[2.6.2]"
+          "xunit.extensibility.core": "[2.6.3]",
+          "xunit.extensibility.execution": "[2.6.3]"
         }
       },
       "xunit.extensibility.core": {
         "type": "Transitive",
-        "resolved": "2.6.2",
-        "contentHash": "T8CmshbP1EeaDibLwgU/aEe53zrW0+x+mEz5aKxexS5vVyj1UwgDUjcTK/+prMF/9KgMHkgx1vIe7wv58wO6RQ==",
+        "resolved": "2.6.3",
+        "contentHash": "qWCpmK4nxFBsf68r35AgnrW6B+xjTCpjJYfJkaBaini4Myl/2P/Ro6WocVtJfpHilkatitVFgM3XVR0jthdJlQ==",
         "dependencies": {
           "NETStandard.Library": "1.6.1",
           "xunit.abstractions": "2.0.3"
@@ -790,11 +790,11 @@
       },
       "xunit.extensibility.execution": {
         "type": "Transitive",
-        "resolved": "2.6.2",
-        "contentHash": "kKo7XqyLF8blXGqQHlqKQ+AzST42kpB7oG81Km/kFEzWVfeDMgaEquOLAr/ZiR4tnkUbbWYrY6CJPTavFqGn6Q==",
+        "resolved": "2.6.3",
+        "contentHash": "I+9OA9a6WVia40bxJi3KaxVcjTE1ouHqD0QcrjHA/hLl7Ozb5eQmV7ecLu3gRZlPLdcVN+If8IZcEmqytmLtkA==",
         "dependencies": {
           "NETStandard.Library": "1.6.1",
-          "xunit.extensibility.core": "[2.6.2]"
+          "xunit.extensibility.core": "[2.6.3]"
         }
       },
       "YamlDotNet": {
@@ -805,7 +805,7 @@
       "winget.communityrepository": {
         "type": "Project",
         "dependencies": {
-          "Microsoft.EntityFrameworkCore.Sqlite": "[7.0.11, )",
+          "Microsoft.EntityFrameworkCore.Sqlite": "[7.0.14, )",
           "Microsoft.EntityFrameworkCore.Sqlite.Core": "[7.0.14, )",
           "Mono.TextTemplating": "[2.3.1, )",
           "System.CodeDom": "[8.0.0, )",
@@ -822,10 +822,10 @@
           "Microsoft.Extensions.Logging.Abstractions": "[8.0.0, )",
           "Microsoft.Extensions.Options": "[8.0.0, )",
           "Microsoft.Graph.Beta": "[5.48.0-preview, )",
-          "Microsoft.Identity.Client.Broker": "[4.58.0, )",
-          "Microsoft.Identity.Client.Extensions.Msal": "[4.58.0, )",
+          "Microsoft.Identity.Client.Broker": "[4.58.1, )",
+          "Microsoft.Identity.Client.Extensions.Msal": "[4.58.1, )",
           "Microsoft.NETCore.Platforms": "[7.0.4, )",
-          "Riok.Mapperly": "[3.2.0, )",
+          "Riok.Mapperly": "[3.3.0, )",
           "SvRooij.ContentPrep": "[0.1.2, )",
           "Winget.CommunityRepository": "[1.0.0, )"
         }

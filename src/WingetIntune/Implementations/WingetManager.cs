@@ -149,8 +149,9 @@ public partial class WingetManager : IWingetRepository
 
     internal static string CreateManifestUri(string id, string version, string? addition)
     {
-        var idParts = id.Split('.');
-        return $"https://github.com/microsoft/winget-pkgs/raw/master/manifests/{id[0].ToString().ToLower()}/{string.Join("/", idParts)}/{version}/{id}{addition}.yaml";
+        var sanitizedId = id.Replace("+", "%2B");
+        var idParts = sanitizedId.Split('.');
+        return $"https://github.com/microsoft/winget-pkgs/raw/master/manifests/{id[0].ToString().ToLower()}/{string.Join("/", idParts)}/{version}/{sanitizedId}{addition}.yaml";
     }
 
     private static Exception CreateExceptionForFailedProcess(ProcessResult processResult)

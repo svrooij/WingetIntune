@@ -63,6 +63,7 @@ internal class PublishCommand : Command
                 logger.LogInformation("Try loading latest version from package index");
                 var repo = host.Services.GetRequiredService<Winget.CommunityRepository.WingetRepository>();
                 //repo.UseRespository = true;
+                options.PackageId = (await repo.GetPackageId(options.PackageId, cancellationToken)) ?? options.PackageId;
                 options.Version = await repo.GetLatestVersion(options.PackageId, cancellationToken);
             }
             var tempInfo = await winget.GetPackageInfoAsync(options.PackageId, options.Version, options.Source, cancellationToken);
@@ -73,7 +74,6 @@ internal class PublishCommand : Command
             }
             if (options.AutoPackage && tempInfo.Source == PackageSource.Winget)
             {
-
                 await intuneManager.GenerateInstallerPackage(options.TempFolder,
                 options.PackageFolder!,
                 tempInfo,
