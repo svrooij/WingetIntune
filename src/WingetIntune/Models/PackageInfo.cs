@@ -1,6 +1,6 @@
 ﻿using WingetIntune.Extensions;
 using WingetIntune.Implementations;
-using WingetIntune.Models.Manifest;
+using Winget.CommunityRepository.Models;
 
 namespace WingetIntune.Models;
 
@@ -23,8 +23,8 @@ public class PackageInfo
     public string? MsiVersion { get; set; }
     public string? MsiProductCode { get; set; }
     public string? InstallerFilename { get; set; }
-    public List<Manifest.WingetInstaller>? Installers { get; set; }
-    public Manifest.WingetInstaller? Installer { get; set; }
+    public List<WingetInstaller>? Installers { get; set; }
+    public WingetInstaller? Installer { get; set; }
 
     public InstallerContext? InstallerContext { get; set; }
     public Architecture? Architecture { get; set; }
@@ -42,6 +42,8 @@ public class PackageInfo
             ?? Installers.SingleOrDefault(Models.InstallerType.Unknown, architecture, Models.InstallerContext.Unknown)
             ;
     }
+
+    internal bool InstallersLoaded => Installers?.Any() == true;
 
     public static PackageInfo Parse(string wingetOutput)
     {

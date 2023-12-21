@@ -69,8 +69,8 @@ public class AzCopyAzureUploaderTests
             .Returns(false)
             .Verifiable();
 
-        fileManagerMock.Setup(fileManagerMock => fileManagerMock.DownloadFileAsync("https://aka.ms/downloadazcopy-v10-windows", It.IsAny<string>(), true, true, It.IsAny<CancellationToken>()))
-            .Returns(Task.CompletedTask)
+        fileManagerMock.Setup(fileManagerMock => fileManagerMock.DownloadFileAsync("https://aka.ms/downloadazcopy-v10-windows", It.IsAny<string>(), null, true, true, It.IsAny<CancellationToken>()))
+            .Returns(Task.FromResult<string?>(null))
             .Verifiable();
 
         fileManagerMock.Setup(fileManagerMock => fileManagerMock.ExtractFileToFolder(It.IsAny<string>(), It.IsAny<string>())).Verifiable();

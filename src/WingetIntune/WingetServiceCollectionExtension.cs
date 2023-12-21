@@ -12,7 +12,18 @@ public static class WingetServiceCollectionExtension
         services.AddTransient<IFileManager, Os.DefaultFileManager>();
         services.AddTransient<IProcessManager, Os.ProcessManager>();
         services.AddTransient<IWingetRepository, Implementations.WingetManager>();
-        services.AddTransient<IIntunePackager, ProcessIntunePackager>();
+        if (Environment.GetEnvironmentVariable("WINGETINTUNE_USE_PROCESS_PACKAGER") == "true")
+        {
+            if (Environment.OSVersion.Platform != PlatformID.Win32NT)
+            {
+                throw new NotSupportedException("Process packager is only supported on Windows");
+            }
+            services.AddTransient<IIntunePackager, ProcessIntunePackager>();
+        }
+        else
+        {
+            services.AddTransient<IIntunePackager, LibraryIntunePackager>();
+        }
         services.AddSingleton<IntuneManager>();
         // Old IAzureFileUploader implementation is not used anymore, it does not work correctly.
         //services.AddTransient<IAzureFileUploader, Implementations.AzCopyAzureUploader>();

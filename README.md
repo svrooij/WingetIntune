@@ -10,8 +10,10 @@ Take any (just msi installers for now) app from winget and upload it to Intune i
 - Generating the needed script information
 - Publish the app to Intune.
 
-This application is **Windows only** and requires **Dotnet 7** to be installed on your computer. It's also a [beta application](#beta-application), so please report any issues you find.
-A lot of commands run the `winget` command, so make sure you have the [App Installer](https://www.microsoft.com/en-us/p/app-installer/9nblggh4nns1) installed on your computer as well.
+This application ~~is **Windows only** and~~ requires **Dotnet 7** to be installed on your computer. It's also a [beta application](#beta-application), so please report any issues you find.
+A lot of commands run the `winget` command, so make sure you have the [App Installer](https://www.microsoft.com/p/app-installer/9nblggh4nns1) installed on your computer as well.
+
+This application used to be Windows only, but recently the main functionality is ported to other platforms by reducing the [platform dependencies](https://svrooij.io/2023/10/24/create-intunewin-file/). This means that the `package` and `publish` commands should work on any platform that supports dotnet 7. The `msi` command is still windows only, as it uses the `Microsoft.Deployment.WindowsInstaller` package. Both the `package` and `publish` won't support other sources than `winget`, and will use my [open-source winget index](https://github.com/svrooij/winget-pkgs-index/), instead of running winget to get the required information.
 
 [![LinkedIn Profile][badge_linkedin]][link_linkedin]
 [![Link Mastodon][badge_mastodon]][link_mastodon]
@@ -24,7 +26,7 @@ This package can be downloaded as a dotnet tool. Make sure you have Dotnet 7 ins
 I'm working to get a code signing certificate, but for now you might have to configure an exception on your computer to run unsigned code.
 
 ```Shell
-# Install dotnet 7 sdk
+# Install dotnet 7 sdk (or the way specific for your platform)
 winget install --id Microsoft.DotNet.SDK.7 --source winget
 
 # Add the nuget feed, if that is not already done
@@ -81,7 +83,7 @@ winget-intune package {PackageId} [--version {version}] [--source winget] --pack
 > The `packageId` is case sensitive, so make sure you use the correct casing. Tip: Copy it from the result of the `winget search {name}` command.
 
 This command will download the [content-prep-tool](https://github.com/Microsoft/Microsoft-Win32-Content-Prep-Tool) automatically, and use it to create the `intunewin` file.
-In a future version this might be replaced with a custom implementation, but for now this works.
+In a future version this might be replaced with a custom implementation, but for now this works. The SHA265 hash of the installer is checked and compared to the one in the `winget` manifest, to make sure you won't package a tampered installer.
 
 ### Publish
 
@@ -103,6 +105,11 @@ I'm planning to release the actual intune specific code as a separate library, s
 ## Contributing
 
 If you want to contribute to this project, please check out the [contributing](https://github.com/svrooij/WingetIntune/blob/main/CONTRIBUTING.md) page and the [Code of Conduct](https://github.com/svrooij/WingetIntune/blob/main/CODE_OF_CONDUCT.md).
+
+## Usefull information
+
+- [Microsoft-Win32-Content-Prep-Tool](https://github.com/microsoft/Microsoft-Win32-Content-Prep-Tool)
+- [Blog articles on Intune](https://svrooij.io/tags/intune/)
 
 [badge_blog]: https://img.shields.io/badge/blog-svrooij.io-blue?style=for-the-badge
 [badge_linkedin]: https://img.shields.io/badge/LinkedIn-stephanvanrooij-blue?style=for-the-badge&logo=linkedin

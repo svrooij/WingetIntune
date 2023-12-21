@@ -1,6 +1,6 @@
-﻿namespace WingetIntune.Models.Manifest;
+﻿namespace Winget.CommunityRepository.Models;
 
-public class WingetLocalizedManifest
+public partial class WingetLocalizedManifest
 {
     public string? PackageIdentifier { get; set; }
     public string? PackageVersion { get; set; }
@@ -28,7 +28,7 @@ public class WingetLocalizedManifest
     public WingetLocalizedManifestDocumentation[]? Documentations { get; set; }
 }
 
-public class WingetLocalizedManifestDocumentation
+public partial class WingetLocalizedManifestDocumentation
 {
     public string? DocumentLabel { get; set; }
     public Uri? DocumentUrl { get; set; }

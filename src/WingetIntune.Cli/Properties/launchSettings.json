@@ -12,27 +12,39 @@
       "environmentVariables": {
       }
     },
-    "WingetIntune.Cli package 7zip": {
+    "WingetIntune.Cli package Microsoft.DotNet.SDK.7": {
       "commandName": "Project",
-      "commandLineArgs": "package 7zip.7zip --package-folder c:\\tools\\packages",
+      "commandLineArgs": "package Microsoft.DotNet.SDK.7 --package-folder c:\\tools\\packages --verbose --source winget",
       "environmentVariables": {
       }
     },
-    "WingetIntune.Cli package ohmyposh": {
+    "WingetIntune.Cli package Firefox": {
       "commandName": "Project",
-      "commandLineArgs": "package JanDeDobbeleer.OhMyPosh --package-folder c:\\tools\\packages",
+      "commandLineArgs": "publish Mozilla.Firefox --package-folder c:\\tools\\packages --verbose --category Productivity --available allusers --auto-package ",
       "environmentVariables": {
       }
     },
-    "WingetIntune.Cli publish ohmyposh": {
+    "WingetIntune.Cli package 1Password": {
       "commandName": "Project",
-      "commandLineArgs": "publish JanDeDobbeleer.OhMyPosh --package-folder c:\\tools\\packages",
+      "commandLineArgs": "publish AgileBits.1Password --package-folder c:\\tools\\packages --auto-package --available allusers",
       "environmentVariables": {
       }
     },
-    "WingetIntune.Cli publish store Adobe Reader": {
+    "WingetIntune.Cli info ohmyposh": {
       "commandName": "Project",
-      "commandLineArgs": "publish store --id XPDP273C0XHQH2",
+      "commandLineArgs": "info JanDeDobbeleer.OhMyPosh --source winget",
+      "environmentVariables": {
+      }
+    },
+    "WingetIntune.Cli publish store Arduino": {
+      "commandName": "Project",
+      "commandLineArgs": "publish store --id 9NBLGGH4RSD8 --category \"Development & Design\" --available allusers --required c45dbfbd-248c-4f55-a3b8-7020f25aca18",
+      "environmentVariables": {
+      }
+    },
+    "WingetIntune.Cli generate index": {
+      "commandName": "Project",
+      "commandLineArgs": "generate-index -o C:\\Users\\stephan\\source\\repos\\winget-pkgs-index\\index.json",
       "environmentVariables": {
       }
     }

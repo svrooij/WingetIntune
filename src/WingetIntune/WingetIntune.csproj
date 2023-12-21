@@ -22,14 +22,20 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Azure.Storage.Blobs" Version="12.17.0" />
-    <PackageReference Include="Microsoft.Extensions.Http" Version="7.0.0" />
-    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="7.0.1" />
-    <PackageReference Include="Microsoft.Extensions.Options" Version="7.0.1" />
-    <PackageReference Include="Microsoft.Graph.Beta" Version="5.45.0-preview" />
-    <PackageReference Include="Microsoft.Identity.Client.Broker" Version="4.55.0" />
-    <PackageReference Include="Microsoft.Identity.Client.Extensions.Msal" Version="2.32.0" />
-    <PackageReference Include="Riok.Mapperly" Version="3.1.0" />
-    <PackageReference Include="YamlDotNet" Version="13.2.0" />
+    <PackageReference Include="Microsoft.Bcl.AsyncInterfaces" Version="8.0.0" />
+    <PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
+    <PackageReference Include="Microsoft.Extensions.Http" Version="8.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="8.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Options" Version="8.0.0" />
+    <PackageReference Include="Microsoft.Graph.Beta" Version="5.48.0-preview" />
+    <PackageReference Include="Microsoft.Identity.Client.Broker" Version="4.58.0" />
+    <PackageReference Include="Microsoft.Identity.Client.Extensions.Msal" Version="4.58.0" />
+    <PackageReference Include="Microsoft.NETCore.Platforms" Version="7.0.4" />
+    <PackageReference Include="Riok.Mapperly" Version="3.2.0" />
+    <PackageReference Include="SvRooij.ContentPrep" Version="0.1.2" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Winget.CommunityRepository\Winget.CommunityRepository.csproj" />
   </ItemGroup>
 </Project>

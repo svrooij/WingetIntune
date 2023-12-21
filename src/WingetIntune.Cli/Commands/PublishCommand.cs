@@ -29,6 +29,7 @@ internal class PublishCommand : Command
         AddArgument(WinGetRootCommand.IdArgument);
         AddOption(WinGetRootCommand.VersionOption);
         AddOption(PackageCommand.GetPackageFolderOption(isRequired: true, isHidden: false));
+        AddOption(WinGetRootCommand.SourceOption("winget"));
         AddOption(TenantOption);
         AddOption(UsernameOption);
         AddOption(TokenOption);
@@ -49,6 +50,7 @@ internal class PublishCommand : Command
 
         var host = context.GetHost();
         options.AdjustLogging(host);
+
         var logger = host.Services.GetRequiredService<ILogger<PackageCommand>>();
         var winget = host.Services.GetRequiredService<IWingetRepository>();
         var intuneManager = host.Services.GetRequiredService<IntuneManager>();
@@ -56,7 +58,14 @@ internal class PublishCommand : Command
         PackageInfo? packageInfo = null;
         if (options.Version == null)
         {
-            var tempInfo = await winget.GetPackageInfoAsync(options.PackageId, null, null, cancellationToken);
+            if (options.Source == "winget")
+            {
+                logger.LogInformation("Try loading latest version from package index");
+                var repo = host.Services.GetRequiredService<Winget.CommunityRepository.WingetRepository>();
+                //repo.UseRespository = true;
+                options.Version = await repo.GetLatestVersion(options.PackageId, cancellationToken);
+            }
+            var tempInfo = await winget.GetPackageInfoAsync(options.PackageId, options.Version, options.Source, cancellationToken);
             if (tempInfo == null)
             {
                 //logger.LogWarning("Package {packageId} not found", options.PackageId);
@@ -64,14 +73,14 @@ internal class PublishCommand : Command
             }
             if (options.AutoPackage && tempInfo.Source == PackageSource.Winget)
             {
-                tempInfo = await winget.GetPackageInfoAsync(tempInfo.PackageIdentifier!, tempInfo.Version, tempInfo.Source.ToString().ToLower(), cancellationToken);
+
                 await intuneManager.GenerateInstallerPackage(options.TempFolder,
                 options.PackageFolder!,
                 tempInfo,
                 new PackageOptions { Architecture = options.Architecture, InstallerContext = options.InstallerContext },
                 cancellationToken);
             }
-            packageInfo = tempInfo.Source == PackageSource.Store
+            packageInfo = tempInfo.Source == PackageSource.Store || options.AutoPackage
                 ? tempInfo
                 : await intuneManager.LoadPackageInfoFromFolder(options.PackageFolder!, options.PackageId, tempInfo.Version!, cancellationToken);
         }

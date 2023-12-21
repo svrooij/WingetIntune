@@ -33,8 +33,9 @@ internal class Program
                                });
                                host.ConfigureServices(services =>
                                {
-                                   services.AddSingleton(ControlableLoggingSource.Instance!);
+                                   services.AddSingleton(ControlableLoggingSource.Provider!);
                                    services.AddWingetServices();
+                                   services.AddSingleton<Winget.CommunityRepository.WingetRepository>();
                                });
                            })
             .UseDefaults()

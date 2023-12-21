@@ -22,6 +22,7 @@ public partial class IntuneManager
     private readonly ILoggerFactory loggerFactory;
     private readonly IFileManager fileManager;
     private readonly IProcessManager processManager;
+    private readonly IWingetRepository wingetRepository;
     private readonly HttpClient httpClient;
     private readonly Mapper mapper = new Mapper();
     private readonly IAzureFileUploader azureFileUploader;
@@ -29,7 +30,7 @@ public partial class IntuneManager
     private readonly Internal.MsStore.MicrosoftStoreClient microsoftStoreClient;
     private readonly PublicClientAuth publicClient;
 
-    public IntuneManager(ILoggerFactory? loggerFactory, IFileManager fileManager, IProcessManager processManager, HttpClient httpClient, IAzureFileUploader azureFileUploader, Internal.MsStore.MicrosoftStoreClient microsoftStoreClient, PublicClientAuth publicClient, IIntunePackager intunePackager)
+    public IntuneManager(ILoggerFactory? loggerFactory, IFileManager fileManager, IProcessManager processManager, HttpClient httpClient, IAzureFileUploader azureFileUploader, Internal.MsStore.MicrosoftStoreClient microsoftStoreClient, PublicClientAuth publicClient, IIntunePackager intunePackager, IWingetRepository wingetRepository)
     {
         this.loggerFactory = loggerFactory ?? new NullLoggerFactory();
         this.logger = this.loggerFactory.CreateLogger<IntuneManager>();
@@ -40,6 +41,7 @@ public partial class IntuneManager
         this.microsoftStoreClient = microsoftStoreClient;
         this.publicClient = publicClient;
         this.intunePackager = intunePackager;
+        this.wingetRepository = wingetRepository;
     }
 
     public async Task GenerateMsiPackage(string tempFolder, string outputFolder, Models.PackageInfo packageInfo, PackageOptions packageOptions, CancellationToken cancellationToken = default)
@@ -61,7 +63,7 @@ public partial class IntuneManager
         var packageFolder = fileManager.CreateFolderForPackage(outputFolder, packageInfo.PackageIdentifier!, packageInfo.Version!);
         var installerPath = await DownloadInstallerAsync(packageTempFolder, packageInfo, cancellationToken);
         LoadMsiDetails(installerPath, ref packageInfo);
-        await intunePackager.CreatePackage(packageTempFolder, packageFolder, packageInfo.InstallerFilename!, cancellationToken);
+        await intunePackager.CreatePackage(packageTempFolder, packageFolder, packageInfo.InstallerFilename!, packageInfo, cancellationToken);
         await DownloadLogoAsync(packageFolder, packageInfo.PackageIdentifier!, cancellationToken);
         await WriteReadmeAsync(packageFolder, packageInfo, cancellationToken);
         await WritePackageInfo(packageFolder, packageInfo, cancellationToken);
@@ -79,6 +81,11 @@ public partial class IntuneManager
         {
             throw new ArgumentException("Package is not a winget package", nameof(packageInfo));
         }
+        if (!packageInfo.InstallersLoaded)
+        {
+            packageInfo = await wingetRepository.GetPackageInfoAsync(packageInfo.PackageIdentifier!, packageInfo.Version, "winget", cancellationToken);
+        }
+
         ComputeInstallerDetails(ref packageInfo, packageOptions);
         if (packageInfo.InstallerType.IsMsi())
         {
@@ -124,7 +131,7 @@ public partial class IntuneManager
                     cancellationToken);
             packageInfo.UninstallCommandLine = $"powershell.exe -WindowStyle Hidden -ExecutionPolicy Bypass -File uninstall.ps1";
         }
-        await intunePackager.CreatePackage(packageTempFolder, packageFolder, packageInfo.InstallerFilename!, cancellationToken);
+        await intunePackager.CreatePackage(packageTempFolder, packageFolder, packageInfo.InstallerFilename!, packageInfo, cancellationToken);
         await DownloadLogoAsync(packageFolder, packageInfo.PackageIdentifier!, cancellationToken);
 
         var detectionScript = IntuneManagerConstants.PsDetectionCommandTemplate.Replace("{packageId}", packageInfo.PackageIdentifier!).Replace("{version}", packageInfo.Version);
@@ -187,6 +194,8 @@ public partial class IntuneManager
         }
         string? appId = null;
 
+        logger.LogDebug("App info collected, starting publishing");
+
         try
         {
             app = await graphServiceClient.DeviceAppManagement.MobileApps.PostAsync(app, cancellationToken);
@@ -216,10 +225,15 @@ public partial class IntuneManager
 
             if (options.AvailableFor.Any() || options.RequiredFor.Any() || options.UninstallFor.Any())
             {
-                await AssignAppAsync(graphServiceClient, appId, options.AvailableFor, options.RequiredFor, options.UninstallFor, cancellationToken);
+                await AssignAppAsync(graphServiceClient, appId, options.RequiredFor, options.AvailableFor, options.UninstallFor, cancellationToken);
             }
 
             return app!;
+        }
+        catch (Microsoft.Identity.Client.MsalClientException ex)
+        {
+            logger.LogError(ex, "Error publishing app, auth failed {message}", ex.Message);
+            throw;
         }
         catch (ODataError ex)
         {
@@ -388,7 +402,7 @@ public partial class IntuneManager
             }
             if (options.AvailableFor.Any() || options.RequiredFor.Any() || options.UninstallFor.Any())
             {
-                await AssignAppAsync(graphServiceClient, appCreated.Id!, options.AvailableFor, options.RequiredFor, options.UninstallFor, cancellationToken);
+                await AssignAppAsync(graphServiceClient, appCreated.Id!, options.RequiredFor, options.AvailableFor, options.UninstallFor, cancellationToken);
             }
             return appCreated;
         }
@@ -448,14 +462,14 @@ public partial class IntuneManager
         var logoPath = Path.GetFullPath(Path.Combine(packageFolder, "..", "logo.png"));
         var logoUri = $"https://api.winstall.app/icons/{packageId}.png";//new Uri($"https://winget.azureedge.net/cache/icons/48x48/{packageId}.png");
         LogDownloadLogo(logoUri);
-        return fileManager.DownloadFileAsync(logoUri, logoPath, throwOnFailure: false, overrideFile: false, cancellationToken);
+        return fileManager.DownloadFileAsync(logoUri, logoPath, throwOnFailure: false, overrideFile: false, cancellationToken: cancellationToken);
     }
 
     internal async Task<string> DownloadInstallerAsync(string tempPackageFolder, PackageInfo packageInfo, CancellationToken cancellationToken)
     {
         var installerPath = Path.Combine(tempPackageFolder, packageInfo.InstallerFilename!);
         LogDownloadInstaller(packageInfo.InstallerUrl!, installerPath);
-        await fileManager.DownloadFileAsync(packageInfo.InstallerUrl!.ToString(), installerPath, throwOnFailure: true, overrideFile: false, cancellationToken);
+        await fileManager.DownloadFileAsync(packageInfo.InstallerUrl!.ToString(), installerPath, expectedHash: packageInfo.Installer!.InstallerSha256!, throwOnFailure: true, overrideFile: false, cancellationToken: cancellationToken);
         return installerPath;
     }
 
@@ -509,9 +523,9 @@ public partial class IntuneManager
         package.InstallerUrl = new Uri(installer.InstallerUrl!);
         package.InstallerFilename = Path.GetFileName(package.InstallerUrl.LocalPath.Replace(" ", ""));
         package.Hash = installer.InstallerSha256;
-        package.Architecture = installer.InstallerArchitecture;
-        package.InstallerContext = installer.InstallerContext == InstallerContext.Unknown ? (package.InstallerContext ?? packageOptions.InstallerContext) : installer.InstallerContext;
-        package.InstallerType = installer.ParsedInstallerType;
+        package.Architecture = installer.InstallerArchitecture();
+        package.InstallerContext = installer.ParseInstallerContext() == InstallerContext.Unknown ? (package.InstallerContext ?? packageOptions.InstallerContext) : installer.ParseInstallerContext();
+        package.InstallerType = installer.ParseInstallerType();
         package.Installer = installer;
         if (package.InstallerType.IsMsi())
         {
@@ -524,7 +538,7 @@ public partial class IntuneManager
         }
     }
 
-    private static readonly InstallerType[] SupportedInstallers = new[] { InstallerType.Inno, InstallerType.Msi, InstallerType.Burn, InstallerType.Wix, InstallerType.Nullsoft };
+    private static readonly InstallerType[] SupportedInstallers = new[] { InstallerType.Inno, InstallerType.Msi, InstallerType.Burn, InstallerType.Wix, InstallerType.Nullsoft, InstallerType.Exe };
 
     private static readonly Dictionary<InstallerType, string> DefaultInstallerSwitches = new()
     {
@@ -556,6 +570,16 @@ public partial class IntuneManager
                 package.InstallCommandLine = $"\"{package.InstallerFilename}\" {installerSwitches ?? DefaultInstallerSwitches[InstallerType.Burn]}";
                 // Have to check the uninstall command
                 package.UninstallCommandLine = $"\"{package.InstallerFilename}\" /quiet /norestart /uninstall /passive"; // /burn.ignoredependencies=\"{package.PackageIdentifier}\"
+                break;
+
+            case InstallerType.Nullsoft:
+                package.InstallCommandLine = $"\"{package.InstallerFilename}\" {installerSwitches ?? DefaultInstallerSwitches[InstallerType.Nullsoft]}";
+                break;
+
+            case InstallerType.Exe:
+                package.InstallCommandLine = $"\"{package.InstallerFilename}\" {installerSwitches}";
+                // Have to check the uninstall command
+                //package.UninstallCommandLine = $"\"{package.InstallerFilename}\" /quiet /norestart /uninstall /passive"; // /burn.ignoredependencies=\"{package.PackageIdentifier}\"
                 break;
         }
 

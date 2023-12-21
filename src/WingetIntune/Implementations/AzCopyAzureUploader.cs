@@ -27,7 +27,7 @@ internal class AzCopyAzureUploader : IAzureFileUploader
             logger.LogInformation("Downloading AzCopy to {azCopyPath}", azCopyPath);
             var azCopyDownloadUrl = "https://aka.ms/downloadazcopy-v10-windows";
             var downloadPath = Path.GetTempFileName();
-            await fileManager.DownloadFileAsync(azCopyDownloadUrl, downloadPath, throwOnFailure: true, overrideFile: true, cancellationToken);
+            await fileManager.DownloadFileAsync(azCopyDownloadUrl, downloadPath, throwOnFailure: true, overrideFile: true, cancellationToken: cancellationToken);
 
             var extractFolder = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
             logger.LogInformation("Extracting AzCopy to {path}", extractFolder);
@@ -41,7 +41,7 @@ internal class AzCopyAzureUploader : IAzureFileUploader
 
     public async Task UploadFileToAzureAsync(string filename, Uri sasUri, CancellationToken cancellationToken = default)
     {
-        ArgumentNullException.ThrowIfNullOrEmpty(filename);
+        ArgumentException.ThrowIfNullOrEmpty(filename);
         ArgumentNullException.ThrowIfNull(sasUri);
         await DownloadAzCopyIfNeeded(cancellationToken);
         var args = $"copy \"{filename}\" \"{sasUri}\" --output-type \"json\"";

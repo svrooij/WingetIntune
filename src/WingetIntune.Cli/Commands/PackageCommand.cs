@@ -35,17 +35,23 @@ internal class PackageCommand : Command
         IsHidden = isHidden,
     };
 
+    internal static readonly Option<bool> UseWingetOption = new Option<bool>("--use-winget", "Use winget to get the package information, instead of the faster package index")
+    {
+        IsHidden = false,
+    };
+
     public PackageCommand() : base(name, description)
     {
         AddCommand(new PackageImageCommand());
 
         AddArgument(WinGetRootCommand.IdArgument);
         AddOption(WinGetRootCommand.VersionOption);
-        AddOption(WinGetRootCommand.SourceOption);
+        AddOption(WinGetRootCommand.SourceOption("winget"));
         AddOption(TempFolderOption);
         AddOption(GetPackageFolderOption(isRequired: true));
         AddOption(GetArchitectureOption(isHidden: false));
         AddOption(GetInstallerContextOption(isHidden: false));
+        AddOption(UseWingetOption);
         this.Handler = CommandHandler.Create(HandleCommand);
     }
 
@@ -56,8 +62,15 @@ internal class PackageCommand : Command
         var host = context.GetHost();
         options.AdjustLogging(host);
         var logger = host.Services.GetRequiredService<ILogger<PackageCommand>>();
+        var repo = host.Services.GetRequiredService<Winget.CommunityRepository.WingetRepository>();
         var winget = host.Services.GetRequiredService<IWingetRepository>();
         var intuneManager = host.Services.GetRequiredService<IntuneManager>();
+
+        if (options.Version is null && options.Source == "winget" && !options.UseWinget)
+        {
+            logger.LogInformation("Getting latest version for {PackageId}", options.PackageId);
+            options.Version = await repo.GetLatestVersion(options.PackageId, cancellationToken);
+        }
 
         var packageInfo = await winget.GetPackageInfoAsync(options.PackageId, options.Version, options.Source, cancellationToken);
 
@@ -71,12 +84,6 @@ internal class PackageCommand : Command
 
         if (packageInfo.Source == Models.PackageSource.Winget)
         {
-            if (packageInfo.Installers?.Any() != true)
-            {
-                // Load the installers from the manifest
-                // This is done automatically if the `--source winget` option is used and the version is specified
-                packageInfo = await winget.GetPackageInfoAsync(packageInfo.PackageIdentifier!, packageInfo.Version!, "winget", cancellationToken);
-            }
             await intuneManager.GenerateInstallerPackage(options.TempFolder,
                 options.PackageFolder!,
                 packageInfo,
@@ -94,6 +101,7 @@ internal class PackageCommandOptions : WinGetRootCommand.DefaultOptions
 {
     public string? PackageFolder { get; set; }
     public string TempFolder { get; set; }
+    public bool UseWinget { get; set; }
     public InstallerContext InstallerContext { get; set; }
     public Architecture Architecture { get; set; }
 }

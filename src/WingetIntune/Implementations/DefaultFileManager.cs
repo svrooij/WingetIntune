@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.Logging;
+using System.Security.Cryptography;
 
 namespace WingetIntune.Os;
 
@@ -47,7 +48,7 @@ public partial class DefaultFileManager : IFileManager
         }
     }
 
-    public async Task DownloadFileAsync(string url, string path, bool throwOnFailure = true, bool overrideFile = false, CancellationToken cancellationToken = default)
+    public async Task DownloadFileAsync(string url, string path, string? expectedHash = null, bool throwOnFailure = true, bool overrideFile = false, CancellationToken cancellationToken = default)
     {
         if (overrideFile || !File.Exists(path))
         {
@@ -61,10 +62,39 @@ public partial class DefaultFileManager : IFileManager
             }
             result.EnsureSuccessStatusCode();
             var data = await result.Content.ReadAsByteArrayAsync(cancellationToken);
+            using var sha256 = SHA256.Create();
+            using var stream = new MemoryStream(data);
+            var hashBytes = await sha256.ComputeHashAsync(stream, cancellationToken);
+            var hash = BitConverter.ToString(hashBytes).Replace("-", "");
+            if (!string.IsNullOrEmpty(expectedHash))
+            {
+                if (!hash.Equals(expectedHash, StringComparison.OrdinalIgnoreCase))
+                {
+                    var ex = new CryptographicException($"Hash mismatch for {url}. Expected {expectedHash} but got {hash}");
+                    logger.LogError(ex, "Hash mismatch for {url}. Expected {expectedHash} but got {hash}", url, expectedHash, hash);
+                    throw ex;
+                }
+                logger.LogInformation("Downloaded file {path} has hash '{hash}' as expected", url, hash);
+            }
+
             await File.WriteAllBytesAsync(path, data, cancellationToken);
+        }
+        else if (!string.IsNullOrEmpty(expectedHash))
+        {
+            using var fileStream = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.None, bufferSize: 4096, useAsync: true);
+            using var sha256 = SHA256.Create();
+            var hashBytes = await sha256.ComputeHashAsync(fileStream, cancellationToken);
+            var hash = BitConverter.ToString(hashBytes).Replace("-", "");
+            if (!hash.Equals(expectedHash, StringComparison.OrdinalIgnoreCase))
+            {
+                logger.LogWarning("Previously downloaded file {path} has hash {hash} but expected {expectedHash}. Deleting file and re-downloading", path, hash, expectedHash);
+                File.Delete(path);
+                await DownloadFileAsync(url, path, expectedHash, throwOnFailure, overrideFile, cancellationToken);
+            }
         }
         else
         {
+
             logger.LogInformation("Skipping download of {url} to {path} because the file already exists", url, path);
         }
     }

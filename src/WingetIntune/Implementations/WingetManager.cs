@@ -1,6 +1,5 @@
 ﻿using Microsoft.Extensions.Logging;
 using WingetIntune.Models;
-using WingetIntune.Models.Manifest;
 using YamlDotNet.Serialization;
 using YamlDotNet.Serialization.NamingConventions;
 
@@ -86,6 +85,7 @@ public partial class WingetManager : IWingetRepository
     {
         ArgumentNullException.ThrowIfNullOrEmpty(id);
         ArgumentNullException.ThrowIfNullOrEmpty(version);
+        LogGetPackageInfoFromManifest(id, version);
         try
         {
             var mainUri = CreateManifestUri(id, version, null);
@@ -93,17 +93,14 @@ public partial class WingetManager : IWingetRepository
             var mainManifest = await fileManager.DownloadStringAsync(mainUri, cancellationToken: cancellationToken);
             var installerManifest = await fileManager.DownloadStringAsync(installerUri, cancellationToken: cancellationToken);
 
-            var deserializer = new DeserializerBuilder()
-                .WithNamingConvention(PascalCaseNamingConvention.Instance)
-                .IgnoreUnmatchedProperties()
-                .Build();
+            var parser = new Winget.CommunityRepository.ManifestParser();
 
-            var mainManifestObject = deserializer.Deserialize<Models.Manifest.WingetMainManifest>(mainManifest!);
-            var installerManifestObject = deserializer.Deserialize<Models.Manifest.WingetInstallerManifest>(installerManifest!);
+            var mainManifestObject = parser.ParseMainManifest(mainManifest!);
+            var installerManifestObject = parser.ParseInstallerManifest(installerManifest!);
 
             var localizedManifestUri = CreateManifestUri(id, version, $".locale.{mainManifestObject.DefaultLocale}");
             var localizedManifest = await fileManager.DownloadStringAsync(localizedManifestUri, cancellationToken: cancellationToken);
-            var localizedManifestObject = deserializer.Deserialize<Models.Manifest.WingetLocalizedManifest>(localizedManifest!);
+            var localizedManifestObject = parser.ParseLocalizedManifest(localizedManifest!);
 
             installerManifestObject.Installers?.ForEach(i =>
             {
@@ -197,6 +194,9 @@ public partial class WingetManager : IWingetRepository
 
     [LoggerMessage(EventId = 4, Level = LogLevel.Information, Message = "Getting package info for {id} {version}")]
     private partial void LogGetPackageInfo(string id, string? version);
+
+    [LoggerMessage(EventId = 5, Level = LogLevel.Information, Message = "Getting package info for {id} {version} from github")]
+    private partial void LogGetPackageInfoFromManifest(string id, string? version);
 
     [LoggerMessage(EventId = 100, Level = LogLevel.Warning, Message = "Error getting package info for {id} {version}:\r\n{error}")]
     private partial void LogErrorGetPackageInfo(Exception exception, string id, string? version, string error);

@@ -22,7 +22,7 @@ public class ProcessIntunePackagerTests
         var cancellationToken = new CancellationToken();
 
         fileManagerMock.Setup(x => x.FileExists(toolPath)).Returns(false);
-        fileManagerMock.Setup(x => x.DownloadFileAsync(ProcessIntunePackager.IntuneWinAppUtilUrl, toolPath, true, false, cancellationToken))
+        fileManagerMock.Setup(x => x.DownloadFileAsync(ProcessIntunePackager.IntuneWinAppUtilUrl, toolPath, null, true, false, cancellationToken))
             .Returns(Task.CompletedTask).Verifiable();
 
         processManagerMock.Setup(x => x.RunProcessAsync(toolPath, It.IsAny<string>(), cancellationToken, false))
