@@ -21,7 +21,40 @@ Exit 5
     internal const string PsDetectionCommandTemplate = @"$packageId = ""{packageId}""
 $version = ""{version}""
 
-$wingetOutput = & ""winget"" ""list"" ""--id"" $packageId ""--exact"" ""--disable-interactivity"" ""--accept-source-agreements""
+$transcriptionPath = ""$env:ProgramData\Microsoft\IntuneManagementExtension\Logs\$packageId-detection.log""
+Start-Transcript -Path $transcriptionPath -Force
+Write-Host ""Starting $packageId detection, log location: $transcriptionPath""
+
+# Need to get the full path of winget, because detection script is run in a different context
+Function Get-WingetCmd {
+
+    $WingetCmd = $null
+    #Get WinGet Path
+
+    try {
+        # Get Admin Context Winget Location
+        $WingetInfo = (Get-Item ""$env:ProgramFiles\WindowsApps\Microsoft.DesktopAppInstaller_*_8wekyb3d8bbwe\winget.exe"").VersionInfo | Sort-Object -Property FileVersionRaw
+        # if multiple versions, pick most recent one
+        $WingetCmd = $WingetInfo[-1].FileName
+    }
+    catch {
+        #Get User context Winget Location
+        if (Test-Path ""$env:LocalAppData\Microsoft\WindowsApps\Microsoft.DesktopAppInstaller_8wekyb3d8bbwe\winget.exe"")
+        {
+            $WingetCmd =""$env:LocalAppData\Microsoft\WindowsApps\Microsoft.DesktopAppInstaller_8wekyb3d8bbwe\winget.exe""
+        }
+    }
+    Write-Host ""Winget location: $WingetCmd""
+    return $WingetCmd
+}
+
+$wingetCmd = Get-WingetCmd
+if ($null -eq $wingetCmd) {
+    Write-Host ""winget not detected""
+    Exit 1
+}
+
+$wingetOutput = & $wingetCmd ""list"" ""--id"" $packageId ""--exact"" ""--disable-interactivity"" ""--accept-source-agreements""
 
 if($wingetOutput -is [array]) {
     $lastRow = $wingetOutput[$wingetOutput.Length -1]
