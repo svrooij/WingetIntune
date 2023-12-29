@@ -39,12 +39,12 @@ public class WingetHelperTests
     }
 
     [Theory]
-    [InlineData(true, InstallerContext.System, "uninstall --id my-fake-id --source winget --force --silent --accept-package-agreements --accept-source-agreements --disable-interactivity --scope system")]
-    [InlineData(false, InstallerContext.System, "uninstall --id my-fake-id --source winget --silent --accept-package-agreements --accept-source-agreements --disable-interactivity --scope system")]
-    [InlineData(true, InstallerContext.User, "uninstall --id my-fake-id --source winget --force --silent --accept-package-agreements --accept-source-agreements --disable-interactivity --scope user")]
-    [InlineData(false, InstallerContext.User, "uninstall --id my-fake-id --source winget --silent --accept-package-agreements --accept-source-agreements --disable-interactivity --scope user")]
-    [InlineData(true, InstallerContext.Unknown, "uninstall --id my-fake-id --source winget --force --silent --accept-package-agreements --accept-source-agreements --disable-interactivity")]
-    [InlineData(false, InstallerContext.Unknown, "uninstall --id my-fake-id --source winget --silent --accept-package-agreements --accept-source-agreements --disable-interactivity")]
+    [InlineData(true, InstallerContext.System, "uninstall --id my-fake-id --source winget --force --silent --accept-source-agreements --disable-interactivity --scope system")]
+    [InlineData(false, InstallerContext.System, "uninstall --id my-fake-id --source winget --silent --accept-source-agreements --disable-interactivity --scope system")]
+    [InlineData(true, InstallerContext.User, "uninstall --id my-fake-id --source winget --force --silent --accept-source-agreements --disable-interactivity --scope user")]
+    [InlineData(false, InstallerContext.User, "uninstall --id my-fake-id --source winget --silent --accept-source-agreements --disable-interactivity --scope user")]
+    [InlineData(true, InstallerContext.Unknown, "uninstall --id my-fake-id --source winget --force --silent --accept-source-agreements --disable-interactivity")]
+    [InlineData(false, InstallerContext.Unknown, "uninstall --id my-fake-id --source winget --silent --accept-source-agreements --disable-interactivity")]
     public void GetUninstallArgumentsForPackage_ReturnsCorrectString(bool force, InstallerContext installerContext, string expected)
     {
         var packageId = "my-fake-id";
