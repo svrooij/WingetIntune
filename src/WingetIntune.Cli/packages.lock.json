@@ -653,8 +653,8 @@
       },
       "SvRooij.ContentPrep": {
         "type": "Transitive",
-        "resolved": "0.1.2",
-        "contentHash": "T3PjOmsa9dEUkOEIlnSF5a18X4EXFmnvizTiEK/saxz+HvahEM9IXls6Qx2zgLxNTN5/HSpXrcqE9Lx4M40pLA==",
+        "resolved": "0.1.3-alpha0001",
+        "contentHash": "9exebiAiEz1cn5XKxivypRmpG0t0ykSFrenU8GtwYzv3JrIlkXT6WdntsVYr181ebWhdAWOU4cjR5IgMjDqQMg==",
         "dependencies": {
           "Microsoft.Extensions.Logging.Abstractions": "7.0.1",
           "Microsoft.NETCore.Platforms": "7.0.4",
@@ -929,7 +929,7 @@
           "Microsoft.Identity.Client.Extensions.Msal": "[4.58.1, )",
           "Microsoft.NETCore.Platforms": "[7.0.4, )",
           "Riok.Mapperly": "[3.3.0, )",
-          "SvRooij.ContentPrep": "[0.1.2, )",
+          "SvRooij.ContentPrep": "[0.1.3-alpha0001, )",
           "Winget.CommunityRepository": "[1.0.0, )"
         }
       }

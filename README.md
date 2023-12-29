@@ -80,10 +80,10 @@ It will also write a `app.json` file with all the information about the app, for
 winget-intune package {PackageId} [--version {version}] [--source winget] --package-folder {PackageFolder}
 ```
 
-> The `packageId` is case sensitive, so make sure you use the correct casing. Tip: Copy it from the result of the `winget search {name}` command.
+> The `packageId` ~~is case sensitive, so make sure you use the correct casing~~ will be matches against any package in the open source [index](https://github.com/svrooij/winget-pkgs-index). Tip: Copy it from the result of the `winget search {name}` command.
 
-This command will download the [content-prep-tool](https://github.com/Microsoft/Microsoft-Win32-Content-Prep-Tool) automatically, and use it to create the `intunewin` file.
-In a future version this might be replaced with a custom implementation, but for now this works. The SHA265 hash of the installer is checked and compared to the one in the `winget` manifest, to make sure you won't package a tampered installer.
+Upon downloading the installer, the SHA256 hash is checked against the one in the `winget` manifest, to make sure you won't package a tampered installer.
+Previously it used the closed source [content-prep-tool](https://github.com/Microsoft/Microsoft-Win32-Content-Prep-Tool) to generate the `intunewin` file, this has since been replaced with my own faster, open-souce and cross-platform [implementation](https://github.com/Svrooij/ContentPrep).
 
 ### Publish
 
@@ -96,6 +96,30 @@ winget-intune publish {PackageId} --package-folder {PackageFolder} --tenant {Ten
 
 # You can also provide a token, this is useful for automation.
 winget-intune publish {PackageId} --package-folder {PackageFolder} --token {Token}
+```
+
+#### Assignement and categories
+
+You can also assign the app to a group, and set the categories.
+
+```Shell
+# Add --category "Productivity" --category "Utilities" to the command to set the categories (use the exact name!)
+winget-intune publish {PackageId} ... --category "Productivity" --category "Utilities"
+
+# Add --available "group-guid" to make the app available to a group (use the guid of the group)
+# Add --available "all-users" to make the app available to all users
+# Instead of --available you can also use --required to make the app required for the group
+# Or if you want to remove the app from the group, use --uninstall
+winget-intune publish {PackageId}... --available "3bac8336-623f-46bf-bcab-b5c61e3e5b7a" --available "all-users"
+winget-intune publish {PackageId}... --available "3bac8336-623f-46bf-bcab-b5c61e3e5b7a" --available "all-users"
+```
+
+#### Auto-package
+
+You can also combine the `package` and `publish` command into one command, this will package the app and publish it to Intune. But this makes debugging harder, so when submitting issues, please don't use this option.
+
+```Shell
+winget-intune publish {PackageId}... --auto-package
 ```
 
 ## Library (soon)

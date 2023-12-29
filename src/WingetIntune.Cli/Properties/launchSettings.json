@@ -26,13 +26,19 @@
     },
     "WingetIntune.Cli package 1Password": {
       "commandName": "Project",
-      "commandLineArgs": "publish AgileBits.1Password --package-folder c:\\tools\\packages --auto-package --available allusers",
+      "commandLineArgs": "package AgileBits.1Password --package-folder c:\\tools\\packages",
+      "environmentVariables": {
+      }
+    },
+    "WingetIntune.Cli package Notepadd++": {
+      "commandName": "Project",
+      "commandLineArgs": "package \"Notepad++.Notepad++\" --package-folder c:\\tools\\packages",
       "environmentVariables": {
       }
     },
     "WingetIntune.Cli info ohmyposh": {
       "commandName": "Project",
-      "commandLineArgs": "info JanDeDobbeleer.OhMyPosh --source winget",
+      "commandLineArgs": "publish JanDeDobbeleer.OhMyPosh --package-folder c:\\tools\\packages --category Productivity --available allusers --auto-package --username admin@codingstephan.onmicrosoft.com",
       "environmentVariables": {
       }
     },

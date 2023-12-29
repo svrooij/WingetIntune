@@ -125,7 +125,6 @@ internal class PublishCommandOptions : WinGetRootCommand.DefaultOptions
 
     public bool AutoPackage { get; set; }
     public string TempFolder { get; set; }
-    public Uri ContentPrepToolUrl { get; set; }
     public InstallerContext InstallerContext { get; set; }
     public Architecture Architecture { get; set; }
 }

@@ -116,7 +116,6 @@ public static class WingetHelper
         }
 
         args.Add(ArgSilent);
-        args.Add(ArgPackageAgreements);
         args.Add(ArgSourceAgreements);
         args.Add(ArgDisableInteractivity);
 
