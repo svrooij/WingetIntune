@@ -9,7 +9,7 @@ namespace WingetIntune.Commands;
 internal class CheckCommand : Command
 {
     private const string name = "check";
-    private const string description = "Check if a specific version in installed";
+    private const string description = "Check if a specific version in installed (Windows-only)";
 
     public CheckCommand() : base(name, description)
     {

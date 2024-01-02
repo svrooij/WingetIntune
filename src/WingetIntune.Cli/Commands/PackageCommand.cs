@@ -11,7 +11,7 @@ namespace WingetIntune.Commands;
 internal class PackageCommand : Command
 {
     private const string name = "package";
-    private const string description = "Package an app for Intune";
+    private const string description = "Package an app for Intune (cross platform)";
 
     internal static readonly Option<string> TempFolderOption = new Option<string>("--temp-folder", () => Path.Combine(Path.GetTempPath(), "intunewin"), "Folder to store temporaty files")
     {

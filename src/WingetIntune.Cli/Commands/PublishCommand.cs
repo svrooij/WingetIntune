@@ -11,7 +11,7 @@ namespace WingetIntune.Commands;
 internal class PublishCommand : Command
 {
     private const string name = "publish";
-    private const string description = "Publish a packaged app to Intune";
+    private const string description = "Publish a packaged app to Intune (cross platform)";
 
     internal static readonly Option<string?> TenantOption = new Option<string?>("--tenant", "Tenant ID to use for authentication");
     internal static readonly Option<string?> UsernameOption = new Option<string?>("--username", "Username to use for authentication");
