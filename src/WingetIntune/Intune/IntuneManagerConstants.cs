@@ -9,7 +9,7 @@ internal class IntuneManagerConstants
 $action = ""{action}""
 
 Start-Transcript -Path ""$env:ProgramData\Microsoft\IntuneManagementExtension\Logs\$packageId-$action.log"" -Force
-Write-Host ""Starting $packageId $action, log location: $transcriptionPath""
+Write-Host ""Starting $packageId $action""
 
 Function Get-WingetCmd {
 
@@ -27,6 +27,9 @@ Function Get-WingetCmd {
         if (Test-Path ""$env:LocalAppData\Microsoft\WindowsApps\Microsoft.DesktopAppInstaller_8wekyb3d8bbwe\winget.exe"")
         {
             $WingetCmd =""$env:LocalAppData\Microsoft\WindowsApps\Microsoft.DesktopAppInstaller_8wekyb3d8bbwe\winget.exe""
+        } else {
+            Write-Host ""winget not detected""
+            Exit 1
         }
     }
     Write-Host ""Winget location: $WingetCmd""

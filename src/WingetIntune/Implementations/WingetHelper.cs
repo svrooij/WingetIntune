@@ -10,7 +10,7 @@ public static class WingetHelper
     internal const string ArgId = "--id";
     internal const string ArgPackageAgreements = "--accept-package-agreements";
     internal const string ArgScope = "--scope";
-    internal const string ArgScopeSystem = "system";
+    internal const string ArgScopeSystem = "machine";
     internal const string ArgScopeUser = "user";
     internal const string ArgSilent = "--silent";
     internal const string ArgSource = "--source";

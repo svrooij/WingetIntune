@@ -118,7 +118,7 @@ public partial class IntuneManager
                     Path.Combine(packageTempFolder, "install.ps1"),
                     GetPsCommandContent(packageInfo.InstallCommandLine, "installed", $"Package {packageInfo.PackageIdentifier} v{packageInfo.Version} installed successfully", packageId: packageInfo.PackageIdentifier, action: "install"),
                     cancellationToken);
-                packageInfo.InstallCommandLine = $"powershell.exe -WindowStyle Hidden -ExecutionPolicy Bypass -File install.ps1";
+                packageInfo.InstallCommandLine = $"%windir%\\sysnative\\windowspowershell\\v1.0\\powershell.exe -WindowStyle Hidden -ExecutionPolicy Bypass -File install.ps1";
                 packageInfo.InstallerFilename = "install.ps1";
             }
         }
@@ -129,7 +129,7 @@ public partial class IntuneManager
                     Path.Combine(packageTempFolder, "uninstall.ps1"),
                     GetPsCommandContent(packageInfo.UninstallCommandLine, "uninstalled", $"Package {packageInfo.PackageIdentifier} uninstalled successfully", packageId: packageInfo.PackageIdentifier, action: "uninstall"),
                     cancellationToken);
-            packageInfo.UninstallCommandLine = $"powershell.exe -WindowStyle Hidden -ExecutionPolicy Bypass -File uninstall.ps1";
+            packageInfo.UninstallCommandLine = $"%windir%\\sysnative\\windowspowershell\\v1.0\\powershell.exe -WindowStyle Hidden -ExecutionPolicy Bypass -File uninstall.ps1";
         }
         await intunePackager.CreatePackage(packageTempFolder, packageFolder, packageInfo.InstallerFilename!, packageInfo, cancellationToken);
         await DownloadLogoAsync(packageFolder, packageInfo.PackageIdentifier!, cancellationToken);
