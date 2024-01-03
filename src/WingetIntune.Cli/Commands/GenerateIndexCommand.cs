@@ -16,7 +16,7 @@ namespace WingetIntune.Commands;
 internal class GenerateIndexCommand : Command
 {
     private const string name = "generate-index";
-    private const string description = "(hidden) Generates the index.json file for the repository";
+    private const string description = "(hidden) Generates the index.json file for the repository (cross platform)";
     public GenerateIndexCommand() : base(name, description)
     {
         IsHidden = true;

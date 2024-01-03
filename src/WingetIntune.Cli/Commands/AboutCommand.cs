@@ -8,7 +8,7 @@ namespace WingetIntune.Commands;
 internal class AboutCommand : Command
 {
     private const string name = "about";
-    private const string description = "Information about this package and it's author";
+    private const string description = "Information about this package and it's author (cross platform)";
 
     public AboutCommand() : base(name, description)
     {

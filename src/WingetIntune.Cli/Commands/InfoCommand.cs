@@ -12,7 +12,7 @@ namespace WingetIntune.Commands;
 internal class InfoCommand : Command
 {
     private const string name = "info";
-    private const string description = "Show package info as json";
+    private const string description = "Show package info as json (Windows-only)";
 
     public InfoCommand() : base(name, description)
     {

@@ -11,7 +11,7 @@ namespace WingetIntune.Commands;
 internal class PublishCommand : Command
 {
     private const string name = "publish";
-    private const string description = "Publish a packaged app to Intune";
+    private const string description = "Publish a packaged app to Intune (cross platform)";
 
     internal static readonly Option<string?> TenantOption = new Option<string?>("--tenant", "Tenant ID to use for authentication");
     internal static readonly Option<string?> UsernameOption = new Option<string?>("--username", "Username to use for authentication");
@@ -63,6 +63,7 @@ internal class PublishCommand : Command
                 logger.LogInformation("Try loading latest version from package index");
                 var repo = host.Services.GetRequiredService<Winget.CommunityRepository.WingetRepository>();
                 //repo.UseRespository = true;
+                options.PackageId = (await repo.GetPackageId(options.PackageId, cancellationToken)) ?? options.PackageId;
                 options.Version = await repo.GetLatestVersion(options.PackageId, cancellationToken);
             }
             var tempInfo = await winget.GetPackageInfoAsync(options.PackageId, options.Version, options.Source, cancellationToken);
@@ -73,7 +74,6 @@ internal class PublishCommand : Command
             }
             if (options.AutoPackage && tempInfo.Source == PackageSource.Winget)
             {
-
                 await intuneManager.GenerateInstallerPackage(options.TempFolder,
                 options.PackageFolder!,
                 tempInfo,
@@ -125,7 +125,6 @@ internal class PublishCommandOptions : WinGetRootCommand.DefaultOptions
 
     public bool AutoPackage { get; set; }
     public string TempFolder { get; set; }
-    public Uri ContentPrepToolUrl { get; set; }
     public InstallerContext InstallerContext { get; set; }
     public Architecture Architecture { get; set; }
 }

@@ -86,6 +86,7 @@ internal partial class Mapper
                 new Win32LobAppPowerShellScriptDetection
                 {
                     ScriptContent = System.Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes(packageInfo.DetectionScript!)),
+                    EnforceSignatureCheck = false,
                 }
             };
         }

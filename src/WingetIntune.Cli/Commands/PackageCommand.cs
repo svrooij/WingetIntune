@@ -11,7 +11,7 @@ namespace WingetIntune.Commands;
 internal class PackageCommand : Command
 {
     private const string name = "package";
-    private const string description = "Package an app for Intune";
+    private const string description = "Package an app for Intune (cross platform)";
 
     internal static readonly Option<string> TempFolderOption = new Option<string>("--temp-folder", () => Path.Combine(Path.GetTempPath(), "intunewin"), "Folder to store temporaty files")
     {
@@ -69,6 +69,7 @@ internal class PackageCommand : Command
         if (options.Version is null && options.Source == "winget" && !options.UseWinget)
         {
             logger.LogInformation("Getting latest version for {PackageId}", options.PackageId);
+            options.PackageId = (await repo.GetPackageId(options.PackageId, cancellationToken))!;
             options.Version = await repo.GetLatestVersion(options.PackageId, cancellationToken);
         }
 

@@ -10,7 +10,7 @@ namespace WingetIntune.Commands
     internal class InstallOrUpgradeCommand : Command
     {
         private const string name = "install";
-        private const string description = "Installs or upgrades a package";
+        private const string description = "Installs or upgrades a package (Windows-only)";
 
         public InstallOrUpgradeCommand() : base(name, description)
         {
@@ -36,7 +36,6 @@ namespace WingetIntune.Commands
             //AddOption(new Option<string>(new string[] { "--accept-package-matching", "-p" }, "Accept package matching"));
             //AddOption(new Option<string>(new string[] { "--accept-package-modified", "-u" }, "Accept package modified"));
             //AddOption(new Option<string>(new string[] { "--accept-package"}))
-
             this.Handler = CommandHandler.Create(HandleCommand);
         }
 

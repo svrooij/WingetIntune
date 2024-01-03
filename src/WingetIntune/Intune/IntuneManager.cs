@@ -116,9 +116,9 @@ public partial class IntuneManager
                 // TODO Create Winget Install script
                 await fileManager.WriteAllTextAsync(
                     Path.Combine(packageTempFolder, "install.ps1"),
-                    GetPsCommandContent(packageInfo.InstallCommandLine, "installed", $"Package {packageInfo.PackageIdentifier} v{packageInfo.Version} installed successfully"),
+                    GetPsCommandContent(packageInfo.InstallCommandLine, "installed", $"Package {packageInfo.PackageIdentifier} v{packageInfo.Version} installed successfully", packageId: packageInfo.PackageIdentifier, action: "install"),
                     cancellationToken);
-                packageInfo.InstallCommandLine = $"powershell.exe -WindowStyle Hidden -ExecutionPolicy Bypass -File install.ps1";
+                packageInfo.InstallCommandLine = $"%windir%\\sysnative\\windowspowershell\\v1.0\\powershell.exe -WindowStyle Hidden -ExecutionPolicy Bypass -File install.ps1";
                 packageInfo.InstallerFilename = "install.ps1";
             }
         }
@@ -127,9 +127,9 @@ public partial class IntuneManager
         {
             await fileManager.WriteAllTextAsync(
                     Path.Combine(packageTempFolder, "uninstall.ps1"),
-                    GetPsCommandContent(packageInfo.UninstallCommandLine, "uninstalled", $"Package {packageInfo.PackageIdentifier} uninstalled successfully"),
+                    GetPsCommandContent(packageInfo.UninstallCommandLine, "uninstalled", $"Package {packageInfo.PackageIdentifier} uninstalled successfully", packageId: packageInfo.PackageIdentifier, action: "uninstall"),
                     cancellationToken);
-            packageInfo.UninstallCommandLine = $"powershell.exe -WindowStyle Hidden -ExecutionPolicy Bypass -File uninstall.ps1";
+            packageInfo.UninstallCommandLine = $"%windir%\\sysnative\\windowspowershell\\v1.0\\powershell.exe -WindowStyle Hidden -ExecutionPolicy Bypass -File uninstall.ps1";
         }
         await intunePackager.CreatePackage(packageTempFolder, packageFolder, packageInfo.InstallerFilename!, packageInfo, cancellationToken);
         await DownloadLogoAsync(packageFolder, packageInfo.PackageIdentifier!, cancellationToken);
@@ -145,10 +145,22 @@ public partial class IntuneManager
         await WriteReadmeAsync(packageFolder, packageInfo, cancellationToken);
     }
 
-    private static string GetPsCommandContent(string command, string successSearch, string message)
+    private static string GetPsCommandContent(string command, string successSearch, string message, string? packageId = null, string? action = null)
     {
-        var commandWithQuotes = string.Join(" ", command.Split(" ").Select(x => $"\"{x}\""));
-        return IntuneManagerConstants.PsCommandTemplate.Replace("{command}", commandWithQuotes).Replace("{success}", successSearch).Replace("{message}", message);
+        var commandSplitted = command.Split(" ");
+        string commandWithQuotes = "";
+        if (commandSplitted.Length > 1 && commandSplitted[0].Equals("winget", StringComparison.OrdinalIgnoreCase))
+        {
+            commandWithQuotes = "$(Get-WingetCmd) ";
+            commandSplitted = commandSplitted.Skip(1).ToArray();
+        }
+        commandWithQuotes += string.Join(" ", commandSplitted.Select(x => $"\"{x}\""));
+        return IntuneManagerConstants.PsCommandTemplate
+            .Replace("{command}", commandWithQuotes)
+            .Replace("{success}", successSearch)
+            .Replace("{message}", message)
+            .Replace("{packageId}", packageId ?? Guid.NewGuid().ToString())
+            .Replace("{action}", action ?? "unknown");
     }
 
     public async Task<PackageInfo> LoadPackageInfoFromFolder(string packageFolder, string packageId, string version, CancellationToken cancellationToken = default)

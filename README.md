@@ -10,10 +10,12 @@ Take any (just msi installers for now) app from winget and upload it to Intune i
 - Generating the needed script information
 - Publish the app to Intune.
 
-This application ~~is **Windows only** and~~ requires **Dotnet 7** to be installed on your computer. It's also a [beta application](#beta-application), so please report any issues you find.
-A lot of commands run the `winget` command, so make sure you have the [App Installer](https://www.microsoft.com/p/app-installer/9nblggh4nns1) installed on your computer as well.
+This application ~~is **Windows only** and~~ requires **Dotnet 7** to be installed on your computer. It's a [beta application](#beta-application), so please report any issues you find.
+Some commands run the `winget` in the background and are thus Windows-only, make sure you have the [App Installer](https://www.microsoft.com/p/app-installer/9nblggh4nns1) installed on your computer if you want to use these commands.
 
-This application used to be Windows only, but recently the main functionality is ported to other platforms by reducing the [platform dependencies](https://svrooij.io/2023/10/24/create-intunewin-file/). This means that the `package` and `publish` commands should work on any platform that supports dotnet 7. The `msi` command is still windows only, as it uses the `Microsoft.Deployment.WindowsInstaller` package. Both the `package` and `publish` won't support other sources than `winget`, and will use my [open-source winget index](https://github.com/svrooij/winget-pkgs-index/), instead of running winget to get the required information.
+The `package` and `publish` commands are cross-platform, and should work on any platform that supports dotnet 7. These commands no longer use the winget executable, which also means any other sources than `winget` are no longer supported.
+The `msi` command is still windows only, as it uses the `Microsoft.Deployment.WindowsInstaller` package.
+
 
 [![LinkedIn Profile][badge_linkedin]][link_linkedin]
 [![Link Mastodon][badge_mastodon]][link_mastodon]
@@ -51,7 +53,7 @@ The CLI has several commands, try them out yourself.
 
 ```Shell
 Description:
-  Enhanced Winget CLI for automations
+  winget-intune by @svrooij allows you to package any winget app for Intune
 
 Usage:
   winget-intune [command] [options]
@@ -61,13 +63,14 @@ Options:
   -?, -h, --help  Show help and usage information
 
 Commands:
-  install <packageId>  Installs or upgrades a package
-  check <packageId>    Check if a specific version in installed
-  info <packageId>     Show package info as json
-  package <packageId>  Package an app for Intune
-  publish <packageId>  Publish an packaged app to Intune
-  msi <msiFile>        Extract info from MSI file
-  about                Information about this package and it's author
+  package <packageId>  Package an app for Intune (cross platform)
+  publish <packageId>  Publish a packaged app to Intune (cross platform)
+  about                Information about this package and it's author (cross platform)
+  install <packageId>  Installs or upgrades a package (Windows-only)
+  check <packageId>    Check if a specific version in installed (Windows-only)
+  info <packageId>     Show package info as json (Windows-only)
+  msi <msiFile>        Extract info from MSI file (Windows-only)
+
 ```
 
 ### Package
@@ -80,10 +83,12 @@ It will also write a `app.json` file with all the information about the app, for
 winget-intune package {PackageId} [--version {version}] [--source winget] --package-folder {PackageFolder}
 ```
 
-> The `packageId` is case sensitive, so make sure you use the correct casing. Tip: Copy it from the result of the `winget search {name}` command.
+> The `packageId` ~~is case sensitive, so make sure you use the correct casing~~ will be matches against any package in the open source [index](https://github.com/svrooij/winget-pkgs-index). Tip: Copy it from the result of the `winget search {name}` command.
 
-This command will download the [content-prep-tool](https://github.com/Microsoft/Microsoft-Win32-Content-Prep-Tool) automatically, and use it to create the `intunewin` file.
-In a future version this might be replaced with a custom implementation, but for now this works. The SHA265 hash of the installer is checked and compared to the one in the `winget` manifest, to make sure you won't package a tampered installer.
+Upon downloading the installer, the SHA256 hash is checked against the one in the `winget` manifest, to make sure you won't package a tampered installer.
+
+The packaging command uses an open-source & cross-platform [implementation](https://github.com/Svrooij/ContentPrep) of the Windows-only & closed source [content-prep-tool](https://github.com/Microsoft/Microsoft-Win32-Content-Prep-Tool), to allow cross-platform building of the packages.
+This new implementation is available as a dotnet library and a PowerShell module, so if you're into Intune packaging, check it out.
 
 ### Publish
 
@@ -98,6 +103,30 @@ winget-intune publish {PackageId} --package-folder {PackageFolder} --tenant {Ten
 winget-intune publish {PackageId} --package-folder {PackageFolder} --token {Token}
 ```
 
+#### Assignement and categories
+
+You can also assign the app to a group, and set the categories.
+
+```Shell
+# Add --category "Productivity" --category "Utilities" to the command to set the categories (use the exact name!)
+winget-intune publish {PackageId} ... --category "Productivity" --category "Utilities"
+
+# Add --available "group-guid" to make the app available to a group (use the guid of the group)
+# Add --available "allusers" to make the app available to all users
+# Instead of --available you can also use --required to make the app required for the group
+# Or if you want to remove the app for that group, use --uninstall
+winget-intune publish {PackageId}... --required "3bac8336-623f-46bf-bcab-b5c61e3e5b7a" --required "allusers"
+winget-intune publish {PackageId}... --uninstall "3bac8336-623f-46bf-bcab-b5c61e3e5b7a" --uninstall "allusers"
+```
+
+#### Auto-package
+
+You can also combine the `package` and `publish` command into one command, this will package the app and publish it to Intune. But this makes debugging harder, so when submitting issues, please don't use this option.
+
+```Shell
+winget-intune publish {PackageId}... --auto-package
+```
+
 ## Library (soon)
 
 I'm planning to release the actual intune specific code as a separate library, so you can use it in your own projects. This will be released as a separate package.
@@ -108,8 +137,10 @@ If you want to contribute to this project, please check out the [contributing](h
 
 ## Usefull information
 
-- [Microsoft-Win32-Content-Prep-Tool](https://github.com/microsoft/Microsoft-Win32-Content-Prep-Tool)
 - [Blog articles on Intune](https://svrooij.io/tags/intune/)
+- Open-source [winget index](https://github.com/svrooij/winget-pkgs-index/)
+- Open-source [PowerShell Content Prep](https://github.com/svrooij/contentprep)
+- Closed source [Microsoft Win32 Content Prep tool](https://github.com/microsoft/Microsoft-Win32-Content-Prep-Tool)
 
 [badge_blog]: https://img.shields.io/badge/blog-svrooij.io-blue?style=for-the-badge
 [badge_linkedin]: https://img.shields.io/badge/LinkedIn-stephanvanrooij-blue?style=for-the-badge&logo=linkedin

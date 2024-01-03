@@ -11,7 +11,7 @@ namespace WingetIntune.Commands;
 internal class MsiCommand : Command
 {
     private const string name = "msi";
-    private const string description = "Extract info from MSI file";
+    private const string description = "Extract info from MSI file (Windows-only)";
 
     private Argument<string> msiFileArgument = new Argument<string>("msiFile", "Path to MSI file");
 

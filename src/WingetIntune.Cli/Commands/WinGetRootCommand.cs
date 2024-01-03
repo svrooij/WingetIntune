@@ -16,15 +16,19 @@ internal class WinGetRootCommand : RootCommand
 
     public WinGetRootCommand()
     {
-        Description = "Enhanced Winget CLI for automations";
+        Description = "winget-intune by @svrooij allows you to package any winget app for Intune";
+        // Cross platform commands
         AddCommand(new PackageCommand());
         AddCommand(new PublishCommand());
+        AddCommand(new AboutCommand());
+        AddCommand(new GenerateIndexCommand());
+
+        // Windows only command
         AddCommand(new InstallOrUpgradeCommand());
         AddCommand(new CheckCommand());
         AddCommand(new InfoCommand());
         AddCommand(new MsiCommand());
-        AddCommand(new AboutCommand());
-        AddCommand(new GenerateIndexCommand());
+
         AddGlobalOption(VerboseOption);
         AddGlobalOption(JsonOption);
     }

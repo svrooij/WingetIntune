@@ -34,10 +34,22 @@ public partial class WingetRepository
 
     public async ValueTask<string?> GetLatestVersion(string packageId, CancellationToken cancellationToken = default)
     {
+        var entry = await GetEntry(packageId, cancellationToken);
+        return entry?.Version;
+    }
+
+    public async ValueTask<string?> GetPackageId(string packageId, CancellationToken cancellationToken = default)
+    {
+        var entry = await GetEntry(packageId, cancellationToken);
+        return entry?.PackageId;
+    }
+
+    private async ValueTask<Models.WingetEntry?> GetEntry(string packageId, CancellationToken cancellationToken = default)
+    {
         await LoadEntries(cancellationToken, false, cacheFile);
 
         var entry = Entries!.FirstOrDefault(e => e.PackageId.Equals(packageId, StringComparison.OrdinalIgnoreCase));
-        return entry?.Version;
+        return entry;
     }
 
     public async ValueTask<IEnumerable<Models.WingetEntry>> SearchPackage(string query, CancellationToken cancellationToken = default)
