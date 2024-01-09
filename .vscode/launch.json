@@ -1,0 +1,25 @@
+{
+  // Use IntelliSense to learn about possible attributes.
+  // Hover to view descriptions of existing attributes.
+  // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": ".NET Core Launch (console)",
+      "type": "coreclr",
+      "request": "launch",
+      "preLaunchTask": "dotnet: build-cli",
+      // If you have changed target frameworks, make sure to update the program path.
+      "program": "${workspaceFolder}/src/WingetIntune.Cli/bin/Debug/net7.0/WingetIntune.Cli.dll",
+      "args": [
+        "update",
+        "list",
+        "--username", "admin@codingstephan.onmicrosoft.com"
+      ],
+      "cwd": "${workspaceFolder}",
+      // For more information about the 'console' field, see https://aka.ms/VSCode-CS-LaunchJson-Console
+      "console": "internalConsole",
+      "stopAtEntry": false
+    }
+  ]
+}
