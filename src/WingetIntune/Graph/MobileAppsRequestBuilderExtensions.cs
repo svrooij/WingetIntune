@@ -34,6 +34,7 @@ public static class MobileAppsRequestBuilderExtensions
         {
             config.QueryParameters.Filter = filter;
             config.QueryParameters.Orderby = new[] { "displayName" };
+            config.QueryParameters.Top = 999;
         }, cancellationToken: cancellationToken);
     }
 }

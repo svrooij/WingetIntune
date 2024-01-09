@@ -1,6 +1,6 @@
-﻿using Microsoft.Graph.Beta.Models;
+﻿using System.Text.RegularExpressions;
+using Microsoft.Graph.Beta.Models;
 using Riok.Mapperly.Abstractions;
-using WingetIntune.Graph;
 using WingetIntune.Internal.MsStore;
 using WingetIntune.Intune;
 
@@ -120,11 +120,43 @@ internal partial class Mapper
 
     private partial WinGetApp _ToWinGetApp(MicrosoftStoreManifestDefaultlocale locale);
 
-    internal partial FileEncryptionInfo ToFileEncryptionInfo(ApplicationInfoEncryptionInfo packageInfo);
+    internal partial WingetIntune.Graph.FileEncryptionInfo ToFileEncryptionInfo(ApplicationInfoEncryptionInfo packageInfo);
+
+    internal static IntuneApp ToIntuneApp(Win32LobApp? win32LobApp) {
+        ArgumentNullException.ThrowIfNull(win32LobApp, nameof(win32LobApp));
+
+        var (packageId, source) = win32LobApp.Notes.ExtractPackageIdAndSourceFromNotes();
+        return new IntuneApp {
+            PackageId = packageId!,
+            Name = win32LobApp.DisplayName!,
+            Version = win32LobApp.DisplayVersion!,
+            GraphId = win32LobApp.Id!
+        };
+    }
 }
 
 internal static class MapperExtensions
 {
     public static string? ValidUriOrNull(this string? input)
         => Uri.TryCreate(input, UriKind.Absolute, out var uri) && uri.Scheme.StartsWith("http") ? uri.ToString() : null;
+}
+
+internal static class StringExtensions
+{
+    internal static (string?, string?) ExtractPackageIdAndSourceFromNotes(this string? notes) {
+        if (notes is null || !notes.Contains("[WingetIntune|"))
+        {
+            return (null, null);
+        }
+
+        var match = Regex.Match(notes, @"\[WingetIntune\|(?<source>[^\|]+)\|(?<packageId>[^\]]+)\]");
+        if (match.Success)
+        {
+            return (match.Groups["packageId"].Value, match.Groups["source"].Value);
+        }
+        else
+        {
+            return (null, null);
+        }
+    }
 }

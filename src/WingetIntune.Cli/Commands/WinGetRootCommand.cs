@@ -22,6 +22,7 @@ internal class WinGetRootCommand : RootCommand
         AddCommand(new PublishCommand());
         AddCommand(new AboutCommand());
         AddCommand(new GenerateIndexCommand());
+        AddCommand(new UpdateCommand());
 
         // Windows only command
         AddCommand(new InstallOrUpgradeCommand());
