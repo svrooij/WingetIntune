@@ -27,7 +27,7 @@
     <PackageReference Include="Microsoft.Extensions.Http" Version="8.0.0" />
     <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="8.0.0" />
     <PackageReference Include="Microsoft.Extensions.Options" Version="8.0.0" />
-    <PackageReference Include="Microsoft.Graph.Beta" Version="5.48.0-preview" />
+    <PackageReference Include="Microsoft.Graph.Beta" Version="5.59.0-preview" />
     <PackageReference Include="Microsoft.Identity.Client.Broker" Version="4.58.1" />
     <PackageReference Include="Microsoft.Identity.Client.Extensions.Msal" Version="4.58.1" />
     <PackageReference Include="Microsoft.NETCore.Platforms" Version="7.0.4" />

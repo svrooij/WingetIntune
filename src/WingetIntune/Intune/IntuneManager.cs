@@ -387,16 +387,25 @@ public partial class IntuneManager
             return await PublishStoreAppAsync(options, id, null, cancellationToken);
         }
 
-        var manifest = await microsoftStoreClient.GetManifestAsync(packageId!, cancellationToken);
-        var app = mapper.ToWinGetApp(manifest!);
-        var details = await microsoftStoreClient.GetStoreDetailsAsync(packageId!, cancellationToken);
-        var imagePath = Path.GetTempFileName();
-        await fileManager.DownloadFileAsync(details!.iconUrl, imagePath, overrideFile: true, cancellationToken: cancellationToken);
-        app.LargeIcon = new MimeContent
+        var catalog = await microsoftStoreClient.GetDisplayCatalogAsync(packageId!, cancellationToken);
+
+        var app = mapper.ToWinGetApp(catalog!);
+
+        try
         {
-            Type = "image/png",
-            Value = await fileManager.ReadAllBytesAsync(imagePath, cancellationToken)
-        };
+            var imagePath = Path.GetTempFileName();
+            var imageUrl = "https:" + catalog!.Products.First().LocalizedProperties.First().Images.First(i => i.Height == 300 && i.Width == 300 && i.ImagePurpose.Equals("Tile", StringComparison.OrdinalIgnoreCase)).Uri;
+            await fileManager.DownloadFileAsync(imageUrl, imagePath, overrideFile: true, cancellationToken: cancellationToken);
+            app.LargeIcon = new MimeContent
+            {
+                Type = "image/png",
+                Value = await fileManager.ReadAllBytesAsync(imagePath, cancellationToken)
+            };
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "Error downloading image for {packageId}", packageId);
+        }
 
         GraphServiceClient graphServiceClient = CreateGraphClientFromOptions(options);
 
@@ -430,6 +439,19 @@ public partial class IntuneManager
         }
     }
 
+    public async Task<IEnumerable<IntuneApp>> GetPublishedAppsAsync(IntunePublishOptions options, CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(options);
+
+        GraphServiceClient graphServiceClient = CreateGraphClientFromOptions(options);
+
+        var apps = await graphServiceClient.DeviceAppManagement.MobileApps.GetWin32Apps("[WingetIntune|", cancellationToken: cancellationToken);
+
+        return apps?
+            .Value!
+            .Where(x => (x as Win32LobApp)?.SupersededAppCount == 0)
+            .Select(x => Mapper.ToIntuneApp(x as Win32LobApp)) ?? Enumerable.Empty<IntuneApp>();
+    }
     private async Task AddCategoriesToApp(GraphServiceClient graphServiceClient, string appId, string[] categories, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(graphServiceClient);
@@ -534,6 +556,11 @@ public partial class IntuneManager
 
         package.InstallerUrl = new Uri(installer.InstallerUrl!);
         package.InstallerFilename = Path.GetFileName(package.InstallerUrl.LocalPath.Replace(" ", ""));
+        // Maybe this should be done for other installers as well?
+        if (installer.InstallerType!.Equals("exe", StringComparison.OrdinalIgnoreCase) && package.InstallerFilename!.EndsWith(".exe", StringComparison.OrdinalIgnoreCase) == false)
+        {
+            package.InstallerFilename += ".exe";
+        }
         package.Hash = installer.InstallerSha256;
         package.Architecture = installer.InstallerArchitecture();
         package.InstallerContext = installer.ParseInstallerContext() == InstallerContext.Unknown ? (package.InstallerContext ?? packageOptions.InstallerContext) : installer.ParseInstallerContext();

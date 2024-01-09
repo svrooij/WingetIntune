@@ -16,12 +16,13 @@ internal class WinGetRootCommand : RootCommand
 
     public WinGetRootCommand()
     {
-        Description = "winget-intune by @svrooij allows you to package any winget app for Intune";
+        Description = "WinTuner by @svrooij allows you to package any winget app for Intune. Documentation: https://wintuner.app/docs/category/wintuner---cli";
         // Cross platform commands
         AddCommand(new PackageCommand());
         AddCommand(new PublishCommand());
         AddCommand(new AboutCommand());
         AddCommand(new GenerateIndexCommand());
+        AddCommand(new UpdateCommand());
 
         // Windows only command
         AddCommand(new InstallOrUpgradeCommand());

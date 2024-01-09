@@ -9,18 +9,18 @@
     <SelfContained>false</SelfContained>
     <RestorePackagesWithLockFile>true</RestorePackagesWithLockFile>
     <Authors>Stephan van Rooij</Authors>
-    <Copyright>2023</Copyright>
+    <Copyright>2024</Copyright>
     <PackageRequireLicenseAcceptance>True</PackageRequireLicenseAcceptance>
     <PackageLicenseFile>LICENSE.txt</PackageLicenseFile>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <RepositoryType>git</RepositoryType>
-    <PackageProjectUrl>https://github.com/svrooij/WingetIntune</PackageProjectUrl>
+    <PackageProjectUrl>https://wintuner.app/docs/category/wintuner---cli</PackageProjectUrl>
     <RepositoryUrl>https://github.com/svrooij/WingetIntune.git</RepositoryUrl>
-    <PackageTags>Intune;Winget</PackageTags>
+    <PackageTags>Intune;Winget;WinTuner</PackageTags>
     <DefaultNamespace>WingetIntune</DefaultNamespace>
     <PackageId>SvRooij.Winget-Intune.Cli</PackageId>
     <PackAsTool>true</PackAsTool>
-    <ToolCommandName>winget-intune</ToolCommandName>
+    <ToolCommandName>wintuner</ToolCommandName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <NoWarn>1701;1702;CS8618</NoWarn>
@@ -40,6 +40,7 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Azure.Identity" Version="1.10.4" />
+    <PackageReference Include="ConsoleTables" Version="2.4.2" />
     <PackageReference Include="Microsoft.Extensions.Http" Version="8.0.0" />
     <PackageReference Include="System.CommandLine" Version="2.0.0-beta4.22272.1" />
     <PackageReference Include="System.CommandLine.Hosting" Version="0.4.0-alpha.22272.1" />
