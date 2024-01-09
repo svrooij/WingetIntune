@@ -120,11 +120,13 @@ internal partial class Mapper
 
     internal partial WingetIntune.Graph.FileEncryptionInfo ToFileEncryptionInfo(ApplicationInfoEncryptionInfo packageInfo);
 
-    internal static IntuneApp ToIntuneApp(Win32LobApp? win32LobApp) {
+    internal static IntuneApp ToIntuneApp(Win32LobApp? win32LobApp)
+    {
         ArgumentNullException.ThrowIfNull(win32LobApp, nameof(win32LobApp));
 
         var (packageId, source) = win32LobApp.Notes.ExtractPackageIdAndSourceFromNotes();
-        return new IntuneApp {
+        return new IntuneApp
+        {
             PackageId = packageId!,
             Name = win32LobApp.DisplayName!,
             Version = win32LobApp.DisplayVersion!,
@@ -141,7 +143,8 @@ internal static class MapperExtensions
 
 internal static class StringExtensions
 {
-    internal static (string?, string?) ExtractPackageIdAndSourceFromNotes(this string? notes) {
+    internal static (string?, string?) ExtractPackageIdAndSourceFromNotes(this string? notes)
+    {
         if (notes is null || !notes.Contains("[WingetIntune|"))
         {
             return (null, null);

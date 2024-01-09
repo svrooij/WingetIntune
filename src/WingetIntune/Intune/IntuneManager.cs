@@ -547,6 +547,11 @@ public partial class IntuneManager
 
         package.InstallerUrl = new Uri(installer.InstallerUrl!);
         package.InstallerFilename = Path.GetFileName(package.InstallerUrl.LocalPath.Replace(" ", ""));
+        // Maybe this should be done for other installers as well?
+        if (installer.InstallerType!.Equals("exe", StringComparison.OrdinalIgnoreCase) && package.InstallerFilename!.EndsWith(".exe", StringComparison.OrdinalIgnoreCase) == false)
+        {
+            package.InstallerFilename += ".exe";
+        }
         package.Hash = installer.InstallerSha256;
         package.Architecture = installer.InstallerArchitecture();
         package.InstallerContext = installer.ParseInstallerContext() == InstallerContext.Unknown ? (package.InstallerContext ?? packageOptions.InstallerContext) : installer.ParseInstallerContext();
