@@ -46,18 +46,7 @@ internal partial class Mapper
                 new Win32LobAppReturnCode { Type = Win32LobAppReturnCodeType.Retry, ReturnCode = 1618 }
         };
 
-        if (packageInfo.Architecture == Architecture.Arm64)
-        {
-            app.ApplicableArchitectures = WindowsArchitecture.Arm64;
-        }
-        else if (packageInfo.Architecture == Architecture.X86)
-        {
-            app.ApplicableArchitectures = WindowsArchitecture.X86 & WindowsArchitecture.X64;
-        }
-        else
-        {
-            app.ApplicableArchitectures = WindowsArchitecture.X64;
-        }
+        app.ApplicableArchitectures = ToGraphArchitecture(packageInfo.Architecture);
 
         if (packageInfo.InstallerType.IsMsi())
         {
@@ -87,6 +76,7 @@ internal partial class Mapper
                 {
                     ScriptContent = System.Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes(packageInfo.DetectionScript!)),
                     EnforceSignatureCheck = false,
+                    RunAs32Bit = packageInfo.Architecture == Architecture.X86
                 }
             };
         }
@@ -98,6 +88,14 @@ internal partial class Mapper
     }
 
     private partial Win32LobApp _ToWin32LobApp(PackageInfo packageInfo);
+
+    private static WindowsArchitecture ToGraphArchitecture(Architecture? architecture) => architecture switch
+    {
+        Architecture.Arm64 => WindowsArchitecture.Arm64,
+        Architecture.X86 => WindowsArchitecture.X86 | WindowsArchitecture.X64,
+        Architecture.X64 => WindowsArchitecture.X64,
+        _ => WindowsArchitecture.Neutral
+    };
 
     public WinGetApp ToWinGetApp(MicrosoftStoreManifest storeManifest)
     {
