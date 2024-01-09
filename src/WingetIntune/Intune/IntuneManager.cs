@@ -387,16 +387,25 @@ public partial class IntuneManager
             return await PublishStoreAppAsync(options, id, null, cancellationToken);
         }
 
-        var manifest = await microsoftStoreClient.GetManifestAsync(packageId!, cancellationToken);
-        var app = mapper.ToWinGetApp(manifest!);
-        var details = await microsoftStoreClient.GetStoreDetailsAsync(packageId!, cancellationToken);
-        var imagePath = Path.GetTempFileName();
-        await fileManager.DownloadFileAsync(details!.iconUrl, imagePath, overrideFile: true, cancellationToken: cancellationToken);
-        app.LargeIcon = new MimeContent
+        var catalog = await microsoftStoreClient.GetDisplayCatalogAsync(packageId!, cancellationToken);
+
+        var app = mapper.ToWinGetApp(catalog!);
+
+        try
         {
-            Type = "image/png",
-            Value = await fileManager.ReadAllBytesAsync(imagePath, cancellationToken)
-        };
+            var imagePath = Path.GetTempFileName();
+            var imageUrl = "https:" + catalog!.Products.First().LocalizedProperties.First().Images.First(i => i.Height == 300 && i.Width == 300 && i.ImagePurpose.Equals("Tile", StringComparison.OrdinalIgnoreCase)).Uri;
+            await fileManager.DownloadFileAsync(imageUrl, imagePath, overrideFile: true, cancellationToken: cancellationToken);
+            app.LargeIcon = new MimeContent
+            {
+                Type = "image/png",
+                Value = await fileManager.ReadAllBytesAsync(imagePath, cancellationToken)
+            };
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "Error downloading image for {packageId}", packageId);
+        }
 
         GraphServiceClient graphServiceClient = CreateGraphClientFromOptions(options);
 
