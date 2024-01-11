@@ -29,7 +29,10 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "http-requests", "http-reque
 		http-requests\test.txt = http-requests\test.txt
 	EndProjectSection
 EndProject
-
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{70C0FC9B-4495-43AC-AB67-331201AEAA52}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Svrooij.WinTuner.CmdLets", "src\Svrooij.WinTuner.CmdLets\Svrooij.WinTuner.CmdLets.csproj", "{050B8AB3-6232-4220-950F-578D9E3E2203}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -52,11 +55,18 @@ Global
 		{C0984E0C-FF44-442C-A386-3A53C6670E2B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C0984E0C-FF44-442C-A386-3A53C6670E2B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C0984E0C-FF44-442C-A386-3A53C6670E2B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{050B8AB3-6232-4220-950F-578D9E3E2203}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{050B8AB3-6232-4220-950F-578D9E3E2203}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{050B8AB3-6232-4220-950F-578D9E3E2203}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{050B8AB3-6232-4220-950F-578D9E3E2203}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {94A78033-8BE6-4A61-BC28-66CE040924C8}
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{050B8AB3-6232-4220-950F-578D9E3E2203} = {70C0FC9B-4495-43AC-AB67-331201AEAA52}
 	EndGlobalSection
 EndGlobal
