@@ -21,6 +21,7 @@
     <PackageId>SvRooij.Winget-Intune.Cli</PackageId>
     <PackAsTool>true</PackAsTool>
     <ToolCommandName>wintuner</ToolCommandName>
+	<SatelliteResourceLanguages>en</SatelliteResourceLanguages>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <NoWarn>1701;1702;CS8618</NoWarn>
@@ -46,6 +47,7 @@
     <PackageReference Include="System.CommandLine.Hosting" Version="0.4.0-alpha.22272.1" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Winget.CommunityRepository.Ef\Winget.CommunityRepository.Ef.csproj" />
     <ProjectReference Include="..\WingetIntune\WingetIntune.csproj" />
   </ItemGroup>
 </Project>

@@ -32,14 +32,16 @@ internal class GenerateIndexCommand : Command
         using var combinedCancellation = CancellationTokenSource.CreateLinkedTokenSource(context.GetCancellationToken(), timeoutCancellation.Token);
         var host = context.GetHost();
         var logging = host.Services.GetRequiredService<ControlableLoggingProvider>();
+        var logger = host.Services.GetRequiredService<ILogger<GenerateIndexCommand>>();
 
         logging.SetLogLevel(Microsoft.Extensions.Logging.LogLevel.Information);
-
+        logger.LogInformation("Loading packages from {sourceUri}", options.SourceUri);
         var repo = host.Services.GetRequiredService<Winget.CommunityRepository.WingetRepository>();
         repo.UseRespository = true;
         var packages = await repo.RefreshPackages(false, combinedCancellation.Token);
         var json = JsonSerializer.Serialize(packages);
         await File.WriteAllTextAsync(Path.GetFullPath(options.OutputPath), json, combinedCancellation.Token);
+        logger.LogInformation("Generated index.json file at {outputPath}", options.OutputPath);
         return 0;
     }
 
