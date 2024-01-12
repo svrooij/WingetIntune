@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace WingetIntune.Internal.MsStore;
+﻿namespace WingetIntune.Internal.MsStore;
 
 public class DisplayCatalogResponse
 {
@@ -487,4 +481,3 @@ public class Properties3
 {
     public DateTime OriginalReleaseDate { get; set; }
 }
-

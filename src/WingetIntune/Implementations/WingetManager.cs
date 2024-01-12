@@ -1,7 +1,5 @@
 ﻿using Microsoft.Extensions.Logging;
 using WingetIntune.Models;
-using YamlDotNet.Serialization;
-using YamlDotNet.Serialization.NamingConventions;
 
 namespace WingetIntune.Implementations;
 

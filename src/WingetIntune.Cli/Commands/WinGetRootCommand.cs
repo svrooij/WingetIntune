@@ -9,7 +9,9 @@ internal class WinGetRootCommand : RootCommand
 {
     internal static Argument<string> IdArgument { get; } = new Argument<string>("packageId", "Package identifier");
     internal static Option<string> VersionOption { get; } = new Option<string>(new string[] { "--version", "-v" }, "Package Version");
+
     internal static Option<string?> SourceOption(string? defaultValue = null) => new Option<string?>(new string[] { "--source", "-s" }, () => defaultValue, "Package source");
+
     internal static Option<bool> ForceOption { get; } = new Option<bool>(new string[] { "--force", "-f" }, "Force install");
     internal static Option<bool> VerboseOption { get; } = new Option<bool>(new string[] { "--verbose" }, "Super verbose logging");
     internal static Option<bool> JsonOption { get; } = new Option<bool>(new string[] { "--json" }, "Output json logging");

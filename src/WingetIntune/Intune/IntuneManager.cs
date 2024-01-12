@@ -452,6 +452,7 @@ public partial class IntuneManager
             .Where(x => (x as Win32LobApp)?.SupersededAppCount == 0)
             .Select(x => Mapper.ToIntuneApp(x as Win32LobApp)) ?? Enumerable.Empty<IntuneApp>();
     }
+
     private async Task AddCategoriesToApp(GraphServiceClient graphServiceClient, string appId, string[] categories, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(graphServiceClient);

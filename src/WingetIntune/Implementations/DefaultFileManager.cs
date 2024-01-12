@@ -94,7 +94,6 @@ public partial class DefaultFileManager : IFileManager
         }
         else
         {
-
             logger.LogInformation("Skipping download of {url} to {path} because the file already exists", url, path);
         }
     }

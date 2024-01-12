@@ -5,7 +5,6 @@ using Microsoft.Kiota.Abstractions;
 using Microsoft.Kiota.Abstractions.Serialization;
 using System.Text;
 using System.Text.Json;
-using WingetIntune.Intune;
 
 namespace WingetIntune.Graph;
 

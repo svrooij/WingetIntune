@@ -1,6 +1,6 @@
-﻿using System.Text.RegularExpressions;
-using Microsoft.Graph.Beta.Models;
+﻿using Microsoft.Graph.Beta.Models;
 using Riok.Mapperly.Abstractions;
+using System.Text.RegularExpressions;
 using WingetIntune.Internal.MsStore;
 using WingetIntune.Intune;
 
