@@ -53,7 +53,7 @@ public class GraphAppUploader
             await Task.Delay(1000, cancellationToken);
 
             // Upload the content and update the app with the latest commited file id.
-            app = await CreateNewContentVersionAsync(graphServiceClient, app!.Id!, intunePackageFile, cancellationToken);
+            Win32LobApp? updatedApp = await CreateNewContentVersionAsync(graphServiceClient, app!.Id!, intunePackageFile, cancellationToken);
 
             return app;
         }

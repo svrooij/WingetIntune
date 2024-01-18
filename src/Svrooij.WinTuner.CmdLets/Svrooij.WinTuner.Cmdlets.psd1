@@ -58,8 +58,10 @@
 
     # Cmdlets to export from this module.
     CmdletsToExport = @(
+        "Deploy-WtWin32App",
         "New-IntuneWinPackage",
-        "Unlock-IntuneWinPackage"
+        "New-WtWingetPackage",
+        "Unprotect-IntuneWinPackage"
     )
 
     # Variables to export from this module.
