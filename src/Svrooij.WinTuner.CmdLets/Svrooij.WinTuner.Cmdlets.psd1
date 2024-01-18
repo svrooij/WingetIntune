@@ -72,7 +72,7 @@
     FileList = @(
         "SvRooij.WinTuner.CmdLets.dll",
         "SvRooij.WinTuner.CmdLets.psd1",
-        "SvRooij.WinTuner.CmdLets.xml",
+        "SvRooij.WinTuner.CmdLets.dll-Help.xml",
         "WingetIntune.dll",
         "System.Buffers.dll",
         "System.Management.Automation.dll",
@@ -84,14 +84,14 @@
     # Private data to pass to the module specified in RootModule/ModuleToProcess.
     PrivateData = @{
         PSData = @{
-            Tags = @('Intune', 'Win32', 'ContentPrep')
+            Tags = @('Intune', 'Win32', 'App Packaging')
 
-            LisenceUri = 'https://github.com/svrooij/ContentPrep/blob/main/LICENSE.txt'
-            ProjectUri = 'https://github.com/svrooij/ContentPrep/'
+            LisenceUri = 'https://github.com/svrooij/WingetIntune/blob/main/LICENSE.txt'
+            ProjectUri = 'https://wintuner.app/'
             ReleaseNotes = 'This module is still a work-in-progress. Changes might be made without notice.'
         }
     }
 
     # HelpInfo URI of this module.
-    HelpInfoURI = 'https://github.com/svrooij/ContentPrep/blob/main/src/SvR.ContentPrep.Cmdlet/README.md'
+    # HelpInfoURI = 'https://wintuner.app/'
 }

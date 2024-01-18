@@ -6,7 +6,7 @@ using System.Runtime.CompilerServices;
 
 namespace WingetIntune.Internal.Msal;
 
-internal class StaticAuthenticationProvider : IAuthenticationProvider
+public class StaticAuthenticationProvider : IAuthenticationProvider
 {
     private readonly string _token;
 

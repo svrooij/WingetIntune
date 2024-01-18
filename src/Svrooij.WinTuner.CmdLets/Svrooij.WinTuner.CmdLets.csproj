@@ -4,12 +4,15 @@
     <TargetFramework>net7.0</TargetFramework>
     <AssemblyName>Svrooij.WinTuner.CmdLets</AssemblyName>
 	<LangVersion>10.0</LangVersion>
+	<SatelliteResourceLanguages>en</SatelliteResourceLanguages>
 	<CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
 	<GenerateDocumentationFile>True</GenerateDocumentationFile>
+	<Nullable>enable</Nullable>
   </PropertyGroup>
 
   <ItemGroup>
-	  <PackageReference Include="Svrooij.PowerShell.DependencyInjection" Version="1.0.1" />
+	<PackageReference Include="Azure.Identity" Version="1.10.4" />
+	<PackageReference Include="Svrooij.PowerShell.DependencyInjection" Version="1.0.2" />
     <PackageReference Include="PowerShellStandard.Library" Version="5.1.1">
       <PrivateAssets>All</PrivateAssets>
     </PackageReference>
@@ -20,9 +23,16 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Update="Svrooij.WinTuner.CmdLets.dll-Help.xml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Update="Svrooij.WinTuner.Cmdlets.psd1">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="docs\" />
   </ItemGroup>
 
 </Project>

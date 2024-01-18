@@ -1,27 +1,23 @@
 ﻿using Microsoft.Extensions.Logging;
 using Svrooij.PowerShell.DependencyInjection;
 using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Management.Automation;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Svrooij.WinTuner.CmdLets;
+namespace Svrooij.WinTuner.CmdLets.Commands;
+
 /// <summary>
 /// <para type="synopsis">Decrypt an IntuneWin package</para>
 /// <para type="description">Decrypt IntuneWin files, based on this post https://svrooij.io/2023/10/09/decrypting-intunewin-files/</para>
 /// <para type="link" uri="https://wintuner.app/docs/related/content-prep-tool#unlock-intunewinpackage">Documentation</para>
 /// </summary>
 /// <example>
-/// <code>
-/// Unlock-IntuneWinPackage -SourceFile "C:\Temp\Source\MyApp.intunewin" -DestinationPath "C:\Temp\Destination"
-/// </code>
+/// <code>Unprotect-IntuneWinPackage -SourceFile C:\Temp\Source\MyApp.intunewin -DestinationPath C:\Temp\Destination</code>
 /// </example>
-[Cmdlet(VerbsCommon.Unlock, "IntuneWinPackage", HelpUri = "https://wintuner.app/docs/related/content-prep-tool#unlock-intunewinpackage")]
-public class UnlockIntuneWinPackageCommand : DependencyCmdlet<Startup>
+[Cmdlet(VerbsSecurity.Unprotect, "IntuneWinPackage", HelpUri = "https://wintuner.app/docs/related/content-prep-tool#unlock-intunewinpackage")]
+public class UnprotectIntuneWinPackage : DependencyCmdlet<Startup>
 {
     /// <summary>
     /// <para type="description">The location of the .intunewin file</para>
@@ -49,7 +45,7 @@ public class UnlockIntuneWinPackageCommand : DependencyCmdlet<Startup>
     private SvRooij.ContentPrep.Packager packager;
 
     [ServiceDependency]
-    private ILogger<UnlockIntuneWinPackageCommand> logger;
+    private ILogger<UnprotectIntuneWinPackage> logger;
 
     public override async Task ProcessRecordAsync(CancellationToken cancellationToken)
     {
@@ -67,7 +63,8 @@ public class UnlockIntuneWinPackageCommand : DependencyCmdlet<Startup>
             }
 
             await packager.Unpack(SourceFile, DestinationPath, cancellationToken);
-        } catch (Exception ex)
+        }
+        catch (Exception ex)
         {
             logger.LogError(ex, "Error unlocking package");
         }

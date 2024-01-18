@@ -3,7 +3,7 @@
     "Svrooij.WinTuner.CmdLets": {
       "executablePath": "C:\\Program Files\\PowerShell\\7\\pwsh.exe",
       "commandName": "Executable",
-      "commandLineArgs": "-noexit -command &{ Import-Module .\\Svrooij.WinTuner.CmdLets.dll -Verbose}"
+      "commandLineArgs": "-noexit -command &{ Import-Module .\\Svrooij.WinTuner.CmdLets.dll -Verbose }"
     }
   }
 }

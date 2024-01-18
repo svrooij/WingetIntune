@@ -14,11 +14,13 @@ public interface IFileManager
 
     Task<string?> DownloadStringAsync(string url, bool throwOnFailure = true, CancellationToken cancellationToken = default);
 
-    void ExtractFileToFolder(string zipPath, string folderPath);
+    void ExtractFileToFolder(string zipPath, string destinationFolder);
+    Task ExtractFileToFolderAsync(string zipPath, string destinationFolder, CancellationToken cancellationToken = default);
 
     string FindFile(string folder, string filename);
 
     bool FileExists(string path);
+    long GetFileSize(string path);
 
     Task<byte[]> ReadAllBytesAsync(string path, CancellationToken cancellationToken);
 

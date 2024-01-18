@@ -141,6 +141,8 @@ internal partial class Mapper
 
     internal partial WingetIntune.Graph.FileEncryptionInfo ToFileEncryptionInfo(ApplicationInfoEncryptionInfo packageInfo);
 
+    //internal partial Microsoft.Graph.Beta.Models.FileEncryptionInfo ToGraphEncryptionInfo(ApplicationInfoEncryptionInfo packageInfo);
+
     internal static IntuneApp ToIntuneApp(Win32LobApp? win32LobApp)
     {
         ArgumentNullException.ThrowIfNull(win32LobApp, nameof(win32LobApp));

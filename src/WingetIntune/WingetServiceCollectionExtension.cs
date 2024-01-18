@@ -8,7 +8,14 @@ public static class WingetServiceCollectionExtension
 {
     public static IServiceCollection AddWingetServices(this IServiceCollection services)
     {
-        services.AddHttpClient();
+        services.ConfigureHttpClientDefaults(config =>
+        {
+            config.ConfigureHttpClient(client =>
+            {
+                client.DefaultRequestHeaders.Add("User-Agent", "WinTuner");
+                client.Timeout = TimeSpan.FromSeconds(180);
+            });
+        });
         services.AddTransient<IFileManager, Os.DefaultFileManager>();
         services.AddTransient<IProcessManager, Os.ProcessManager>();
         services.AddTransient<IWingetRepository, Implementations.WingetManager>();
@@ -24,12 +31,16 @@ public static class WingetServiceCollectionExtension
         {
             services.AddTransient<IIntunePackager, LibraryIntunePackager>();
         }
-        services.AddSingleton<IntuneManager>();
+
         // Old IAzureFileUploader implementation is not used anymore, it does not work correctly.
         //services.AddTransient<IAzureFileUploader, Implementations.AzCopyAzureUploader>();
         services.AddTransient<IAzureFileUploader, Implementations.ChunkedAzureFileUploader>();
+        services.AddTransient<Intune.MetadataManager>();
+        services.AddTransient<Graph.GraphAppUploader>();
         services.AddSingleton<Internal.Msal.PublicClientAuth>();
         services.AddTransient<Internal.MsStore.MicrosoftStoreClient>();
+        services.AddSingleton<IntuneManager>();
+
         return services;
     }
 }
