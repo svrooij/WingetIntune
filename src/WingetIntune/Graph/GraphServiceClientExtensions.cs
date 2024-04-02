@@ -5,7 +5,6 @@ using Microsoft.Kiota.Abstractions;
 using Microsoft.Kiota.Abstractions.Serialization;
 using System.Text;
 using System.Text.Json;
-using WingetIntune.Intune;
 
 namespace WingetIntune.Graph;
 
@@ -66,7 +65,8 @@ internal static class GraphServiceClientExtensions
         ArgumentException.ThrowIfNullOrEmpty(mobileAppContentFileId);
         while (!cancellationToken.IsCancellationRequested)
         {
-            var result = await graphServiceClient.Intune_GetWin32LobAppContentVersionFileAsync(win32LobAppId, contentVersionId, mobileAppContentFileId, cancellationToken)!;
+            MobileAppContentFile? result = await graphServiceClient.DeviceAppManagement.MobileApps[win32LobAppId].GraphWin32LobApp.ContentVersions[contentVersionId].Files[mobileAppContentFileId].GetAsync(cancellationToken: cancellationToken);
+            //MobileAppContentFile? result = await graphServiceClient.Intune_GetWin32LobAppContentVersionFileAsync(win32LobAppId, contentVersionId, mobileAppContentFileId, cancellationToken)!;
             switch (result!.UploadState)
             {
                 case MobileAppContentFileUploadState.CommitFileSuccess:

@@ -1,0 +1,15 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"type": "shell",
+			"label": "dotnet: build-cli",
+			"command": "dotnet build ${workspaceFolder}/src/WingetIntune.Cli/WingetIntune.Cli.csproj",
+			"group": {
+					"kind": "build",
+					"isDefault": true
+			},
+			"problemMatcher": "$msCompile"
+	}
+	]
+}

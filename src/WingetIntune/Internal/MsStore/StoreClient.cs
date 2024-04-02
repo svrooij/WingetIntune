@@ -28,6 +28,15 @@ public partial class MicrosoftStoreClient
         return result?.Data.FirstOrDefault()?.PackageIdentifier;
     }
 
+    public async Task<DisplayCatalogResponse?> GetDisplayCatalogAsync(string packageId, CancellationToken cancellation)
+    {
+        //LogGetManifest(packageId);
+        var url = $"https://displaycatalog.mp.microsoft.com/v7.0/products?bigIds={packageId}&market=US&languages=en-us";
+        var response = await _httpClient.GetAsync(url, cancellation);
+        response.EnsureSuccessStatusCode();
+        return await response.Content.ReadFromJsonAsync<DisplayCatalogResponse>(cancellationToken: cancellation);
+    }
+
     public async Task<MicrosoftStoreManifest?> GetManifestAsync(string packageId, CancellationToken cancellation)
     {
         LogGetManifest(packageId);
@@ -42,9 +51,18 @@ public partial class MicrosoftStoreClient
         LogGetDetails(packageId);
         var url = $"https://apps.microsoft.com/store/api/ProductsDetails/GetProductDetailsById/{packageId}?hl=en-US&gl=US";
         //var url = $"https://storeedgefd.dsx.mp.microsoft.com/v9.0/productDetails/{packageId}?hl=en-US&gl=US";
-        var response = await _httpClient.GetAsync(url, cancellation);
-        response.EnsureSuccessStatusCode();
-        return await response.Content.ReadFromJsonAsync<MicrosoftStoreDetails>(cancellationToken: cancellation);
+        try
+        {
+            var response = await _httpClient.GetAsync(url, cancellation);
+            response.EnsureSuccessStatusCode();
+            var text = await response.Content.ReadAsStringAsync(cancellation);
+            return await response.Content.ReadFromJsonAsync<MicrosoftStoreDetails>(cancellationToken: cancellation);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to get details for {packageId} from Microsoft Store", packageId);
+            return null;
+        }
     }
 
     private async Task<MicrosoftStoreSearchResult?> Search(string searchString, CancellationToken cancellationToken)

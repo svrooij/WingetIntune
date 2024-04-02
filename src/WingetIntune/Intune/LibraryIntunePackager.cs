@@ -14,7 +14,7 @@ internal class LibraryIntunePackager : IIntunePackager
         this.packager = new Packager(logger);
     }
 
-    public Task CreatePackage(string inputFolder, string outputFolder, string installerFilename, PackageInfo? packageInfo = null, CancellationToken cancellationToken = default)
+    public async Task<string> CreatePackage(string inputFolder, string outputFolder, string installerFilename, PackageInfo? packageInfo = null, CancellationToken cancellationToken = default)
     {
         var details = new SvRooij.ContentPrep.Models.ApplicationDetails
         {
@@ -29,6 +29,8 @@ internal class LibraryIntunePackager : IIntunePackager
             };
         }
 
-        return packager.CreatePackage(inputFolder, Path.Combine(inputFolder, installerFilename), outputFolder, details, cancellationToken);
+        var info = await packager.CreatePackage(inputFolder, Path.Combine(inputFolder, installerFilename), outputFolder, details, cancellationToken);
+
+        return Path.GetFileNameWithoutExtension(installerFilename) + ".intunewin";
     }
 }

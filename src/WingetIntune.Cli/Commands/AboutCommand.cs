@@ -20,13 +20,14 @@ internal class AboutCommand : Command
         Console.Write(header);
         Console.WriteLine("#########################################################");
         Console.WriteLine("#");
-        Console.WriteLine("# Winget-Intune");
+        Console.WriteLine("# WinTuner");
         Console.WriteLine("# By Stephan van Rooij");
         Console.WriteLine("#");
-        Console.WriteLine("# command: winget-intune");
+        Console.WriteLine("# command: wintuner");
         Console.WriteLine("#");
         Console.WriteLine("# version: {0}", Assembly.GetExecutingAssembly()?.GetName()?.Version?.ToString());
         Console.WriteLine("# Repo: https://github.com/svrooij/wingetintune");
+        Console.WriteLine("# Docs: https://wintuner.app/docs/category/wintuner---cli");
         Console.WriteLine("#");
         Console.WriteLine("# dotnet tool update --global SvRooij.Winget-Intune.Cli");
         Console.WriteLine("#");

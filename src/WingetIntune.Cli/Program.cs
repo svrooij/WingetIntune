@@ -35,7 +35,7 @@ internal class Program
                                {
                                    services.AddSingleton(ControlableLoggingSource.Provider!);
                                    services.AddWingetServices();
-                                   services.AddSingleton<Winget.CommunityRepository.WingetRepository>();
+                                   services.AddSingleton<Winget.CommunityRepository.WingetRepository, Winget.CommunityRepository.WingetRepositoryWithEf>();
                                });
                            })
             .UseDefaults()

@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.Logging;
+using System.IO.Compression;
 using System.Security.Cryptography;
 
 namespace WingetIntune.Os;
@@ -94,7 +95,6 @@ public partial class DefaultFileManager : IFileManager
         }
         else
         {
-
             logger.LogInformation("Skipping download of {url} to {path} because the file already exists", url, path);
         }
     }
@@ -110,9 +110,38 @@ public partial class DefaultFileManager : IFileManager
         return await response.Content.ReadAsStringAsync(cancellationToken);
     }
 
-    public void ExtractFileToFolder(string zipPath, string folderPath)
+    public void ExtractFileToFolder(string zipPath, string destinationFolder)
     {
-        System.IO.Compression.ZipFile.ExtractToDirectory(zipPath, folderPath);
+        ZipFile.ExtractToDirectory(zipPath, destinationFolder);
+    }
+
+    public async Task ExtractFileToFolderAsync(string zipPath, string destinationFolder, CancellationToken cancellationToken = default)
+    {
+        using (FileStream inputStream = new FileStream(zipPath, FileMode.Open, FileAccess.Read, FileShare.None, bufferSize: 4096, useAsync: true))
+        {
+            using (ZipArchive archive = new ZipArchive(inputStream, ZipArchiveMode.Read, false))
+            {
+                foreach (ZipArchiveEntry entry in archive.Entries)
+                {
+                    if (cancellationToken.IsCancellationRequested)
+                        break;
+                    string directoryName = Path.Combine(destinationFolder, Path.GetDirectoryName(entry.FullName)!);
+                    if (!string.IsNullOrEmpty(directoryName))
+                        Directory.CreateDirectory(directoryName);
+                    if (entry.Length > 0L)
+                    {
+                        string destinationFileName = Path.Combine(destinationFolder, entry.FullName);
+                        using (Stream entryStream = entry.Open())
+                        using (FileStream fileStream = new FileStream(destinationFileName, FileMode.Create, FileAccess.Write, FileShare.None, bufferSize: 4096, useAsync: true))
+                        {
+                            await entryStream.CopyToAsync(fileStream);
+                            fileStream.Close();
+                            entryStream.Close();
+                        }
+                    }
+                }
+            }
+        }
     }
 
     public bool FileExists(string path)
@@ -131,6 +160,11 @@ public partial class DefaultFileManager : IFileManager
         }
 
         throw new FileNotFoundException($"Could not find file {filename} in folder {folder}");
+    }
+
+    public long GetFileSize(string path)
+    {
+        return new FileInfo(path).Length;
     }
 
     public Task<byte[]> ReadAllBytesAsync(string path, CancellationToken cancellationToken)

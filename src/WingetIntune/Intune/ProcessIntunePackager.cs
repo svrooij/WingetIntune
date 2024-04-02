@@ -29,7 +29,7 @@ public partial class ProcessIntunePackager : IIntunePackager
 
     public Task CreatePackage(string inputFolder, string outputFolder, string installerFilename, CancellationToken cancellationToken) => CreatePackage(inputFolder, outputFolder, installerFilename, null, cancellationToken);
 
-    public async Task CreatePackage(string inputFolder, string outputFolder, string installerFilename, PackageInfo? _ = null, CancellationToken cancellationToken = default)
+    public async Task<string> CreatePackage(string inputFolder, string outputFolder, string installerFilename, PackageInfo? _ = null, CancellationToken cancellationToken = default)
     {
         ArgumentException.ThrowIfNullOrEmpty(inputFolder);
         ArgumentException.ThrowIfNullOrEmpty(outputFolder);
@@ -52,6 +52,8 @@ public partial class ProcessIntunePackager : IIntunePackager
             LogWarning(exception);
             throw exception;
         }
+
+        return Path.GetFileNameWithoutExtension(installerFilename) + ".intunewin";
     }
 
     private Task DownloadToolIfNeeded(CancellationToken cancellationToken)

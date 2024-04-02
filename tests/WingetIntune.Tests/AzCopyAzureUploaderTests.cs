@@ -1,6 +1,5 @@
 ﻿using Microsoft.Extensions.Logging.Abstractions;
 using WingetIntune.Implementations;
-
 namespace WingetIntune.Tests;
 
 public class AzCopyAzureUploaderTests
@@ -13,23 +12,19 @@ public class AzCopyAzureUploaderTests
         var file = "C:\\test\\file.txt";
         var url = "https://localhost/test/uri";
 
-        var fileManagerMock = new Mock<IFileManager>();
-        fileManagerMock
-            .Setup(x => x.FileExists(azCopyPath))
-            .Returns(true)
-            .Verifiable();
+        var fileManager = Substitute.For<IFileManager>();
+        fileManager.FileExists(azCopyPath).Returns(true);
 
-        var processManagerMock = new Mock<IProcessManager>();
-        processManagerMock
-            .Setup(x => x.RunProcessAsync(azCopyPath, $"copy \"{file}\" \"{url}\" --output-type \"json\"", It.IsAny<CancellationToken>(), false))
-            .ReturnsAsync(new ProcessResult(0, "", ""))
-            .Verifiable();
+        var processManager = Substitute.For<IProcessManager>();
+        processManager.RunProcessAsync(azCopyPath, $"copy \"{file}\" \"{url}\" --output-type \"json\"", Arg.Any<CancellationToken>(), false)
+            .Returns(Task.FromResult(new ProcessResult(0, "", "")));
 
-        var azCopyAzureUploader = new AzCopyAzureUploader(new NullLogger<AzCopyAzureUploader>(), processManagerMock.Object, fileManagerMock.Object);
+        var azCopyAzureUploader = new AzCopyAzureUploader(new NullLogger<AzCopyAzureUploader>(), processManager, fileManager);
         await azCopyAzureUploader.UploadFileToAzureAsync(file, new Uri(url), CancellationToken.None);
 
-        fileManagerMock.VerifyAll();
-        processManagerMock.VerifyAll();
+        fileManager.Received().FileExists(azCopyPath);
+
+        await processManager.Received().RunProcessAsync(azCopyPath, $"copy \"{file}\" \"{url}\" --output-type \"json\"", Arg.Any<CancellationToken>(), false);
     }
 
     [Fact]
@@ -38,23 +33,19 @@ public class AzCopyAzureUploaderTests
         var file = "C:\\test\\file.txt";
         var url = "https://localhost/test/uri";
 
-        var fileManagerMock = new Mock<IFileManager>();
-        fileManagerMock
-            .Setup(x => x.FileExists(azCopyPath))
-            .Returns(true)
-            .Verifiable();
+        var fileManager = Substitute.For<IFileManager>();
+        fileManager.FileExists(azCopyPath).Returns(true);
 
-        var processManagerMock = new Mock<IProcessManager>();
-        processManagerMock
-            .Setup(x => x.RunProcessAsync(azCopyPath, $"copy \"{file}\" \"{url}\" --output-type \"json\"", It.IsAny<CancellationToken>(), false))
-            .ReturnsAsync(new ProcessResult(100, "Test Output", "Test Result"))
-            .Verifiable();
+        var processManager = Substitute.For<IProcessManager>();
+        processManager.RunProcessAsync(azCopyPath, $"copy \"{file}\" \"{url}\" --output-type \"json\"", Arg.Any<CancellationToken>(), false)
+            .Returns(Task.FromResult(new ProcessResult(100, "Test Output", "Test Result")));
 
-        var azCopyAzureUploader = new AzCopyAzureUploader(new NullLogger<AzCopyAzureUploader>(), processManagerMock.Object, fileManagerMock.Object);
+        var azCopyAzureUploader = new AzCopyAzureUploader(new NullLogger<AzCopyAzureUploader>(), processManager, fileManager);
         await Assert.ThrowsAsync<Exception>(() => azCopyAzureUploader.UploadFileToAzureAsync(file, new Uri(url), CancellationToken.None));
 
-        fileManagerMock.VerifyAll();
-        processManagerMock.VerifyAll();
+        fileManager.Received().FileExists(azCopyPath);
+        await processManager.Received().RunProcessAsync(azCopyPath, $"copy \"{file}\" \"{url}\" --output-type \"json\"", Arg.Any<CancellationToken>(), false);
+
     }
 
     [Fact]
@@ -63,34 +54,43 @@ public class AzCopyAzureUploaderTests
         var file = "C:\\test\\file.txt";
         var url = "https://localhost/test/uri";
 
-        var fileManagerMock = new Mock<IFileManager>(MockBehavior.Strict);
-        fileManagerMock
-            .Setup(x => x.FileExists(azCopyPath))
-            .Returns(false)
-            .Verifiable();
+        var fileManager = Substitute.For<IFileManager>();
+        fileManager.FileExists(azCopyPath).Returns(false);
 
-        fileManagerMock.Setup(fileManagerMock => fileManagerMock.DownloadFileAsync("https://aka.ms/downloadazcopy-v10-windows", It.IsAny<string>(), null, true, true, It.IsAny<CancellationToken>()))
-            .Returns(Task.FromResult<string?>(null))
-            .Verifiable();
+        fileManager.DownloadFileAsync("https://aka.ms/downloadazcopy-v10-windows", Arg.Any<string>(), null, true, true, Arg.Any<CancellationToken>())
+            .Returns(Task.CompletedTask);
 
-        fileManagerMock.Setup(fileManagerMock => fileManagerMock.ExtractFileToFolder(It.IsAny<string>(), It.IsAny<string>())).Verifiable();
+        fileManager.ExtractFileToFolder(Arg.Any<string>(), Arg.Any<string>());
 
-        fileManagerMock.Setup(fileManagerMock => fileManagerMock.FindFile(It.IsAny<string>(), "azcopy.exe")).Returns(azCopyPath).Verifiable();
+        fileManager.FindFile(Arg.Any<string>(), "azcopy.exe").Returns(azCopyPath);
 
-        fileManagerMock.Setup(fileManagerMock => fileManagerMock.CopyFile(azCopyPath, azCopyPath, false)).Verifiable();
+        fileManager.CopyFile(azCopyPath, azCopyPath, false);
 
-        fileManagerMock.Setup(fileManagerMock => fileManagerMock.DeleteFileOrFolder(It.IsAny<string>())).Verifiable();
+        fileManager.DeleteFileOrFolder(Arg.Any<string>());
 
-        var processManagerMock = new Mock<IProcessManager>();
-        processManagerMock
-            .Setup(x => x.RunProcessAsync(azCopyPath, $"copy \"{file}\" \"{url}\" --output-type \"json\"", It.IsAny<CancellationToken>(), false))
-            .ReturnsAsync(new ProcessResult(0, "", ""))
-            .Verifiable();
+        var processManager = Substitute.For<IProcessManager>();
+        processManager.RunProcessAsync(azCopyPath, $"copy \"{file}\" \"{url}\" --output-type \"json\"", Arg.Any<CancellationToken>(), false)
+            .Returns(Task.FromResult(new ProcessResult(0, "", "")));
 
-        var azCopyAzureUploader = new AzCopyAzureUploader(new NullLogger<AzCopyAzureUploader>(), processManagerMock.Object, fileManagerMock.Object);
-        await azCopyAzureUploader.UploadFileToAzureAsync(file, new Uri(url), CancellationToken.None);
 
-        fileManagerMock.VerifyAll();
-        processManagerMock.VerifyAll();
+
+        var azCopyAzureUploader = new AzCopyAzureUploader(new NullLogger<AzCopyAzureUploader>(), processManager, fileManager);
+        await azCopyAzureUploader.UploadFileToAzureAsync(file, new Uri(url), default);
+
+
+        fileManager.Received().FileExists(azCopyPath);
+
+        await fileManager.Received().DownloadFileAsync("https://aka.ms/downloadazcopy-v10-windows", Arg.Any<string>(), null, true, true, Arg.Any<CancellationToken>());
+
+        fileManager.Received().ExtractFileToFolder(Arg.Any<string>(), Arg.Any<string>());
+
+        fileManager.Received().FindFile(Arg.Any<string>(), "azcopy.exe");
+
+        fileManager.Received().CopyFile(azCopyPath, azCopyPath, false);
+
+        fileManager.Received().DeleteFileOrFolder(Arg.Any<string>());
+
+        await processManager.Received().RunProcessAsync(azCopyPath, $"copy \"{file}\" \"{url}\" --output-type \"json\"", Arg.Any<CancellationToken>(), false);
+
     }
 }

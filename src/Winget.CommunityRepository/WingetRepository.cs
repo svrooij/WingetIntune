@@ -1,24 +1,18 @@
-﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
-using System;
-using System.Collections.Generic;
-using System.IO.Compression;
-using System.Linq;
 using System.Net.Http.Json;
-using System.Text;
 using System.Text.Json;
-using System.Threading.Tasks;
 
 namespace Winget.CommunityRepository;
+
 public partial class WingetRepository
 {
     public const string OpenSourceIndexUri = "https://raw.githubusercontent.com/svrooij/winget-pkgs-index/main/index.json";
     public const string DefaultIndexUri = "https://cdn.winget.microsoft.com/cache/source.msix";
     public bool UseRespository { get; set; }
     public Uri IndexUri { get; set; } = new(OpenSourceIndexUri);
-    private readonly HttpClient httpClient;
-    private readonly ILogger<WingetRepository> logger;
+    protected readonly HttpClient httpClient;
+    protected readonly ILogger<WingetRepository> logger;
 
     private List<Models.WingetEntry>? Entries;
 
@@ -72,11 +66,11 @@ public partial class WingetRepository
 
         if (!string.IsNullOrEmpty(cacheFile) && File.Exists(cacheFile) && !refresh)
         {
-            logger.LogDebug("Loading package index from cache at {cacheFile}", cacheFile);
+            LogLoadingPackageIndexFromCache(cacheFile);
             var info = new FileInfo(cacheFile);
             if (info.LastWriteTimeUtc > DateTime.UtcNow.AddHours(-3))
             {
-                logger.LogDebug("Cache is still valid, using cache");
+                LogCacheStillValid();
                 var cacheData = await File.ReadAllTextAsync(cacheFile, cancellationToken);
                 Entries = JsonSerializer.Deserialize<List<Models.WingetEntry>>(cacheData);
                 return Entries!;
@@ -85,12 +79,12 @@ public partial class WingetRepository
 
         if (UseRespository)
         {
-            logger.LogInformation("Loading package index from repository");
+            LogLoadingPackageIndexFromRepository(DefaultIndexUri);
             Entries = await LoadEntriesFromSqlLite(cancellationToken, DefaultIndexUri);
         }
         else
         {
-            logger.LogInformation("Loading package index from {indexUri}", IndexUri);
+            LogLoadingPackageIndex(IndexUri);
             var response = await httpClient.GetAsync(IndexUri!, cancellationToken);
             response.EnsureSuccessStatusCode();
             Entries = await response.Content.ReadFromJsonAsync<List<Models.WingetEntry>>(cancellationToken: cancellationToken);
@@ -98,7 +92,7 @@ public partial class WingetRepository
 
         if (!string.IsNullOrEmpty(cacheFile))
         {
-            logger.LogInformation("Saving package index to cache at {cacheFile}", cacheFile);
+            LogSavingPackageIndex(cacheFile);
             var json = JsonSerializer.Serialize(Entries);
             var cachePath = Path.GetDirectoryName(cacheFile);
             Directory.CreateDirectory(cachePath!);
@@ -106,64 +100,31 @@ public partial class WingetRepository
         }
 
         return Entries!;
-
     }
 
-    private async ValueTask<List<Models.WingetEntry>> LoadEntriesFromSqlLite(CancellationToken cancellationToken, string url = DefaultIndexUri)
+    protected virtual ValueTask<List<Models.WingetEntry>> LoadEntriesFromSqlLite(CancellationToken cancellationToken, string url = DefaultIndexUri)
     {
-        var folder = Path.Combine(Path.GetTempPath(), "WingetCommunityRepo", Guid.NewGuid().ToString());
-        Directory.CreateDirectory(folder);
-        var response = await httpClient.GetAsync(url, cancellationToken);
-        response.EnsureSuccessStatusCode();
-        using var stream = await response.Content.ReadAsStreamAsync(cancellationToken);
-        using var zip = new ZipArchive(stream, ZipArchiveMode.Read);
-        zip.ExtractToDirectory(folder);
-        var file = Path.Combine(folder, "Public", "index.db");
-        var connectionString = $"Data Source='{file}';Pooling=false;";
-        var results = new List<Models.WingetEntry>();
-        using (var db = new DbModels.IndexContext(connectionString))
-        {
-            var ids = db.Ids.OrderBy(x => x.Id1).ToList();
-            var totalCount = ids.Count;
-            int counter = 0;
-            foreach (var id in ids)
-            {
-                cancellationToken.ThrowIfCancellationRequested();
-                counter++;
-                if (counter % 50 == 0)
-                {
-                    LogProcessing(counter, totalCount);
-                }
-
-                try
-                {
-                    var entry = new Models.WingetEntry { PackageId = id.Id1 };
-                    var versions = db.Manifests.Where(m => m.Id == id.Rowid).Select(x => x.VersionValue.Version1).ToList();
-                    entry.Version = versions?.GetHighestVersion();
-                    LogPackage(entry.PackageId, entry.Version);
-                    //entry.Name = db.Manifests.First(m => m.Id == id.Rowid).NameValue.Name1;
-                    results.Add(entry);
-                }
-                catch (Exception ex)
-                {
-                    logger.LogError(ex, "Error parsing {id}", id.Id1);
-                }
-
-            }
-        }
-
-
-        await Task.Delay(2000, cancellationToken);
-
-        Directory.Delete(folder, true);
-
-        return results;
-
+        throw new NotImplementedException("Use the Winget.CommunityRepository.Ef package to use this method");
     }
 
     [LoggerMessage(EventId = 100, Level = LogLevel.Information, Message = "Processing {numberOfEntries} of {totalEntries}")]
-    private partial void LogProcessing(int numberOfEntries, int totalEntries);
+    protected partial void LogProcessing(int numberOfEntries, int totalEntries);
+
+    [LoggerMessage(EventId = 101, Level = LogLevel.Information, Message = "Saving package index to cache at {cacheFile}")]
+    private partial void LogSavingPackageIndex(string cacheFile);
+
+    [LoggerMessage(EventId = 102, Level = LogLevel.Information, Message = "Loading package index from {indexUri}")]
+    private partial void LogLoadingPackageIndex(Uri indexUri);
+
+    [LoggerMessage(EventId = 103, Level = LogLevel.Information, Message = "Loading package index from repository {indexUrl}")]
+    private partial void LogLoadingPackageIndexFromRepository(string indexUrl);
 
     [LoggerMessage(EventId = 110, Level = LogLevel.Debug, Message = "Found {packageId} with {version}")]
-    private partial void LogPackage(string packageId, string? version);
+    protected partial void LogPackage(string packageId, string? version);
+
+    [LoggerMessage(EventId = 111, Level = LogLevel.Debug, Message = "Loading package index from cache at {cacheFile}")]
+    private partial void LogLoadingPackageIndexFromCache(string cacheFile);
+
+    [LoggerMessage(EventId = 112, Level = LogLevel.Debug, Message = "Cache is still valid, using cache")]
+    private partial void LogCacheStillValid();
 }

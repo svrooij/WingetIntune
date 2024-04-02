@@ -12,7 +12,7 @@ public class MobileAppsRequestBuilderExtensionsTests
     {
         var appId = Guid.NewGuid().ToString();
         var token = Guid.NewGuid().ToString();
-        var handlerMock = new Mock<HttpMessageHandler>();
+        var handler = Substitute.For<HttpMessageHandlerWrapper>();
 
         var app = new Win32LobApp
         {
@@ -25,13 +25,13 @@ public class MobileAppsRequestBuilderExtensionsTests
         response.Content = new StringContent(win32LobAppResult);
         response.Content.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue("application/json");
 
-        handlerMock.AddMockResponse(
+        handler.AddFakeResponse(
             $"https://graph.microsoft.com/beta/deviceAppManagement/mobileApps",
             HttpMethod.Post,
             @"{""@odata.type"":""#microsoft.graph.win32LobApp"",""displayName"":""Test App"",""isFeatured"":true,""publisher"":""Test Publisher""}",
             response);
 
-        var httpClient = new HttpClient(handlerMock.Object);
+        var httpClient = new HttpClient(handler);
         var graphServiceClient = new GraphServiceClient(httpClient, new Internal.Msal.StaticAuthenticationProvider(token));
 
         var result = await graphServiceClient.DeviceAppManagement.MobileApps.PostAsync(app, CancellationToken.None);
@@ -44,19 +44,19 @@ public class MobileAppsRequestBuilderExtensionsTests
         var token = Guid.NewGuid().ToString();
 
         var appId = "9607b530-b530-9607-30b5-079630b50796";
-        var handlerMock = new Mock<HttpMessageHandler>();
+        var handler = Substitute.For<HttpMessageHandlerWrapper>();
 
         var response = new HttpResponseMessage(HttpStatusCode.OK);
         response.Content = new StringContent(win32LobAppResult);
         response.Content.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue("application/json");
 
-        handlerMock.AddMockResponse(
+        handler.AddFakeResponse(
             $"https://graph.microsoft.com/beta/deviceAppManagement/mobileApps/{appId}",
             HttpMethod.Patch,
             @"{""@odata.type"":""#microsoft.graph.win32LobApp"",""committedContentVersion"":""1""}",
             response);
 
-        var httpClient = new HttpClient(handlerMock.Object);
+        var httpClient = new HttpClient(handler);
         var graphServiceClient = new GraphServiceClient(httpClient, new Internal.Msal.StaticAuthenticationProvider(token));
 
         Win32LobApp? result = await graphServiceClient.DeviceAppManagement.MobileApps[appId].PatchAsync(new Win32LobApp { CommittedContentVersion = "1" }, CancellationToken.None);

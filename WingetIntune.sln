@@ -11,25 +11,28 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "scripts", "scripts", "{0D5E
 		scripts\detection-without-version.ps1 = scripts\detection-without-version.ps1
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Winget.CommunityRepository", "src\Winget.CommunityRepository\Winget.CommunityRepository.csproj", "{C0984E0C-FF44-442C-A386-3A53C6670E2B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Winget.CommunityRepository", "src\Winget.CommunityRepository\Winget.CommunityRepository.csproj", "{C0984E0C-FF44-442C-A386-3A53C6670E2B}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WingetIntune.Tests", "tests\WingetIntune.Tests\WingetIntune.Tests.csproj", "{A0ACA653-C1FF-4C98-AABC-7FB154D626E1}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WingetIntune.Cli", "src\WingetIntune.Cli\WingetIntune.Cli.csproj", "{C32DB1BC-299E-4742-8372-278C8843026C}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{DF47944D-435C-4C46-B2F5-B7F939F069E6}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "build", "build", "{DF47944D-435C-4C46-B2F5-B7F939F069E6}"
 	ProjectSection(SolutionItems) = preProject
 		.editorconfig = .editorconfig
 		.github\workflows\build.yml = .github\workflows\build.yml
 	EndProjectSection
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "http-requests", "http-requests", "{142B288C-B1E8-4A76-92CE-1D2459CD20C9}"
-	ProjectSection(SolutionItems) = preProject
-		graph-apps.http = graph-apps.http
-		http-requests\test.txt = http-requests\test.txt
-	EndProjectSection
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{70C0FC9B-4495-43AC-AB67-331201AEAA52}"
 EndProject
-
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Svrooij.WinTuner.CmdLets", "src\Svrooij.WinTuner.CmdLets\Svrooij.WinTuner.CmdLets.csproj", "{050B8AB3-6232-4220-950F-578D9E3E2203}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{4E745B8F-95AD-42CC-A462-EBA6896413E2}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Winget.CommunityRepository.Ef", "src\Winget.CommunityRepository.Ef\Winget.CommunityRepository.Ef.csproj", "{516169B3-872B-443B-8736-27E2A08E7091}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Apps", "Apps", "{4D1367F6-2076-481E-A7BD-0BFA6BEFCA3D}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -40,6 +43,10 @@ Global
 		{95A3AF98-E99D-40E2-922F-691A769D0FC2}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{95A3AF98-E99D-40E2-922F-691A769D0FC2}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{95A3AF98-E99D-40E2-922F-691A769D0FC2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C0984E0C-FF44-442C-A386-3A53C6670E2B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C0984E0C-FF44-442C-A386-3A53C6670E2B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C0984E0C-FF44-442C-A386-3A53C6670E2B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C0984E0C-FF44-442C-A386-3A53C6670E2B}.Release|Any CPU.Build.0 = Release|Any CPU
 		{A0ACA653-C1FF-4C98-AABC-7FB154D626E1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{A0ACA653-C1FF-4C98-AABC-7FB154D626E1}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A0ACA653-C1FF-4C98-AABC-7FB154D626E1}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -48,13 +55,25 @@ Global
 		{C32DB1BC-299E-4742-8372-278C8843026C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C32DB1BC-299E-4742-8372-278C8843026C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C32DB1BC-299E-4742-8372-278C8843026C}.Release|Any CPU.Build.0 = Release|Any CPU
-		{C0984E0C-FF44-442C-A386-3A53C6670E2B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{C0984E0C-FF44-442C-A386-3A53C6670E2B}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{C0984E0C-FF44-442C-A386-3A53C6670E2B}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{C0984E0C-FF44-442C-A386-3A53C6670E2B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{050B8AB3-6232-4220-950F-578D9E3E2203}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{050B8AB3-6232-4220-950F-578D9E3E2203}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{050B8AB3-6232-4220-950F-578D9E3E2203}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{050B8AB3-6232-4220-950F-578D9E3E2203}.Release|Any CPU.Build.0 = Release|Any CPU
+		{516169B3-872B-443B-8736-27E2A08E7091}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{516169B3-872B-443B-8736-27E2A08E7091}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{516169B3-872B-443B-8736-27E2A08E7091}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{516169B3-872B-443B-8736-27E2A08E7091}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{95A3AF98-E99D-40E2-922F-691A769D0FC2} = {70C0FC9B-4495-43AC-AB67-331201AEAA52}
+		{C0984E0C-FF44-442C-A386-3A53C6670E2B} = {70C0FC9B-4495-43AC-AB67-331201AEAA52}
+		{A0ACA653-C1FF-4C98-AABC-7FB154D626E1} = {4E745B8F-95AD-42CC-A462-EBA6896413E2}
+		{C32DB1BC-299E-4742-8372-278C8843026C} = {4D1367F6-2076-481E-A7BD-0BFA6BEFCA3D}
+		{050B8AB3-6232-4220-950F-578D9E3E2203} = {4D1367F6-2076-481E-A7BD-0BFA6BEFCA3D}
+		{516169B3-872B-443B-8736-27E2A08E7091} = {70C0FC9B-4495-43AC-AB67-331201AEAA52}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {94A78033-8BE6-4A61-BC28-66CE040924C8}

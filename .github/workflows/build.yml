@@ -1,15 +1,14 @@
-name: CI for WingetIntune
+name: 🏗️🧪📦 WinTuner
 
 on:
   push:
     branches:
       - main
-      - dev
-      #- feature/*
+    tags:
+      - v*
   pull_request:
     branches:
       - main
-      - dev
   workflow_dispatch:
 
 jobs:
@@ -22,18 +21,18 @@ jobs:
       checks: write
     steps:
       - name: 👨‍💻 Check-out code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: 👨‍🔧 Setup .NET Core SDK
-        uses: actions/setup-dotnet@v3
+        uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: 7.x
+          dotnet-version: 8.x
 
       - name: 🔍 Enable problem matchers
         run: echo "::add-matcher::.github/matchers/dotnet.json"
 
       - name: 🦸‍♂️ Restore steriods
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: ~/.nuget/packages
           # Look to see if there is a cache hit for the corresponding requirements file
@@ -62,35 +61,27 @@ jobs:
         if: always()
         run: dotnet format --verify-no-changes
 
-  publish:
-    name: 📦 Publish nuget library
+  publish-nuget:
+    name: 📦 Publish WinTuner to nuget
     runs-on: ubuntu-latest
-    if: (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop' || github.ref == 'refs/heads/dev') && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
+    if: startsWith(github.ref, 'refs/tags/')
     needs: [test]
     steps:
     - name: 👨‍💻 Check-out code
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
       with:
         fetch-depth: 0
 
     - name: 👨‍🔧 Setup .NET Core SDK
-      uses: actions/setup-dotnet@v3
+      uses: actions/setup-dotnet@v4
       with:
-        dotnet-version: 7.x
-
-    - name: 🛠️ Compute version with GitVersion
-      run: |
-        dotnet tool install --global GitVersion.Tool --version 5.*
-        echo "## 📦 Calculated version" >> $GITHUB_STEP_SUMMARY
-        echo "" >> $GITHUB_STEP_SUMMARY
-        dotnet-gitversion /updateprojectfiles /output buildserver /nofetch
-        dotnet-gitversion /nofetch /output json /showvariable NuGetVersionV2 >> $GITHUB_STEP_SUMMARY
+        dotnet-version: 8.x
 
     - name: 🔍 Enable problem matchers
       run: echo "::add-matcher::.github/matchers/dotnet.json"
 
     - name: 🦸‍♂️ Restore steriods
-      uses: actions/cache@v3
+      uses: actions/cache@v4
       with:
         path: ~/.nuget/packages
         # Look to see if there is a cache hit for the corresponding requirements file
@@ -102,12 +93,49 @@ jobs:
       run: dotnet restore
 
     - name: 🛠️ Build code
-      run: dotnet build --configuration Release --no-restore
+      shell: pwsh
+      run: dotnet build ./src/WingetIntune.Cli/WingetIntune.Cli.csproj --configuration Release --no-restore -p:Version=$("${{ github.ref_name }}".Substring(1))
 
-    - name: 📦 Pack WingetIntune CLI
-      run: dotnet pack --configuration Release --no-build --no-restore ./src/WingetIntune.Cli/WingetIntune.Cli.csproj
+    - name: 📦 Pack WinTuner CLI
+      shell: pwsh
+      run: dotnet pack ./src/WingetIntune.Cli/WingetIntune.Cli.csproj --configuration Release --no-build -p:Version=$("${{ github.ref_name }}".Substring(1))
 
     - name: ✈️ Publish Svrooij.Winget-Intune.Cli to nuget.org
       run: dotnet nuget push ./src/WingetIntune.Cli/bin/Release/SvRooij.Winget-Intune.Cli.*.nupkg -k $NUGET_AUTH_TOKEN -s https://api.nuget.org/v3/index.json
       env:
         NUGET_AUTH_TOKEN: ${{ secrets.NUGET_TOKEN }}
+
+  publish-psgallery:
+    name: 📦 Publish WinTuner to PowerShell Gallery
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/')
+    needs: [test]
+    steps:
+    - name: 👨‍💻 Check-out code
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
+    - name: 👨‍🔧 Setup .NET Core SDK
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: 8.x
+
+    - name: 🔍 Enable problem matchers
+      run: echo "::add-matcher::.github/matchers/dotnet.json"
+
+    - name: 🦸‍♂️ Restore steriods
+      uses: actions/cache@v4
+      with:
+        path: ~/.nuget/packages
+        # Look to see if there is a cache hit for the corresponding requirements file
+        key: ${{ runner.os }}-nuget-${{ hashFiles('**/packages.lock.json') }}
+        restore-keys: |
+          ${{ runner.os }}-nuget
+
+    - name: 🎒 Load packages
+      run: dotnet restore
+
+    - name: 🛠️ Build code
+      shell: pwsh
+      run: dotnet build ./src/Svrooij.WinTuner.CmdLets/Svrooij.WinTuner.CmdLets.csproj --configuration Release --no-restore -p:Version=$("${{ github.ref_name }}".Substring(1))

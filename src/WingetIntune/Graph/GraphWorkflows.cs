@@ -7,7 +7,7 @@ namespace WingetIntune.Graph;
 
 public static class GraphWorkflows
 {
-    public static async Task AddIntuneCategoriesToApp(GraphServiceClient graphServiceClient, string appId, string[] categories, CancellationToken cancellationToken)
+    public static async Task AddIntuneCategoriesToApp(this GraphServiceClient graphServiceClient, string appId, string[] categories, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(graphServiceClient);
         ArgumentException.ThrowIfNullOrEmpty(appId);
@@ -28,7 +28,7 @@ public static class GraphWorkflows
         }
     }
 
-    public static async Task<int> AssignAppAsync(GraphServiceClient graphServiceClient, string appId, string[]? requiredFor, string[]? availableFor, string[]? uninstallFor, CancellationToken cancellationToken)
+    public static async Task<int> AssignAppAsync(this GraphServiceClient graphServiceClient, string appId, string[]? requiredFor, string[]? availableFor, string[]? uninstallFor, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(graphServiceClient);
         ArgumentException.ThrowIfNullOrEmpty(appId);
