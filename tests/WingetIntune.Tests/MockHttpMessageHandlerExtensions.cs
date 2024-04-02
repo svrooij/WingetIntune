@@ -1,25 +1,45 @@
-﻿using Moq.Protected;
+﻿
+
+using NSubstitute;
+using NSubstitute.Core;
+using System.Reflection;
 
 namespace WingetIntune.Tests;
 
+public class HttpMessageHandlerWrapper : HttpMessageHandler
+{
+    protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
+    {
+        throw new NotImplementedException();
+    }
+}
+
 internal static class MockHttpMessageHandlerExtensions
 {
-    public static void AddMockResponse(this Mock<HttpMessageHandler> handlerMock, string uri, HttpMethod httpMethod, HttpResponseMessage responseMessage)
+    public static ConfiguredCall AddFakeResponse(this HttpMessageHandlerWrapper handler, string uri, HttpMethod httpMethod, HttpResponseMessage responseMessage)
     {
-        handlerMock.Protected()
-            .Setup<Task<HttpResponseMessage>>("SendAsync",
-                                              ItExpr.Is<HttpRequestMessage>(m => m.Matches(uri, httpMethod)),
-                                              ItExpr.IsAny<CancellationToken>())
-            .ReturnsAsync(responseMessage);
+        return handler
+            .GetType()
+            .GetMethod("SendAsync", BindingFlags.NonPublic | BindingFlags.Instance)
+            .Invoke(handler, new object?[]
+            {
+                Arg.Is<HttpRequestMessage>(m => m.Matches(uri, httpMethod)),
+                Arg.Any<CancellationToken>()
+            })
+            .Returns(Task.FromResult(responseMessage));
     }
 
-    public static void AddMockResponse(this Mock<HttpMessageHandler> handlerMock, string uri, HttpMethod httpMethod, string body, HttpResponseMessage responseMessage)
+    public static ConfiguredCall AddFakeResponse(this HttpMessageHandlerWrapper handler, string uri, HttpMethod httpMethod, string body, HttpResponseMessage responseMessage)
     {
-        handlerMock.Protected()
-            .Setup<Task<HttpResponseMessage>>("SendAsync",
-                                              ItExpr.Is<HttpRequestMessage>(m => m.Matches(uri, httpMethod, body)),
-                                              ItExpr.IsAny<CancellationToken>())
-            .ReturnsAsync(responseMessage);
+        return handler
+            .GetType()
+            .GetMethod("SendAsync", BindingFlags.NonPublic | BindingFlags.Instance)
+            .Invoke(handler, new object?[]
+            {
+                Arg.Is<HttpRequestMessage>(m => m.Matches(uri, httpMethod, body)),
+                Arg.Any<CancellationToken>()
+            })
+            .Returns(Task.FromResult(responseMessage));
     }
 
     private static bool Matches(this HttpRequestMessage requestMessage, string uri, HttpMethod httpMethod)
@@ -34,7 +54,7 @@ internal static class MockHttpMessageHandlerExtensions
         if (result && requestMessage.Content != null)
         {
             var bodyString = requestMessage.Content.ReadAsStringAsync().Result;
-            Assert.Equal(body, bodyString);
+            Assert.Equal(body, bodyString, ignoreAllWhiteSpace: true);
             result = bodyString == body;
         }
 

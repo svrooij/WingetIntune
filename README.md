@@ -25,12 +25,12 @@ The `msi` command is still windows only, as it uses the `Microsoft.Deployment.Wi
 
 ## Installing
 
-This package can be downloaded as a dotnet tool. Make sure you have Dotnet 7 installed on your computer.
+This package can be downloaded as a dotnet tool. Make sure you have Dotnet 8 installed on your computer.
 I'm working to get a code signing certificate, but for now you might have to configure an exception on your computer to run unsigned code.
 
 ```Shell
-# Install dotnet 7 sdk (or the way specific for your platform)
-winget install --id Microsoft.DotNet.SDK.7 --source winget
+# Install dotnet 8 sdk (or the way specific for your platform)
+winget install --id Microsoft.DotNet.SDK.8 --source winget
 
 # Add the nuget feed, if that is not already done
 dotnet nuget add source https://api.nuget.org/v3/index.json --name nuget.org

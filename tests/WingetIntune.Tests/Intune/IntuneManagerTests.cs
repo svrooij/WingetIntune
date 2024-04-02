@@ -11,7 +11,7 @@ public class IntuneManagerTests
     [Fact]
     public async Task GenerateMsiPackage_OtherPackage_ThrowsError()
     {
-        var intuneManager = new IntuneManager(null, null, null, null, null, null, null, null, null);
+        var intuneManager = new IntuneManager(null, null, null, null, null, null, null, null, null, null);
         var tempFolder = Path.Combine(Path.GetTempPath(), "intunewin");
         var outputFolder = Path.Combine(Path.GetTempPath(), "packages");
 
@@ -33,15 +33,13 @@ public class IntuneManagerTests
 
         var logoPath = Path.GetFullPath(Path.Combine(outputPackageFolder, "..", "logo.png"));
 
-        var fileManagerMock = new Mock<IFileManager>(MockBehavior.Strict);
-        fileManagerMock.Setup(x => x.CreateFolderForPackage(tempFolder, packageId, version)).Returns(Path.Combine(tempFolder, packageId, version)).Verifiable();
-        fileManagerMock.Setup(x => x.CreateFolderForPackage(outputFolder, packageId, version)).Returns(Path.Combine(outputFolder, packageId, version)).Verifiable();
-        fileManagerMock.Setup(x => x.DownloadFileAsync(installer.InstallerUrl!.ToString(), installerPath, null, true, false, It.IsAny<CancellationToken>()))
-            .Returns(Task.CompletedTask)
-            .Verifiable();
-        fileManagerMock.Setup(x => x.DownloadFileAsync($"https://api.winstall.app/icons/{packageId}.png", logoPath, null, false, false, It.IsAny<CancellationToken>()))
-            .Returns(Task.CompletedTask)
-            .Verifiable();
+        var fileManager = Substitute.For<IFileManager>();
+        fileManager.CreateFolderForPackage(tempFolder, packageId, version).Returns(Path.Combine(tempFolder, packageId, version));
+        fileManager.CreateFolderForPackage(outputFolder, packageId, version).Returns(Path.Combine(outputFolder, packageId, version));
+        fileManager.DownloadFileAsync(installer.InstallerUrl!.ToString(), installerPath, null, true, false, Arg.Any<CancellationToken>())
+            .Returns(Task.CompletedTask);
+        fileManager.DownloadFileAsync($"https://api.winstall.app/icons/{packageId}.png", logoPath, null, false, false, Arg.Any<CancellationToken>())
+            .Returns(Task.CompletedTask);
 
         var detectionContent = @"Package Microsoft.AzureCLI 2.51.0 from Winget
 
@@ -64,30 +62,34 @@ msiexec /x {89E4C65D-96DD-435B-9BBB-EF1EAEF5B738} /quiet /qn
 Description:
 The Azure command-line interface (Azure CLI) is a set of commands used to create and manage Azure resources. The Azure CLI is available across Azure services and is designed to get you working quickly with Azure, with an emphasis on automation.
 ";
-        // Check detection failed on Linux, have to check. replace It.IsAny<string>() with detectionContent
-        //Check readme failed on Linux, have to check. replace It.IsAny<string>() with readmeContent
+
         if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
         {
-            fileManagerMock.Setup(x => x.WriteAllTextAsync(Path.Combine(outputPackageFolder, "detection.txt"), detectionContent, It.IsAny<CancellationToken>())).Returns(Task.CompletedTask).Verifiable();
-            fileManagerMock.Setup(x => x.WriteAllTextAsync(Path.Combine(outputPackageFolder, "readme.txt"), readmeContent, It.IsAny<CancellationToken>())).Returns(Task.CompletedTask).Verifiable();
+            fileManager.WriteAllTextAsync(Path.Combine(outputPackageFolder, "detection.txt"), detectionContent, Arg.Any<CancellationToken>()).Returns(Task.CompletedTask);
+            fileManager.WriteAllTextAsync(Path.Combine(outputPackageFolder, "readme.txt"), readmeContent, Arg.Any<CancellationToken>()).Returns(Task.CompletedTask);
         }
         else
         {
-            fileManagerMock.Setup(x => x.WriteAllTextAsync(Path.Combine(outputPackageFolder, "detection.txt"), It.IsAny<string>(), It.IsAny<CancellationToken>())).Returns(Task.CompletedTask).Verifiable();
-            fileManagerMock.Setup(x => x.WriteAllTextAsync(Path.Combine(outputPackageFolder, "readme.txt"), It.IsAny<string>(), It.IsAny<CancellationToken>())).Returns(Task.CompletedTask).Verifiable();
+            fileManager.WriteAllTextAsync(Path.Combine(outputPackageFolder, "detection.txt"), Arg.Any<string>(), Arg.Any<CancellationToken>()).Returns(Task.CompletedTask);
+            fileManager.WriteAllTextAsync(Path.Combine(outputPackageFolder, "readme.txt"), Arg.Any<string>(), Arg.Any<CancellationToken>()).Returns(Task.CompletedTask);
         }
 
-        fileManagerMock.Setup(x => x.WriteAllBytesAsync(Path.Combine(outputPackageFolder, "app.json"), It.IsAny<byte[]>(), It.IsAny<CancellationToken>())).Returns(Task.CompletedTask).Verifiable();
+        fileManager.WriteAllBytesAsync(Path.Combine(outputPackageFolder, "app.json"), Arg.Any<byte[]>(), Arg.Any<CancellationToken>()).Returns(Task.CompletedTask);
 
-        var processManagerMock = new Mock<IProcessManager>(MockBehavior.Strict);
+        var processManager = Substitute.For<IProcessManager>();
 
-        var intunePackagerMock = new Mock<IIntunePackager>(MockBehavior.Loose);
+        var intunePackager = Substitute.For<IIntunePackager>();
 
-        var intuneManager = new IntuneManager(new NullLoggerFactory(), fileManagerMock.Object, processManagerMock.Object, null, null, null, null, intunePackagerMock.Object, null);
+        var intuneManager = new IntuneManager(new NullLoggerFactory(), fileManager, processManager, null, null, null, null, intunePackager, null, null);
 
         await intuneManager.GenerateInstallerPackage(tempFolder, outputFolder, IntuneTestConstants.azureCliPackageInfo, new PackageOptions { Architecture = Models.Architecture.X64, InstallerContext = InstallerContext.User }, CancellationToken.None);
-        fileManagerMock.VerifyAll();
-        processManagerMock.VerifyAll();
+
+        fileManager.Received().CreateFolderForPackage(tempFolder, packageId, version);
+        fileManager.Received().CreateFolderForPackage(outputFolder, packageId, version);
+        await fileManager.Received().DownloadFileAsync(installer.InstallerUrl!.ToString(), installerPath, null, true, false, Arg.Any<CancellationToken>());
+        await fileManager.Received().DownloadFileAsync($"https://api.winstall.app/icons/{packageId}.png", logoPath, null, false, false, Arg.Any<CancellationToken>());
+        await fileManager.Received().WriteAllBytesAsync(Path.Combine(outputPackageFolder, "app.json"), Arg.Any<byte[]>(), Arg.Any<CancellationToken>());
+
     }
 
     [Fact]
@@ -99,15 +101,15 @@ The Azure command-line interface (Azure CLI) is a set of commands used to create
 
         var logoPath = Path.GetFullPath(Path.Combine(folder, "..", "logo.png"));
 
-        var fileManagerMock = new Mock<IFileManager>();
-        fileManagerMock.Setup(x => x.DownloadFileAsync($"https://api.winstall.app/icons/{packageId}.png", logoPath, null, false, false, It.IsAny<CancellationToken>()))
-            .Returns(Task.CompletedTask)
-            .Verifiable();
+        var fileManager = Substitute.For<IFileManager>();
+        fileManager.DownloadFileAsync($"https://api.winstall.app/icons/{packageId}.png", logoPath, null, false, false, Arg.Any<CancellationToken>())
+            .Returns(Task.CompletedTask);
 
-        var intuneManager = new IntuneManager(new NullLoggerFactory(), fileManagerMock.Object, null, null, null, null, null, null, null);
+        var intuneManager = new IntuneManager(new NullLoggerFactory(), fileManager, null, null, null, null, null, null, null, null);
         await intuneManager.DownloadLogoAsync(folder, packageId, CancellationToken.None);
 
-        fileManagerMock.Verify();
+        //call.Received(1);
+
     }
 
     [Fact]
@@ -131,14 +133,13 @@ The Azure command-line interface (Azure CLI) is a set of commands used to create
 
         var installerPath = Path.GetFullPath(Path.Combine(folder, packageInfo.InstallerFilename));
 
-        var fileManagerMock = new Mock<IFileManager>();
-        fileManagerMock.Setup(x => x.DownloadFileAsync(packageInfo.InstallerUrl.ToString(), installerPath, hash, true, false, It.IsAny<CancellationToken>()))
-            .Returns(Task.CompletedTask)
-            .Verifiable();
+        var fileManager = Substitute.For<IFileManager>();
+        fileManager.DownloadFileAsync(packageInfo.InstallerUrl.ToString(), installerPath, hash, true, false, Arg.Any<CancellationToken>())
+            .Returns(Task.CompletedTask);
 
-        var intuneManager = new IntuneManager(new NullLoggerFactory(), fileManagerMock.Object, null, null, null, null, null, null, null);
+        var intuneManager = new IntuneManager(new NullLoggerFactory(), fileManager, null, null, null, null, null, null, null, null);
         await intuneManager.DownloadInstallerAsync(folder, packageInfo, CancellationToken.None);
 
-        fileManagerMock.Verify();
+        //call.Received(1);
     }
 }

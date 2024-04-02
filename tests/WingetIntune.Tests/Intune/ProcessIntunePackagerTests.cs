@@ -8,11 +8,11 @@ public class ProcessIntunePackagerTests
     [Fact]
     public async Task CreatePackage_DownloadsTool()
     {
-        var processManagerMock = new Mock<IProcessManager>(MockBehavior.Loose);
-        var fileManagerMock = new Mock<IFileManager>(MockBehavior.Strict);
+        var processManager = Substitute.For<IProcessManager>();
+        var fileManager = Substitute.For<IFileManager>();
         string toolPath = Path.Combine(Path.GetTempPath(), "Intune", ProcessIntunePackager.IntuneWinAppUtil);
 
-        var packager = new ProcessIntunePackager(processManagerMock.Object, fileManagerMock.Object, new NullLogger<ProcessIntunePackager>());
+        var packager = new ProcessIntunePackager(processManager, fileManager, new NullLogger<ProcessIntunePackager>());
 
         var inputFolder = Path.Combine(Path.GetTempPath(), "packages", "some-package");
         var outputFolder = Path.Combine(Path.GetTempPath(), "packages", "some-package", "output");
@@ -21,25 +21,27 @@ public class ProcessIntunePackagerTests
 
         var cancellationToken = new CancellationToken();
 
-        fileManagerMock.Setup(x => x.FileExists(toolPath)).Returns(false);
-        fileManagerMock.Setup(x => x.DownloadFileAsync(ProcessIntunePackager.IntuneWinAppUtilUrl, toolPath, null, true, false, cancellationToken))
-            .Returns(Task.CompletedTask).Verifiable();
+        fileManager.FileExists(toolPath).Returns(false);
+        fileManager.DownloadFileAsync(ProcessIntunePackager.IntuneWinAppUtilUrl, toolPath, null, true, false, cancellationToken)
+            .Returns(Task.CompletedTask);
 
-        processManagerMock.Setup(x => x.RunProcessAsync(toolPath, It.IsAny<string>(), cancellationToken, false))
-            .ReturnsAsync(new ProcessResult(0, "", ""));
+        processManager.RunProcessAsync(toolPath, Arg.Any<string>(), cancellationToken, false)
+            .Returns(Task.FromResult(new ProcessResult(0, "", "")));
 
         await packager.CreatePackage(inputFolder, outputFolder, installerFilename, cancellationToken);
-        fileManagerMock.VerifyAll();
+
+        await fileManager.Received().DownloadFileAsync(ProcessIntunePackager.IntuneWinAppUtilUrl, toolPath, null, true, false, cancellationToken);
+
     }
 
     [Fact]
     public async Task CreatePackage_DoesNotDownloadToolIfExists()
     {
-        var processManagerMock = new Mock<IProcessManager>(MockBehavior.Loose);
-        var fileManagerMock = new Mock<IFileManager>(MockBehavior.Strict);
+        var processManager = Substitute.For<IProcessManager>();
+        var fileManager = Substitute.For<IFileManager>();
         string toolPath = Path.Combine(Path.GetTempPath(), "Intune", ProcessIntunePackager.IntuneWinAppUtil);
 
-        var packager = new ProcessIntunePackager(processManagerMock.Object, fileManagerMock.Object, new NullLogger<ProcessIntunePackager>());
+        var packager = new ProcessIntunePackager(processManager, fileManager, new NullLogger<ProcessIntunePackager>());
 
         var inputFolder = Path.Combine(Path.GetTempPath(), "packages", "some-package");
         var outputFolder = Path.Combine(Path.GetTempPath(), "packages", "some-package", "output");
@@ -48,24 +50,26 @@ public class ProcessIntunePackagerTests
 
         var cancellationToken = new CancellationToken();
 
-        fileManagerMock.Setup(x => x.FileExists(toolPath)).Returns(true).Verifiable();
+        fileManager.FileExists(toolPath).Returns(true);
 
-        processManagerMock.Setup(x => x.RunProcessAsync(toolPath, It.IsAny<string>(), cancellationToken, false))
-            .ReturnsAsync(new ProcessResult(0, "", ""))
-            .Verifiable();
+        processManager.RunProcessAsync(toolPath, Arg.Any<string>(), cancellationToken, false)
+            .Returns(Task.FromResult(new ProcessResult(0, "", "")));
 
         await packager.CreatePackage(inputFolder, outputFolder, installerFilename, cancellationToken);
-        fileManagerMock.VerifyAll();
+
+        fileManager.Received().FileExists(toolPath);
+        await processManager.Received().RunProcessAsync(toolPath, Arg.Any<string>(), cancellationToken, false);
+
     }
 
     [Fact]
     public async Task CreatePackage_CallsCorrectProcess()
     {
-        var processManagerMock = new Mock<IProcessManager>(MockBehavior.Strict);
-        var fileManagerMock = new Mock<IFileManager>(MockBehavior.Strict);
+        var processManager = Substitute.For<IProcessManager>();
+        var fileManager = Substitute.For<IFileManager>();
         string toolPath = Path.Combine(Path.GetTempPath(), "Intune", ProcessIntunePackager.IntuneWinAppUtil);
 
-        var packager = new ProcessIntunePackager(processManagerMock.Object, fileManagerMock.Object, new NullLogger<ProcessIntunePackager>());
+        var packager = new ProcessIntunePackager(processManager, fileManager, new NullLogger<ProcessIntunePackager>());
 
         var inputFolder = Path.Combine(Path.GetTempPath(), "packages", "some-package");
         var outputFolder = Path.Combine(Path.GetTempPath(), "packages", "some-package", "output");
@@ -74,18 +78,17 @@ public class ProcessIntunePackagerTests
 
         var cancellationToken = new CancellationToken();
 
-        fileManagerMock.Setup(x => x.FileExists(toolPath))
-            .Returns(true)
-            .Verifiable();
+        fileManager.FileExists(toolPath).Returns(true);
 
         var arguments = $"-c {inputFolder} -s {installerFilename} -o {outputFolder} -q";
 
-        processManagerMock.Setup(x => x.RunProcessAsync(toolPath, arguments, cancellationToken, false))
-            .ReturnsAsync(new ProcessResult(0, "", ""))
-            .Verifiable();
+        processManager.RunProcessAsync(toolPath, arguments, cancellationToken, false)
+            .Returns(Task.FromResult(new ProcessResult(0, "", "")));
 
         await packager.CreatePackage(inputFolder, outputFolder, installerFilename, cancellationToken);
-        fileManagerMock.VerifyAll();
-        processManagerMock.VerifyAll();
+
+        fileManager.Received().FileExists(toolPath);
+        await processManager.Received().RunProcessAsync(toolPath, arguments, cancellationToken, false);
+
     }
 }

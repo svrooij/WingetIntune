@@ -17,7 +17,7 @@
       "request": "launch",
       "preLaunchTask": "dotnet: build-cli",
       // If you have changed target frameworks, make sure to update the program path.
-      "program": "${workspaceFolder}/src/WingetIntune.Cli/bin/Debug/net7.0/WingetIntune.Cli.dll",
+      "program": "${workspaceFolder}/src/WingetIntune.Cli/bin/Debug/net8.0/WingetIntune.Cli.dll",
       "args": [
         "update",
         "list",
