@@ -108,7 +108,7 @@ jobs:
   publish-psgallery:
     name: 📦 Publish WinTuner to PowerShell Gallery
     runs-on: ubuntu-latest
-    # if: startsWith(github.ref, 'refs/tags/')
+    if: startsWith(github.ref, 'refs/tags/')
     needs: [test]
     steps:
     - name: 👨‍💻 Check-out code
