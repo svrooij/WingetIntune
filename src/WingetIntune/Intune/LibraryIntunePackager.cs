@@ -8,14 +8,17 @@ namespace WingetIntune.Intune;
 internal class LibraryIntunePackager : IIntunePackager
 {
     private readonly Packager packager;
+    private readonly ILogger logger;
 
     public LibraryIntunePackager(ILogger<Packager> logger)
     {
         this.packager = new Packager(logger);
+        this.logger = logger;
     }
 
     public async Task<string> CreatePackage(string inputFolder, string outputFolder, string installerFilename, PackageInfo? packageInfo = null, CancellationToken cancellationToken = default)
     {
+        logger.LogInformation("Creating Intune package from {inputFolder}", inputFolder);
         var details = new SvRooij.ContentPrep.Models.ApplicationDetails
         {
             Name = packageInfo?.DisplayName ?? packageInfo?.PackageIdentifier,

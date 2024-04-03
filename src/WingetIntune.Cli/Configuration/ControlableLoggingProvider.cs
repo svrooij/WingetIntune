@@ -53,7 +53,7 @@ internal class ControlableLoggingProvider : ConfigurationProvider
         OnReload();
     }
 
-    public override void Set(string key, string value)
+    public override void Set(string key, string? value)
     {
         throw new InvalidOperationException("This configuration provider is read-only");
     }

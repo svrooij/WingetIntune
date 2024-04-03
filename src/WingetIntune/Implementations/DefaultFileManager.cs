@@ -63,18 +63,19 @@ public partial class DefaultFileManager : IFileManager
             }
             result.EnsureSuccessStatusCode();
 
-            if (result.Content.Headers.ContentLength > 100*1024*1024)
+            if (result.Content.Headers.ContentLength > 100 * 1024 * 1024)
             {
                 logger.LogWarning("Downloading large file {url} to {path} with size {size}", url, path, result.Content.Headers.ContentLength);
             }
 
-            using(var fileStream = new FileStream(path, FileMode.Create, FileAccess.Write, FileShare.None, bufferSize: 4096, useAsync: true))
+            using (var fileStream = new FileStream(path, FileMode.Create, FileAccess.Write, FileShare.None, bufferSize: 4096, useAsync: true))
             {
                 await result.Content.CopyToAsync(fileStream, cancellationToken);
                 await fileStream.FlushAsync(cancellationToken);
             }
 
-            if(!string.IsNullOrEmpty(expectedHash)) {
+            if (!string.IsNullOrEmpty(expectedHash))
+            {
                 using var sha256 = SHA256.Create();
                 using var stream = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.Read, bufferSize: 4096, useAsync: true);
                 var hashBytes = await sha256.ComputeHashAsync(stream, cancellationToken);
@@ -92,7 +93,7 @@ public partial class DefaultFileManager : IFileManager
         }
         else if (!string.IsNullOrEmpty(expectedHash))
         {
-            using var fileStream = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.None, bufferSize: 4096, useAsync: true);
+            using var fileStream = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.Delete, bufferSize: 4096, useAsync: true);
             using var sha256 = SHA256.Create();
             var hashBytes = await sha256.ComputeHashAsync(fileStream, cancellationToken);
             fileStream.Close();
