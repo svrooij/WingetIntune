@@ -17,7 +17,7 @@
     Copyright = 'Stephan van Rooij 2024, licensed under GNU GPLv3'
 
     # Description of this module.
-    Description = 'WinTuner PowerShell, package and publish any apps from WinGet to Intune.'
+    Description = 'WinTuner by SvRooij, package and publish any apps from WinGet to Intune.'
 
     # Minimum version of the Windows PowerShell engine required by this module.
     PowerShellVersion = '5.1'

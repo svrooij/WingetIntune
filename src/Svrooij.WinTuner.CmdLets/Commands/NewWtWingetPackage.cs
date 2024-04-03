@@ -17,7 +17,7 @@ namespace Svrooij.WinTuner.CmdLets.Commands;
 /// </summary>
 /// <example>
 /// <para type="description">Package all files in C:\Temp\Source, with setup file ..\setup.exe to the specified folder</para>
-/// <code>New-WingetPackage -PackageId JanDeDobbeleer.OhMyPosh -PackageFolder C:\Tools\Packages</code>
+/// <code>New-WtWingetPackage -PackageId JanDeDobbeleer.OhMyPosh -PackageFolder C:\Tools\Packages</code>
 /// </example>
 [Cmdlet(VerbsCommon.New, "WtWingetPackage")]
 [OutputType(typeof(WingetIntune.Models.WingetPackage))]
@@ -83,7 +83,12 @@ public class NewWtWingetPackage : DependencyCmdlet<Startup>
     public override async Task ProcessRecordAsync(CancellationToken cancellationToken)
     {
         // Fix the package id casing.
-        PackageId = await wingetRepository.GetPackageId(PackageId!, cancellationToken);
+        PackageId = (await wingetRepository!.GetPackageId(PackageId!, cancellationToken)) ?? string.Empty;
+        if (string.IsNullOrEmpty(PackageId))
+        {
+            logger.LogWarning("Package {PackageId} not found", PackageId);
+            return;
+        }
         if (string.IsNullOrEmpty(Version))
         {
             Version = await wingetRepository.GetLatestVersion(PackageId!, cancellationToken);

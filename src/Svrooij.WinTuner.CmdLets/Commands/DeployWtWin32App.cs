@@ -19,17 +19,19 @@ namespace Svrooij.WinTuner.CmdLets.Commands;
 /// <para type="description">Upload a pre-packaged application, from just it's folder, using interactive authentication</para>
 /// <code>Deploy-WtWin32App -PackageFolder C:\Tools\packages\JanDeDobbeleer.OhMyPosh\19.5.2 -Username admin@myofficetenant.onmicrosoft.com</code>
 /// </example>
-[Cmdlet(VerbsLifecycle.Deploy, "WtWin32App", DefaultParameterSetName = nameof(App))]
+[Cmdlet(VerbsLifecycle.Deploy, "WtWin32App", DefaultParameterSetName = ParameterSetApp)]
 [OutputType(typeof(GraphModels.Win32LobApp))]
 public class DeployWtWin32App : BaseIntuneCmdlet
 {
+    private const string ParameterSetApp = "Win32LobApp";
+    private const string ParameterSetWinGet = "WinGet";
     /// <summary>
     /// <para type="description">The Win32LobApp configuration you want to create</para>
     /// </summary>
     [Parameter(
         Mandatory = true,
         Position = 0,
-        ParameterSetName = nameof(App),
+        ParameterSetName = ParameterSetApp,
         ValueFromPipeline = true,
         ValueFromPipelineByPropertyName = false,
         HelpMessage = "The App configuration you want to create")]
@@ -41,7 +43,7 @@ public class DeployWtWin32App : BaseIntuneCmdlet
     [Parameter(
         Mandatory = true,
         Position = 1,
-        ParameterSetName = nameof(App),
+        ParameterSetName = ParameterSetApp,
         ValueFromPipeline = true,
         ValueFromPipelineByPropertyName = false,
         HelpMessage = "The .intunewin file that should be added to this app")]
@@ -53,7 +55,7 @@ public class DeployWtWin32App : BaseIntuneCmdlet
     [Parameter(
         Mandatory = false,
         Position = 2,
-        ParameterSetName = nameof(App),
+        ParameterSetName = ParameterSetApp,
         ValueFromPipeline = true,
         ValueFromPipelineByPropertyName = false,
         HelpMessage = "Load the logo from file")]
@@ -65,7 +67,7 @@ public class DeployWtWin32App : BaseIntuneCmdlet
     [Parameter(
         Mandatory = true,
         Position = 0,
-        ParameterSetName = nameof(PackageId),
+        ParameterSetName = ParameterSetWinGet,
         ValueFromPipeline = false,
         ValueFromPipelineByPropertyName = false,
         HelpMessage = "The package id to upload to Intune.")]
@@ -77,7 +79,7 @@ public class DeployWtWin32App : BaseIntuneCmdlet
     [Parameter(
         Mandatory = true,
         Position = 1,
-        ParameterSetName = nameof(PackageId),
+        ParameterSetName = ParameterSetWinGet,
         ValueFromPipeline = false,
         HelpMessage = "The version to upload to Intune"
         )]
@@ -89,7 +91,7 @@ public class DeployWtWin32App : BaseIntuneCmdlet
     [Parameter(
         Mandatory = true,
         Position = 2,
-        ParameterSetName = nameof(PackageId),
+        ParameterSetName = ParameterSetWinGet,
         ValueFromPipeline = false,
         HelpMessage = "The Root folder where all the package live in.")]
     public string? RootPackageFolder { get; set; }
@@ -125,7 +127,7 @@ public class DeployWtWin32App : BaseIntuneCmdlet
 
         if (App is null)
         {
-            if (ParameterSetName == nameof(PackageId))
+            if (ParameterSetName == ParameterSetWinGet)
             {
                 PackageFolder = Path.Combine(RootPackageFolder!, PackageId!, Version!);
             }

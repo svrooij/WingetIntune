@@ -12,25 +12,27 @@ Create a Win32Lob app in Intune
 
 ## SYNTAX
 
-### App (Default)
+### Win32LobApp (Default)
 ```
 Deploy-WtWin32App [-App] <Win32LobApp> [-IntuneWinFile] <String> [[-LogoPath] <String>] [[-Token] <String>]
- [[-UseManagedIdentity] <Boolean>] [[-Username] <String>] [[-TenantId] <String>] [[-ClientId] <String>]
- [-ProgressAction <ActionPreference>] [<CommonParameters>]
+ [[-UseManagedIdentity] <Boolean>] [-UseDefaultAzureCredential <Boolean>] [[-Username] <String>]
+ [[-TenantId] <String>] [[-ClientId] <String>] [-ClientSecret <String>] [-ProgressAction <ActionPreference>]
+ [<CommonParameters>]
 ```
 
-### PackageId
+### WinGet
 ```
 Deploy-WtWin32App [-PackageId] <String> [-Version] <String> [-RootPackageFolder] <String> [[-Token] <String>]
- [[-UseManagedIdentity] <Boolean>] [[-Username] <String>] [[-TenantId] <String>] [[-ClientId] <String>]
- [-ProgressAction <ActionPreference>] [<CommonParameters>]
+ [[-UseManagedIdentity] <Boolean>] [-UseDefaultAzureCredential <Boolean>] [[-Username] <String>]
+ [[-TenantId] <String>] [[-ClientId] <String>] [-ClientSecret <String>] [-ProgressAction <ActionPreference>]
+ [<CommonParameters>]
 ```
 
 ### PackageFolder
 ```
 Deploy-WtWin32App [-PackageFolder] <String> [[-Token] <String>] [[-UseManagedIdentity] <Boolean>]
- [[-Username] <String>] [[-TenantId] <String>] [[-ClientId] <String>] [-ProgressAction <ActionPreference>]
- [<CommonParameters>]
+ [-UseDefaultAzureCredential <Boolean>] [[-Username] <String>] [[-TenantId] <String>] [[-ClientId] <String>]
+ [-ClientSecret <String>] [-ProgressAction <ActionPreference>] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -52,7 +54,7 @@ The App configuration you want to create
 
 ```yaml
 Type: Win32LobApp
-Parameter Sets: App
+Parameter Sets: Win32LobApp
 Aliases:
 
 Required: True
@@ -82,7 +84,7 @@ The .intunewin file that should be added to this app
 
 ```yaml
 Type: String
-Parameter Sets: App
+Parameter Sets: Win32LobApp
 Aliases:
 
 Required: True
@@ -97,7 +99,7 @@ Load the logo from file
 
 ```yaml
 Type: String
-Parameter Sets: App
+Parameter Sets: Win32LobApp
 Aliases:
 
 Required: False
@@ -127,7 +129,7 @@ The package id to upload to Intune.
 
 ```yaml
 Type: String
-Parameter Sets: PackageId
+Parameter Sets: WinGet
 Aliases:
 
 Required: True
@@ -142,7 +144,7 @@ The Root folder where all the package live in.
 
 ```yaml
 Type: String
-Parameter Sets: PackageId
+Parameter Sets: WinGet
 Aliases:
 
 Required: True
@@ -217,7 +219,7 @@ The version to upload to Intune
 
 ```yaml
 Type: String
-Parameter Sets: PackageId
+Parameter Sets: WinGet
 Aliases:
 
 Required: True
@@ -234,6 +236,36 @@ Accept wildcard characters: False
 Type: ActionPreference
 Parameter Sets: (All)
 Aliases: proga
+
+Required: False
+Position: Named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -ClientSecret
+Specify the client secret, mandatory for Client Credentials flow. Loaded from `AZURE_CLIENT_SECRET`
+
+```yaml
+Type: String
+Parameter Sets: (All)
+Aliases:
+
+Required: False
+Position: Named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -UseDefaultAzureCredential
+Use default Azure Credentials from Azure.Identity to connect to Intune
+
+```yaml
+Type: Boolean
+Parameter Sets: (All)
+Aliases:
 
 Required: False
 Position: Named

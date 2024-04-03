@@ -18,14 +18,13 @@ public static class GraphWorkflows
         var graphCategories = await graphServiceClient.DeviceAppManagement.MobileAppCategories.GetAsync(cancellationToken: cancellationToken);
 
         // Match categories by name and add to app
-        var foundCategories = categories.Select(c => graphCategories!.Value!.SingleOrDefault(x => x.DisplayName?.Equals(c, StringComparison.InvariantCultureIgnoreCase) == true)?.Id).ToArray();
+        var foundCategories = categories.Select(c => graphCategories!.Value!.SingleOrDefault(x => x.DisplayName?.Equals(c, StringComparison.InvariantCultureIgnoreCase) == true)?.Id).Where(c => !string.IsNullOrEmpty(c)).ToArray();
+        var batch = new Microsoft.Graph.BatchRequestContentCollection(graphServiceClient);
         foreach (var categoryId in foundCategories)
         {
-            if (!string.IsNullOrEmpty(categoryId))
-            {
-                await graphServiceClient.Intune_AddCategoryToApp(appId, categoryId, cancellationToken);
-            }
+            await batch.AddBatchRequestStepAsync(graphServiceClient.Intune_AddCategoryToApp_RequestInfo(appId, categoryId!));
         }
+        await graphServiceClient.Batch.PostAsync(batch, cancellationToken);
     }
 
     public static async Task<int> AssignAppAsync(this GraphServiceClient graphServiceClient, string appId, string[]? requiredFor, string[]? availableFor, string[]? uninstallFor, CancellationToken cancellationToken)

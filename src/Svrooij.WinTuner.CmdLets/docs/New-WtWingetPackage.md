@@ -24,7 +24,7 @@ Downloads the installer for the package and creates an \`.intunewin\` file for u
 
 ### Example 1
 ```
-PS C:\> New-WingetPackage -PackageId JanDeDobbeleer.OhMyPosh -PackageFolder C:\Tools\Packages
+PS C:\> New-WtWingetPackage -PackageId JanDeDobbeleer.OhMyPosh -PackageFolder C:\Tools\Packages
 ```
 
 Package all files in C:\Temp\Source, with setup file ..\setup.exe to the specified folder

@@ -28,10 +28,10 @@
     <None Update="Svrooij.WinTuner.CmdLets.dll-Help.xml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="Svrooij.WinTuner.Cmdlets.psd1">
+    <None Update="WinTuner.psd1">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="Svrooij.WinTuner.Cmdlets.psm1">
+    <None Update="WinTuner.psm1">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>

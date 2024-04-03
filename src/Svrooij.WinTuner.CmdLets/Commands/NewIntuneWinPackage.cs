@@ -50,7 +50,7 @@ public class NewIntuneWinPackage : DependencyCmdlet<Startup>
         Position = 2,
         ValueFromPipeline = true,
         ValueFromPipelineByPropertyName = true,
-        HelpMessage = "Destination folder")]
+        HelpMessage = "Destination folder, should be outside the source folder")]
     public string? DestinationPath { get; set; }
 
 
@@ -67,7 +67,7 @@ public class NewIntuneWinPackage : DependencyCmdlet<Startup>
             var setupFile = Path.Combine(SourcePath!, SetupFile!);
             if (!Directory.Exists(DestinationPath!))
             {
-                WriteVerbose($"Creating destination folder {DestinationPath}");
+                _logger?.LogInformation("Creating destination folder {DestinationPath}", DestinationPath);
                 Directory.CreateDirectory(DestinationPath!);
             }
             _logger?.LogInformation("Creating package for {setupFile}", setupFile);

@@ -24,22 +24,33 @@ public abstract class BaseIntuneCmdlet : DependencyCmdlet<Startup>
     /// </summary>
     [Parameter(
         Mandatory = false,
-        Position = 21,
+        Position = 20,
         ValueFromPipeline = false,
         ValueFromPipelineByPropertyName = false,
-        HelpMessage = "Use a token from another source to connect to Intune")]
-    public string? Token { get; set; }
+        HelpMessage = "Use a managed identity to connect to Intune")]
+    public bool UseManagedIdentity { get; set; }
 
     /// <summary>
     /// 
     /// </summary>
     [Parameter(
         Mandatory = false,
-        Position = 20,
+        Position = 21,
         ValueFromPipeline = false,
         ValueFromPipelineByPropertyName = false,
-        HelpMessage = "Use a managed identity to connect to Intune")]
-    public bool UseManagedIdentity { get; set; }
+        HelpMessage = "Use default Azure Credentials from Azure.Identity to connect to Intune")]
+    public bool UseDefaultAzureCredential { get; set; }
+
+    /// <summary>
+    /// 
+    /// </summary>
+    [Parameter(
+        Mandatory = false,
+        Position = 22,
+        ValueFromPipeline = false,
+        ValueFromPipelineByPropertyName = false,
+        HelpMessage = "Use a token from another source to connect to Intune")]
+    public string? Token { get; set; }
 
     /// <summary>
     /// 
@@ -60,8 +71,8 @@ public abstract class BaseIntuneCmdlet : DependencyCmdlet<Startup>
         Position = 26,
         ValueFromPipeline = false,
         ValueFromPipelineByPropertyName = false,
-        HelpMessage = "Specify the tenant ID, if you want to use another tenant then your home tenant")]
-    public string? TenantId { get; set; }
+        HelpMessage = "Specify the tenant ID, optional for interactive, mandatory for Client Credentials flow. Loaded from `AZURE_TENANT_ID`")]
+    public string? TenantId { get; set; } = Environment.GetEnvironmentVariable("AZURE_TENANT_ID");
 
     /// <summary>
     /// 
@@ -71,10 +82,25 @@ public abstract class BaseIntuneCmdlet : DependencyCmdlet<Startup>
                Position = 27,
                ValueFromPipeline = false,
                ValueFromPipelineByPropertyName = false,
-               HelpMessage = "(optionally) Use a different client ID, apart from the default configured one.")]
-    public string? ClientId { get; set; }
+               HelpMessage = "Specify the client ID, optional for interactive, mandatory for Client Credentials flow. Loaded from `AZURE_CLIENT_ID`")]
+    public string? ClientId { get; set; } = Environment.GetEnvironmentVariable("AZURE_CLIENT_ID");
 
-    internal string[] DefaultScopes { get; set; } = new[] { "DeviceManagementConfiguration.ReadWrite.All", "DeviceManagementApps.ReadWrite.All" };
+
+    /// <summary>
+    /// 
+    /// </summary>
+    [Parameter(
+               Mandatory = false,
+               Position = 28,
+               ValueFromPipeline = false,
+               ValueFromPipelineByPropertyName = false,
+               HelpMessage = "Specify the client secret, mandatory for Client Credentials flow. Loaded from `AZURE_CLIENT_SECRET`")]
+    public string? ClientSecret { get; set; } = Environment.GetEnvironmentVariable("AZURE_CLIENT_SECRET");
+
+    /// <summary>
+    /// 
+    /// </summary>
+    internal static string[] DefaultScopes { get; } = new[] { "DeviceManagementConfiguration.ReadWrite.All", "DeviceManagementApps.ReadWrite.All" };
 
     internal void ValidateAuthenticationParameters()
     {
@@ -83,7 +109,7 @@ public abstract class BaseIntuneCmdlet : DependencyCmdlet<Startup>
             return;
         }
 
-        if (UseManagedIdentity)
+        if (UseManagedIdentity || UseDefaultAzureCredential)
         {
             return;
         }
@@ -93,21 +119,35 @@ public abstract class BaseIntuneCmdlet : DependencyCmdlet<Startup>
             return;
         }
 
-        throw new ArgumentException($"Use `{nameof(Token)}`, `{nameof(UseManagedIdentity)}` or `{nameof(Username)}` to select the graph connection type", nameof(ParameterSetName));
+        throw new ArgumentException($"Use `{nameof(Token)}`, `{nameof(UseManagedIdentity)}`, `{nameof(UseDefaultAzureCredential)}` or `{nameof(Username)}` to select the graph connection type", nameof(ParameterSetName));
     }
 
-    internal IAuthenticationProvider CreateAuthenticationProviderAsync(string[]? scopes = null)
+    internal IAuthenticationProvider CreateAuthenticationProvider(string[]? scopes = null)
     {
         if (!string.IsNullOrEmpty(Token))
         {
             return new WingetIntune.Internal.Msal.StaticAuthenticationProvider(Token);
         }
 
-        if (UseManagedIdentity)
+        if (UseManagedIdentity || UseDefaultAzureCredential)
         {
             // Maybe make which credentials to use configurable
-            var credentials = new Azure.Identity.DefaultAzureCredential();
+            Azure.Core.TokenCredential credentials = UseManagedIdentity
+                ? new Azure.Identity.ManagedIdentityCredential(ClientId)
+                : new Azure.Identity.DefaultAzureCredential();
             return new Microsoft.Graph.Authentication.AzureIdentityAuthenticationProvider(credentials, null, null, scopes ?? DefaultScopes);
+        }
+
+        if (!string.IsNullOrEmpty(ClientId) && !string.IsNullOrEmpty(ClientSecret) && !string.IsNullOrEmpty(TenantId))
+        {
+            return new Microsoft.Graph.Authentication.AzureIdentityAuthenticationProvider(new Azure.Identity.ClientSecretCredential(TenantId, ClientId, ClientSecret, new Azure.Identity.ClientSecretCredentialOptions
+            {
+                TokenCachePersistenceOptions = new Azure.Identity.TokenCachePersistenceOptions
+                {
+                    Name = "WinTuner-PowerShell",
+                    UnsafeAllowUnencryptedStorage = true,
+                }
+            }), scopes: scopes ?? DefaultScopes);
         }
 
         if (!string.IsNullOrEmpty(Username))
@@ -126,7 +166,7 @@ public abstract class BaseIntuneCmdlet : DependencyCmdlet<Startup>
 
     internal GraphServiceClient CreateGraphServiceClient(HttpClient httpClient, string[]? scopes = null)
     {
-        var authenticationProvider = CreateAuthenticationProviderAsync(scopes ?? DefaultScopes);
+        var authenticationProvider = CreateAuthenticationProvider(scopes ?? DefaultScopes);
         var graphServiceClient = new GraphServiceClient(httpClient: httpClient, authenticationProvider: authenticationProvider, baseUrl: "https://graph.microsoft.com/beta");
 
         return graphServiceClient;
