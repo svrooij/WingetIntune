@@ -21,7 +21,7 @@
     <PackageId>SvRooij.Winget-Intune.Cli</PackageId>
     <PackAsTool>true</PackAsTool>
     <ToolCommandName>wintuner</ToolCommandName>
-	<SatelliteResourceLanguages>en</SatelliteResourceLanguages>
+    <SatelliteResourceLanguages>en</SatelliteResourceLanguages>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <NoWarn>1701;1702;CS8618</NoWarn>

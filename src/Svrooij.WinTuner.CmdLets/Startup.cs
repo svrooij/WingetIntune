@@ -3,12 +3,11 @@ using Microsoft.Extensions.Logging;
 using Svrooij.PowerShell.DependencyInjection;
 using Svrooij.PowerShell.DependencyInjection.Logging;
 using System;
-using System.Collections.Generic;
-using System.Text;
 using WingetIntune;
 
 namespace Svrooij.WinTuner.CmdLets;
 
+/// <inheritdoc/>
 public class Startup : PsStartup
 {
     /// <inheritdoc/>

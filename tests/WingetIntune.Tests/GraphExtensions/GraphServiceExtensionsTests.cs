@@ -160,7 +160,7 @@ public class GraphServiceExtensionsTests
         Assert.Equal(13, result.SizeEncrypted);
     }
 
-    [Fact(Skip = "Test does not work after migration")]
+    [Fact()]
     public async Task Intune_WaitForFinalCommitStateAsync_ReturnsOnSuccess()
     {
         var appId = Guid.NewGuid().ToString();
@@ -188,13 +188,13 @@ public class GraphServiceExtensionsTests
         response.Content.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue("application/json");
 
         handler.AddFakeResponse(
-            $"https://graph.microsoft.com/beta/deviceAppManagement/mobileApps/{appId}/microsoft.graph.win32LobApp/contentVersions/{contentVersionId}/files/{fileId}",
+            $"https://graph.microsoft.com/beta/deviceAppManagement/mobileApps/{appId}/graph.win32LobApp/contentVersions/{contentVersionId}/files/{fileId}",
             HttpMethod.Get,
             response);
 
         var httpClient = new HttpClient(handler);
         var graphServiceClient = new GraphServiceClient(httpClient, new Internal.Msal.StaticAuthenticationProvider(token));
-        var result = await graphServiceClient.Intune_WaitForFinalCommitStateAsync(appId, contentVersionId.ToString(), fileId, CancellationToken.None)!;
+        var result = await graphServiceClient.Intune_WaitForFinalCommitStateAsync(appId, contentVersionId.ToString(), fileId, default)!;
 
         Assert.NotNull(result);
 
@@ -203,7 +203,7 @@ public class GraphServiceExtensionsTests
         Assert.Equal(13, result.SizeEncrypted);
     }
 
-    [Fact(Skip = "Test doest not work after migration")]
+    [Fact()]
     public async Task Intune_WaitForFinalCommitStateAsync_ThrowsOnFailure()
     {
         var appId = Guid.NewGuid().ToString();
@@ -231,7 +231,7 @@ public class GraphServiceExtensionsTests
         response.Content.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue("application/json");
 
         handler.AddFakeResponse(
-            $"https://graph.microsoft.com/beta/deviceAppManagement/mobileApps/{appId}/microsoft.graph.win32LobApp/contentVersions/{contentVersionId}/files/{fileId}",
+            $"https://graph.microsoft.com/beta/deviceAppManagement/mobileApps/{appId}/graph.win32LobApp/contentVersions/{contentVersionId}/files/{fileId}",
             HttpMethod.Get,
             response);
 
@@ -240,7 +240,7 @@ public class GraphServiceExtensionsTests
         await Assert.ThrowsAsync<Exception>(async () => await graphServiceClient.Intune_WaitForFinalCommitStateAsync(appId, contentVersionId.ToString(), fileId, CancellationToken.None)!);
     }
 
-    [Fact(Skip = "Test does not work after migration")]
+    [Fact()]
     public async Task Intune_WaitForFinalCommitStateAsync_ThrowsOnTimedOut()
     {
         var appId = Guid.NewGuid().ToString();
@@ -268,7 +268,7 @@ public class GraphServiceExtensionsTests
         response.Content.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue("application/json");
 
         handler.AddFakeResponse(
-            $"https://graph.microsoft.com/beta/deviceAppManagement/mobileApps/{appId}/microsoft.graph.win32LobApp/contentVersions/{contentVersionId}/files/{fileId}",
+            $"https://graph.microsoft.com/beta/deviceAppManagement/mobileApps/{appId}/graph.win32LobApp/contentVersions/{contentVersionId}/files/{fileId}",
             HttpMethod.Get,
             response);
 

@@ -136,6 +136,30 @@ jobs:
     - name: 🎒 Load packages
       run: dotnet restore
 
-    - name: 🛠️ Build code
+    - name: 📝 Set module version
       shell: pwsh
-      run: dotnet build ./src/Svrooij.WinTuner.CmdLets/Svrooij.WinTuner.CmdLets.csproj --configuration Release --no-restore -p:Version=$("${{ github.ref_name }}".Substring(1))
+      id: version
+      run: |
+        $version = "${{ github.ref_name }}".Substring(1)
+        $module = Get-Content -Path src/Svrooij.WinTuner.CmdLets/Svrooij.WinTuner.CmdLets.psd1
+        $module = $module -replace 'ModuleVersion = ''\d+\.\d+\.\d+''', "ModuleVersion = '$version'"
+        $module | Set-Content -Path src/Svrooij.WinTuner.CmdLets/Svrooij.WinTuner.CmdLets.psd1
+
+    - name: 🛠️ Build module
+      shell: pwsh
+      run: dotnet build ./src/Svrooij.WinTuner.CmdLets/Svrooij.WinTuner.CmdLets.csproj --configuration Release --no-restore -p:Version=$("${{ github.ref_name }}".Substring(1)) -o ./dist/WinTuner
+    
+    - name: 🧪 Run tests (import module)
+      shell: pwsh
+      run: |
+        Import-Module ./dist/WinTuner/WinTuner.psd1
+        Get-Command -Module WinTuner
+        Get-Command -Module WinTuner | Select-Object -ExpandProperty Name | ForEach-Object { Get-Help -Name $_ -Full }
+    
+    - name: 📦 Publish WinTuner to PowerShell Gallery
+      shell: pwsh
+      run: |
+        Import-Module ./dist/WinTuner/WinTuner.psd1
+        Publish-Module -Path ./dist/WinTuner -NuGetApiKey $env:PSGALLERY_TOKEN -Repository PSGallery -Force
+      env:
+        PSGALLERY_TOKEN: ${{ secrets.PSGALLERY_TOKEN }}

@@ -53,9 +53,12 @@ public class GraphAppUploader
             await Task.Delay(1000, cancellationToken);
 
             // Upload the content and update the app with the latest commited file id.
-            Win32LobApp? updatedApp = await CreateNewContentVersionAsync(graphServiceClient, app!.Id!, intunePackageFile, cancellationToken);
+            await CreateNewContentVersionAsync(graphServiceClient, app!.Id!, intunePackageFile, cancellationToken);
 
-            return app;
+            // Load the app again to get the final state
+            Win32LobApp? updatedApp = await graphServiceClient.DeviceAppManagement.MobileApps[app.Id].GetAsync(cancellationToken: cancellationToken) as Win32LobApp;
+
+            return updatedApp;
         }
         catch (Microsoft.Identity.Client.MsalServiceException ex)
         {

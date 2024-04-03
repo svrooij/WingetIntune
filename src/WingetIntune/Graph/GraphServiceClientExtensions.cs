@@ -113,22 +113,28 @@ internal static class GraphServiceClientExtensions
 
     public static Task Intune_AddCategoryToApp(this GraphServiceClient graphServiceClient, string appId, string categoryId, CancellationToken cancellationToken)
     {
+        var requestInfo = Intune_AddCategoryToApp_RequestInfo(graphServiceClient, appId, categoryId);
+
+        return graphServiceClient.RequestAdapter.SendNoContentAsync(requestInfo, errorMapping: ErrorMapping, cancellationToken: cancellationToken);
+    }
+
+    public static RequestInformation Intune_AddCategoryToApp_RequestInfo(this GraphServiceClient graphServiceClient, string appId, string categoryId)
+    {
         ArgumentNullException.ThrowIfNull(graphServiceClient);
         ArgumentException.ThrowIfNullOrEmpty(appId);
         ArgumentException.ThrowIfNullOrEmpty(categoryId);
-        ArgumentNullException.ThrowIfNull(cancellationToken);
+
         var requestInfo = new RequestInformation
         {
             HttpMethod = Method.POST,
-            URI = new Uri($"https://graph.microsoft.com/beta/deviceAppManagement/mobileApps/{appId}/categories/$ref"),
+            URI = new Uri($"{graphServiceClient.RequestAdapter.BaseUrl}/deviceAppManagement/mobileApps/{appId}/categories/$ref"),
         };
 
         var categoryReference = new Entity();
-        categoryReference.AdditionalData.Add("@odata.id", $"https://graph.microsoft.com/beta/deviceAppManagement/mobileAppCategories/{categoryId}");
+        categoryReference.AdditionalData.Add("@odata.id", $"{graphServiceClient.RequestAdapter.BaseUrl}/deviceAppManagement/mobileAppCategories/{categoryId}");
         // Body should look like '{"@odata.id":"https://graph.microsoft.com/beta/deviceAppManagement/mobileAppCategories/category-id-here"}'
         requestInfo.SetContentFromParsable(graphServiceClient.RequestAdapter, "application/json", categoryReference);
-
-        return graphServiceClient.RequestAdapter.SendNoContentAsync(requestInfo, errorMapping: ErrorMapping, cancellationToken: cancellationToken);
+        return requestInfo;
     }
 
     public static Dictionary<string, ParsableFactory<IParsable>> ErrorMapping => new Dictionary<string, ParsableFactory<IParsable>> {

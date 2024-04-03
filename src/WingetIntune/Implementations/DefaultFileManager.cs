@@ -56,35 +56,47 @@ public partial class DefaultFileManager : IFileManager
             var directory = Path.GetDirectoryName(path);
             this.CreateFolder(directory!);
             logger.LogInformation("Downloading {url} to {path}", url, path);
-            var result = await httpClient.GetAsync(url, cancellationToken);
+            var result = await httpClient.SendAsync(new HttpRequestMessage(HttpMethod.Get, url), HttpCompletionOption.ResponseHeadersRead, cancellationToken);
             if (!result.IsSuccessStatusCode && !throwOnFailure)
             {
                 return;
             }
             result.EnsureSuccessStatusCode();
-            var data = await result.Content.ReadAsByteArrayAsync(cancellationToken);
-            using var sha256 = SHA256.Create();
-            using var stream = new MemoryStream(data);
-            var hashBytes = await sha256.ComputeHashAsync(stream, cancellationToken);
-            var hash = BitConverter.ToString(hashBytes).Replace("-", "");
+
+            if (result.Content.Headers.ContentLength > 100 * 1024 * 1024)
+            {
+                logger.LogWarning("Downloading large file {url} to {path} with size {size}", url, path, result.Content.Headers.ContentLength);
+            }
+
+            using (var fileStream = new FileStream(path, FileMode.Create, FileAccess.Write, FileShare.None, bufferSize: 4096, useAsync: true))
+            {
+                await result.Content.CopyToAsync(fileStream, cancellationToken);
+                await fileStream.FlushAsync(cancellationToken);
+            }
+
             if (!string.IsNullOrEmpty(expectedHash))
             {
+                using var sha256 = SHA256.Create();
+                using var stream = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.Read, bufferSize: 4096, useAsync: true);
+                var hashBytes = await sha256.ComputeHashAsync(stream, cancellationToken);
+                stream.Close();
+                var hash = BitConverter.ToString(hashBytes).Replace("-", "");
                 if (!hash.Equals(expectedHash, StringComparison.OrdinalIgnoreCase))
                 {
+                    File.Delete(path);
                     var ex = new CryptographicException($"Hash mismatch for {url}. Expected {expectedHash} but got {hash}");
                     logger.LogError(ex, "Hash mismatch for {url}. Expected {expectedHash} but got {hash}", url, expectedHash, hash);
                     throw ex;
                 }
                 logger.LogInformation("Downloaded file {path} has hash '{hash}' as expected", url, hash);
             }
-
-            await File.WriteAllBytesAsync(path, data, cancellationToken);
         }
         else if (!string.IsNullOrEmpty(expectedHash))
         {
-            using var fileStream = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.None, bufferSize: 4096, useAsync: true);
+            using var fileStream = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.Delete, bufferSize: 4096, useAsync: true);
             using var sha256 = SHA256.Create();
             var hashBytes = await sha256.ComputeHashAsync(fileStream, cancellationToken);
+            fileStream.Close();
             var hash = BitConverter.ToString(hashBytes).Replace("-", "");
             if (!hash.Equals(expectedHash, StringComparison.OrdinalIgnoreCase))
             {

@@ -47,6 +47,7 @@ public class UnprotectIntuneWinPackage : DependencyCmdlet<Startup>
     [ServiceDependency]
     private ILogger<UnprotectIntuneWinPackage> logger;
 
+    /// <inheritdoc/>
     public override async Task ProcessRecordAsync(CancellationToken cancellationToken)
     {
         try
