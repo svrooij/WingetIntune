@@ -13,7 +13,8 @@
     <PackageProjectUrl>https://github.com/svrooij/WingetIntune</PackageProjectUrl>
     <RepositoryUrl>https://github.com/svrooij/WingetIntune.git</RepositoryUrl>
     <PackageTags>Intune;Winget</PackageTags>
-	<SatelliteResourceLanguages>en</SatelliteResourceLanguages>
+	  <SatelliteResourceLanguages>en</SatelliteResourceLanguages>
+    <NoWarn>CS8618;CS0649</NoWarn>
   </PropertyGroup>
 
   <ItemGroup>

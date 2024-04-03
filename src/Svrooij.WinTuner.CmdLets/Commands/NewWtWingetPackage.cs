@@ -32,7 +32,7 @@ public class NewWtWingetPackage : DependencyCmdlet<Startup>
                ValueFromPipeline = true,
                ValueFromPipelineByPropertyName = true,
                HelpMessage = "The package id to download")]
-    public string PackageId { get; set; }
+    public string? PackageId { get; set; }
 
     /// <summary>
     /// The folder to store the package in
@@ -83,22 +83,22 @@ public class NewWtWingetPackage : DependencyCmdlet<Startup>
     public override async Task ProcessRecordAsync(CancellationToken cancellationToken)
     {
         // Fix the package id casing.
-        PackageId = await wingetRepository.GetPackageId(PackageId, cancellationToken);
+        PackageId = await wingetRepository.GetPackageId(PackageId!, cancellationToken);
         if (string.IsNullOrEmpty(Version))
         {
-            Version = await wingetRepository.GetLatestVersion(PackageId, cancellationToken);
+            Version = await wingetRepository.GetLatestVersion(PackageId!, cancellationToken);
         }
 
         logger.LogInformation("Packaging package {PackageId} {Version}", PackageId, Version);
 
-        var packageInfo = await repository.GetPackageInfoAsync(PackageId, Version, source: "winget", cancellationToken: cancellationToken);
+        var packageInfo = await repository.GetPackageInfoAsync(PackageId!, Version, source: "winget", cancellationToken: cancellationToken);
 
         if (packageInfo != null)
         {
             logger.LogDebug("Package {PackageId} {Version} from {Source}", packageInfo.PackageIdentifier, packageInfo.Version, packageInfo.Source);
 
             var package = await intuneManager.GenerateInstallerPackage(
-                TempFolder,
+                TempFolder!,
                 PackageFolder,
                 packageInfo,
                 cancellationToken: cancellationToken);
