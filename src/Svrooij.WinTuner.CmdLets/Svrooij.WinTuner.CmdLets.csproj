@@ -8,8 +8,8 @@
     <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
     <GenerateDocumentationFile>True</GenerateDocumentationFile>
     <Nullable>enable</Nullable>
-	  <NoWarn>CS8618;CS0649</NoWarn>
-	  <RestorePackagesWithLockFile>true</RestorePackagesWithLockFile>
+    <NoWarn>CS8618;CS0649</NoWarn>
+    <RestorePackagesWithLockFile>true</RestorePackagesWithLockFile>
   </PropertyGroup>
 
   <ItemGroup>
