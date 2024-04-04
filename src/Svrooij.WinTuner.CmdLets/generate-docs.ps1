@@ -1,4 +1,4 @@
-﻿$xmlDocsPath = "${PSScriptRoot}\bin\Release\net7.0\Svrooij.WinTuner.CmdLets.xml"
+﻿$xmlDocsPath = "${PSScriptRoot}\bin\Release\net8.0\Svrooij.WinTuner.CmdLets.xml"
 $docsFolder = "docs"
 
 Write-Output "Building the project to get the latest XML documentation file"

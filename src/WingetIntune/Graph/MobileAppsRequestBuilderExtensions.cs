@@ -37,6 +37,19 @@ public static class MobileAppsRequestBuilderExtensions
             config.QueryParameters.Top = 999;
         }, cancellationToken: cancellationToken);
     }
+
+    public static async Task<IEnumerable<Models.IntuneApp>> GetWinTunerAppsAsync(this MobileAppsRequestBuilder builder, CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(builder);
+        var response = await builder.GetAsync(config =>
+        {
+            config.QueryParameters.Filter = $"isof('{Win32LobType}') and (contains(notes, '[WinTuner|') or contains(notes, '[WingetIntune|'))";
+            config.QueryParameters.Top = 999;
+            config.QueryParameters.Orderby = new[] { "displayName" };
+            //config.QueryParameters.Select = new[] { "id", "displayName", "displayVersion", "notes", "supersededAppCount" };
+        }, cancellationToken);
+        return response?.Value!.Select(x => Models.Mapper.ToIntuneApp(x as Win32LobApp)) ?? Enumerable.Empty<Models.IntuneApp>();
+    }
 }
 
 public static class MobileAppItemRequestBuilderExtensions

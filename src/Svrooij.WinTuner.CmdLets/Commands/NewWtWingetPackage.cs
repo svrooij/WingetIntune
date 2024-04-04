@@ -1,11 +1,7 @@
 ﻿using Microsoft.Extensions.Logging;
 using Svrooij.PowerShell.DependencyInjection;
-using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Management.Automation;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -13,7 +9,7 @@ namespace Svrooij.WinTuner.CmdLets.Commands;
 /// <summary>
 /// <para type="synopsis">Create intunewin file from Winget installer</para>
 /// <para type="description">Downloads the installer for the package and creates an `.intunewin` file for uploading in Intune.</para>
-/// <para type="link" uri="https://wintuner.app/">Documentation</para>
+/// <para type="link" uri="https://wintuner.app/docs/wintuner-powershell/New-WtWingetPackage">Documentation</para> 
 /// </summary>
 /// <example>
 /// <para type="description">Package all files in C:\Temp\Source, with setup file ..\setup.exe to the specified folder</para>

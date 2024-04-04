@@ -14,11 +14,17 @@ WinTuner PowerShell is a module to help you create an deploy Win32 apps in Micro
 ### [Deploy-WtWin32App](Deploy-WtWin32App.md)
 Create a Win32Lob app in Intune
 
+### [Get-WtWin32Apps](Get-WtWin32Apps.md)
+Get all apps from Intune packaged by WinTuner
+
 ### [New-IntuneWinPackage](New-IntuneWinPackage.md)
 Create a new IntuneWin package
 
 ### [New-WtWingetPackage](New-WtWingetPackage.md)
 Create intunewin file from Winget installer
+
+### [Remove-WtWin32App](Remove-WtWin32App.md)
+Remove an app from Intune
 
 ### [Unprotect-IntuneWinPackage](Unprotect-IntuneWinPackage.md)
 Decrypt an IntuneWin package
