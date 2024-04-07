@@ -29,3 +29,6 @@ Remove an app from Intune
 ### [Unprotect-IntuneWinPackage](Unprotect-IntuneWinPackage.md)
 Decrypt an IntuneWin package
 
+### [Update-WtIntuneApp](Update-WtIntuneApp.md)
+Update an app in Intune
+

@@ -1,11 +1,9 @@
 ﻿using Microsoft.Extensions.Logging;
 using Svrooij.PowerShell.DependencyInjection;
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Management.Automation;
 using System.Net.Http;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using WingetIntune.Graph;

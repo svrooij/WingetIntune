@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.Logging;
+using Microsoft.Graph.Beta;
 using Svrooij.PowerShell.DependencyInjection;
 using System;
 using System.IO;
@@ -156,65 +157,85 @@ public class DeployWtWin32App : BaseIntuneCmdlet
         logger?.LogInformation("Uploading Win32App {DisplayName} to Intune with file {IntuneWinFile}", App!.DisplayName, IntuneWinFile);
         var graphServiceClient = CreateGraphServiceClient(httpClient!);
         var newApp = await graphAppUploader!.CreateNewAppAsync(graphServiceClient, App, IntuneWinFile!, LogoPath, cancellationToken);
-        logger?.LogInformation("Created Win32App {DisplayName} with id {Id}", newApp!.DisplayName, newApp.Id);
+        logger?.LogInformation("Created Win32App {DisplayName} with id {appId}", newApp!.DisplayName, newApp.Id);
 
+        // Check if we need to supersede an app
         if (GraphId is not null)
         {
-            logger?.LogDebug("Loading old app {GraphId} to superseed", GraphId);
-            var oldApp = await graphServiceClient.DeviceAppManagement.MobileApps[GraphId].GetAsync(req =>
-            {
-                req.QueryParameters.Expand = new string[] { "categories", "relationships", "assignments" };
-            }, cancellationToken);
+            await SupersedeApp(logger!, graphServiceClient, newApp!.Id!, GraphId, cancellationToken);
+        }
 
-            if (oldApp is GraphModels.Win32LobApp oldWin32App)
+        WriteObject(newApp!);
+    }
+
+    /// <summary>
+    /// Supersede an app.
+    /// </summary>
+    /// <remarks>
+    /// 1. Load the old app
+    /// 2. Update relationships of the new app to supersede the old app
+    /// 3. Copy categories from the old app to the new app
+    /// 4. Copy assignments from the old app to the new app
+    /// 5. Remove assignments from the old app
+    /// </remarks>
+    /// <param name="logger"></param>
+    /// <param name="graphServiceClient"></param>
+    /// <param name="newAppId"></param>
+    /// <param name="oldAppId"></param>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
+    private static async Task SupersedeApp(ILogger logger, GraphServiceClient graphServiceClient, string newAppId, string oldAppId, CancellationToken cancellationToken)
+    {
+        logger?.LogDebug("Loading old app {oldAppId} to superseed", oldAppId);
+        var oldApp = await graphServiceClient.DeviceAppManagement.MobileApps[oldAppId].GetAsync(req =>
+        {
+            req.QueryParameters.Expand = new string[] { "categories", "assignments" };
+        }, cancellationToken);
+
+        if (oldApp is GraphModels.Win32LobApp oldWin32App)
+        {
+            logger?.LogInformation("Superseeding app {oldAppId} with {appId}", oldAppId, newAppId);
+            var batch = new Microsoft.Graph.BatchRequestContentCollection(graphServiceClient);
+            // Add supersedence relationship to new app
+            await batch.AddBatchRequestStepAsync(graphServiceClient.DeviceAppManagement.MobileApps[newAppId].UpdateRelationships.ToPostRequestInformation(new Microsoft.Graph.Beta.DeviceAppManagement.MobileApps.Item.UpdateRelationships.UpdateRelationshipsPostRequestBody
             {
-                logger?.LogInformation("Superseeding app {GraphId} with {NewAppId}", GraphId, newApp!.Id);
-                var batch = new Microsoft.Graph.BatchRequestContentCollection(graphServiceClient);
-                // Add supersedence relationship to new app
-                await batch.AddBatchRequestStepAsync(graphServiceClient.DeviceAppManagement.MobileApps[newApp!.Id!].UpdateRelationships.ToPostRequestInformation(new Microsoft.Graph.Beta.DeviceAppManagement.MobileApps.Item.UpdateRelationships.UpdateRelationshipsPostRequestBody
-                {
-                    Relationships = new()
+                Relationships = new()
                     {
                         new GraphModels.MobileAppSupersedence
                         {
                             // TODO Should the SupersedenceType be Update or Replace, maybe configureable?
                             SupersedenceType = GraphModels.MobileAppSupersedenceType.Update,
-                            TargetId = GraphId!
+                            TargetId = oldAppId!
                         }
                     }
-                }));
+            }));
 
-                // Copy categories from old app to new app
-                if (oldWin32App.Categories is not null && oldWin32App.Categories.Count > 0)
+            // Copy categories from old app to new app
+            if (oldWin32App.Categories is not null && oldWin32App.Categories.Count > 0)
+            {
+                foreach (var c in oldWin32App.Categories)
                 {
-                    foreach (var c in oldWin32App.Categories)
-                    {
-                        await batch.AddBatchRequestStepAsync(graphServiceClient!.Intune_AddCategoryToApp_RequestInfo(newApp.Id!, c.Id!));
-                    }
+                    await batch.AddBatchRequestStepAsync(graphServiceClient.Intune_AddCategoryToApp_RequestInfo(newAppId, c.Id!));
                 }
-
-                // Copy assignments from old app to new app
-                if (oldWin32App.Assignments is not null && oldWin32App.Assignments.Count > 0)
-                {
-                    await batch.AddBatchRequestStepAsync(graphServiceClient!.DeviceAppManagement.MobileApps[newApp.Id!].Assign.ToPostRequestInformation(new Microsoft.Graph.Beta.DeviceAppManagement.MobileApps.Item.Assign.AssignPostRequestBody
-                    {
-                        MobileAppAssignments = oldWin32App.Assignments
-                    }));
-
-                    // Remove assignments from old app
-                    await batch.AddBatchRequestStepAsync(graphServiceClient!.DeviceAppManagement.MobileApps[GraphId].Assign.ToPostRequestInformation(new Microsoft.Graph.Beta.DeviceAppManagement.MobileApps.Item.Assign.AssignPostRequestBody
-                    {
-                        MobileAppAssignments = new System.Collections.Generic.List<GraphModels.MobileAppAssignment>()
-                    }));
-                }
-
-                // Execute batch
-                await graphServiceClient.Batch.PostAsync(batch, cancellationToken);
-
             }
 
-        }
+            // Copy assignments from old app to new app
+            if (oldWin32App.Assignments is not null && oldWin32App.Assignments.Count > 0)
+            {
+                await batch.AddBatchRequestStepAsync(graphServiceClient.DeviceAppManagement.MobileApps[newAppId].Assign.ToPostRequestInformation(new Microsoft.Graph.Beta.DeviceAppManagement.MobileApps.Item.Assign.AssignPostRequestBody
+                {
+                    MobileAppAssignments = oldWin32App.Assignments
+                }));
 
-        WriteObject(newApp!);
+                // Remove assignments from old app
+                await batch.AddBatchRequestStepAsync(graphServiceClient.DeviceAppManagement.MobileApps[oldAppId].Assign.ToPostRequestInformation(new Microsoft.Graph.Beta.DeviceAppManagement.MobileApps.Item.Assign.AssignPostRequestBody
+                {
+                    MobileAppAssignments = new System.Collections.Generic.List<GraphModels.MobileAppAssignment>()
+                }));
+            }
+
+            // Execute batch
+            await graphServiceClient.Batch.PostAsync(batch, cancellationToken);
+        }
     }
 }
