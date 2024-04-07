@@ -1,6 +1,6 @@
 @{
     # Script module or binary module file associated with this manifest.
-    RootModule = 'SvRooij.WinTuner.CmdLets.dll'
+    RootModule = 'Svrooij.WinTuner.CmdLets.dll'
 
     # Version number of this module.
     ModuleVersion = '0.1.0'
@@ -59,9 +59,12 @@
     # Cmdlets to export from this module.
     CmdletsToExport = @(
         "Deploy-WtWin32App",
+        "Get-WtWin32Apps",
         "New-IntuneWinPackage",
         "New-WtWingetPackage",
+        "Remove-WtWin32App",
         "Unprotect-IntuneWinPackage"
+        "Update-WtWin32App"
     )
 
     # Variables to export from this module.
@@ -72,10 +75,10 @@
 
     # List of all files included in this module.
     FileList = @(
-        "SvRooij.WinTuner.CmdLets.dll",
+        "Svrooij.WinTuner.CmdLets.dll",
         "WinTuner.psd1",
         "WinTuner.psm1",
-        "SvRooij.WinTuner.CmdLets.dll-Help.xml",
+        "Svrooij.WinTuner.CmdLets.dll-Help.xml",
         "WingetIntune.dll",
         "System.Management.Automation.dll"
     )
