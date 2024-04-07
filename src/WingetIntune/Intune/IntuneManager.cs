@@ -375,18 +375,13 @@ public partial class IntuneManager
         }
     }
 
-    public async Task<IEnumerable<IntuneApp>> GetPublishedAppsAsync(IntunePublishOptions options, CancellationToken cancellationToken = default)
+    public Task<IEnumerable<IntuneApp>> GetPublishedAppsAsync(IntunePublishOptions options, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(options);
 
         GraphServiceClient graphServiceClient = CreateGraphClientFromOptions(options);
 
-        var apps = await graphServiceClient.DeviceAppManagement.MobileApps.GetWin32Apps("[WingetIntune|", cancellationToken: cancellationToken);
-
-        return apps?
-            .Value!
-            .Where(x => (x as Win32LobApp)?.SupersededAppCount == 0)
-            .Select(x => Mapper.ToIntuneApp(x as Win32LobApp)) ?? Enumerable.Empty<IntuneApp>();
+        return graphServiceClient.DeviceAppManagement.MobileApps.GetWinTunerAppsAsync(cancellationToken);
     }
 
     private async Task AddCategoriesToApp(GraphServiceClient graphServiceClient, string appId, string[] categories, CancellationToken cancellationToken)

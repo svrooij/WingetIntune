@@ -152,8 +152,10 @@ internal partial class Mapper
         {
             PackageId = packageId!,
             Name = win32LobApp.DisplayName!,
-            Version = win32LobApp.DisplayVersion!,
-            GraphId = win32LobApp.Id!
+            CurrentVersion = win32LobApp.DisplayVersion!,
+            GraphId = win32LobApp.Id!,
+            SupersededAppCount = win32LobApp.SupersededAppCount,
+            SupersedingAppCount = win32LobApp.SupersedingAppCount
         };
     }
 }

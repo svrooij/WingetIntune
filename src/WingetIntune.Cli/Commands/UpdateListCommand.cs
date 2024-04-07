@@ -46,7 +46,7 @@ internal class UpdateListCommand : Command
         var table = new ConsoleTable("PackageId", "Version", "LatestVersion", "UpdateAvailable");
         foreach (var app in result.OrderByDescending(a => a.IsUpdateAvailable).ThenBy(a => a.PackageId))
         {
-            table.AddRow(app.PackageId, app.Version, app.LatestVersion, app.IsUpdateAvailable);
+            table.AddRow(app.PackageId, app.CurrentVersion, app.LatestVersion, app.IsUpdateAvailable);
         }
         table.Write(Format.Minimal);
         return 0;
@@ -63,7 +63,7 @@ internal class UpdateListCommand : Command
                 GraphId = app.GraphId,
                 PackageId = app.PackageId,
                 Name = app.Name,
-                Version = app.Version,
+                CurrentVersion = app.CurrentVersion,
                 LatestVersion = latestVersion,
             });
         }

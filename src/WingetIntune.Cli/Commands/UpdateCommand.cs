@@ -35,5 +35,5 @@ internal class UpdateCommandOptions : WinGetRootCommand.DefaultOptions
 internal class UpdateAbleIntuneApp : IntuneApp
 {
     public string? LatestVersion { get; set; }
-    public bool IsUpdateAvailable => LatestVersion != null && LatestVersion != Version;
+    public bool IsUpdateAvailable => LatestVersion != null && LatestVersion != CurrentVersion;
 }

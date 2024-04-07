@@ -73,20 +73,17 @@
     # List of all files included in this module.
     FileList = @(
         "SvRooij.WinTuner.CmdLets.dll",
-        "SvRooij.WinTuner.CmdLets.psd1",
+        "WinTuner.psd1",
+        "WinTuner.psm1",
         "SvRooij.WinTuner.CmdLets.dll-Help.xml",
         "WingetIntune.dll",
-        "System.Buffers.dll",
-        "System.Management.Automation.dll",
-        "System.Memory.dll",
-        "System.Numerics.Vectors.dll",
-        "System.Runtime.CompilerServices.Unsafe.dll"
+        "System.Management.Automation.dll"
     )
 
     # Private data to pass to the module specified in RootModule/ModuleToProcess.
     PrivateData = @{
         PSData = @{
-            Tags = @('Intune', 'Win32', 'App Packaging')
+            Tags = @('Intune', 'Win32', 'WinGet')
 
             LisenceUri = 'https://github.com/svrooij/WingetIntune/blob/main/LICENSE.txt'
             ProjectUri = 'https://wintuner.app/'

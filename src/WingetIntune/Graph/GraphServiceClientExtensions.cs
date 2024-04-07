@@ -8,7 +8,7 @@ using System.Text.Json;
 
 namespace WingetIntune.Graph;
 
-internal static class GraphServiceClientExtensions
+public static class GraphServiceClientExtensions
 {
     // These extensions are on the service client, not the request builder.
     // until this issue is resolved: https://github.com/microsoft/kiota-abstractions-dotnet/issues/113

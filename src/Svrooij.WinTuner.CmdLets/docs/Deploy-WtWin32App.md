@@ -14,25 +14,25 @@ Create a Win32Lob app in Intune
 
 ### Win32LobApp (Default)
 ```
-Deploy-WtWin32App [-App] <Win32LobApp> [-IntuneWinFile] <String> [[-LogoPath] <String>] [[-Token] <String>]
- [[-UseManagedIdentity] <Boolean>] [-UseDefaultAzureCredential <Boolean>] [[-Username] <String>]
- [[-TenantId] <String>] [[-ClientId] <String>] [-ClientSecret <String>] [-ProgressAction <ActionPreference>]
- [<CommonParameters>]
+Deploy-WtWin32App [-App] <Win32LobApp> [-IntuneWinFile] <String> [[-LogoPath] <String>] [-GraphId <String>]
+ [[-UseManagedIdentity] <Boolean>] [-UseDefaultAzureCredential <Boolean>] [[-Token] <String>]
+ [[-Username] <String>] [[-TenantId] <String>] [[-ClientId] <String>] [-ClientSecret <String>]
+ [-ProgressAction <ActionPreference>] [<CommonParameters>]
 ```
 
 ### WinGet
 ```
-Deploy-WtWin32App [-PackageId] <String> [-Version] <String> [-RootPackageFolder] <String> [[-Token] <String>]
- [[-UseManagedIdentity] <Boolean>] [-UseDefaultAzureCredential <Boolean>] [[-Username] <String>]
- [[-TenantId] <String>] [[-ClientId] <String>] [-ClientSecret <String>] [-ProgressAction <ActionPreference>]
- [<CommonParameters>]
+Deploy-WtWin32App [-PackageId] <String> [-Version] <String> [-RootPackageFolder] <String> [-GraphId <String>]
+ [[-UseManagedIdentity] <Boolean>] [-UseDefaultAzureCredential <Boolean>] [[-Token] <String>]
+ [[-Username] <String>] [[-TenantId] <String>] [[-ClientId] <String>] [-ClientSecret <String>]
+ [-ProgressAction <ActionPreference>] [<CommonParameters>]
 ```
 
 ### PackageFolder
 ```
-Deploy-WtWin32App [-PackageFolder] <String> [[-Token] <String>] [[-UseManagedIdentity] <Boolean>]
- [-UseDefaultAzureCredential <Boolean>] [[-Username] <String>] [[-TenantId] <String>] [[-ClientId] <String>]
- [-ClientSecret <String>] [-ProgressAction <ActionPreference>] [<CommonParameters>]
+Deploy-WtWin32App [-PackageFolder] <String> [-GraphId <String>] [[-UseManagedIdentity] <Boolean>]
+ [-UseDefaultAzureCredential <Boolean>] [[-Token] <String>] [[-Username] <String>] [[-TenantId] <String>]
+ [[-ClientId] <String>] [-ClientSecret <String>] [-ProgressAction <ActionPreference>] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -264,6 +264,21 @@ Use default Azure Credentials from Azure.Identity to connect to Intune
 
 ```yaml
 Type: Boolean
+Parameter Sets: (All)
+Aliases:
+
+Required: False
+Position: Named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -GraphId
+Graph ID of the app to supersede
+
+```yaml
+Type: String
 Parameter Sets: (All)
 Aliases:
 

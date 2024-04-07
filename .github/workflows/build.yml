@@ -141,9 +141,9 @@ jobs:
       id: version
       run: |
         $version = "${{ github.ref_name }}".Substring(1)
-        $module = Get-Content -Path src/Svrooij.WinTuner.CmdLets/Svrooij.WinTuner.CmdLets.psd1
+        $module = Get-Content -Path src/Svrooij.WinTuner.CmdLets/WinTuner.psd1
         $module = $module -replace 'ModuleVersion = ''\d+\.\d+\.\d+''', "ModuleVersion = '$version'"
-        $module | Set-Content -Path src/Svrooij.WinTuner.CmdLets/Svrooij.WinTuner.CmdLets.psd1
+        $module | Set-Content -Path src/Svrooij.WinTuner.CmdLets/WinTuner.psd1
 
     - name: 🛠️ Build module
       shell: pwsh
