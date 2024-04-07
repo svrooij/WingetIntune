@@ -62,51 +62,6 @@ public class RemoveWtWin32App : BaseIntuneCmdlet
 
             logger?.LogInformation("Relationship removed, waiting 2 seconds before removing app");
             await Task.Delay(2000, cancellationToken);
-
-
-
-            //try
-            //{
-            //    await graphServiceClient.DeviceAppManagement.MobileApps[AppId].DeleteAsync(cancellationToken: cancellationToken);
-            //}
-            //catch (ODataError ex)
-            //{
-            //    if (ex.Message.Contains("Cannot delete this app as it is the child of another app"))
-            //    {
-            //        string pattern = @"another app: (\b[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}\b)";
-            //        var match = System.Text.RegularExpressions.Regex.Match(ex.Message, pattern);
-            //        if (match.Success)
-            //        {
-            //            logger?.LogInformation("App {appId} is a child of {parentAppId}, removing relationships first", AppId, match.Groups[1].Value);
-
-            //            // Load the parent app, to not break all relationships
-            //            var parentApp = await graphServiceClient.DeviceAppManagement.MobileApps[match.Groups[1].Value].GetAsync(req =>
-            //            {
-            //                req.QueryParameters.Expand = new string[] { "relationships" };
-            //            }, cancellationToken: cancellationToken);
-
-            //            // Update the relations of the parent app, to remove this specific app
-            //            await graphServiceClient.DeviceAppManagement.MobileApps[parentApp!.Id!].UpdateRelationships.PostAsync(new Microsoft.Graph.Beta.DeviceAppManagement.MobileApps.Item.UpdateRelationships.UpdateRelationshipsPostRequestBody
-            //            {
-            //                Relationships = parentApp.Relationships?.Where(r => r.TargetId != AppId).ToList() ?? new List<Microsoft.Graph.Beta.Models.MobileAppRelationship>()
-            //            }, cancellationToken: cancellationToken);
-
-            //            logger?.LogInformation("Relationship removed, waiting 2 seconds before retrying");
-            //            await Task.Delay(2000, cancellationToken);
-            //        }
-            //        else
-            //        {
-            //            logger?.LogWarning(ex, "Failed to parse parent app id from error message");
-            //            throw;
-            //        }
-            //    }
-            //    else
-            //    {
-            //        throw;
-            //    }
-
-
-            //}
         }
 
         await graphServiceClient.DeviceAppManagement.MobileApps[AppId].DeleteAsync(cancellationToken: cancellationToken);
