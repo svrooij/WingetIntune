@@ -1,29 +1,43 @@
-# WinTuner CLI
+# WinTuner
 
 [![GitHub issues](https://img.shields.io/github/issues/svrooij/wingetintune?style=for-the-badge)](https://github.com/svrooij/WingetIntune/issues)
 [![Github sponsors](https://img.shields.io/github/sponsors/svrooij?style=for-the-badge&logo=github&logoColor=white)](https://github.com/sponsors/svrooij)
 
 [Documentation](https://wintuner.app/)
 
-Take any (just msi installers for now) app from winget and upload it to Intune in minutes.
+Take any app from WinGet and upload it to Intune in minutes. This app is available as [PowerShell module](#wintuner-powershell-module) and as a [CLI](#wintuner-cli), both run mostly thee same code.
 
 - Downloading the installer and the logo
 - Creating an `intunewin` file automatically
 - Generating the needed script information
 - Publish the app to Intune.
 
-This application ~~is **Windows only** and~~ requires **Dotnet 7** to be installed on your computer. It's a [beta application](#beta-application), so please report any issues you find.
-Some commands run the `winget` in the background and are thus Windows-only, make sure you have the [App Installer](https://www.microsoft.com/p/app-installer/9nblggh4nns1) installed on your computer if you want to use these commands.
-
-The `package` and `publish` commands are cross-platform, and should work on any platform that supports dotnet 7. These commands no longer use the winget executable, which also means any other sources than `winget` are no longer supported.
-The `msi` command is still windows only, as it uses the `Microsoft.Deployment.WindowsInstaller` package.
-
 [![LinkedIn Profile][badge_linkedin]][link_linkedin]
 [![Link Mastodon][badge_mastodon]][link_mastodon]
 [![Follow on Twitter][badge_twitter]][link_twitter]
 [![Check my blog][badge_blog]][link_blog]
 
-## Installing
+## WinTuner PowerShell Module
+
+This is the PowerShell version of the WinTuner application, requiring PowerShell `7.4` (net8.0). Available in the [PowerShell Gallery](https://www.powershellgallery.com/packages/WinTuner/). Documentation can be found [here](https://wintuner.app/docs/category/wintuner-powershell).
+
+```PowerShell
+Install-Module -Name WinTuner
+```
+
+As of April 2024, the main development focus will be on the PowerShell module, since that is what most sysadmin use. The CLI will still be maintained, but will not get new features as fast as the PowerShell module.
+
+## WinTuner CLI
+
+This application ~~is Windows only and~~ requires **Dotnet 8** to be installed on your computer. It's a [beta application](#beta-application), so please report any issues you find.
+Some commands run the `winget` in the background and are thus Windows-only, make sure you have the [App Installer](https://www.microsoft.com/p/app-installer/9nblggh4nns1) installed on your computer if you want to use these commands.
+
+The `package` and `publish` commands are cross-platform, and should work on any platform that supports dotnet 8. These commands no longer use the WinGet executable, which also means any other sources than `winget` are no longer supported.
+The `msi` command is still windows only, as it uses the `Microsoft.Deployment.WindowsInstaller` package.
+
+Check out the [documentation](https://wintuner.app/docs/category/wintuner-cli) for more information.
+
+### Installing
 
 This package can be downloaded as a dotnet tool. Make sure you have Dotnet 8 installed on your computer.
 I'm working to get a code signing certificate, but for now you might have to configure an exception on your computer to run unsigned code.
@@ -47,86 +61,6 @@ dotnet tool update --global SvRooij.Winget-Intune.Cli
 
 This is a beta application, it's not yet ready for production use. I'm still working on it, and I'm looking for feedback.
 If you found a bug please create an [issue](https://github.com/svrooij/WingetIntune/issues/new/choose), if you have questions or want to share your feedback, check out the [discussions](https://github.com/svrooij/WingetIntune/discussions) page.
-
-## Commands
-
-The CLI has several commands, try them out yourself.
-
-```Shell
-Description:
-  wintuner by @svrooij allows you to package any winget app for Intune
-
-Usage:
-  wintuner [command] [options]
-
-Options:
-  --version       Show version information
-  -?, -h, --help  Show help and usage information
-
-Commands:
-  package <packageId>  Package an app for Intune (cross platform)
-  publish <packageId>  Publish a packaged app to Intune (cross platform)
-  about                Information about this package and it's author (cross platform)
-  install <packageId>  Installs or upgrades a package (Windows-only)
-  check <packageId>    Check if a specific version in installed (Windows-only)
-  info <packageId>     Show package info as json (Windows-only)
-  msi <msiFile>        Extract info from MSI file (Windows-only)
-
-```
-
-### Package
-
-You should definitely try the `package` command. as it's the most important one. Package an app from winget as an `intunewin` file, ready for uploading to intune.
-You can also expect a `detection.ps1` file, that you should configure to be used as detection script in Intune, provided it's not a MSI installer, in that case you can find the detection information in the readme.
-It will also write a `app.json` file with all the information about the app, for automation purposes.
-
-```Shell
-wintuner package {PackageId} [--version {version}] [--source winget] --package-folder {PackageFolder}
-```
-
-> The `packageId` ~~is case sensitive, so make sure you use the correct casing~~ will be matches against any package in the open source [index](https://wintuner.app/docs/related/winget-package-index). Tip: Copy it from the result of the `winget search {name}` command.
-
-Upon downloading the installer, the SHA256 hash is checked against the one in the `winget` manifest, to make sure you won't package a tampered installer.
-
-The packaging command uses an open-source & cross-platform [implementation](https://wintuner.app/docs/related/content-prep-tool) of the Windows-only & closed source [content-prep-tool](https://github.com/Microsoft/Microsoft-Win32-Content-Prep-Tool), to allow cross-platform building of the packages.
-This new implementation is available as a dotnet library and a PowerShell module, so if you're into Intune packaging, check it out.
-
-### Publish
-
-The `publish` command will upload the `intunewin` file to Intune. You'll need to run the [package](#package) command first.
-Not all packages will work for publishing, you can always try to manually upload the `intunewin` file to [Intune](https://endpoint.microsoft.com/#view/Microsoft_Intune_DeviceSettings/AppsWindowsMenu/~/windowsApps).
-
-```Shell
-# This app uses the built-in windows authentication, this will trigger a login prompt (or do sso).
-wintuner publish {PackageId} --package-folder {PackageFolder} --tenant {TenantId} --username {Username}
-
-# You can also provide a token, this is useful for automation.
-wintuner publish {PackageId} --package-folder {PackageFolder} --token {Token}
-```
-
-#### Assignement and categories
-
-You can also assign the app to a group, and set the categories.
-
-```Shell
-# Add --category "Productivity" --category "Utilities" to the command to set the categories (use the exact name!)
-wintuner publish {PackageId} ... --category "Productivity" --category "Utilities"
-
-# Add --available "group-guid" to make the app available to a group (use the guid of the group)
-# Add --available "allusers" to make the app available to all users
-# Instead of --available you can also use --required to make the app required for the group
-# Or if you want to remove the app for that group, use --uninstall
-wintuner publish {PackageId}... --required "3bac8336-623f-46bf-bcab-b5c61e3e5b7a" --required "allusers"
-wintuner publish {PackageId}... --uninstall "3bac8336-623f-46bf-bcab-b5c61e3e5b7a" --uninstall "allusers"
-```
-
-#### Auto-package
-
-You can also combine the `package` and `publish` command into one command, this will package the app and publish it to Intune. But this makes debugging harder, so when submitting issues, please don't use this option.
-
-```Shell
-wintuner publish {PackageId}... --auto-package
-```
 
 ## Library (soon)
 

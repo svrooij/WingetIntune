@@ -1,7 +1,7 @@
 ---
 external help file: Svrooij.WinTuner.CmdLets.dll-Help.xml
 Module Name: Svrooij.WinTuner.CmdLets
-online version:
+online version: https://wintuner.app/docs/wintuner-powershell/Get-WtWin32Apps
 schema: 2.0.0
 ---
 

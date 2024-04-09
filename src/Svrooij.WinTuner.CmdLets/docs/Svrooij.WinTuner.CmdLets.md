@@ -1,8 +1,8 @@
 ---
 Module Name: Svrooij.WinTuner.CmdLets
 Module Guid: d813f5e2-ef9a-44a3-8f14-d282c01b5ead
-Download Help Link: {{ Update Download Link }}
-Help Version: {{ Please enter version of help manually (X.X.X.X) format }}
+Download Help Link: https://wintuner.app/docs/category/wintuner-powershell
+Help Version: 
 Locale: en-US
 ---
 

@@ -159,6 +159,18 @@
           </dev:type>
           <dev:defaultValue>None</dev:defaultValue>
         </command:parameter>
+        <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="none">
+          <maml:name>OverrideAppName</maml:name>
+          <maml:description>
+            <maml:para>Override the name of the app in Intune</maml:para>
+          </maml:description>
+          <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
+          <dev:type>
+            <maml:name>String</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
       </command:syntaxItem>
       <command:syntaxItem>
         <maml:name>Deploy-WtWin32App</maml:name>
@@ -274,6 +286,18 @@
           <maml:name>GraphId</maml:name>
           <maml:description>
             <maml:para>Graph ID of the app to supersede</maml:para>
+          </maml:description>
+          <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
+          <dev:type>
+            <maml:name>String</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="none">
+          <maml:name>OverrideAppName</maml:name>
+          <maml:description>
+            <maml:para>Override the name of the app in Intune</maml:para>
           </maml:description>
           <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
           <dev:type>
@@ -421,6 +445,18 @@
           <maml:name>GraphId</maml:name>
           <maml:description>
             <maml:para>Graph ID of the app to supersede</maml:para>
+          </maml:description>
+          <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
+          <dev:type>
+            <maml:name>String</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="none">
+          <maml:name>OverrideAppName</maml:name>
+          <maml:description>
+            <maml:para>Override the name of the app in Intune</maml:para>
           </maml:description>
           <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
           <dev:type>
@@ -624,6 +660,18 @@
         </dev:type>
         <dev:defaultValue>None</dev:defaultValue>
       </command:parameter>
+      <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="none">
+        <maml:name>OverrideAppName</maml:name>
+        <maml:description>
+          <maml:para>Override the name of the app in Intune</maml:para>
+        </maml:description>
+        <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
+        <dev:type>
+          <maml:name>String</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
     </command:parameters>
     <command:inputTypes>
       <command:inputType>
@@ -667,7 +715,12 @@
         </dev:remarks>
       </command:example>
     </command:examples>
-    <command:relatedLinks />
+    <command:relatedLinks>
+      <maml:navigationLink>
+        <maml:linkText>Online Version:</maml:linkText>
+        <maml:uri>https://wintuner.app/docs/wintuner-powershell/Deploy-WtWin32App</maml:uri>
+      </maml:navigationLink>
+    </command:relatedLinks>
   </command:command>
   <command:command xmlns:maml="http://schemas.microsoft.com/maml/2004/10" xmlns:command="http://schemas.microsoft.com/maml/dev/command/2004/10" xmlns:dev="http://schemas.microsoft.com/maml/dev/2004/10" xmlns:MSHelp="http://msdn.microsoft.com/mshelp">
     <command:details>
@@ -986,7 +1039,12 @@
         </dev:remarks>
       </command:example>
     </command:examples>
-    <command:relatedLinks />
+    <command:relatedLinks>
+      <maml:navigationLink>
+        <maml:linkText>Online Version:</maml:linkText>
+        <maml:uri>https://wintuner.app/docs/wintuner-powershell/Get-WtWin32Apps</maml:uri>
+      </maml:navigationLink>
+    </command:relatedLinks>
   </command:command>
   <command:command xmlns:maml="http://schemas.microsoft.com/maml/2004/10" xmlns:command="http://schemas.microsoft.com/maml/dev/command/2004/10" xmlns:dev="http://schemas.microsoft.com/maml/dev/2004/10" xmlns:MSHelp="http://msdn.microsoft.com/mshelp">
     <command:details>
@@ -1320,7 +1378,7 @@
     <command:relatedLinks>
       <maml:navigationLink>
         <maml:linkText>Online Version:</maml:linkText>
-        <maml:uri>https://wintuner.app/docs/related/content-prep-tool#new-intunewinpackage</maml:uri>
+        <maml:uri>https://wintuner.app/docs/wintuner-powershell/New-WtWingetPackage</maml:uri>
       </maml:navigationLink>
     </command:relatedLinks>
   </command:command>
@@ -1596,7 +1654,7 @@
     <command:relatedLinks>
       <maml:navigationLink>
         <maml:linkText>Online Version:</maml:linkText>
-        <maml:uri>https://wintuner.app/docs/related/content-prep-tool#new-intunewinpackage</maml:uri>
+        <maml:uri>https://wintuner.app/docs/wintuner-powershell/Remove-WtWin32App</maml:uri>
       </maml:navigationLink>
     </command:relatedLinks>
   </command:command>
@@ -2100,7 +2158,7 @@
     <command:relatedLinks>
       <maml:navigationLink>
         <maml:linkText>Online Version:</maml:linkText>
-        <maml:uri>https://wintuner.app/docs/related/content-prep-tool#unlock-intunewinpackage</maml:uri>
+        <maml:uri>https://wintuner.app/docs/wintuner-powershell/Update-WtIntuneApp</maml:uri>
       </maml:navigationLink>
     </command:relatedLinks>
   </command:command>

@@ -1,7 +1,7 @@
 ---
 external help file: Svrooij.WinTuner.CmdLets.dll-Help.xml
 Module Name: Svrooij.WinTuner.CmdLets
-online version:
+online version: https://wintuner.app/docs/wintuner-powershell/Deploy-WtWin32App
 schema: 2.0.0
 ---
 
@@ -14,25 +14,26 @@ Create a Win32Lob app in Intune
 
 ### Win32LobApp (Default)
 ```
-Deploy-WtWin32App [-App] <Win32LobApp> [-IntuneWinFile] <String> [[-LogoPath] <String>] [-GraphId <String>]
- [[-UseManagedIdentity] <Boolean>] [-UseDefaultAzureCredential <Boolean>] [[-Token] <String>]
- [[-Username] <String>] [[-TenantId] <String>] [[-ClientId] <String>] [-ClientSecret <String>]
- [-ProgressAction <ActionPreference>] [<CommonParameters>]
+Deploy-WtWin32App [-App] <Win32LobApp> [-IntuneWinFile] <String> [[-LogoPath] <String>]
+ [-OverrideAppName <String>] [-GraphId <String>] [[-UseManagedIdentity] <Boolean>]
+ [-UseDefaultAzureCredential <Boolean>] [[-Token] <String>] [[-Username] <String>] [[-TenantId] <String>]
+ [[-ClientId] <String>] [-ClientSecret <String>] [-ProgressAction <ActionPreference>] [<CommonParameters>]
 ```
 
 ### WinGet
 ```
-Deploy-WtWin32App [-PackageId] <String> [-Version] <String> [-RootPackageFolder] <String> [-GraphId <String>]
- [[-UseManagedIdentity] <Boolean>] [-UseDefaultAzureCredential <Boolean>] [[-Token] <String>]
- [[-Username] <String>] [[-TenantId] <String>] [[-ClientId] <String>] [-ClientSecret <String>]
- [-ProgressAction <ActionPreference>] [<CommonParameters>]
+Deploy-WtWin32App [-PackageId] <String> [-Version] <String> [-RootPackageFolder] <String>
+ [-OverrideAppName <String>] [-GraphId <String>] [[-UseManagedIdentity] <Boolean>]
+ [-UseDefaultAzureCredential <Boolean>] [[-Token] <String>] [[-Username] <String>] [[-TenantId] <String>]
+ [[-ClientId] <String>] [-ClientSecret <String>] [-ProgressAction <ActionPreference>] [<CommonParameters>]
 ```
 
 ### PackageFolder
 ```
-Deploy-WtWin32App [-PackageFolder] <String> [-GraphId <String>] [[-UseManagedIdentity] <Boolean>]
- [-UseDefaultAzureCredential <Boolean>] [[-Token] <String>] [[-Username] <String>] [[-TenantId] <String>]
- [[-ClientId] <String>] [-ClientSecret <String>] [-ProgressAction <ActionPreference>] [<CommonParameters>]
+Deploy-WtWin32App [-PackageFolder] <String> [-OverrideAppName <String>] [-GraphId <String>]
+ [[-UseManagedIdentity] <Boolean>] [-UseDefaultAzureCredential <Boolean>] [[-Token] <String>]
+ [[-Username] <String>] [[-TenantId] <String>] [[-ClientId] <String>] [-ClientSecret <String>]
+ [-ProgressAction <ActionPreference>] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -276,6 +277,21 @@ Accept wildcard characters: False
 
 ### -GraphId
 Graph ID of the app to supersede
+
+```yaml
+Type: String
+Parameter Sets: (All)
+Aliases:
+
+Required: False
+Position: Named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -OverrideAppName
+Override the name of the app in Intune
 
 ```yaml
 Type: String

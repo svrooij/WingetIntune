@@ -1,7 +1,7 @@
 ---
 external help file: Svrooij.WinTuner.CmdLets.dll-Help.xml
 Module Name: Svrooij.WinTuner.CmdLets
-online version: https://wintuner.app/docs/related/content-prep-tool#new-intunewinpackage
+online version: https://wintuner.app/docs/wintuner-powershell/New-WtWingetPackage
 schema: 2.0.0
 ---
 
