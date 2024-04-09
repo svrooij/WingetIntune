@@ -44,6 +44,7 @@ public enum Architecture
     X86,
     X64,
     Arm64,
+    Neutral,
 }
 
 internal static class EnumParsers
@@ -85,6 +86,7 @@ internal static class EnumParsers
             "x86" => Architecture.X86,
             "x64" => Architecture.X64,
             "arm64" => Architecture.Arm64,
+            "neutral" => Architecture.Neutral,
             _ => Architecture.Unknown,
         };
     }
