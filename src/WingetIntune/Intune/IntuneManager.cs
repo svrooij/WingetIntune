@@ -509,7 +509,6 @@ public partial class IntuneManager
         if (!package.InstallerType.IsMsi())
         {
             ComputeInstallerCommands(ref package, packageOptions);
-            
         }
 
         package.MsiVersion ??= installer.AppsAndFeaturesEntries?.FirstOrDefault()?.DisplayVersion;

@@ -60,7 +60,6 @@ internal partial class Mapper
                     ProductName = packageInfo.DisplayName
                 };
             }
-            
 
             app.DetectionRules = new List<Win32LobAppDetection>
             {

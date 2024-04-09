@@ -9,7 +9,8 @@ internal static class WingetInstallerExtensions
             ?? installers.singleOrDefault(installerType, architecture, installerContext);
     }
 
-    private static Winget.CommunityRepository.Models.WingetInstaller? singleOrDefault(this IList<Winget.CommunityRepository.Models.WingetInstaller> installers, InstallerType installerType, Architecture architecture, InstallerContext installerContext, string? locale = null) {
+    private static Winget.CommunityRepository.Models.WingetInstaller? singleOrDefault(this IList<Winget.CommunityRepository.Models.WingetInstaller> installers, InstallerType installerType, Architecture architecture, InstallerContext installerContext, string? locale = null)
+    {
         return installers.FirstOrDefault(i =>
             (i.ParseInstallerType() == installerType || installerType == InstallerType.Unknown)
             && (i.InstallerArchitecture() == architecture || architecture == Architecture.Unknown)
