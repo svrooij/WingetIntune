@@ -1,0 +1,89 @@
+name: Bug Report PowerShell
+description: File a bug report for WinTuner PowerShell
+title: "[Bug]: PowerShell ..."
+labels: ["bug", "triage", "PowerShell"]
+assignees:
+  - svrooij
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to fill out this bug report!
+        Duplicate issues will be closed, please [🔍 search issues](https://github.com/svrooij/WingetIntune/issues) before creating a new one.
+
+        This form is for bugs only, you can a questions in the [Q&A section ❔](https://github.com/svrooij/WingetIntune/discussions/categories/q-a). And new features are discussed in the [Ideas section 💡](https://github.com/svrooij/WingetIntune/discussions/categories/ideas).
+
+        This app gets updates pretty regularly, have you checked you're running the latest version?
+
+        [WinTuner](https://www.powershellgallery.com/packages/WinTuner/) is only supported on `PowerShell 7.4` and up, so you cannot install it on Windows PowerShell.
+
+  - type: dropdown
+    id: cmd
+    attributes:
+      label: CommandLet
+      description: Which command did you run?
+      options:
+        - New-WtWingetPackage
+        - Deploy-WtWin32App
+        - Get-WtWin32Apps
+        - Remove-WtWin32App
+        - New-IntuneWinPackage
+        - Unprotect-IntuneWinPackage
+        - other
+    validations:
+      required: true
+
+  - type: input
+    id: command
+    attributes:
+      label: Full command
+      description: Show us the full command (mask sensitive data)
+      placeholder: Deploy-WtWin32App -PackageFolder "{packageFolder}" -UseDefaultCredentials $true
+    validations:
+      required: true
+
+  - type: input
+    id: version
+    attributes:
+      label: Module version
+      description: "Execute `Get-Installedmodule -Name WinTuner`"
+      placeholder: "0.8.2"
+    validations:
+      required: true
+
+  - type: textarea
+    id: what_happened
+    attributes:
+      label: What happened?
+      description: Also tell us, what did you expect to happen? Your explanation only
+      placeholder: Tell us what you see!
+    validations:
+      required: true
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Command output 
+      description: Please copy and paste any relevant log output. This will be automatically formatted into code, so no need for backticks.
+      render: PowerShell
+
+  - type: input
+    id: ps
+    attributes:
+      label: PowerShell version
+      description: Things might be different in other versions of PowerShell
+      placeholder: "7.4.1"
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: terms
+    attributes:
+      label: Code of Conduct
+      description: By submitting this issue, you agree to follow our [Code of Conduct](https://github.com/svrooij/WingetIntune/blob/main/CODE_OF_CONDUCT.txt). This is an open-source project, don't demand support, I'll do my best. And if you really like the project, check out [Github Sponsors](https://github.com/sponsors/svrooij)
+      options:
+        - label: "I agree to follow this project's Code of Conduct"
+          required: true
+        - label: "I won't demand an immediate answer"
+          required: true
+

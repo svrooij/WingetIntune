@@ -364,3 +364,6 @@ FodyWeavers.xsd
 
 # Build artifacts
 dist
+
+# LUT config file from Visual Studio
+*.lutconfig

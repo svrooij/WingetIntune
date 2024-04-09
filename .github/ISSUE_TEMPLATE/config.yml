@@ -6,6 +6,9 @@ contact_links:
   - name: Feature requests
     url: https://github.com/svrooij/WingetIntune/discussions/categories/ideas
     about: Discuss new ideas, improvements and feature requests
+  - name: Documentation
+    url: https://wintuner.app
+    about: Documentation for WinTuner
   - name: Blog
     url: https://svrooij.io
     about: Check my blog for more interesting posts

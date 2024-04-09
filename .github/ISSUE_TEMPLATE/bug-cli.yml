@@ -1,7 +1,7 @@
-name: Bug Report
-description: File a bug report
-title: "[Bug]: Command failed..."
-labels: ["bug", "triage"]
+name: Bug Report CLI
+description: File a bug for WinTuner CLI
+title: "[Bug]: CLI ..."
+labels: ["bug", "triage", "CLI"]
 assignees:
   - svrooij
 body:
@@ -27,6 +27,7 @@ body:
         - check
         - info
         - msi
+        - other
     validations:
       required: true
 
@@ -52,7 +53,7 @@ body:
     id: what_happened
     attributes:
       label: What happened?
-      description: Also tell us, what did you expect to happen? Your explaination only
+      description: Also tell us, what did you expect to happen? Your explanation only
       placeholder: Tell us what you see!
     validations:
       required: true

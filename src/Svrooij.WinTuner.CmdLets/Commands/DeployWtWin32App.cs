@@ -111,6 +111,12 @@ public class DeployWtWin32App : BaseIntuneCmdlet
     public string? PackageFolder { get; set; }
 
     /// <summary>
+    /// Override the name of the app in Intune
+    /// </summary>
+    [Parameter(HelpMessage = "Override the name of the app in Intune", Mandatory = false)]
+    public string? OverrideAppName { get; set; }
+
+    /// <summary>
     /// <para type="description">The graph id of the app to supersede</para>
     /// </summary>
     [Parameter(DontShow = true, HelpMessage = "Graph ID of the app to supersede", Mandatory = false)]
@@ -152,6 +158,11 @@ public class DeployWtWin32App : BaseIntuneCmdlet
             {
                 throw new ArgumentException("No package or package id specified");
             }
+        }
+
+        if (!string.IsNullOrEmpty(OverrideAppName))
+        {
+            App.DisplayName = OverrideAppName;
         }
 
         logger?.LogInformation("Uploading Win32App {DisplayName} to Intune with file {IntuneWinFile}", App!.DisplayName, IntuneWinFile);

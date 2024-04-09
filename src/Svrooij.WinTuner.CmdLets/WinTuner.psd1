@@ -9,7 +9,7 @@
     GUID = 'd813f5e2-ef9a-44a3-8f14-d282c01b5ead'
 
     # Author of this module.
-    Author = 'Stephan van Rooij'
+    Author = 'Stephan van Rooij (@svrooij)'
 
     # Company or vendor that produced this module.
     CompanyName = 'Stephan van Rooij'
@@ -17,10 +17,11 @@
     Copyright = 'Stephan van Rooij 2024, licensed under GNU GPLv3'
 
     # Description of this module.
-    Description = 'WinTuner by SvRooij, package and publish any apps from WinGet to Intune.'
+    Description = 'Package and publish any apps from WinGet to Intune.'
 
     # Minimum version of the Windows PowerShell engine required by this module.
-    PowerShellVersion = '5.1'
+    # This module is build on net8.0 which requires PowerShell 7.4
+    PowerShellVersion = '7.4'
 
     # Minimum version of the .NET Framework required by this module.
     # DotNetFrameworkVersion = '4.7.2'
@@ -95,5 +96,5 @@
     }
 
     # HelpInfo URI of this module.
-    # HelpInfoURI = 'https://wintuner.app/'
+    HelpInfoURI = 'https://wintuner.app/'
 }
