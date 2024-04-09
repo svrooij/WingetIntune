@@ -19,9 +19,9 @@
       // If you have changed target frameworks, make sure to update the program path.
       "program": "${workspaceFolder}/src/WingetIntune.Cli/bin/Debug/net8.0/WingetIntune.Cli.dll",
       "args": [
-        "update",
-        "list",
-        "--username", "admin@codingstephan.onmicrosoft.com"
+        "package",
+        "Microsoft.SQLServerManagementStudio",
+        "--package-folder", "C:\\tools\\packages"
       ],
       "cwd": "${workspaceFolder}",
       // For more information about the 'console' field, see https://aka.ms/VSCode-CS-LaunchJson-Console

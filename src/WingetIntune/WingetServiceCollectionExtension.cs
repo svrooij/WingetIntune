@@ -16,7 +16,7 @@ public static class WingetServiceCollectionExtension
                 client.Timeout = TimeSpan.FromSeconds(180);
                 // Set buffer size to 500MB
                 // TODO: fix this in some other way, by not loading the whole file into memory.
-                //client.MaxResponseContentBufferSize = 1024L * 1024 * 512;
+                client.MaxResponseContentBufferSize = 1024L * 1024 * 50;
             });
         });
         services.AddTransient<IFileManager, Os.DefaultFileManager>();

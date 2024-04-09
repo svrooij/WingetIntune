@@ -475,6 +475,8 @@ public partial class IntuneManager
     private void ComputeInstallerDetails(ref PackageInfo package, PackageOptions packageOptions)
     {
         var installer = package.GetBestFit(packageOptions.Architecture, packageOptions.InstallerContext)
+            ?? package.GetBestFit(Architecture.Neutral, InstallerContext.Unknown)
+            ?? package.GetBestFit(Architecture.Neutral, packageOptions.InstallerContext)
             ?? package.GetBestFit(packageOptions.Architecture, InstallerContext.Unknown);
         if (installer == null && packageOptions.Architecture == Architecture.X64)
         {
@@ -488,8 +490,14 @@ public partial class IntuneManager
 
         package.InstallerUrl = new Uri(installer.InstallerUrl!);
         package.InstallerFilename = Path.GetFileName(package.InstallerUrl.LocalPath.Replace(" ", ""));
+
+        if (string.IsNullOrEmpty(package.InstallerFilename))
+        {
+            package.InstallerFilename = $"{package.PackageIdentifier}_{package.Version}.{GuessInstallerExtension(installer.ParseInstallerType())}";
+        }
+
         // Maybe this should be done for other installers as well?
-        if (installer.InstallerType!.Equals("exe", StringComparison.OrdinalIgnoreCase) && package.InstallerFilename!.EndsWith(".exe", StringComparison.OrdinalIgnoreCase) == false)
+        if ((installer.InstallerType!.Equals("exe", StringComparison.OrdinalIgnoreCase) || installer.InstallerType!.Equals("burn", StringComparison.OrdinalIgnoreCase)) && package.InstallerFilename!.EndsWith(".exe", StringComparison.OrdinalIgnoreCase) == false)
         {
             package.InstallerFilename += ".exe";
         }
@@ -498,19 +506,44 @@ public partial class IntuneManager
         package.InstallerContext = installer.ParseInstallerContext() == InstallerContext.Unknown ? (package.InstallerContext ?? packageOptions.InstallerContext) : installer.ParseInstallerContext();
         package.InstallerType = installer.ParseInstallerType();
         package.Installer = installer;
-        if (package.InstallerType.IsMsi())
-        {
-            package.MsiVersion ??= installer.AppsAndFeaturesEntries?.FirstOrDefault()?.DisplayVersion;
-            package.MsiProductCode ??= installer.ProductCode;
-        }
-        else
+        if (!package.InstallerType.IsMsi())
         {
             ComputeInstallerCommands(ref package, packageOptions);
         }
+
+        package.MsiVersion ??= installer.AppsAndFeaturesEntries?.FirstOrDefault()?.DisplayVersion;
+        package.MsiProductCode ??= installer.ProductCode ?? installer.AppsAndFeaturesEntries?.FirstOrDefault()?.ProductCode;
+
     }
 
     private static readonly InstallerType[] SupportedInstallers = new[] { InstallerType.Inno, InstallerType.Msi, InstallerType.Burn, InstallerType.Wix, InstallerType.Nullsoft, InstallerType.Exe };
+    private static string GuessInstallerName(InstallerType installerType) => installerType switch
+    {
+        InstallerType.Inno => "setup.exe",
+        InstallerType.Msi => "setup.msi",
+        InstallerType.Msix => "setup.msix",
+        InstallerType.Appx => "setup.appx",
+        InstallerType.Burn => "setup.exe",
+        InstallerType.Wix => "setup.msi",
+        InstallerType.Nullsoft => "setup.exe",
+        InstallerType.Exe => "setup.exe",
+        InstallerType.Zip => "setup.zip",
+        _ => throw new ArgumentException("Unknown installer type", nameof(installerType))
+    };
 
+    private static string GuessInstallerExtension(InstallerType installerType) => installerType switch
+    {
+        InstallerType.Inno => "exe",
+        InstallerType.Msi => "msi",
+        InstallerType.Msix => "msix",
+        InstallerType.Appx => "appx",
+        InstallerType.Burn => "exe",
+        InstallerType.Wix => "msi",
+        InstallerType.Nullsoft => "exe",
+        InstallerType.Exe => "exe",
+        InstallerType.Zip => "zip",
+        _ => throw new ArgumentException("Unknown installer type", nameof(installerType))
+    };
     private static readonly Dictionary<InstallerType, string> DefaultInstallerSwitches = new()
     {
         { InstallerType.Inno, "/VERYSILENT /SUPPRESSMSGBOXES /NORESTART /SP-" },

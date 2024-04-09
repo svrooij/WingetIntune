@@ -63,12 +63,14 @@ public partial class DefaultFileManager : IFileManager
             }
             result.EnsureSuccessStatusCode();
 
-            if (result.Content.Headers.ContentLength > 100 * 1024 * 1024)
+            bool largeFile = result.Content.Headers.ContentLength > 50 * 1024 * 1024;
+
+            if (largeFile)
             {
-                logger.LogWarning("Downloading large file {url} to {path} with size {size}", url, path, result.Content.Headers.ContentLength);
+                logger.LogWarning("Downloading large file {url} to {path} with size {size}MB", url, path, (result.Content.Headers.ContentLength / 1024 / 1024));
             }
 
-            using (var fileStream = new FileStream(path, FileMode.Create, FileAccess.Write, FileShare.None, bufferSize: 4096, useAsync: true))
+            using (var fileStream = new FileStream(path, FileMode.Create, FileAccess.Write, FileShare.None, bufferSize: largeFile ? 81920 : 4096, useAsync: true))
             {
                 await result.Content.CopyToAsync(fileStream, cancellationToken);
                 await fileStream.FlushAsync(cancellationToken);
