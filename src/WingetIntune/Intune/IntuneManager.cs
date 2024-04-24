@@ -212,7 +212,7 @@ public partial class IntuneManager
 
         if (options.AvailableFor.Any() || options.RequiredFor.Any() || options.UninstallFor.Any())
         {
-            await AssignAppAsync(graphServiceClient, app!.Id!, options.RequiredFor, options.AvailableFor, options.UninstallFor, cancellationToken);
+            await AssignAppAsync(graphServiceClient, app!.Id!, options.RequiredFor, options.AvailableFor, options.UninstallFor, options.AddAutoUpdateSetting, cancellationToken);
         }
         return app!;
     }
@@ -359,7 +359,7 @@ public partial class IntuneManager
             }
             if (options.AvailableFor.Any() || options.RequiredFor.Any() || options.UninstallFor.Any())
             {
-                await AssignAppAsync(graphServiceClient, appCreated.Id!, options.RequiredFor, options.AvailableFor, options.UninstallFor, cancellationToken);
+                await AssignAppAsync(graphServiceClient, appCreated.Id!, options.RequiredFor, options.AvailableFor, options.UninstallFor, false, cancellationToken);
             }
             return appCreated;
         }
@@ -404,7 +404,7 @@ public partial class IntuneManager
         }
     }
 
-    private async Task AssignAppAsync(GraphServiceClient graphServiceClient, string appId, string[]? requiredFor, string[]? availableFor, string[]? uninstallFor, CancellationToken cancellationToken)
+    private async Task AssignAppAsync(GraphServiceClient graphServiceClient, string appId, string[]? requiredFor, string[]? availableFor, string[]? uninstallFor, bool addAutoUpdateSetting, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(graphServiceClient);
         ArgumentException.ThrowIfNullOrEmpty(appId);
@@ -412,7 +412,7 @@ public partial class IntuneManager
 
         try
         {
-            var assignments = await GraphWorkflows.AssignAppAsync(graphServiceClient, appId, requiredFor, availableFor, uninstallFor, cancellationToken);
+            var assignments = await GraphWorkflows.AssignAppAsync(graphServiceClient, appId, requiredFor, availableFor, uninstallFor, addAutoUpdateSetting, cancellationToken);
             logger.LogInformation("Assigned app {appId} to {assignmentCount} assignments", appId, assignments);
         }
         catch (Exception ex)

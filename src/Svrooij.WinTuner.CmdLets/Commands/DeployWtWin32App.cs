@@ -233,9 +233,19 @@ public class DeployWtWin32App : BaseIntuneCmdlet
             // Copy assignments from old app to new app
             if (oldWin32App.Assignments is not null && oldWin32App.Assignments.Count > 0)
             {
+                // This part is to enable auto update for the new app, if that was not set on the old app
+                var assignments = oldWin32App.Assignments;
+                foreach (var assignment in assignments)
+                {
+                    if (assignment.Intent == GraphModels.InstallIntent.Available && assignment.Settings is null)
+                    {
+                        assignment.Settings = new GraphModels.Win32LobAppAssignmentSettings { AutoUpdateSettings = new GraphModels.Win32LobAppAutoUpdateSettings { AutoUpdateSupersededApps = GraphModels.Win32LobAppAutoUpdateSupersededApps.Enabled } };
+                    }
+                }
+
                 await batch.AddBatchRequestStepAsync(graphServiceClient.DeviceAppManagement.MobileApps[newAppId].Assign.ToPostRequestInformation(new Microsoft.Graph.Beta.DeviceAppManagement.MobileApps.Item.Assign.AssignPostRequestBody
                 {
-                    MobileAppAssignments = oldWin32App.Assignments
+                    MobileAppAssignments = assignments, //oldWin32App.Assignments
                 }));
 
                 // Remove assignments from old app
