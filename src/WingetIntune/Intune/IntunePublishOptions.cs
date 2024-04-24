@@ -13,4 +13,6 @@ public class IntunePublishOptions
     public string[] AvailableFor { get; set; } = Array.Empty<string>();
     public string[] RequiredFor { get; set; } = Array.Empty<string>();
     public string[] UninstallFor { get; set; } = Array.Empty<string>();
+
+    public bool AddAutoUpdateSetting { get; set; }
 }

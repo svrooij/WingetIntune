@@ -14,9 +14,10 @@ Update an app in Intune
 
 ```
 Update-WtIntuneApp -AppId <String> [-Categories <String[]>] [-AvailableFor <String[]>]
- [-RequiredFor <String[]>] [-UninstallFor <String[]>] [[-UseManagedIdentity] <Boolean>]
- [[-UseDefaultAzureCredential] <Boolean>] [[-Token] <String>] [[-Username] <String>] [[-TenantId] <String>]
- [[-ClientId] <String>] [[-ClientSecret] <String>] [-ProgressAction <ActionPreference>] [<CommonParameters>]
+ [-RequiredFor <String[]>] [-UninstallFor <String[]>] [-EnableAutoUpdate <Boolean>]
+ [[-UseManagedIdentity] <Boolean>] [[-UseDefaultAzureCredential] <Boolean>] [[-Token] <String>]
+ [[-Username] <String>] [[-TenantId] <String>] [[-ClientId] <String>] [[-ClientSecret] <String>]
+ [-ProgressAction <ActionPreference>] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -223,6 +224,21 @@ Accept wildcard characters: False
 Type: ActionPreference
 Parameter Sets: (All)
 Aliases: proga
+
+Required: False
+Position: Named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -EnableAutoUpdate
+Enable auto update for the app
+
+```yaml
+Type: Boolean
+Parameter Sets: (All)
+Aliases:
 
 Required: False
 Position: Named

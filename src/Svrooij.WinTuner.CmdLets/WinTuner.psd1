@@ -65,7 +65,7 @@
         "New-WtWingetPackage",
         "Remove-WtWin32App",
         "Unprotect-IntuneWinPackage"
-        "Update-WtWin32App"
+        "Update-WtIntuneApp"
     )
 
     # Variables to export from this module.

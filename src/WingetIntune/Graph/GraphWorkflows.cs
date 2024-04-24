@@ -1,4 +1,5 @@
 ﻿using Microsoft.Graph.Beta;
+using Microsoft.Graph.Beta.DeviceManagement.Monitoring.AlertRecords.MicrosoftGraphDeviceManagementGetPortalNotifications;
 using Microsoft.Graph.Beta.Models;
 using WingetIntune.Extensions;
 using WingetIntune.Intune;
@@ -27,7 +28,7 @@ public static class GraphWorkflows
         await graphServiceClient.Batch.PostAsync(batch, cancellationToken);
     }
 
-    public static async Task<int> AssignAppAsync(this GraphServiceClient graphServiceClient, string appId, string[]? requiredFor, string[]? availableFor, string[]? uninstallFor, CancellationToken cancellationToken)
+    public static async Task<int> AssignAppAsync(this GraphServiceClient graphServiceClient, string appId, string[]? requiredFor, string[]? availableFor, string[]? uninstallFor, bool addAutoUpdateSetting, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(graphServiceClient);
         ArgumentException.ThrowIfNullOrEmpty(appId);
@@ -41,7 +42,7 @@ public static class GraphWorkflows
 
         if (availableFor is not null && availableFor.Any())
         {
-            assignments.AddRange(GenerateAssignments(availableFor, InstallIntent.Available));
+            assignments.AddRange(GenerateAssignments(availableFor, InstallIntent.Available, addAutoUpdateSetting));
         }
 
         if (uninstallFor is not null && uninstallFor.Any())
@@ -61,40 +62,44 @@ public static class GraphWorkflows
         return assignments.Count;
     }
 
-    private static List<MobileAppAssignment> GenerateAssignments(string[] groups, InstallIntent intent)
+    private static List<MobileAppAssignment> GenerateAssignments(string[] groups, InstallIntent intent, bool addSetting = false)
     {
         List<MobileAppAssignment> assignments = new List<MobileAppAssignment>();
+        MobileAppAssignmentSettings? settings = null;
+        if (intent == InstallIntent.Available && addSetting)
+        {
+            settings = new Win32LobAppAssignmentSettings { AutoUpdateSettings = new Win32LobAppAutoUpdateSettings { AutoUpdateSupersededApps = Win32LobAppAutoUpdateSupersededApps.Enabled } };
+        }
         if (groups is not null && groups.Any())
         {
             var groupsGuids = groups.Where(x => Guid.TryParse(x, out _));
             if (groupsGuids.Count() > 0)
             {
-                assignments.AddRange(groupsGuids.Select(x => new MobileAppAssignment
-                {
-                    Intent = intent,
-                    Target = new GroupAssignmentTarget
-                    {
-                        GroupId = x
-                    }
-                }));
+                assignments.AddRange(groupsGuids.Select(x => CreateAssignment(intent, new GroupAssignmentTarget { GroupId = x }, settings)));
             }
             if (groups.ContainsIgnoreCase(IntuneManagerConstants.AllUsers))
             {
-                assignments.Add(new MobileAppAssignment
-                {
-                    Intent = intent,
-                    Target = new AllLicensedUsersAssignmentTarget()
-                });
+                assignments.Add(CreateAssignment(intent, new AllLicensedUsersAssignmentTarget(), settings));
             }
             if (groups.ContainsIgnoreCase(IntuneManagerConstants.AllDevices))
             {
-                assignments.Add(new MobileAppAssignment
-                {
-                    Intent = intent,
-                    Target = new AllDevicesAssignmentTarget()
-                });
+                assignments.Add(CreateAssignment(intent, new AllDevicesAssignmentTarget(), settings));
             }
         }
         return assignments;
+    }
+
+    private static MobileAppAssignment CreateAssignment(InstallIntent intent, DeviceAndAppManagementAssignmentTarget target, MobileAppAssignmentSettings? settings = null)
+    {
+        var a = new MobileAppAssignment
+        {
+            Intent = intent,
+            Target = target,
+        };
+        if (settings is not null)
+        {
+            a.AdditionalData.Add("settings", settings);
+        }
+        return a;
     }
 }

@@ -17,7 +17,7 @@ namespace Svrooij.WinTuner.CmdLets.Commands;
 /// </summary>
 /// <example>
 /// <para type="description">Update the categories of an app and make it available for all users</para>
-/// <code>Update-WtIntuneApp -AppId "1450c17d-aee5-4bef-acf9-9e0107d340f2" -UseDefaultCredentials -Categories "Productivity","Business" -AvailableFor "AllUsers"</code>
+/// <code>Update-WtIntuneApp -AppId "1450c17d-aee5-4bef-acf9-9e0107d340f2" -UseDefaultCredentials -Categories "Productivity","Business" -AvailableFor "AllUsers" -EnableAutoUpdate $true</code>
 /// </example>
 [Cmdlet(VerbsData.Update, "WtIntuneApp")]
 [OutputType(typeof(MobileApp))]
@@ -58,6 +58,13 @@ public class UpdateWtIntuneApp : BaseIntuneCmdlet
                              HelpMessage = "Groups that the app should be uninstalled for, Group Object ID or 'AllUsers'/'AllDevices'")]
     public string[]? UninstallFor { get; set; }
 
+    /// <summary>
+    /// <para type="description">Enable auto update for the app</para>
+    /// </summary>
+    [Parameter(Mandatory = false,
+                      HelpMessage = "Enable auto update for the app")]
+    public bool EnableAutoUpdate { get; set; } = false;
+
     [ServiceDependency]
     private ILogger<UpdateWtIntuneApp>? logger;
 
@@ -83,7 +90,7 @@ public class UpdateWtIntuneApp : BaseIntuneCmdlet
             (UninstallFor is not null && UninstallFor.Any()))
         {
             logger?.LogInformation("Assigning app {appId} to groups", AppId);
-            await graphServiceClient.AssignAppAsync(AppId!, RequiredFor, AvailableFor, UninstallFor, cancellationToken);
+            await graphServiceClient.AssignAppAsync(AppId!, RequiredFor, AvailableFor, UninstallFor, EnableAutoUpdate, cancellationToken);
         }
 
         // Load the app to get the relationships

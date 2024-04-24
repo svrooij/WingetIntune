@@ -39,6 +39,7 @@ internal class PublishCommand : Command
         AddOption(RequiredForOption);
         AddOption(UninstallForOption);
         AddOption(new Option<bool>("--auto-package", "Automatically package the app if it's not found in the package folder") { IsHidden = true });
+        AddOption(new Option<bool>("--auto-update", "Turn on auto update, if assigned as available") { IsHidden = true });
         AddOption(PackageCommand.GetArchitectureOption(isHidden: true));
         AddOption(PackageCommand.GetInstallerContextOption(isHidden: true));
         this.Handler = CommandHandler.Create(HandleCommand);
@@ -99,7 +100,8 @@ internal class PublishCommand : Command
             Categories = options.Category,
             AvailableFor = options.Available,
             RequiredFor = options.Required,
-            UninstallFor = options.Uninstall
+            UninstallFor = options.Uninstall,
+            AddAutoUpdateSetting = options.AutoUpdate
         };
 
         var app = packageInfo.Source == PackageSource.Store
@@ -124,6 +126,7 @@ internal class PublishCommandOptions : WinGetRootCommand.DefaultOptions
     public string[] Uninstall { get; set; } = Array.Empty<string>();
 
     public bool AutoPackage { get; set; }
+    public bool AutoUpdate { get; set; }
     public string TempFolder { get; set; }
     public InstallerContext InstallerContext { get; set; }
     public Architecture Architecture { get; set; }
