@@ -22,7 +22,12 @@ internal class GenerateIndexCommand : Command
         AddOption(new Option<string>(["--update-json"], "Create JSON file with only the updates") { IsHidden = true });
         AddOption(new Option<string>(["--update-csv"], "Create CSV file with only the updates") { IsHidden = true });
         AddOption(new Option<bool>(["--update-github"], "Create GitHub Action step summary") { IsHidden = true });
-        AddOption(new Option<Uri?>(["--update-uri"], "Post updates to this url") { IsHidden = true });
+        AddOption(new Option<Uri?>(["--update-uri"], () =>
+        {
+            var uri = Environment.GetEnvironmentVariable("UPDATE_URI");
+            return string.IsNullOrEmpty(uri) ? null : new Uri(uri);
+        }, "Post updates to this url")
+        { IsHidden = true });
 
         this.Handler = CommandHandler.Create<GenerateIndexCommandOptions, InvocationContext>(HandleCommand);
     }
