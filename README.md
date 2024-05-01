@@ -5,6 +5,8 @@
 
 [Documentation](https://wintuner.app/)
 
+[![WinTuner Mascot](https://github.com/svrooij/WingetIntune/raw/main/static/img/wintuner-mascotte-two_100.png)](https://wintuner.app/)
+
 Take any app from WinGet and upload it to Intune in minutes. This app is available as [PowerShell module](#wintuner-powershell-module) and as a [CLI](#wintuner-cli), both run mostly thee same code.
 
 - Downloading the installer and the logo
