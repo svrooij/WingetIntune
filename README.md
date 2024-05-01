@@ -1,11 +1,10 @@
 # WinTuner
 
+[![Documentation badge](https://img.shields.io/badge/Read-Documentation-green?style=for-the-badge)](https://wintuner.app/)
 [![GitHub issues](https://img.shields.io/github/issues/svrooij/wingetintune?style=for-the-badge)](https://github.com/svrooij/WingetIntune/issues)
 [![Github sponsors](https://img.shields.io/github/sponsors/svrooij?style=for-the-badge&logo=github&logoColor=white)](https://github.com/sponsors/svrooij)
 
-[Documentation](https://wintuner.app/)
-
-[![WinTuner Mascot](https://github.com/svrooij/WingetIntune/raw/main/static/img/wintuner-mascotte-two_100.png)](https://wintuner.app/)
+[![WinTuner Mascot](https://wintuner.app/img/wintuner-mascotte-two_100.png)](https://wintuner.app/)
 
 Take any app from WinGet and upload it to Intune in minutes. This app is available as [PowerShell module](#wintuner-powershell-module) and as a [CLI](#wintuner-cli), both run mostly thee same code.
 
@@ -31,7 +30,7 @@ As of April 2024, the main development focus will be on the PowerShell module, s
 
 ## WinTuner CLI
 
-This application ~~is Windows only and~~ requires **Dotnet 8** to be installed on your computer. It's a [beta application](#beta-application), so please report any issues you find.
+This application requires **Dotnet 8** to be installed on your computer. It's a [beta application](#beta-application), so please report any issues you find.
 Some commands run the `winget` in the background and are thus Windows-only, make sure you have the [App Installer](https://www.microsoft.com/p/app-installer/9nblggh4nns1) installed on your computer if you want to use these commands.
 
 The `package` and `publish` commands are cross-platform, and should work on any platform that supports dotnet 8. These commands no longer use the WinGet executable, which also means any other sources than `winget` are no longer supported.
@@ -39,40 +38,16 @@ The `msi` command is still windows only, as it uses the `Microsoft.Deployment.Wi
 
 Check out the [documentation](https://wintuner.app/docs/category/wintuner-cli) for more information.
 
-### Installing
-
-This package can be downloaded as a dotnet tool. Make sure you have Dotnet 8 installed on your computer.
-I'm working to get a code signing certificate, but for now you might have to configure an exception on your computer to run unsigned code.
-
-```Shell
-# Install dotnet 8 sdk (or the way specific for your platform)
-winget install --id Microsoft.DotNet.SDK.8 --source winget
-
-# Add the nuget feed, if that is not already done
-dotnet nuget add source https://api.nuget.org/v3/index.json --name nuget.org
-
-# This command will install the tool
-dotnet tool install --global Svrooij.Winget-Intune.Cli
-
-# or to update to the latest version
-dotnet tool update --global SvRooij.Winget-Intune.Cli
-
-```
-
 ## Beta application
 
 This is a beta application, it's not yet ready for production use. I'm still working on it, and I'm looking for feedback.
 If you found a bug please create an [issue](https://github.com/svrooij/WingetIntune/issues/new/choose), if you have questions or want to share your feedback, check out the [discussions](https://github.com/svrooij/WingetIntune/discussions) page.
 
-## Library (soon)
-
-I'm planning to release the actual intune specific code as a separate library, so you can use it in your own projects. This will be released as a separate package.
-
 ## Contributing
 
 If you want to contribute to this project, please check out the [contributing](https://github.com/svrooij/WingetIntune/blob/main/CONTRIBUTING.md) page and the [Code of Conduct](https://github.com/svrooij/WingetIntune/blob/main/CODE_OF_CONDUCT.md).
 
-## Usefull information
+## Useful information
 
 - [WinTuner website](https://wintuner.app/)
 - [Blog articles on Intune](https://svrooij.io/tags/intune/)
