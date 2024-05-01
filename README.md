@@ -1,6 +1,9 @@
 # WinTuner
 
-[![Documentation badge](https://img.shields.io/badge/Read-Documentation-green?style=for-the-badge)](https://wintuner.app/)
+[![Documentation badge](https://img.shields.io/badge/Show_Documentation-darkblue?style=for-the-badge)](https://wintuner.app/)
+[![PowerShell gallery version][badge_powershell]][link_powershell]
+[![Nuget version][badge_nuget]][link_nuget]
+[![License][badge_license]][link_license]
 [![GitHub issues](https://img.shields.io/github/issues/svrooij/wingetintune?style=for-the-badge)](https://github.com/svrooij/WingetIntune/issues)
 [![Github sponsors](https://img.shields.io/github/sponsors/svrooij?style=for-the-badge&logo=github&logoColor=white)](https://github.com/sponsors/svrooij)
 
@@ -20,6 +23,9 @@ Take any app from WinGet and upload it to Intune in minutes. This app is availab
 
 ## WinTuner PowerShell Module
 
+[![PowerShell gallery version][badge_powershell]][link_powershell]
+[![PowerShell gallery downloads][badge_powershell_downloads]][link_powershell]
+
 This is the PowerShell version of the WinTuner application, requiring PowerShell `7.4` (net8.0). Available in the [PowerShell Gallery](https://www.powershellgallery.com/packages/WinTuner/). Documentation can be found [here](https://wintuner.app/docs/category/wintuner-powershell).
 
 ```PowerShell
@@ -29,6 +35,9 @@ Install-Module -Name WinTuner
 As of April 2024, the main development focus will be on the PowerShell module, since that is what most sysadmin use. The CLI will still be maintained, but will not get new features as fast as the PowerShell module.
 
 ## WinTuner CLI
+
+[![Nuget version][badge_nuget]][link_nuget]
+[![Nuget downloads][badge_nuget_downloads]][link_nuget]
 
 This application requires **Dotnet 8** to be installed on your computer. It's a [beta application](#beta-application), so please report any issues you find.
 Some commands run the `winget` in the background and are thus Windows-only, make sure you have the [App Installer](https://www.microsoft.com/p/app-installer/9nblggh4nns1) installed on your computer if you want to use these commands.
@@ -62,3 +71,13 @@ If you want to contribute to this project, please check out the [contributing](h
 [link_linkedin]: https://www.linkedin.com/in/stephanvanrooij
 [link_mastodon]: https://dotnet.social/@svrooij
 [link_twitter]: https://twitter.com/svrooij
+
+[badge_license]: https://img.shields.io/github/license/svrooij/WingetIntune?style=for-the-badge
+[link_license]: https://github.com/svrooij/WingetIntune/blob/main/LICENSE.txt
+[badge_powershell]: https://img.shields.io/powershellgallery/v/WinTuner?style=for-the-badge&logo=powershell&logoColor=white
+[badge_powershell_downloads]: https://img.shields.io/powershellgallery/dt/WinTuner?style=for-the-badge&logo=powershell&logoColor=white
+[link_powershell]: https://www.powershellgallery.com/packages/WinTuner/
+
+[badge_nuget]: https://img.shields.io/nuget/v/Svrooij.Winget-Intune.Cli?style=for-the-badge&logo=nuget&logoColor=white
+[badge_nuget_downloads]: https://img.shields.io/nuget/dt/Svrooij.Winget-Intune.Cli?style=for-the-badge&logo=nuget&logoColor=white
+[link_nuget]: https://www.nuget.org/packages/Svrooij.Winget-Intune.Cli/
