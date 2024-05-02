@@ -1,0 +1,15 @@
+# For more info on HTTP files go to https://aka.ms/vs/httpfile
+
+POST https://storeedgefd.dsx.mp.microsoft.com/v9.0/manifestSearch HTTP/1.1
+Content-Type: application/json
+
+{
+  "Query": {
+    "KeyWord": "FireFox",
+    "MatchType": "Substring"
+  }
+}
+
+### 
+
+GET https://displaycatalog.mp.microsoft.com/v7.0/products?bigIds=9NZVDKPMR9RD&market=US&languages=en-us

@@ -29,7 +29,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Svrooij.WinTuner.CmdLets", 
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{4E745B8F-95AD-42CC-A462-EBA6896413E2}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Winget.CommunityRepository.Ef", "src\Winget.CommunityRepository.Ef\Winget.CommunityRepository.Ef.csproj", "{516169B3-872B-443B-8736-27E2A08E7091}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Winget.CommunityRepository.Ef", "src\Winget.CommunityRepository.Ef\Winget.CommunityRepository.Ef.csproj", "{516169B3-872B-443B-8736-27E2A08E7091}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Apps", "Apps", "{4D1367F6-2076-481E-A7BD-0BFA6BEFCA3D}"
 EndProject

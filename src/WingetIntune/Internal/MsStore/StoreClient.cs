@@ -65,7 +65,7 @@ public partial class MicrosoftStoreClient
         }
     }
 
-    private async Task<MicrosoftStoreSearchResult?> Search(string searchString, CancellationToken cancellationToken)
+    public async Task<MicrosoftStoreSearchResult?> Search(string searchString, CancellationToken cancellationToken)
     {
         var url = "https://storeedgefd.dsx.mp.microsoft.com/v9.0/manifestSearch";
         var body = new MicrosoftStoreSearchRequest
