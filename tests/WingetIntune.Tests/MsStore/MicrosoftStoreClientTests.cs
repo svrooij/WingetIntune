@@ -36,7 +36,7 @@ public class MicrosoftStoreClientTests
         // Assert
         Assert.NotNull(result);
         Assert.Equal(packageId, result?.Products.FirstOrDefault()?.ProductId);
-        
+
 
     }
 
@@ -120,7 +120,7 @@ public class MicrosoftStoreClientTests
             }", Encoding.UTF8, "application/json")
         };
 
-        httpClient.SendAsync(Arg.Is<HttpRequestMessage>(req => 
+        httpClient.SendAsync(Arg.Is<HttpRequestMessage>(req =>
             req.Method == HttpMethod.Post
             && req.RequestUri == new Uri("https://storeedgefd.dsx.mp.microsoft.com/v9.0/manifestSearch")), cancellationToken)
             .Returns(expectedResponse);
