@@ -80,7 +80,7 @@ public class DeployWtMsStoreApp : BaseIntuneCmdlet
         {
             var app = await graphStoreAppUploader!.CreateStoreAppAsync(graphServiceClient, PackageId, cancellationToken);
 
-            logger!.LogInformation("Created MSStore app {PackageId} with id {appId}", PackageId, app.Id);
+            logger!.LogInformation("Created MSStore app {PackageId} with id {appId}", PackageId, app!.Id);
             WriteObject(app);
         }
         catch (Exception ex)
