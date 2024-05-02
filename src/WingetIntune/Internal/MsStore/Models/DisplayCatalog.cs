@@ -1,4 +1,4 @@
-﻿namespace WingetIntune.Internal.MsStore;
+﻿namespace WingetIntune.Internal.MsStore.Models;
 
 public class DisplayCatalogResponse
 {

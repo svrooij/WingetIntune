@@ -1,7 +1,7 @@
 ﻿using Microsoft.Graph.Beta.Models;
 using Riok.Mapperly.Abstractions;
 using System.Text.RegularExpressions;
-using WingetIntune.Internal.MsStore;
+using WingetIntune.Internal.MsStore.Models;
 using WingetIntune.Intune;
 
 namespace WingetIntune.Models;
