@@ -12,7 +12,7 @@
       "cwd": "${fileDirname}"
     },
     {
-      "name": ".NET Core Launch (console)",
+      "name": ".NET Core Package Microsoft SQL Server Management Studio",
       "type": "coreclr",
       "request": "launch",
       "preLaunchTask": "dotnet: build-cli",
@@ -21,7 +21,26 @@
       "args": [
         "package",
         "Microsoft.SQLServerManagementStudio",
-        "--package-folder", "C:\\tools\\packages"
+        "--package-folder", "C:\\tools\\packages",
+        "--package-script",
+        "--installer-context", "system"
+      ],
+      "cwd": "${workspaceFolder}",
+      // For more information about the 'console' field, see https://aka.ms/VSCode-CS-LaunchJson-Console
+      "console": "internalConsole",
+      "stopAtEntry": false
+    },
+    {
+      "name": ".NET Core Create Index",
+      "type": "coreclr",
+      "request": "launch",
+      "preLaunchTask": "dotnet: build-cli",
+      // If you have changed target frameworks, make sure to update the program path.
+      "program": "${workspaceFolder}/src/WingetIntune.Cli/bin/Debug/net8.0/WingetIntune.Cli.dll",
+      "args": [
+        "generate-index",
+        "--output-path", "C:\\tools\\packages\\index.json",
+        "--update-csv", "C:\\tools\\packages\\updates.csv"
       ],
       "cwd": "${workspaceFolder}",
       // For more information about the 'console' field, see https://aka.ms/VSCode-CS-LaunchJson-Console

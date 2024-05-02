@@ -75,6 +75,8 @@ public class GetWtWin32Apps : BaseIntuneCmdlet
                 CurrentVersion = app.CurrentVersion,
                 SupersededAppCount = app.SupersededAppCount,
                 SupersedingAppCount = app.SupersedingAppCount,
+                InstallerContext = app.InstallerContext,
+                Architecture = app.Architecture,
                 LatestVersion = version,
             });
         }

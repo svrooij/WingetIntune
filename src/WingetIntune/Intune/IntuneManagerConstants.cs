@@ -44,7 +44,7 @@ if($procOutput -is [array]) {
         Exit 0
     }
 }
-Write-Host ""Command Unsuccesful""
+Write-Host ""Command Unsuccessful""
 Write-Host ""$procOutput""
 Exit 5
 ";

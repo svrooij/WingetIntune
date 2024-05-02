@@ -1277,6 +1277,42 @@
           </dev:type>
           <dev:defaultValue>None</dev:defaultValue>
         </command:parameter>
+        <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="True (ByPropertyName, ByValue)" position="named" aliases="none">
+          <maml:name>Architecture</maml:name>
+          <maml:description>
+            <maml:para>Pick this architecture</maml:para>
+          </maml:description>
+          <command:parameterValue required="true" variableLength="false">Architecture</command:parameterValue>
+          <dev:type>
+            <maml:name>Architecture</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="True (ByPropertyName, ByValue)" position="named" aliases="none">
+          <maml:name>InstallerContext</maml:name>
+          <maml:description>
+            <maml:para>The installer context</maml:para>
+          </maml:description>
+          <command:parameterValue required="true" variableLength="false">InstallerContext</command:parameterValue>
+          <dev:type>
+            <maml:name>InstallerContext</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="True (ByPropertyName, ByValue)" position="named" aliases="none">
+          <maml:name>PackageScript</maml:name>
+          <maml:description>
+            <maml:para>Package WinGet script, instead of the actual installer. Helpful for installers that don't really work with WinTuner.</maml:para>
+          </maml:description>
+          <command:parameterValue required="true" variableLength="false">Boolean</command:parameterValue>
+          <dev:type>
+            <maml:name>Boolean</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
       </command:syntaxItem>
     </command:syntax>
     <command:parameters>
@@ -1336,6 +1372,42 @@
         <command:parameterValue required="true" variableLength="false">ActionPreference</command:parameterValue>
         <dev:type>
           <maml:name>ActionPreference</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="True (ByPropertyName, ByValue)" position="named" aliases="none">
+        <maml:name>Architecture</maml:name>
+        <maml:description>
+          <maml:para>Pick this architecture</maml:para>
+        </maml:description>
+        <command:parameterValue required="true" variableLength="false">Architecture</command:parameterValue>
+        <dev:type>
+          <maml:name>Architecture</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="True (ByPropertyName, ByValue)" position="named" aliases="none">
+        <maml:name>InstallerContext</maml:name>
+        <maml:description>
+          <maml:para>The installer context</maml:para>
+        </maml:description>
+        <command:parameterValue required="true" variableLength="false">InstallerContext</command:parameterValue>
+        <dev:type>
+          <maml:name>InstallerContext</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="True (ByPropertyName, ByValue)" position="named" aliases="none">
+        <maml:name>PackageScript</maml:name>
+        <maml:description>
+          <maml:para>Package WinGet script, instead of the actual installer. Helpful for installers that don't really work with WinTuner.</maml:para>
+        </maml:description>
+        <command:parameterValue required="true" variableLength="false">Boolean</command:parameterValue>
+        <dev:type>
+          <maml:name>Boolean</maml:name>
           <maml:uri />
         </dev:type>
         <dev:defaultValue>None</dev:defaultValue>
