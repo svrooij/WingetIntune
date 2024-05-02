@@ -39,7 +39,7 @@ public class MicrosoftStoreClientTests
         Assert.NotNull(product);
         Assert.Equal(packageId, product.ProductId);
         Assert.Equal("Mozilla Firefox", product.LocalizedProperties.FirstOrDefault().ProductTitle);
-        
+
         var image = product.LocalizedProperties.FirstOrDefault().Images.FirstOrDefault(i => i.Height == 300 && i.Width == 300);
         Assert.NotNull(image);
     }
