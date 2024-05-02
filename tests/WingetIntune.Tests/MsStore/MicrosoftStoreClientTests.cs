@@ -35,9 +35,13 @@ public class MicrosoftStoreClientTests
 
         // Assert
         Assert.NotNull(result);
-        Assert.Equal(packageId, result?.Products.FirstOrDefault()?.ProductId);
-
-
+        var product = result?.Products.FirstOrDefault();
+        Assert.NotNull(product);
+        Assert.Equal(packageId, product.ProductId);
+        Assert.Equal("Mozilla Firefox", product.LocalizedProperties.FirstOrDefault().ProductTitle);
+        
+        var image = product.LocalizedProperties.FirstOrDefault().Images.FirstOrDefault(i => i.Height == 300 && i.Width == 300);
+        Assert.NotNull(image);
     }
 
     [Fact]

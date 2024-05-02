@@ -132,6 +132,11 @@ public class Image
     public string UnscaledImageSHA256Hash { get; set; }
     public string Uri { get; set; }
     public int Width { get; set; }
+
+    public override string ToString()
+    {
+        return $"{ImagePurpose} ({Width}x{Height})";
+    }
 }
 
 public class Marketproperty
