@@ -46,25 +46,6 @@ public partial class MicrosoftStoreClient
         return await response.Content.ReadFromJsonAsync<MicrosoftStoreManifest>(cancellationToken: cancellation);
     }
 
-    public async Task<MicrosoftStoreDetails?> GetStoreDetailsAsync(string packageId, CancellationToken cancellation)
-    {
-        LogGetDetails(packageId);
-        var url = $"https://apps.microsoft.com/store/api/ProductsDetails/GetProductDetailsById/{packageId}?hl=en-US&gl=US";
-        //var url = $"https://storeedgefd.dsx.mp.microsoft.com/v9.0/productDetails/{packageId}?hl=en-US&gl=US";
-        try
-        {
-            var response = await _httpClient.GetAsync(url, cancellation);
-            response.EnsureSuccessStatusCode();
-            var text = await response.Content.ReadAsStringAsync(cancellation);
-            return await response.Content.ReadFromJsonAsync<MicrosoftStoreDetails>(cancellationToken: cancellation);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Failed to get details for {packageId} from Microsoft Store", packageId);
-            return null;
-        }
-    }
-
     public async Task<MicrosoftStoreSearchResult?> Search(string searchString, CancellationToken cancellationToken)
     {
         var url = "https://storeedgefd.dsx.mp.microsoft.com/v9.0/manifestSearch";
@@ -94,6 +75,4 @@ public partial class MicrosoftStoreClient
     [LoggerMessage(EventId = 2, Level = LogLevel.Information, Message = "Getting manifest for {packageId} from Microsoft Store")]
     private partial void LogGetManifest(string packageId);
 
-    [LoggerMessage(EventId = 3, Level = LogLevel.Information, Message = "Getting details for {packageId} from Microsoft Store")]
-    private partial void LogGetDetails(string packageId);
 }
