@@ -73,6 +73,16 @@ public partial class IntuneManager
         return new Models.WingetPackage(packageInfo, packageFolder, intunePackage!);
     }
 
+    /// <summary>
+    /// Generates an Intune package for a winget package
+    /// </summary>
+    /// <param name="tempFolder">Folder to temporary store files</param>
+    /// <param name="outputFolder">Folder where the package should be</param>
+    /// <param name="packageInfo">(Partial) information about the package</param>
+    /// <param name="packageOptions">User-defined options</param>
+    /// <param name="cancellationToken">Cancellation token</param>
+    /// <returns></returns>
+    /// <exception cref="ArgumentException"></exception>
     public async Task<Models.WingetPackage> GenerateInstallerPackage(string tempFolder, string outputFolder, Models.PackageInfo packageInfo, PackageOptions? packageOptions = null, CancellationToken cancellationToken = default)
     {
         ArgumentException.ThrowIfNullOrEmpty(tempFolder);
@@ -81,17 +91,20 @@ public partial class IntuneManager
         {
             packageOptions = PackageOptions.Create();
         }
+
         if (packageInfo.Source != PackageSource.Winget)
         {
             throw new ArgumentException("Package is not a winget package", nameof(packageInfo));
         }
+
         if (!packageInfo.InstallersLoaded)
         {
             packageInfo = await wingetRepository.GetPackageInfoAsync(packageInfo.PackageIdentifier!, packageInfo.Version, "winget", cancellationToken);
         }
 
         ComputeInstallerDetails(ref packageInfo, packageOptions);
-        if (packageInfo.InstallerType.IsMsi())
+
+        if (packageInfo.InstallerType.IsMsi() && !packageOptions.PackageScript)
         {
             return await GenerateMsiPackage(tempFolder, outputFolder, packageInfo, packageOptions, cancellationToken);
         }
@@ -106,34 +119,51 @@ public partial class IntuneManager
         ArgumentNullException.ThrowIfNull(packageInfo);
         var packageTempFolder = fileManager.CreateFolderForPackage(tempFolder, packageInfo.PackageIdentifier!, packageInfo.Version!);
         var packageFolder = fileManager.CreateFolderForPackage(outputFolder, packageInfo.PackageIdentifier!, packageInfo.Version!);
-        // TODO : If installer is not supported (yet) should it be downloaded?
-        if (SupportedInstallers.Contains(packageInfo.InstallerType))
+
+        if (SupportedInstallers.Contains(packageInfo.InstallerType) && packageOptions.PackageScript != true)
         {
-            var installerPath = await DownloadInstallerAsync(packageTempFolder, packageInfo, cancellationToken);
+            _ = await DownloadInstallerAsync(packageTempFolder, packageInfo, cancellationToken);
         }
         else
         {
             // Generate scripts
             if (packageInfo.InstallCommandLine!.StartsWith("winget"))
             {
-                // TODO Create Winget Install script
+                // WinGet is not always available in the context of the user and you need to make sure to run to correct version.
+                // This is way there is a helper script that always discovers the correct winget location to use.
+                var installScript = GetPsCommandContent(packageInfo.InstallCommandLine, "installed", $"Package {packageInfo.PackageIdentifier} v{packageInfo.Version} installed successfully", packageId: packageInfo.PackageIdentifier, action: "install");
                 await fileManager.WriteAllTextAsync(
                     Path.Combine(packageTempFolder, "install.ps1"),
-                    GetPsCommandContent(packageInfo.InstallCommandLine, "installed", $"Package {packageInfo.PackageIdentifier} v{packageInfo.Version} installed successfully", packageId: packageInfo.PackageIdentifier, action: "install"),
+                    installScript,
                     cancellationToken);
                 packageInfo.InstallCommandLine = $"%windir%\\sysnative\\windowspowershell\\v1.0\\powershell.exe -WindowStyle Hidden -ExecutionPolicy Bypass -File install.ps1";
                 packageInfo.InstallerFilename = "install.ps1";
+
+                // Also output the script to the output folder
+                await fileManager.WriteAllTextAsync(
+                    Path.Combine(packageFolder, "install.ps1"),
+                    installScript,
+                    cancellationToken);
             }
         }
 
         if (packageInfo.UninstallCommandLine!.StartsWith("winget"))
         {
+            // Helper script to discover the correct winget location
+            var uninstallScript = GetPsCommandContent(packageInfo.UninstallCommandLine, "uninstalled", $"Package {packageInfo.PackageIdentifier} uninstalled successfully", packageId: packageInfo.PackageIdentifier, action: "uninstall");
             await fileManager.WriteAllTextAsync(
                     Path.Combine(packageTempFolder, "uninstall.ps1"),
-                    GetPsCommandContent(packageInfo.UninstallCommandLine, "uninstalled", $"Package {packageInfo.PackageIdentifier} uninstalled successfully", packageId: packageInfo.PackageIdentifier, action: "uninstall"),
+                    uninstallScript,
                     cancellationToken);
             packageInfo.UninstallCommandLine = $"%windir%\\sysnative\\windowspowershell\\v1.0\\powershell.exe -WindowStyle Hidden -ExecutionPolicy Bypass -File uninstall.ps1";
+
+            // Also output the script to the output folder
+            await fileManager.WriteAllTextAsync(
+                Path.Combine(packageFolder, "uninstall.ps1"),
+                uninstallScript,
+                cancellationToken);
         }
+
         var intuneFile = await intunePackager.CreatePackage(packageTempFolder, packageFolder, packageInfo.InstallerFilename!, packageInfo, cancellationToken);
         await DownloadLogoAsync(packageFolder, packageInfo.PackageIdentifier!, cancellationToken);
 
@@ -506,7 +536,7 @@ public partial class IntuneManager
         package.InstallerContext = installer.ParseInstallerContext() == InstallerContext.Unknown ? (package.InstallerContext ?? packageOptions.InstallerContext) : installer.ParseInstallerContext();
         package.InstallerType = installer.ParseInstallerType();
         package.Installer = installer;
-        if (!package.InstallerType.IsMsi())
+        if (!package.InstallerType.IsMsi() || packageOptions.PackageScript == true)
         {
             ComputeInstallerCommands(ref package, packageOptions);
         }
@@ -517,19 +547,6 @@ public partial class IntuneManager
     }
 
     private static readonly InstallerType[] SupportedInstallers = new[] { InstallerType.Inno, InstallerType.Msi, InstallerType.Burn, InstallerType.Wix, InstallerType.Nullsoft, InstallerType.Exe };
-    private static string GuessInstallerName(InstallerType installerType) => installerType switch
-    {
-        InstallerType.Inno => "setup.exe",
-        InstallerType.Msi => "setup.msi",
-        InstallerType.Msix => "setup.msix",
-        InstallerType.Appx => "setup.appx",
-        InstallerType.Burn => "setup.exe",
-        InstallerType.Wix => "setup.msi",
-        InstallerType.Nullsoft => "setup.exe",
-        InstallerType.Exe => "setup.exe",
-        InstallerType.Zip => "setup.zip",
-        _ => throw new ArgumentException("Unknown installer type", nameof(installerType))
-    };
 
     private static string GuessInstallerExtension(InstallerType installerType) => installerType switch
     {
@@ -551,42 +568,52 @@ public partial class IntuneManager
         { InstallerType.Nullsoft, "/S" },
     };
 
+    /// <summary>
+    /// Compute the installer commands for the package
+    /// </summary>
+    /// <param name="package">Package info</param>
+    /// <param name="packageOptions">User-defined options</param>
     private void ComputeInstallerCommands(ref PackageInfo package, PackageOptions packageOptions)
     {
-        // TODO: Add support for other installer types and adjust `SupportedInstallers` accordingly
-
-        string? installerSwitches = package.Installer?.InstallerSwitches?.GetPreferred();
-        switch (package.InstallerType)
+        // If package script is enabled, we will just use the winget install & uninstall commands
+        // This way your packages in Intune will not contain the installer files
+        // And it also helps with installers that otherwise would just not install silently or install at all
+        if (packageOptions.PackageScript != true)
         {
-            case InstallerType.Inno:
-                if (installerSwitches?.Contains("/VERYSILENT") != true)
-                {
-                    installerSwitches += " " + DefaultInstallerSwitches[InstallerType.Inno];
-                    installerSwitches = installerSwitches.Trim();
-                }
-                package.InstallCommandLine = $"\"{package.InstallerFilename}\" {installerSwitches ?? DefaultInstallerSwitches[InstallerType.Inno]}";
-                // Don't know the uninstall command
-                // Configure the uninstall command for Inno Setup
-                //package.UninstallCommandLine = $"\"{package.InstallerFilename}\" /VERYSILENT /SUPPRESSMSGBOXES /NORESTART /SP- /D={{0}}";
-                break;
+            string? installerSwitches = package.Installer?.InstallerSwitches?.GetPreferred();
+            switch (package.InstallerType)
+            {
+                case InstallerType.Inno:
+                    if (installerSwitches?.Contains("/VERYSILENT") != true)
+                    {
+                        installerSwitches += " " + DefaultInstallerSwitches[InstallerType.Inno];
+                        installerSwitches = installerSwitches.Trim();
+                    }
+                    package.InstallCommandLine = $"\"{package.InstallerFilename}\" {installerSwitches ?? DefaultInstallerSwitches[InstallerType.Inno]}";
+                    // Don't know the uninstall command
+                    // Configure the uninstall command for Inno Setup
+                    //package.UninstallCommandLine = $"\"{package.InstallerFilename}\" /VERYSILENT /SUPPRESSMSGBOXES /NORESTART /SP- /D={{0}}";
+                    break;
 
-            case InstallerType.Burn:
-                package.InstallCommandLine = $"\"{package.InstallerFilename}\" {installerSwitches ?? DefaultInstallerSwitches[InstallerType.Burn]}";
-                // Have to check the uninstall command
-                package.UninstallCommandLine = $"\"{package.InstallerFilename}\" /quiet /norestart /uninstall /passive"; // /burn.ignoredependencies=\"{package.PackageIdentifier}\"
-                break;
+                case InstallerType.Burn:
+                    package.InstallCommandLine = $"\"{package.InstallerFilename}\" {installerSwitches ?? DefaultInstallerSwitches[InstallerType.Burn]}";
+                    // Have to check the uninstall command
+                    package.UninstallCommandLine = $"\"{package.InstallerFilename}\" /quiet /norestart /uninstall /passive"; // /burn.ignoredependencies=\"{package.PackageIdentifier}\"
+                    break;
 
-            case InstallerType.Nullsoft:
-                package.InstallCommandLine = $"\"{package.InstallerFilename}\" {installerSwitches ?? DefaultInstallerSwitches[InstallerType.Nullsoft]}";
-                break;
+                case InstallerType.Nullsoft:
+                    package.InstallCommandLine = $"\"{package.InstallerFilename}\" {installerSwitches ?? DefaultInstallerSwitches[InstallerType.Nullsoft]}";
+                    break;
 
-            case InstallerType.Exe:
-                package.InstallCommandLine = $"\"{package.InstallerFilename}\" {installerSwitches}";
-                // Have to check the uninstall command
-                //package.UninstallCommandLine = $"\"{package.InstallerFilename}\" /quiet /norestart /uninstall /passive"; // /burn.ignoredependencies=\"{package.PackageIdentifier}\"
-                break;
+                case InstallerType.Exe:
+                    package.InstallCommandLine = $"\"{package.InstallerFilename}\" {installerSwitches}";
+                    // Have to check the uninstall command
+                    //package.UninstallCommandLine = $"\"{package.InstallerFilename}\" /quiet /norestart /uninstall /passive"; // /burn.ignoredependencies=\"{package.PackageIdentifier}\"
+                    break;
+            }
         }
 
+        // If the installer type is unsupported or the package script is enabled, we will generate a script to install the package
         if (string.IsNullOrWhiteSpace(package.InstallCommandLine))
         {
             var installArguments = WingetHelper.GetInstallArgumentsForPackage(package.PackageIdentifier!, package.Version, installerContext: package.InstallerContext ?? InstallerContext.Unknown);
@@ -594,10 +621,10 @@ public partial class IntuneManager
             package.InstallCommandLine = $"winget {installArguments}";
         }
 
+        // Uninstall command is almost always empty, so we just use winget to uninstall the package
         if (string.IsNullOrWhiteSpace(package.UninstallCommandLine))
         {
             var uninstallArguments = WingetHelper.GetUninstallArgumentsForPackage(package.PackageIdentifier!, installerContext: package.InstallerContext ?? InstallerContext.Unknown);
-            // This seems like a hack I know, but it's the only way to get the uninstall command for now.
             package.UninstallCommandLine = $"winget {uninstallArguments}";
         }
     }
@@ -605,14 +632,14 @@ public partial class IntuneManager
     private async Task WriteReadmeAsync(string packageFolder, PackageInfo packageInfo, CancellationToken cancellationToken)
     {
         var sb = new StringBuilder();
-        if (packageInfo.InstallerType.IsMsi())
+        if (packageInfo.InstallerType.IsMsi() || !string.IsNullOrEmpty(packageInfo.MsiProductCode))
         {
-            logger.LogInformation("Writing detection info for msi package {packageId} {productCode}", packageInfo.PackageIdentifier, packageInfo.MsiProductCode!);
+            logger.LogInformation("Writing detection info with msi details {packageId} {productCode}", packageInfo.PackageIdentifier, packageInfo.MsiProductCode!);
 
             sb.AppendFormat("Package {0} {1} from {2}\r\n", packageInfo.PackageIdentifier, packageInfo.Version, packageInfo.Source);
             sb.AppendLine();
             sb.AppendFormat("MsiProductCode={0}\r\n", packageInfo.MsiProductCode);
-            sb.AppendFormat("MsiVersion={0}\r\n", packageInfo.MsiVersion!);
+            sb.AppendFormat("MsiVersion={0}\r\n", packageInfo.MsiVersion);
 
             var detectionFile = Path.Combine(packageFolder, "detection.txt");
             await fileManager.WriteAllTextAsync(detectionFile, sb.ToString(), cancellationToken);
@@ -637,11 +664,12 @@ public partial class IntuneManager
         }
         sb.AppendLine();
         sb.AppendLine("Uninstall script:");
-        if (packageInfo.InstallerType.IsMsi())
+        if (packageInfo.InstallerType.IsMsi() || !string.IsNullOrEmpty(packageInfo.MsiProductCode))
         {
-            sb.AppendFormat("msiexec /x {0} /quiet /qn\r\n", packageInfo.MsiProductCode);
+            sb.AppendFormat("msiexec /x {0} /quiet /qn\r\nor\r\n", packageInfo.MsiProductCode);
         }
-        else
+
+        if (!string.IsNullOrEmpty(packageInfo.UninstallCommandLine))
         {
             sb.AppendFormat("{0}\r\n", packageInfo.UninstallCommandLine);
         }

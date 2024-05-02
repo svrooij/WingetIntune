@@ -50,6 +50,7 @@ internal partial class Mapper
 
         if (packageInfo.MsiProductCode is not null && packageInfo.MsiVersion is not null) // packageInfo.InstallerType.IsMsi() 
         {
+            // Not sure if this is correct, should this information always be set if available?
             if (packageInfo.InstallerType.IsMsi())
             {
                 app.MsiInformation = new Win32LobAppMsiInformation
@@ -61,6 +62,8 @@ internal partial class Mapper
                 };
             }
 
+            // Using ProductCode detection, is much faster then the detection script
+            // if we have this information, we should use it.
             app.DetectionRules = new List<Win32LobAppDetection>
             {
                 new Win32LobAppProductCodeDetection
@@ -79,10 +82,12 @@ internal partial class Mapper
                 {
                     ScriptContent = System.Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes(packageInfo.DetectionScript!)),
                     EnforceSignatureCheck = false,
+                    // Not sure if winget is even available on 32 bit systems
                     RunAs32Bit = packageInfo.Architecture == Architecture.X86
                 }
             };
         }
+
         app.Developer = packageInfo.Publisher;
         app.FileName = Path.GetFileNameWithoutExtension(packageInfo.InstallerFilename) + ".intunewin";
         app.SetupFilePath = packageInfo.InstallerFilename ?? "install.ps1";
@@ -159,7 +164,15 @@ internal partial class Mapper
             CurrentVersion = win32LobApp.DisplayVersion!,
             GraphId = win32LobApp.Id!,
             SupersededAppCount = win32LobApp.SupersededAppCount,
-            SupersedingAppCount = win32LobApp.SupersedingAppCount
+            SupersedingAppCount = win32LobApp.SupersedingAppCount,
+            InstallerContext = win32LobApp.InstallExperience?.RunAsAccount == RunAsAccountType.User ? InstallerContext.User : InstallerContext.System,
+            Architecture = win32LobApp.ApplicableArchitectures switch
+            {
+                WindowsArchitecture.Arm64 => Architecture.Arm64,
+                WindowsArchitecture.X64 => Architecture.X64,
+                WindowsArchitecture.X86 => Architecture.X86,
+                _ => Architecture.Neutral
+            }
         };
     }
 }

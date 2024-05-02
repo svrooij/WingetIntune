@@ -42,6 +42,7 @@ internal class PublishCommand : Command
         AddOption(new Option<bool>("--auto-update", "Turn on auto update, if assigned as available") { IsHidden = true });
         AddOption(PackageCommand.GetArchitectureOption(isHidden: true));
         AddOption(PackageCommand.GetInstallerContextOption(isHidden: true));
+        AddOption(PackageCommand.GetPackageAsScriptOption(isHidden: true));
         this.Handler = CommandHandler.Create(HandleCommand);
     }
 
@@ -78,7 +79,7 @@ internal class PublishCommand : Command
                 await intuneManager.GenerateInstallerPackage(options.TempFolder,
                 options.PackageFolder!,
                 tempInfo,
-                new PackageOptions { Architecture = options.Architecture, InstallerContext = options.InstallerContext },
+                new PackageOptions { Architecture = options.Architecture, InstallerContext = options.InstallerContext, PackageScript = options.PackageScript == true },
                 cancellationToken);
             }
             packageInfo = tempInfo.Source == PackageSource.Store || options.AutoPackage
@@ -130,4 +131,5 @@ internal class PublishCommandOptions : WinGetRootCommand.DefaultOptions
     public string TempFolder { get; set; }
     public InstallerContext InstallerContext { get; set; }
     public Architecture Architecture { get; set; }
+    public bool? PackageScript { get; set; }
 }

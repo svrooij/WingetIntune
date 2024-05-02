@@ -30,7 +30,12 @@ internal class PackageCommand : Command
         IsHidden = isHidden,
     };
 
-    internal static Option<InstallerContext> GetInstallerContextOption(bool isHidden = false) => new Option<InstallerContext>("--installer-context", () => InstallerContext.User, "Installer context to use")
+    internal static Option<InstallerContext> GetInstallerContextOption(bool isHidden = false) => new Option<InstallerContext>("--installer-context", () => InstallerContext.System, "Installer context to use")
+    {
+        IsHidden = isHidden,
+    };
+
+    internal static Option<bool?> GetPackageAsScriptOption(bool isHidden = false) => new Option<bool?>("--package-script", () => null, "Package just a winget script, not the installer itself")
     {
         IsHidden = isHidden,
     };
@@ -51,6 +56,7 @@ internal class PackageCommand : Command
         AddOption(GetPackageFolderOption(isRequired: true));
         AddOption(GetArchitectureOption(isHidden: false));
         AddOption(GetInstallerContextOption(isHidden: false));
+        AddOption(GetPackageAsScriptOption(isHidden: false));
         AddOption(UseWingetOption);
         this.Handler = CommandHandler.Create(HandleCommand);
     }
@@ -88,7 +94,7 @@ internal class PackageCommand : Command
             await intuneManager.GenerateInstallerPackage(options.TempFolder,
                 options.PackageFolder!,
                 packageInfo,
-                new PackageOptions { Architecture = options.Architecture, InstallerContext = options.InstallerContext },
+                new PackageOptions { Architecture = options.Architecture, InstallerContext = options.InstallerContext, PackageScript = options.PackageScript == true },
                 cancellationToken);
 
             return 0;
@@ -105,4 +111,5 @@ internal class PackageCommandOptions : WinGetRootCommand.DefaultOptions
     public bool UseWinget { get; set; }
     public InstallerContext InstallerContext { get; set; }
     public Architecture Architecture { get; set; }
+    public bool? PackageScript { get; set; }
 }

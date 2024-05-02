@@ -63,6 +63,39 @@ public class NewWtWingetPackage : DependencyCmdlet<Startup>
         HelpMessage = "The folder to store temporary files in")]
     public string? TempFolder { get; set; } = Path.Combine(Path.GetTempPath(), "wintuner");
 
+    /// <summary>
+    /// Pick this architecture
+    /// </summary>
+    [Parameter(
+        Mandatory = false,
+        Position = 4,
+        ValueFromPipeline = true,
+        ValueFromPipelineByPropertyName = true,
+        HelpMessage = "Pick this architecture")]
+    public WingetIntune.Models.Architecture Architecture { get; set; } = WingetIntune.Models.Architecture.Unknown;
+
+    /// <summary>
+    /// The installer context
+    /// </summary>
+    [Parameter(
+        Mandatory = false,
+        Position = 5,
+        ValueFromPipeline = true,
+        ValueFromPipelineByPropertyName = true,
+        HelpMessage = "The installer context")]
+    public WingetIntune.Models.InstallerContext InstallerContext { get; set; } = WingetIntune.Models.InstallerContext.System;
+
+    /// <summary>
+    /// Package as script
+    /// </summary>
+    [Parameter(
+        Mandatory = false,
+        Position = 6,
+        ValueFromPipeline = true,
+        ValueFromPipelineByPropertyName = true,
+        HelpMessage = "Package WinGet script, instead of the actual installer. Helpful for installers that don't really work with WinTuner.")]
+    public bool? PackageScript { get; set; }
+
     [ServiceDependency]
     private ILogger<NewWtWingetPackage> logger;
 
@@ -102,6 +135,12 @@ public class NewWtWingetPackage : DependencyCmdlet<Startup>
                 TempFolder!,
                 PackageFolder,
                 packageInfo,
+                new WingetIntune.Models.PackageOptions
+                {
+                    Architecture = Architecture,
+                    InstallerContext = InstallerContext,
+                    PackageScript = PackageScript ?? false
+                },
                 cancellationToken: cancellationToken);
 
             WriteObject(package);

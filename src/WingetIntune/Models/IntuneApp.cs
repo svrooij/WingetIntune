@@ -31,4 +31,20 @@ public class IntuneApp
     /// </summary>
     public int? SupersedingAppCount { get; set; }
 
+    /// <summary>
+    /// The installer context
+    /// </summary>
+    /// <remarks>
+    /// You should probably not update an app with a different installer context
+    /// </remarks>
+    public InstallerContext InstallerContext { get; set; }
+
+    /// <summary>
+    /// The architecture of the app
+    /// </summary>
+    /// <remarks>
+    /// You should probably not update an app with a different architecture
+    /// </remarks>
+    public Architecture Architecture { get; set; }
+
 }
