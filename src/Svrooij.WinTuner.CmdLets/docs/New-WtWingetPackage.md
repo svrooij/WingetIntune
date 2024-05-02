@@ -14,7 +14,8 @@ Create intunewin file from Winget installer
 
 ```
 New-WtWingetPackage [-PackageId] <String> [[-PackageFolder] <String>] [[-Version] <String>]
- [[-TempFolder] <String>] [-ProgressAction <ActionPreference>] [<CommonParameters>]
+ [[-TempFolder] <String>] [-Architecture <Architecture>] [-InstallerContext <InstallerContext>]
+ [-PackageScript <Boolean>] [-ProgressAction <ActionPreference>] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -103,6 +104,51 @@ Required: False
 Position: Named
 Default value: None
 Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -Architecture
+Pick this architecture
+
+```yaml
+Type: Architecture
+Parameter Sets: (All)
+Aliases:
+
+Required: False
+Position: Named
+Default value: None
+Accept pipeline input: True (ByPropertyName, ByValue)
+Accept wildcard characters: False
+```
+
+### -InstallerContext
+The installer context
+
+```yaml
+Type: InstallerContext
+Parameter Sets: (All)
+Aliases:
+
+Required: False
+Position: Named
+Default value: None
+Accept pipeline input: True (ByPropertyName, ByValue)
+Accept wildcard characters: False
+```
+
+### -PackageScript
+Package WinGet script, instead of the actual installer. Helpful for installers that don't really work with WinTuner.
+
+```yaml
+Type: Boolean
+Parameter Sets: (All)
+Aliases:
+
+Required: False
+Position: Named
+Default value: None
+Accept pipeline input: True (ByPropertyName, ByValue)
 Accept wildcard characters: False
 ```
 
