@@ -30,8 +30,9 @@ public partial class IntuneManager
     private readonly Internal.MsStore.MicrosoftStoreClient microsoftStoreClient;
     private readonly PublicClientAuth publicClient;
     private readonly GraphAppUploader graphAppUploader;
+    private readonly GraphStoreAppUploader graphStoreAppUploader;
 
-    public IntuneManager(ILoggerFactory? loggerFactory, IFileManager fileManager, IProcessManager processManager, HttpClient httpClient, IAzureFileUploader azureFileUploader, Internal.MsStore.MicrosoftStoreClient microsoftStoreClient, PublicClientAuth publicClient, IIntunePackager intunePackager, IWingetRepository wingetRepository, GraphAppUploader graphAppUploader)
+    public IntuneManager(ILoggerFactory? loggerFactory, IFileManager fileManager, IProcessManager processManager, HttpClient httpClient, IAzureFileUploader azureFileUploader, Internal.MsStore.MicrosoftStoreClient microsoftStoreClient, PublicClientAuth publicClient, IIntunePackager intunePackager, IWingetRepository wingetRepository, GraphAppUploader graphAppUploader, GraphStoreAppUploader graphStoreAppUploader)
     {
         this.loggerFactory = loggerFactory ?? new NullLoggerFactory();
         this.logger = this.loggerFactory.CreateLogger<IntuneManager>();
@@ -44,6 +45,7 @@ public partial class IntuneManager
         this.intunePackager = intunePackager;
         this.wingetRepository = wingetRepository;
         this.graphAppUploader = graphAppUploader;
+        this.graphStoreAppUploader = graphStoreAppUploader;
     }
 
     public async Task<Models.WingetPackage> GenerateMsiPackage(string tempFolder, string outputFolder, Models.PackageInfo packageInfo, PackageOptions packageOptions, CancellationToken cancellationToken = default)
@@ -349,47 +351,26 @@ public partial class IntuneManager
 
         if (!string.IsNullOrEmpty(searchString))
         {
-            var id = await microsoftStoreClient.GetPackageIdForFirstMatchAsync(searchString, cancellationToken);
+            var id = await graphStoreAppUploader.GetStoreIdForNameAsync(searchString, cancellationToken);
             return await PublishStoreAppAsync(options, id, null, cancellationToken);
-        }
-
-        var catalog = await microsoftStoreClient.GetDisplayCatalogAsync(packageId!, cancellationToken);
-
-        var app = mapper.ToWinGetApp(catalog!);
-
-        try
-        {
-            var imagePath = Path.GetTempFileName();
-            var imageUrl = "https:" + catalog!.Products.First().LocalizedProperties.First().Images.First(i => i.Height == 300 && i.Width == 300 && i.ImagePurpose.Equals("Tile", StringComparison.OrdinalIgnoreCase)).Uri;
-            await fileManager.DownloadFileAsync(imageUrl, imagePath, overrideFile: true, cancellationToken: cancellationToken);
-            app.LargeIcon = new MimeContent
-            {
-                Type = "image/png",
-                Value = await fileManager.ReadAllBytesAsync(imagePath, cancellationToken)
-            };
-        }
-        catch (Exception ex)
-        {
-            logger.LogError(ex, "Error downloading image for {packageId}", packageId);
         }
 
         GraphServiceClient graphServiceClient = CreateGraphClientFromOptions(options);
 
         try
         {
-            var appCreated = await graphServiceClient.DeviceAppManagement.MobileApps.PostAsync(app, cancellationToken);
-            logger.LogInformation("Store app published to Intune with id {id}", appCreated!.Id);
+            var appCreated = await graphStoreAppUploader.CreateStoreAppAsync(graphServiceClient, packageId!, cancellationToken);
             if (appCreated == null)
             {
                 throw new Exception("App was not created");
             }
             if (options.Categories != null && options.Categories.Any())
             {
-                await AddCategoriesToApp(graphServiceClient, appCreated.Id!, options.Categories, cancellationToken);
+                await graphServiceClient.AddIntuneCategoriesToAppAsync(appCreated!.Id!, options.Categories, cancellationToken);
             }
             if (options.AvailableFor.Any() || options.RequiredFor.Any() || options.UninstallFor.Any())
             {
-                await AssignAppAsync(graphServiceClient, appCreated.Id!, options.RequiredFor, options.AvailableFor, options.UninstallFor, false, cancellationToken);
+                await graphServiceClient.AssignAppAsync(appCreated!.Id!, options.RequiredFor, options.AvailableFor, options.UninstallFor, options.AddAutoUpdateSetting, cancellationToken);
             }
             return appCreated;
         }
@@ -424,7 +405,7 @@ public partial class IntuneManager
 
         try
         {
-            await GraphWorkflows.AddIntuneCategoriesToApp(graphServiceClient, appId, categories, cancellationToken);
+            await GraphWorkflows.AddIntuneCategoriesToAppAsync(graphServiceClient, appId, categories, cancellationToken);
         }
         catch (Exception ex)
         {
