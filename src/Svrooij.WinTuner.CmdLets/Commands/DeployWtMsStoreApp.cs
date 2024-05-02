@@ -21,7 +21,7 @@ namespace Svrooij.WinTuner.CmdLets.Commands;
 [Cmdlet(VerbsLifecycle.Deploy, "WtMsStoreApp", DefaultParameterSetName = nameof(PackageId))]
 [OutputType(typeof(GraphModels.WinGetApp))]
 public class DeployWtMsStoreApp : BaseIntuneCmdlet
-{    
+{
     /// <summary>
     /// <para type="description">The package id to upload to Intune.</para>
     /// </summary>
@@ -82,12 +82,12 @@ public class DeployWtMsStoreApp : BaseIntuneCmdlet
 
             logger!.LogInformation("Created MSStore app {PackageId} with id {appId}", PackageId, app.Id);
             WriteObject(app);
-        } 
+        }
         catch (Exception ex)
         {
             logger!.LogError(ex, "Error creating MSStore app {PackageId}", PackageId);
         }
 
-        
+
     }
 }

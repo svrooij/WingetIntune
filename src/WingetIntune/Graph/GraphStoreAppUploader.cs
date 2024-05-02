@@ -56,7 +56,8 @@ public class GraphStoreAppUploader
             if (uriPart is null)
             {
                 logger.LogWarning("No image found for {packageId}", packageId);
-            } else
+            }
+            else
             {
                 var imageUrl = $"http:{uriPart}";
                 await fileManager.DownloadFileAsync(imageUrl, imagePath, overrideFile: true, cancellationToken: cancellationToken);
@@ -66,7 +67,7 @@ public class GraphStoreAppUploader
                     Value = await fileManager.ReadAllBytesAsync(imagePath, cancellationToken)
                 };
             }
-            
+
         }
         catch (Exception ex)
         {
