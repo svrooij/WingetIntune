@@ -13,3 +13,9 @@ Content-Type: application/json
 ### 
 
 GET https://displaycatalog.mp.microsoft.com/v7.0/products?bigIds=9NZVDKPMR9RD&market=US&languages=en-us
+
+
+###
+
+GET https://storeedgefd.dsx.mp.microsoft.com/v9.0/packageManifests/9NZVDKPMR9RD
+Accept: application/json
