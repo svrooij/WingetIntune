@@ -11,7 +11,7 @@ public class IntuneManagerTests
     [Fact]
     public async Task GenerateMsiPackage_OtherPackage_ThrowsError()
     {
-        var intuneManager = new IntuneManager(null, null, null, null, null, null, null, null, null, null);
+        var intuneManager = new IntuneManager(null, null, null, null, null, null, null, null, null, null, null);
         var tempFolder = Path.Combine(Path.GetTempPath(), "intunewin");
         var outputFolder = Path.Combine(Path.GetTempPath(), "packages");
 
@@ -80,7 +80,7 @@ The Azure command-line interface (Azure CLI) is a set of commands used to create
 
         var intunePackager = Substitute.For<IIntunePackager>();
 
-        var intuneManager = new IntuneManager(new NullLoggerFactory(), fileManager, processManager, null, null, null, null, intunePackager, null, null);
+        var intuneManager = new IntuneManager(new NullLoggerFactory(), fileManager, processManager, null, null, null, null, intunePackager, null, null, null);
 
         await intuneManager.GenerateInstallerPackage(tempFolder, outputFolder, IntuneTestConstants.azureCliPackageInfo, new PackageOptions { Architecture = Models.Architecture.X64, InstallerContext = InstallerContext.User }, CancellationToken.None);
 
@@ -105,7 +105,7 @@ The Azure command-line interface (Azure CLI) is a set of commands used to create
         fileManager.DownloadFileAsync($"https://api.winstall.app/icons/{packageId}.png", logoPath, null, false, false, Arg.Any<CancellationToken>())
             .Returns(Task.CompletedTask);
 
-        var intuneManager = new IntuneManager(new NullLoggerFactory(), fileManager, null, null, null, null, null, null, null, null);
+        var intuneManager = new IntuneManager(new NullLoggerFactory(), fileManager, null, null, null, null, null, null, null, null, null);
         await intuneManager.DownloadLogoAsync(folder, packageId, CancellationToken.None);
 
         //call.Received(1);
@@ -137,7 +137,7 @@ The Azure command-line interface (Azure CLI) is a set of commands used to create
         fileManager.DownloadFileAsync(packageInfo.InstallerUrl.ToString(), installerPath, hash, true, false, Arg.Any<CancellationToken>())
             .Returns(Task.CompletedTask);
 
-        var intuneManager = new IntuneManager(new NullLoggerFactory(), fileManager, null, null, null, null, null, null, null, null);
+        var intuneManager = new IntuneManager(new NullLoggerFactory(), fileManager, null, null, null, null, null, null, null, null, null);
         await intuneManager.DownloadInstallerAsync(folder, packageInfo, CancellationToken.None);
 
         //call.Received(1);

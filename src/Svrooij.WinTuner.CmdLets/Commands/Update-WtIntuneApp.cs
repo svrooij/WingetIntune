@@ -82,7 +82,7 @@ public class UpdateWtIntuneApp : BaseIntuneCmdlet
         if (Categories is not null && Categories.Any())
         {
             logger?.LogInformation("Adding categories to app {appId}", AppId);
-            await graphServiceClient.AddIntuneCategoriesToApp(AppId!, Categories, cancellationToken);
+            await graphServiceClient.AddIntuneCategoriesToAppAsync(AppId!, Categories, cancellationToken);
         }
 
         if ((AvailableFor is not null && AvailableFor.Any()) ||

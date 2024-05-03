@@ -40,6 +40,7 @@ public static class WingetServiceCollectionExtension
         services.AddTransient<IAzureFileUploader, Implementations.ChunkedAzureFileUploader>();
         services.AddTransient<Intune.MetadataManager>();
         services.AddTransient<Graph.GraphAppUploader>();
+        services.AddTransient<Graph.GraphStoreAppUploader>();
         services.AddSingleton<Internal.Msal.PublicClientAuth>();
         services.AddTransient<Internal.MsStore.MicrosoftStoreClient>();
         services.AddSingleton<IntuneManager>();

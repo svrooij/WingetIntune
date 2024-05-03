@@ -1,4 +1,4 @@
-﻿namespace WingetIntune.Internal.MsStore;
+﻿namespace WingetIntune.Internal.MsStore.Models;
 public class MicrosoftStoreSearchRequest
 {
     public required MicrosoftStoreSearchQuery Query { get; set; }
@@ -15,6 +15,11 @@ public class MicrosoftStoreSearchResult
 {
     public string type { get; set; }
     public MicrosoftStoreSearchData[] Data { get; set; }
+
+    public override string ToString()
+    {
+        return $"[{nameof(MicrosoftStoreSearchResult)}] {Data.Length} results";
+    }
 }
 
 public class MicrosoftStoreSearchData
