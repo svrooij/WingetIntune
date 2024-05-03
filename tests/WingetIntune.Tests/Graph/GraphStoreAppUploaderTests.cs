@@ -1,8 +1,5 @@
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Graph.Beta;
-using Microsoft.IdentityModel.Tokens;
-using Microsoft.Kiota.Abstractions.Authentication;
 using System.Text;
 using WingetIntune.Graph;
 using WingetIntune.Internal.MsStore;
@@ -11,20 +8,6 @@ namespace WingetIntune.Tests.Graph;
 
 public class GraphStoreAppUploaderTests
 {
-    //private readonly ILogger<GraphStoreAppUploader> _logger;
-    //private readonly IFileManager _fileManager;
-    //private readonly MicrosoftStoreClient _microsoftStoreClient;
-    //private readonly GraphServiceClient _graphServiceClient;
-    //private readonly GraphStoreAppUploader _graphStoreAppUploader;
-
-    //public GraphStoreAppUploaderTests()
-    //{
-    //    _logger = Substitute.For<ILogger<GraphStoreAppUploader>>();
-    //    _fileManager = Substitute.For<IFileManager>();
-    //    _microsoftStoreClient = new MicrosoftStoreClient(new HttpClient(), new NullLogger<MicrosoftStoreClient>());
-    //    //_graphServiceClient = Substitute.For<GraphServiceClient>(Substitute.For<IAuthenticationProvider>(), null);
-    //    _graphStoreAppUploader = new GraphStoreAppUploader(_logger, _fileManager, _microsoftStoreClient);
-    //}
 
     [Fact]
     public async Task CreateStoreAppAsync_WithValidPackageId_CreatesAppSuccessfully()
@@ -61,10 +44,17 @@ public class GraphStoreAppUploaderTests
         fileManager.ReadAllBytesAsync(Arg.Any<string>(), cancellationToken)
             .Returns(Encoding.UTF8.GetBytes("fake image"));
 
-        // Validate the body of the request somehow
+        var expectedGraphBody = new Dictionary<string, object>
+        {
+            { "@odata.type", "#microsoft.graph.winGetApp" },
+            { "displayName", "Mozilla Firefox" }
+        };
         httpClient.SendAsync(Arg.Is<HttpRequestMessage>(req =>
             req.Method == HttpMethod.Post
-            && req.RequestUri.ToString().Equals("https://graph.microsoft.com/beta/deviceAppManagement/mobileApps", StringComparison.OrdinalIgnoreCase)), cancellationToken)
+            && req.RequestUri.ToString().Equals("https://graph.microsoft.com/beta/deviceAppManagement/mobileApps", StringComparison.OrdinalIgnoreCase)
+            && req.Content != null
+            && req.Content.ValidateJsonBody(expectedGraphBody)
+            ), cancellationToken)
             .Returns(graphResponse);
 
         var graphClient = new GraphServiceClient(httpClient, new Microsoft.Kiota.Abstractions.Authentication.AnonymousAuthenticationProvider());
@@ -115,7 +105,9 @@ public class GraphStoreAppUploaderTests
         // Validate the body of the request somehow
         httpClient.SendAsync(Arg.Is<HttpRequestMessage>(req =>
             req.Method == HttpMethod.Post
-            && req.RequestUri == new Uri("https://storeedgefd.dsx.mp.microsoft.com/v9.0/manifestSearch")), cancellationToken)
+            && req.RequestUri == new Uri("https://storeedgefd.dsx.mp.microsoft.com/v9.0/manifestSearch")
+            && req.Content != null
+            && req.Content.IsJson()), cancellationToken)
             .Returns(expectedResponse);
 
         // Act
