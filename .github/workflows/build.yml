@@ -114,7 +114,7 @@ jobs:
         run: |
           Import-Module Pester
           Import-Module ./dist/WinTuner/WinTuner.psd1
-          ./tests/run.ps1
+          ./tests/WinTuner.Cmdlets.Tests/run.ps1
 
       - name: Publish Test Results
         uses: EnricoMi/publish-unit-test-result-action@v1
@@ -126,7 +126,7 @@ jobs:
     name: 📦 Publish WinTuner to nuget
     runs-on: ubuntu-latest
     if: startsWith(github.ref, 'refs/tags/')
-    needs: [test]
+    needs: [test, testps]
     steps:
     - name: 👨‍💻 Check-out code
       uses: actions/checkout@v4
@@ -170,7 +170,7 @@ jobs:
     name: 📦 Publish WinTuner to PowerShell Gallery
     runs-on: ubuntu-latest
     if: startsWith(github.ref, 'refs/tags/')
-    needs: [test]
+    needs: [test, testps]
     steps:
     - name: 👨‍💻 Check-out code
       uses: actions/checkout@v4
@@ -210,12 +210,11 @@ jobs:
       shell: pwsh
       run: dotnet build ./src/Svrooij.WinTuner.CmdLets/Svrooij.WinTuner.CmdLets.csproj --configuration Release --no-restore -p:Version=$("${{ github.ref_name }}".Substring(1)) -o ./dist/WinTuner
     
-    - name: 🧪 Run tests (import module)
+    - name: 🧪 Import module
       shell: pwsh
       run: |
         Import-Module ./dist/WinTuner/WinTuner.psd1
         Get-Command -Module WinTuner
-        Get-Command -Module WinTuner | Select-Object -ExpandProperty Name | ForEach-Object { Get-Help -Name $_ -Full }
     
     - name: 📦 Publish WinTuner to PowerShell Gallery
       shell: pwsh
