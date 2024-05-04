@@ -95,7 +95,7 @@ jobs:
 
       - name: 🛠️ Build module
         shell: pwsh
-        run: dotnet build ./src/Svrooij.WinTuner.CmdLets/Svrooij.WinTuner.CmdLets.csproj --configuration Release --no-restore -p:Version=$("${{ github.ref_name }}".Substring(1)) -o ./dist/WinTuner
+        run: dotnet build ./src/Svrooij.WinTuner.CmdLets/Svrooij.WinTuner.CmdLets.csproj --configuration Release --no-restore -p:Version="0.0.1-dev" -o ./dist/WinTuner
       
       - name: 📦 Install Pester
         run: Install-Module -Name Pester -Force -SkipPublisherCheck -Scope CurrentUser
