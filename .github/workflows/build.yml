@@ -111,7 +111,7 @@ jobs:
       
       - name: 🧪 Run test
         shell: pwsh
-        run:
+        run: |
           Import-Module Pester
           Import-Module ./dist/WinTuner/WinTuner.psd1
           ./tests/run.ps1
