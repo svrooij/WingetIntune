@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - main
+      - ci/testing-ps
     tags:
       - v*
   pull_request:
@@ -13,7 +14,7 @@ on:
 
 jobs:
   test:
-    name: 🛠️ Build and Test
+    name: 🛠️ Build and Test C#
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -60,6 +61,64 @@ jobs:
       - name: 📃 Check code formatting
         if: always()
         run: dotnet format --verify-no-changes
+
+  testps:
+    name: 🛠️ Build and Test PowerShell
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      issues: read
+      checks: write
+    steps:
+      - name: 👨‍💻 Check-out code
+        uses: actions/checkout@v4
+
+      - name: 👨‍🔧 Setup .NET Core SDK
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.x
+
+      - name: 🔍 Enable problem matchers
+        run: echo "::add-matcher::.github/matchers/dotnet.json"
+
+      - name: 🦸‍♂️ Restore steriods
+        uses: actions/cache@v4
+        with:
+          path: ~/.nuget/packages
+          # Look to see if there is a cache hit for the corresponding requirements file
+          key: ${{ runner.os }}-nuget-${{ hashFiles('**/packages.lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-nuget
+
+      - name: 🎒 Load packages
+        run: dotnet restore
+
+      - name: 🛠️ Build module
+        shell: pwsh
+        run: dotnet build ./src/Svrooij.WinTuner.CmdLets/Svrooij.WinTuner.CmdLets.csproj --configuration Release --no-restore -p:Version=$("${{ github.ref_name }}".Substring(1)) -o ./dist/WinTuner
+      
+      - name: 📦 Install Pester
+        run: Install-Module -Name Pester -Force -SkipPublisherCheck -Scope CurrentUser
+      
+      - name: 🕵️ Import module and list commands
+        shell: pwsh
+        run: |
+          Import-Module ./dist/WinTuner/WinTuner.psd1
+          Get-Command -Module WinTuner
+          Get-Command -Module WinTuner | Select-Object -ExpandProperty Name | ForEach-Object { Get-Help -Name $_ -Full }
+      
+      - name: 🧪 Run test
+        shell: pwsh
+        run:
+          Import-Module Pester
+          Import-Module ./dist/WinTuner/WinTuner.psd1
+          ./tests/run.ps1
+
+      - name: Publish Test Results
+        uses: EnricoMi/publish-unit-test-result-action@v1
+        if: always()
+        with:
+          files: ./TestResults.xml
 
   publish-nuget:
     name: 📦 Publish WinTuner to nuget

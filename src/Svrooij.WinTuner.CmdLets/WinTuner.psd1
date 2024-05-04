@@ -58,15 +58,15 @@
     # FunctionsToExport = @()
 
     # Cmdlets to export from this module.
-    CmdletsToExport = @(
-        "Deploy-WtWin32App",
-        "Get-WtWin32Apps",
-        "New-IntuneWinPackage",
-        "New-WtWingetPackage",
-        "Remove-WtWin32App",
-        "Unprotect-IntuneWinPackage"
-        "Update-WtIntuneApp"
-    )
+    # CmdletsToExport = @(
+    #     "Deploy-WtWin32App",
+    #     "Get-WtWin32Apps",
+    #     "New-IntuneWinPackage",
+    #     "New-WtWingetPackage",
+    #     "Remove-WtWin32App",
+    #     "Unprotect-IntuneWinPackage"
+    #     "Update-WtIntuneApp"
+    # )
 
     # Variables to export from this module.
     # VariablesToExport = @()
