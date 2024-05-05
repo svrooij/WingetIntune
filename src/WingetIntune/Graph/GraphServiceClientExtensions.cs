@@ -15,8 +15,10 @@ public static class GraphServiceClientExtensions
 
     public static Task<Entity?> Intune_CreateWin32LobAppContentVersionAsync(this GraphServiceClient graphServiceClient, string win32LobAppId, CancellationToken cancellationToken = default)
     {
+#if NET8_0_OR_GREATER
         ArgumentNullException.ThrowIfNull(graphServiceClient);
         ArgumentException.ThrowIfNullOrEmpty(win32LobAppId);
+#endif
         var requestInfo = new RequestInformation
         {
             HttpMethod = Method.POST,
@@ -30,10 +32,12 @@ public static class GraphServiceClientExtensions
 
     public static Task<MobileAppContentFile?> Intune_CreateWin32LobAppContentVersionFileAsync(this GraphServiceClient graphServiceClient, string win32LobAppId, string contentVersionId, MobileAppContentFile mobileAppContentFile, CancellationToken cancellationToken = default)
     {
+#if NET8_0_OR_GREATER
         ArgumentNullException.ThrowIfNull(graphServiceClient);
         ArgumentException.ThrowIfNullOrEmpty(win32LobAppId);
         ArgumentException.ThrowIfNullOrEmpty(contentVersionId);
         ArgumentNullException.ThrowIfNull(mobileAppContentFile);
+#endif
         var requestInfo = new RequestInformation
         {
             HttpMethod = Method.POST,
@@ -45,10 +49,12 @@ public static class GraphServiceClientExtensions
 
     public static Task<MobileAppContentFile?> Intune_GetWin32LobAppContentVersionFileAsync(this GraphServiceClient graphServiceClient, string win32LobAppId, string contentVersionId, string mobileAppContentFileId, CancellationToken cancellationToken = default)
     {
+#if NET8_0_OR_GREATER
         ArgumentNullException.ThrowIfNull(graphServiceClient);
         ArgumentException.ThrowIfNullOrEmpty(win32LobAppId);
         ArgumentException.ThrowIfNullOrEmpty(contentVersionId);
         ArgumentException.ThrowIfNullOrEmpty(mobileAppContentFileId);
+#endif
         var requestInfo = new RequestInformation
         {
             HttpMethod = Method.GET,
@@ -59,10 +65,12 @@ public static class GraphServiceClientExtensions
 
     public static async Task<MobileAppContentFile?> Intune_WaitForFinalCommitStateAsync(this GraphServiceClient graphServiceClient, string win32LobAppId, string contentVersionId, string mobileAppContentFileId, CancellationToken cancellationToken = default)
     {
+#if NET8_0_OR_GREATER
         ArgumentNullException.ThrowIfNull(graphServiceClient);
         ArgumentException.ThrowIfNullOrEmpty(win32LobAppId);
         ArgumentException.ThrowIfNullOrEmpty(contentVersionId);
         ArgumentException.ThrowIfNullOrEmpty(mobileAppContentFileId);
+#endif
         while (!cancellationToken.IsCancellationRequested)
         {
             MobileAppContentFile? result = await graphServiceClient.DeviceAppManagement.MobileApps[win32LobAppId].GraphWin32LobApp.ContentVersions[contentVersionId].Files[mobileAppContentFileId].GetAsync(cancellationToken: cancellationToken);
@@ -91,11 +99,13 @@ public static class GraphServiceClientExtensions
 
     public static Task Intune_CommitWin32LobAppContentVersionFileAsync(this GraphServiceClient graphServiceClient, string win32LobAppId, string contentVersionId, string mobileAppContentFileId, FileEncryptionInfo fileEncryptionInfo, CancellationToken cancellationToken = default)
     {
+#if NET8_0_OR_GREATER
         ArgumentNullException.ThrowIfNull(graphServiceClient);
         ArgumentException.ThrowIfNullOrEmpty(win32LobAppId);
         ArgumentException.ThrowIfNullOrEmpty(contentVersionId);
         ArgumentException.ThrowIfNullOrEmpty(mobileAppContentFileId);
         ArgumentNullException.ThrowIfNull(fileEncryptionInfo);
+#endif
         var body = new MobileAppContentFileCommitBody
         {
             FileEncryptionInfo = fileEncryptionInfo,
@@ -120,10 +130,11 @@ public static class GraphServiceClientExtensions
 
     public static RequestInformation Intune_AddCategoryToApp_RequestInfo(this GraphServiceClient graphServiceClient, string appId, string categoryId)
     {
+#if NET8_0_OR_GREATER
         ArgumentNullException.ThrowIfNull(graphServiceClient);
         ArgumentException.ThrowIfNullOrEmpty(appId);
         ArgumentException.ThrowIfNullOrEmpty(categoryId);
-
+#endif
         var requestInfo = new RequestInformation
         {
             HttpMethod = Method.POST,

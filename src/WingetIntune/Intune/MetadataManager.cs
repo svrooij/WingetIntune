@@ -24,7 +24,9 @@ public class MetadataManager
 
     public async Task<PackageInfo> LoadPackageInfoFromFolderAsync(string folder, CancellationToken cancellationToken)
     {
+#if NET8_0_OR_GREATER
         ArgumentException.ThrowIfNullOrEmpty(folder);
+#endif
         var filename = Path.Combine(folder, "app.json");
         if (!fileManager.FileExists(filename))
         {

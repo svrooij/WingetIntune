@@ -31,11 +31,12 @@ public partial class ProcessIntunePackager : IIntunePackager
 
     public async Task<string> CreatePackage(string inputFolder, string outputFolder, string installerFilename, PackageInfo? _ = null, CancellationToken cancellationToken = default)
     {
+#if NET8_0_OR_GREATER
         ArgumentException.ThrowIfNullOrEmpty(inputFolder);
         ArgumentException.ThrowIfNullOrEmpty(outputFolder);
         ArgumentException.ThrowIfNullOrEmpty(installerFilename);
         ArgumentNullException.ThrowIfNull(cancellationToken);
-
+#endif
         await DownloadToolIfNeeded(cancellationToken);
 
         LogCreatePackage(inputFolder, outputFolder);

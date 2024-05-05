@@ -61,7 +61,9 @@ public class DeployWtMsStoreApp : BaseIntuneCmdlet
         ValidateAuthenticationParameters();
         if (ParameterSetName == nameof(SearchQuery))
         {
+#if NET8_0_OR_GREATER
             ArgumentException.ThrowIfNullOrWhiteSpace(SearchQuery);
+#endif
             logger!.LogInformation("Searching package id for {searchQuery}", SearchQuery);
             PackageId = await graphStoreAppUploader!.GetStoreIdForNameAsync(SearchQuery!, cancellationToken);
             if (string.IsNullOrEmpty(PackageId))
@@ -72,13 +74,15 @@ public class DeployWtMsStoreApp : BaseIntuneCmdlet
         }
 
         // At this moment the package ID should always be filled.
-        ArgumentException.ThrowIfNullOrWhiteSpace(PackageId);
 
+#if NET8_0_OR_GREATER
+        ArgumentException.ThrowIfNullOrWhiteSpace(PackageId);
+#endif
         logger!.LogInformation("Uploading MSStore app {PackageId} to Intune", PackageId);
         var graphServiceClient = CreateGraphServiceClient(httpClient!);
         try
         {
-            var app = await graphStoreAppUploader!.CreateStoreAppAsync(graphServiceClient, PackageId, cancellationToken);
+            var app = await graphStoreAppUploader!.CreateStoreAppAsync(graphServiceClient, PackageId!, cancellationToken);
 
             logger!.LogInformation("Created MSStore app {PackageId} with id {appId}", PackageId, app!.Id);
             WriteObject(app);

@@ -23,9 +23,10 @@ public class ChunkedAzureFileUploader : IAzureFileUploader
 
     public async Task UploadFileToAzureAsync(string filename, Uri sasUri, CancellationToken cancellationToken = default)
     {
+#if NET8_0_OR_GREATER
         ArgumentNullException.ThrowIfNullOrEmpty(filename);
         ArgumentNullException.ThrowIfNull(sasUri);
-
+#endif
         logger.LogInformation("Uploading {filename} to {sasUri}", filename, sasUri);
 
         try

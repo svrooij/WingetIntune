@@ -41,8 +41,10 @@ internal class AzCopyAzureUploader : IAzureFileUploader
 
     public async Task UploadFileToAzureAsync(string filename, Uri sasUri, CancellationToken cancellationToken = default)
     {
+#if NET8_0_OR_GREATER
         ArgumentException.ThrowIfNullOrEmpty(filename);
         ArgumentNullException.ThrowIfNull(sasUri);
+#endif
         await DownloadAzCopyIfNeeded(cancellationToken);
         var args = $"copy \"{filename}\" \"{sasUri}\" --output-type \"json\"";
         var result = await processManager.RunProcessAsync(azCopyPath, args, cancellationToken, false);

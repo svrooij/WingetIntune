@@ -50,10 +50,12 @@ public partial class IntuneManager
 
     public async Task<Models.WingetPackage> GenerateMsiPackage(string tempFolder, string outputFolder, Models.PackageInfo packageInfo, PackageOptions packageOptions, CancellationToken cancellationToken = default)
     {
+#if NET8_0_OR_GREATER
         ArgumentException.ThrowIfNullOrEmpty(tempFolder);
         ArgumentException.ThrowIfNullOrEmpty(outputFolder);
         ArgumentNullException.ThrowIfNull(packageInfo);
         ArgumentNullException.ThrowIfNull(packageOptions);
+#endif
         if (!packageInfo.InstallerType.IsMsi())
         {
             throw new ArgumentException("Package is not an MSI package", nameof(packageInfo));
@@ -87,8 +89,10 @@ public partial class IntuneManager
     /// <exception cref="ArgumentException"></exception>
     public async Task<Models.WingetPackage> GenerateInstallerPackage(string tempFolder, string outputFolder, Models.PackageInfo packageInfo, PackageOptions? packageOptions = null, CancellationToken cancellationToken = default)
     {
+#if NET8_0_OR_GREATER
         ArgumentException.ThrowIfNullOrEmpty(tempFolder);
         ArgumentException.ThrowIfNullOrEmpty(outputFolder);
+#endif
         if (packageOptions is null)
         {
             packageOptions = PackageOptions.Create();
@@ -116,9 +120,11 @@ public partial class IntuneManager
 
     private async Task<WingetPackage> GenerateNoneMsiInstaller(string tempFolder, string outputFolder, PackageInfo packageInfo, PackageOptions packageOptions, CancellationToken cancellationToken)
     {
+#if NET8_0_OR_GREATER
         ArgumentException.ThrowIfNullOrEmpty(tempFolder);
         ArgumentException.ThrowIfNullOrEmpty(outputFolder);
         ArgumentNullException.ThrowIfNull(packageInfo);
+#endif
         var packageTempFolder = fileManager.CreateFolderForPackage(tempFolder, packageInfo.PackageIdentifier!, packageInfo.Version!);
         var packageFolder = fileManager.CreateFolderForPackage(outputFolder, packageInfo.PackageIdentifier!, packageInfo.Version!);
 
@@ -219,9 +225,11 @@ public partial class IntuneManager
 
     public async Task<MobileApp> PublishAppAsync(string packagesFolder, PackageInfo packageInfo, IntunePublishOptions options, CancellationToken cancellationToken = default)
     {
+#if NET8_0_OR_GREATER
         ArgumentException.ThrowIfNullOrEmpty(packagesFolder);
         ArgumentNullException.ThrowIfNull(packageInfo);
         ArgumentNullException.ThrowIfNull(options);
+#endif
         if (packageInfo.Source == PackageSource.Store)
         {
             return await PublishStoreAppAsync(options, packageId: packageInfo.PackageIdentifier, cancellationToken: cancellationToken);
@@ -251,10 +259,11 @@ public partial class IntuneManager
 
     public async Task<string> AddContentVersionToApp(IntunePublishOptions publishOptions, string appId, string intuneFilePath, CancellationToken cancellationToken = default)
     {
+#if NET8_0_OR_GREATER
         ArgumentNullException.ThrowIfNull(publishOptions);
         ArgumentException.ThrowIfNullOrEmpty(appId);
         ArgumentException.ThrowIfNullOrEmpty(intuneFilePath);
-
+#endif
         var graphServiceClient = CreateGraphClientFromOptions(publishOptions);
 
         return await AddContentVersionToApp(graphServiceClient, appId, intuneFilePath, cancellationToken);
@@ -262,10 +271,11 @@ public partial class IntuneManager
 
     internal async Task<string> AddContentVersionToApp(GraphServiceClient graphServiceClient, string appId, string intuneFilePath, CancellationToken cancellationToken = default)
     {
+#if NET8_0_OR_GREATER
         ArgumentNullException.ThrowIfNull(graphServiceClient);
         ArgumentException.ThrowIfNullOrEmpty(appId);
         ArgumentException.ThrowIfNullOrEmpty(intuneFilePath);
-
+#endif
         if (!fileManager.FileExists(intuneFilePath))
         {
             throw new FileNotFoundException("IntuneWin file not found", intuneFilePath);
@@ -397,10 +407,11 @@ public partial class IntuneManager
 
     private async Task AddCategoriesToApp(GraphServiceClient graphServiceClient, string appId, string[] categories, CancellationToken cancellationToken)
     {
+#if NET8_0_OR_GREATER
         ArgumentNullException.ThrowIfNull(graphServiceClient);
         ArgumentException.ThrowIfNullOrEmpty(appId);
         ArgumentNullException.ThrowIfNull(categories);
-
+#endif
         logger.LogInformation("Adding categories {categories} to app {appId}", string.Join(",", categories), appId);
 
         try
@@ -417,10 +428,11 @@ public partial class IntuneManager
 
     private async Task AssignAppAsync(GraphServiceClient graphServiceClient, string appId, string[]? requiredFor, string[]? availableFor, string[]? uninstallFor, bool addAutoUpdateSetting, CancellationToken cancellationToken)
     {
+#if NET8_0_OR_GREATER
         ArgumentNullException.ThrowIfNull(graphServiceClient);
         ArgumentException.ThrowIfNullOrEmpty(appId);
         ArgumentNullException.ThrowIfNull(cancellationToken);
-
+#endif
         try
         {
             var assignments = await GraphWorkflows.AssignAppAsync(graphServiceClient, appId, requiredFor, availableFor, uninstallFor, addAutoUpdateSetting, cancellationToken);
@@ -452,7 +464,9 @@ public partial class IntuneManager
 
     public static (string?, string?) GetMsiInfo(string setupFile, ILogger? logger)
     {
+#if NET8_0_OR_GREATER
         ArgumentException.ThrowIfNullOrEmpty(setupFile);
+#endif
         try
         {
             using var msi = new WixSharp.UI.MsiParser(setupFile);
