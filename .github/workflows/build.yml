@@ -120,7 +120,7 @@ jobs:
             OutputFormat = "NUnitXML"
             TestResult = @{
               Enabled = $true
-              Path = "${{ github.workspace }}/TestResults.xml"
+              Path = "${{ github.workspace }}/testresults/TestResults.xml"
               Format = "NUnitXML"
             }
             Run = @{
@@ -137,7 +137,7 @@ jobs:
         uses: EnricoMi/publish-unit-test-result-action@v1
         if: always()
         with:
-          files: ./TestResults.xml
+          files: ${{ github.workspace }}/testresults/*.xml
 
   publish-nuget:
     name: 📦 Publish WinTuner to nuget
