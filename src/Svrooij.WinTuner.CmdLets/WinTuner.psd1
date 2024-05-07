@@ -81,8 +81,7 @@
         "WinTuner.psd1",
         "WinTuner.psm1",
         "Svrooij.WinTuner.CmdLets.dll-Help.xml",
-        "WingetIntune.dll",
-        "System.Management.Automation.dll"
+        "WingetIntune.dll"
     )
 
     # Private data to pass to the module specified in RootModule/ModuleToProcess.
