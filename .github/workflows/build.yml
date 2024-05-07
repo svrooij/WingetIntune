@@ -114,7 +114,25 @@ jobs:
         run: |
           Import-Module Pester
           Import-Module ./dist/WinTuner/WinTuner.psd1
-          ./tests/WinTuner.Cmdlets.Tests/run.ps1
+          $pesterConfig = [PesterConfiguration]@{
+            Output = @{
+              Verbosity = "Normal"
+            }
+            OutputFormat = "NUnitXML"
+            TestResult = @{
+              Enabled = $true
+              Path = "${{ github.workspace }}/TestResults.xml"
+              Format = "NUnitXML"
+            }
+            Run = @{
+              Path = "./tests/WinTuner.Cmdlets.Tests"
+              Exit = $true
+            }
+            Should = @{
+              ErrorAction = "Continue"
+            }
+          }
+          Invoke-Pester -Configuration $pesterConfig -Passthru
 
       - name: Publish Test Results
         uses: EnricoMi/publish-unit-test-result-action@v1

@@ -1,3 +1,7 @@
+BeforeAll {
+    Import-Module ./dist/WinTuner/WinTuner.psd1
+}
+
 Describe 'Get-WtWin32Appsp' {
     It 'Should be available' {
         $cmdlet = Get-Command -Name 'Get-WtWin32Apps'
