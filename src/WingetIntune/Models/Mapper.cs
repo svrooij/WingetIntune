@@ -130,12 +130,14 @@ internal partial class Mapper
         var product = displayCatalogResponse.Products.FirstOrDefault();
         var displaySku = product?.DisplaySkuAvailabilities?.FirstOrDefault()?.Sku.LocalizedProperties.FirstOrDefault();
         var productProperties = product?.LocalizedProperties?.FirstOrDefault();
-        var app = new WinGetApp();
-        app.DisplayName = displaySku!.SkuTitle;
-        app.PackageIdentifier = product!.ProductId;
-        app.InformationUrl = productProperties?.SupportUri;
-        app.PrivacyInformationUrl = productProperties?.PublisherWebsiteUri;
-        app.Description = productProperties!.ProductDescription;
+        var app = new WinGetApp
+        {
+            DisplayName = displaySku!.SkuTitle,
+            PackageIdentifier = product!.ProductId,
+            InformationUrl = productProperties?.SupportUri,
+            PrivacyInformationUrl = productProperties?.PublisherWebsiteUri,
+            Description = productProperties!.ProductDescription
+        };
         app.AdditionalData.Add("repositoryType", "microsoftstore");
         app.InstallExperience = new WinGetAppInstallExperience()
         {
@@ -156,7 +158,7 @@ internal partial class Mapper
     {
         ArgumentNullException.ThrowIfNull(win32LobApp, nameof(win32LobApp));
 
-        var (packageId, source) = win32LobApp.Notes.ExtractPackageIdAndSourceFromNotes();
+        var (packageId, _) = win32LobApp.Notes.ExtractPackageIdAndSourceFromNotes();
         return new IntuneApp
         {
             PackageId = packageId!,
@@ -187,19 +189,30 @@ internal static class StringExtensions
 {
     internal static (string?, string?) ExtractPackageIdAndSourceFromNotes(this string? notes)
     {
-        if (notes is null || !notes.Contains("[WingetIntune|"))
+        if (notes is not null)
         {
-            return (null, null);
+            return notes.Contains("[WinTuner|") ? notes.extractNewNotesFormat() : notes.extractOldNotesFormat();
         }
+        return (null, null);
+    }
 
+    private static (string?, string?) extractOldNotesFormat(this string notes)
+    {
         var match = Regex.Match(notes, @"\[WingetIntune\|(?<source>[^\|]+)\|(?<packageId>[^\]]+)\]");
         if (match.Success)
         {
             return (match.Groups["packageId"].Value, match.Groups["source"].Value);
         }
-        else
+        return (null, null);
+    }
+
+    private static (string?, string?) extractNewNotesFormat(this string notes)
+    {
+        var match = Regex.Match(notes, @"\[WinTuner\|(?<source>[^\|]+)\|(?<packageId>[^\]]+)\]");
+        if (match.Success)
         {
-            return (null, null);
+            return (match.Groups["packageId"].Value, match.Groups["source"].Value);
         }
+        return (null, null);
     }
 }
