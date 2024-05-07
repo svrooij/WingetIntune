@@ -8,7 +8,7 @@ $pesterConfig = [PesterConfiguration]@{
   TestResult = @{
     Enabled = $true
     OutputPath = "TestResults.xml"
-    OutputFormat = "NUnitXML"
+    OutputFormat = "JUnitXml"
   }
   Run = @{
     Path = "./tests/WinTuner.Cmdlets.Tests"
