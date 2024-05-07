@@ -187,19 +187,30 @@ internal static class StringExtensions
 {
     internal static (string?, string?) ExtractPackageIdAndSourceFromNotes(this string? notes)
     {
-        if (notes is null || !notes.Contains("[WingetIntune|"))
+        if (notes is not null)
         {
-            return (null, null);
-        }
+            return notes.Contains("[WinTuner|") ? notes.extractNewNotesFormat() : notes.extractOldNotesFormat();
+        }        
+        return (null, null);
+    }
 
+    private static (string?, string?) extractOldNotesFormat(this string notes)
+    {
         var match = Regex.Match(notes, @"\[WingetIntune\|(?<source>[^\|]+)\|(?<packageId>[^\]]+)\]");
         if (match.Success)
         {
             return (match.Groups["packageId"].Value, match.Groups["source"].Value);
         }
-        else
+        return (null, null);
+    }
+
+    private static (string?, string?) extractNewNotesFormat(this string notes)
+    {
+        var match = Regex.Match(notes, @"\[WinTuner\|(?<source>[^\|]+)\|(?<packageId>[^\]]+)\]");
+        if (match.Success)
         {
-            return (null, null);
+            return (match.Groups["packageId"].Value, match.Groups["source"].Value);
         }
+        return (null, null);
     }
 }

@@ -1,7 +1,8 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using System.Runtime.CompilerServices;
+using Microsoft.Extensions.DependencyInjection;
 using WingetIntune.Interfaces;
 using WingetIntune.Intune;
-
+[assembly: InternalsVisibleTo("WingetIntune.Tests")]
 namespace WingetIntune;
 
 public static class WingetServiceCollectionExtension
