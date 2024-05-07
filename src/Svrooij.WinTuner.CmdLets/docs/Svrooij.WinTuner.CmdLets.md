@@ -11,6 +11,9 @@ Locale: en-US
 WinTuner PowerShell is a module to help you create an deploy Win32 apps in Microsoft Intune. It can create an IntuneWin package from any folder or from an installer downloaded from WinGet.
 
 ## Svrooij.WinTuner.CmdLets Cmdlets
+### [Deploy-WtMsStoreApp](Deploy-WtMsStoreApp.md)
+Create a MsStore app in Intune
+
 ### [Deploy-WtWin32App](Deploy-WtWin32App.md)
 Create a Win32Lob app in Intune
 

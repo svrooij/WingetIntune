@@ -1,12 +1,14 @@
 $pesterConfig = [PesterConfiguration]@{
   Output = @{
     Verbosity = "Normal"
+    CIFormat = "Auto"
+    StackTraceVerbosity = "FirstLine"
   }
   OutputFormat = "NUnitXML"
   TestResult = @{
     Enabled = $true
-    Path = "TestResults.xml"
-    Format = "NUnitXML"
+    OutputPath = "TestResults.xml"
+    OutputFormat = "NUnitXML"
   }
   Run = @{
     Path = "./tests/WinTuner.Cmdlets.Tests"
