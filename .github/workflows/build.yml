@@ -4,7 +4,6 @@ on:
   push:
     branches:
       - main
-      - ci/testing-ps
     tags:
       - v*
   pull_request:
@@ -69,6 +68,7 @@ jobs:
       contents: read
       issues: read
       checks: write
+      pull-requests: write
     steps:
       - name: 👨‍💻 Check-out code
         uses: actions/checkout@v4
