@@ -107,7 +107,6 @@ jobs:
         run: |
           Import-Module ./dist/WinTuner/WinTuner.psd1
           Get-Command -Module WinTuner
-          Get-Command -Module WinTuner | Select-Object -ExpandProperty Name | ForEach-Object { Get-Help -Name $_ -Full }
       
       - name: 🧪 Run test
         shell: pwsh
@@ -132,7 +131,7 @@ jobs:
               ErrorAction = "Continue"
             }
           }
-          Invoke-Pester -Configuration $pesterConfig -Passthru
+          Invoke-Pester -Configuration $pesterConfig
 
       - name: Publish Test Results
         uses: EnricoMi/publish-unit-test-result-action@v1

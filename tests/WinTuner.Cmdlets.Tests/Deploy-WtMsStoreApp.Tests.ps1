@@ -1,6 +1,3 @@
-BeforeAll {
-    Import-Module ./dist/WinTuner/WinTuner.psd1
-}
 
 Describe 'Deploy-WtMsStoreApp' {
     It 'Should be available' {

@@ -1,6 +1,4 @@
-BeforeAll {
-    Import-Module ./dist/WinTuner/WinTuner.psd1
-}
+
 
 Describe 'Remove-WtWin32App' {
     It 'Should be available' {

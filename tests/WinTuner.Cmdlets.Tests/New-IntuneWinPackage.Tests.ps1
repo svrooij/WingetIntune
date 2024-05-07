@@ -1,6 +1,3 @@
-BeforeAll {
-    Import-Module ./dist/WinTuner/WinTuner.psd1
-}
 
 Describe 'New-IntuneWinPackage' {
     It 'Should be available' {

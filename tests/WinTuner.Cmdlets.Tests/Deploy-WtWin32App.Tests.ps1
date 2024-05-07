@@ -1,6 +1,3 @@
-BeforeAll {
-    Import-Module ./dist/WinTuner/WinTuner.psd1
-}
 
 Describe 'Deploy-WtWin32App' {
     It 'Should be available' {
