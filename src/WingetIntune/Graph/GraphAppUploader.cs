@@ -22,9 +22,11 @@ public class GraphAppUploader
 
     public async Task<Win32LobApp?> CreateNewAppAsync(GraphServiceClient graphServiceClient, Win32LobApp win32LobApp, string intunePackageFile, string? logoPath = null, CancellationToken cancellationToken = default)
     {
+#if NET8_0_OR_GREATER
         ArgumentNullException.ThrowIfNull(graphServiceClient);
         ArgumentNullException.ThrowIfNull(win32LobApp);
         ArgumentException.ThrowIfNullOrEmpty(intunePackageFile);
+#endif
         if (!fileManager.FileExists(intunePackageFile))
         {
             throw new FileNotFoundException("IntuneWin file not found", intunePackageFile);
@@ -96,9 +98,11 @@ public class GraphAppUploader
 
     public async Task<Win32LobApp?> CreateNewContentVersionAsync(GraphServiceClient graphServiceClient, string appId, string intunePackageFile, CancellationToken cancellationToken = default)
     {
+#if NET8_0_OR_GREATER
         ArgumentNullException.ThrowIfNull(graphServiceClient);
         ArgumentException.ThrowIfNullOrEmpty(appId);
         ArgumentException.ThrowIfNullOrEmpty(intunePackageFile);
+#endif
         if (!fileManager.FileExists(intunePackageFile))
         {
             throw new FileNotFoundException("IntuneWin file not found", intunePackageFile);

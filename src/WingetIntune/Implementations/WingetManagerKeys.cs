@@ -3,16 +3,16 @@ internal class WingetManagerKeys
 {
     internal const string WingetPrefixEn = "Found ";
     internal const string WingetPrefixFr = "Encontrado ";
-    public required string Prefix { get; set; }
-    public required string Version { get; set; }
-    public required string Publisher { get; set; }
-    public required string PublisherUrl { get; set; }
-    public required string InformationUrl { get; set; }
-    public required string SupportUrl { get; set; }
-    public required string Description { get; set; }
-    public required string InstallerType { get; set; }
-    public required string InstallerUrl { get; set; }
-    public required string InstallerSha256 { get; set; }
+    public string Prefix { get; set; }
+    public string Version { get; set; }
+    public string Publisher { get; set; }
+    public string PublisherUrl { get; set; }
+    public string InformationUrl { get; set; }
+    public string SupportUrl { get; set; }
+    public string Description { get; set; }
+    public string InstallerType { get; set; }
+    public string InstallerUrl { get; set; }
+    public string InstallerSha256 { get; set; }
 
     public static WingetManagerKeys English() => new WingetManagerKeys
     {

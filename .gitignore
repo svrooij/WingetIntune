@@ -367,3 +367,5 @@ dist
 
 # LUT config file from Visual Studio
 *.lutconfig
+
+TestResults.xml

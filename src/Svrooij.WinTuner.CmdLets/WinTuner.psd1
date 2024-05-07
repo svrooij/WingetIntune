@@ -21,7 +21,8 @@
 
     # Minimum version of the Windows PowerShell engine required by this module.
     # This module is build on net8.0 which requires PowerShell 7.4
-    PowerShellVersion = '7.4'
+    # May 5th 2024 Bring back support for PowerShell 7.2 (which seems to be the only supported version in Azure Runbooks)
+    PowerShellVersion = '7.2'
 
     # Minimum version of the .NET Framework required by this module.
     # DotNetFrameworkVersion = '4.7.2'
@@ -58,15 +59,15 @@
     # FunctionsToExport = @()
 
     # Cmdlets to export from this module.
-    CmdletsToExport = @(
-        "Deploy-WtWin32App",
-        "Get-WtWin32Apps",
-        "New-IntuneWinPackage",
-        "New-WtWingetPackage",
-        "Remove-WtWin32App",
-        "Unprotect-IntuneWinPackage"
-        "Update-WtIntuneApp"
-    )
+    # CmdletsToExport = @(
+    #     "Deploy-WtWin32App",
+    #     "Get-WtWin32Apps",
+    #     "New-IntuneWinPackage",
+    #     "New-WtWingetPackage",
+    #     "Remove-WtWin32App",
+    #     "Unprotect-IntuneWinPackage"
+    #     "Update-WtIntuneApp"
+    # )
 
     # Variables to export from this module.
     # VariablesToExport = @()

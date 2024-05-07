@@ -19,9 +19,11 @@ public class GraphStoreAppUploader
 
     public GraphStoreAppUploader(ILogger<GraphStoreAppUploader> logger, IFileManager fileManager, Internal.MsStore.MicrosoftStoreClient microsoftStoreClient)
     {
+#if NET8_0_OR_GREATER
         ArgumentNullException.ThrowIfNull(logger);
         ArgumentNullException.ThrowIfNull(fileManager);
         ArgumentNullException.ThrowIfNull(microsoftStoreClient);
+#endif
         this.logger = logger;
         this.fileManager = fileManager;
         this.microsoftStoreClient = microsoftStoreClient;
@@ -29,16 +31,19 @@ public class GraphStoreAppUploader
 
     public Task<string?> GetStoreIdForNameAsync(string searchstring, CancellationToken cancellationToken)
     {
+#if NET8_0_OR_GREATER
         ArgumentException.ThrowIfNullOrEmpty(searchstring);
+#endif
         return microsoftStoreClient.GetPackageIdForFirstMatchAsync(searchstring, cancellationToken);
     }
 
     public async Task<WinGetApp?> CreateStoreAppAsync(GraphServiceClient graphServiceClient, string packageId, CancellationToken cancellationToken)
     {
+#if NET8_0_OR_GREATER
         ArgumentNullException.ThrowIfNull(graphServiceClient);
         ArgumentException.ThrowIfNullOrEmpty(packageId);
         ArgumentNullException.ThrowIfNull(cancellationToken);
-
+#endif
         var catalog = await microsoftStoreClient.GetDisplayCatalogAsync(packageId!, cancellationToken);
         ArgumentNullException.ThrowIfNull(catalog);
         if (!(catalog.Products?.Count() > 0))

@@ -10,11 +10,12 @@ public static class GraphWorkflows
 {
     public static async Task AddIntuneCategoriesToAppAsync(this GraphServiceClient graphServiceClient, string appId, string[] categories, CancellationToken cancellationToken)
     {
+#if NET8_0_OR_GREATER
         ArgumentNullException.ThrowIfNull(graphServiceClient);
         ArgumentException.ThrowIfNullOrEmpty(appId);
         ArgumentNullException.ThrowIfNull(categories);
         ArgumentNullException.ThrowIfNull(cancellationToken);
-
+#endif
         // Load categories to match against
         var graphCategories = await graphServiceClient.DeviceAppManagement.MobileAppCategories.GetAsync(cancellationToken: cancellationToken);
 
@@ -30,10 +31,11 @@ public static class GraphWorkflows
 
     public static async Task<int> AssignAppAsync(this GraphServiceClient graphServiceClient, string appId, string[]? requiredFor, string[]? availableFor, string[]? uninstallFor, bool addAutoUpdateSetting, CancellationToken cancellationToken)
     {
+#if NET8_0_OR_GREATER
         ArgumentNullException.ThrowIfNull(graphServiceClient);
         ArgumentException.ThrowIfNullOrEmpty(appId);
         ArgumentNullException.ThrowIfNull(cancellationToken);
-
+#endif
         List<MobileAppAssignment> assignments = new List<MobileAppAssignment>();
         if (requiredFor is not null && requiredFor.Any())
         {

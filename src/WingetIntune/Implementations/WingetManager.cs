@@ -44,7 +44,9 @@ public partial class WingetManager : IWingetRepository
 
     public async Task<PackageInfo> GetPackageInfoAsync(string id, string? version, string? source, CancellationToken cancellationToken = default)
     {
+#if NET8_0_OR_GREATER
         ArgumentNullException.ThrowIfNullOrEmpty(id);
+#endif
         if (string.IsNullOrEmpty(version) || source != "winget")
         {
             return await GetPackageInfoFromWingetAsync(id, version, source, cancellationToken);
@@ -81,8 +83,10 @@ public partial class WingetManager : IWingetRepository
 
     private async Task<PackageInfo> GetPackageInfoFromWingetManifestAsync(string id, string version, CancellationToken cancellationToken)
     {
+#if NET8_0_OR_GREATER
         ArgumentNullException.ThrowIfNullOrEmpty(id);
         ArgumentNullException.ThrowIfNullOrEmpty(version);
+#endif
         LogGetPackageInfoFromManifest(id, version);
         try
         {

@@ -42,7 +42,7 @@ public partial class WingetRepository
     {
         await LoadEntries(cancellationToken, false, cacheFile);
 
-        var entry = Entries!.FirstOrDefault(e => e.PackageId.Equals(packageId, StringComparison.OrdinalIgnoreCase));
+        var entry = Entries!.FirstOrDefault(e => e.PackageId!.Equals(packageId, StringComparison.OrdinalIgnoreCase));
         return entry;
     }
 
@@ -50,7 +50,7 @@ public partial class WingetRepository
     {
         await LoadEntries(cancellationToken, false, cacheFile);
 
-        var results = Entries!.Where(e => e.Name?.Contains(query, StringComparison.OrdinalIgnoreCase) == true || e.PackageId.Contains(query, StringComparison.OrdinalIgnoreCase));
+        var results = Entries!.Where(e => e.Name?.Contains(query, StringComparison.OrdinalIgnoreCase) == true || e.PackageId!.Contains(query, StringComparison.OrdinalIgnoreCase));
         return results;
     }
 

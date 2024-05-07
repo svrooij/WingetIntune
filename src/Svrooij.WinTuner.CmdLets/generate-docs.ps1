@@ -1,4 +1,4 @@
-﻿$xmlDocsPath = "${PSScriptRoot}\bin\Release\net8.0\Svrooij.WinTuner.CmdLets.xml"
+﻿$xmlDocsPath = "${PSScriptRoot}\bin\Release\net6.0\Svrooij.WinTuner.CmdLets.xml"
 $docsFolder = "docs"
 
 Write-Output "Building the project to get the latest XML documentation file"
@@ -64,6 +64,11 @@ foreach ($member in $members) {
         $description = $member.summary.'para' | Where-Object { $_.type -eq 'description' } | Select-Object -ExpandProperty '#text'
         Write-Debug "Description: $description"
 
+        # Extract the link
+        $link = $member.summary.'para' | Where-Object { $_.type -eq 'link' } | Select-Object -ExpandProperty 'uri'
+        Write-Debug "Link: $link"
+
+
         # Extract the example
         $exampleDescription = $member.example.'para'| Where-Object { $_.type -eq 'description' } | Select-Object -ExpandProperty '#text'
         $exampleCode = $member.example.'code'
@@ -94,11 +99,19 @@ foreach ($member in $members) {
             # Replace the example code placeholder '{{ Add example code here }}' with the actual example code
             $mdFileContent = $mdFileContent.Replace('{{ Add example code here }}', $exampleCode)
 
+            # Add the link to the documentation
+            # Check if there is a line that starts with 'online version:' without a link behind it
+            if ($mdFileContent.Contains('online version:') -and !$mdFileContent.Contains('online version: http'))
+            {
+                $mdFileContent = $mdFileContent.Replace('online version:', 'online version: ' + $link)
+            }
+            
+
             # Write the updated file back to disk
             $mdFileContent | Set-Content $mdFilePath
         }
         else {
-            Write-Warning "File $mdFilePath does not exist"
+            #Write-Warning "File $mdFilePath does not exist"
         }
 	}
 }

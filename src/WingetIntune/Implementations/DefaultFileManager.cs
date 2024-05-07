@@ -40,6 +40,8 @@ public partial class DefaultFileManager : IFileManager
 
     public void DeleteFileOrFolder(string path)
     {
+
+#if NET8_0_OR_GREATER
         if (Path.Exists(path))
         {
             if (Directory.Exists(path))
@@ -47,6 +49,12 @@ public partial class DefaultFileManager : IFileManager
             else
                 File.Delete(path);
         }
+#else
+        if (Directory.Exists(path))
+            Directory.Delete(path, recursive: true);
+        else if (File.Exists(path))
+            File.Delete(path);
+#endif
     }
 
     public async Task DownloadFileAsync(string url, string path, string? expectedHash = null, bool throwOnFailure = true, bool overrideFile = false, CancellationToken cancellationToken = default)

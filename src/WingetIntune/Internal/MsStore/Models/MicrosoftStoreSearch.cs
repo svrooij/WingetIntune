@@ -1,12 +1,12 @@
 ﻿namespace WingetIntune.Internal.MsStore.Models;
 public class MicrosoftStoreSearchRequest
 {
-    public required MicrosoftStoreSearchQuery Query { get; set; }
+    public MicrosoftStoreSearchQuery Query { get; set; }
 }
 
 public class MicrosoftStoreSearchQuery
 {
-    public required string KeyWord { get; set; }
+    public string KeyWord { get; set; }
     public string MatchType { get; set; } = "Substring";
 }
 
