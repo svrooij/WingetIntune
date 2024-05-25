@@ -19,6 +19,8 @@ public sealed class PublicClientAuth : IAuthenticationProvider
     private string[] Scopes = IntuneManager.RequiredScopes;
     private AuthenticationResult? authenticationResult;
 
+    private readonly SemaphoreSlim semaphoreSlim = new SemaphoreSlim(1, 1);
+
     public PublicClientAuth(ILogger<PublicClientAuth> logger, IOptions<PublicClientOptions>? options)
     {
         if (options is null || string.IsNullOrWhiteSpace(options.Value.ClientId))
@@ -29,10 +31,12 @@ public sealed class PublicClientAuth : IAuthenticationProvider
         {
             _options = options.Value;
         }
+
         if (_options.UseBroker)
         {
             publicClientApplication = PublicClientApplicationBuilder
                 .Create(_options.ClientId)
+                .WithDefaultRedirectUri()
                 .WithBroker(new BrokerOptions(BrokerOptions.OperatingSystems.Windows) { Title = "Winget Intune uploader" })
                 .Build();
         }
@@ -50,16 +54,21 @@ public sealed class PublicClientAuth : IAuthenticationProvider
 
     private async Task LoadCache()
     {
+        await semaphoreSlim.WaitAsync();
+
         if (CacheLoaded)
         {
+            semaphoreSlim.Release();
             return;
         }
-        var storageProperties = new StorageCreationPropertiesBuilder(".accounts", Path.Combine(Path.GetTempPath(), "wingetintune"))
 
+        var storageProperties = new StorageCreationPropertiesBuilder(".accounts", Path.Combine(Path.GetTempPath(), "wingetintune"))
             .Build();
         var cacheHelper = await MsalCacheHelper.CreateAsync(storageProperties);
         cacheHelper.RegisterCache(publicClientApplication.UserTokenCache);
         CacheLoaded = true;
+        semaphoreSlim.Release();
+
     }
 
     public void SetAccountSuggestion(AccountSuggestion accountSuggestion)
@@ -74,7 +83,9 @@ public sealed class PublicClientAuth : IAuthenticationProvider
 
     public async Task<AuthenticationResult> AccuireTokenAsync(IEnumerable<string> scopes, string? tenantId = null, string? userId = null, CancellationToken cancellationToken = default)
     {
-        await LoadCache();
+        if (!CacheLoaded)
+            await LoadCache();
+
         if (authenticationResult is not null && authenticationResult.ExpiresOn > DateTimeOffset.UtcNow)
         {
             return authenticationResult;
@@ -98,6 +109,11 @@ public sealed class PublicClientAuth : IAuthenticationProvider
 
     public async Task<AuthenticationResult> AcquireTokenInteractiveAsync(IEnumerable<string> scopes, string? tenantId = null, string? userId = null, CancellationToken cancellationToken = default)
     {
+        using var timeoutCancellation = new CancellationTokenSource(30000);
+
+        // Create a "LinkedTokenSource" combining two CancellationTokens into one.
+        using var combinedCancellation = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, timeoutCancellation.Token);
+
         if (!CacheLoaded)
             await LoadCache();
         logger.LogInformation("Acquiring token interactively {@scopes} {tenantId} {userId}", scopes, tenantId, userId);
@@ -117,7 +133,7 @@ public sealed class PublicClientAuth : IAuthenticationProvider
             builder = builder.WithParentActivityOrWindow(BrokerHandle.GetConsoleOrTerminalWindow());
         }
 
-        return authenticationResult = await builder.ExecuteAsync(cancellationToken);
+        return authenticationResult = await builder.ExecuteAsync(combinedCancellation.Token);
     }
 
     public async Task AuthenticateRequestAsync(RequestInformation request, Dictionary<string, object>? additionalAuthenticationContext = null, CancellationToken cancellationToken = default)

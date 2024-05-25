@@ -16,28 +16,28 @@ internal class Program
     {
         var parser = new CommandLineBuilder(new Commands.WinGetRootCommand())
             .UseHost(_ => Host.CreateDefaultBuilder(),
-                           host =>
-                           {
-                               host.ConfigureAppConfiguration((context, config) =>
-                               {
-                                   if (AssemblyFolder() != Environment.CurrentDirectory)
-                                   {
-                                       config.Sources.Insert(0, new JsonConfigurationSource
-                                       {
-                                           Path = Path.Combine(AssemblyFolder() + "appsettings.json"),
-                                           Optional = true,
-                                           ReloadOnChange = true
-                                       });
-                                   }
-                                   config.Add(new ControlableLoggingSource());
-                               });
-                               host.ConfigureServices(services =>
-                               {
-                                   services.AddSingleton(ControlableLoggingSource.Provider!);
-                                   services.AddWingetServices();
-                                   services.AddSingleton<Winget.CommunityRepository.WingetRepository, Winget.CommunityRepository.WingetRepositoryWithEf>();
-                               });
-                           })
+                host =>
+                {
+                    host.ConfigureAppConfiguration((context, config) =>
+                    {
+                        if (AssemblyFolder() != Environment.CurrentDirectory)
+                        {
+                            config.Sources.Insert(0, new JsonConfigurationSource
+                            {
+                                Path = Path.Combine(AssemblyFolder() + "appsettings.json"),
+                                Optional = true,
+                                ReloadOnChange = true
+                            });
+                        }
+                        config.Add(new ControlableLoggingSource());
+                    });
+                    host.ConfigureServices(services =>
+                    {
+                        services.AddSingleton(ControlableLoggingSource.Provider!);
+                        services.AddWingetServices();
+                        services.AddSingleton<Winget.CommunityRepository.WingetRepository, Winget.CommunityRepository.WingetRepositoryWithEf>();
+                    });
+                })
             .UseDefaults()
             .Build();
         return await parser.InvokeAsync(args);

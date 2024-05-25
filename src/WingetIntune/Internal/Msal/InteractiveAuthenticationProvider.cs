@@ -17,6 +17,8 @@ public sealed class InteractiveAuthenticationProvider : IAuthenticationProvider
     private const string DefaultClientId = "d5a8a406-3b1d-4069-91cc-d76acdd812fe";
     private AuthenticationResult? authenticationResult;
 
+    private readonly SemaphoreSlim semaphoreSlim = new SemaphoreSlim(1, 1);
+
     public InteractiveAuthenticationProvider(InteractiveAuthenticationProviderOptions options)
     {
         if (options.Scopes is null || options.Scopes.Length == 0)
@@ -35,7 +37,8 @@ public sealed class InteractiveAuthenticationProvider : IAuthenticationProvider
         {
             publicClientApplication = PublicClientApplicationBuilder
                 .Create(_options.ClientId)
-                .WithBroker(new BrokerOptions(BrokerOptions.OperatingSystems.Windows) { Title = "Winget Intune uploader" })
+                .WithDefaultRedirectUri()
+                .WithBroker(new BrokerOptions(BrokerOptions.OperatingSystems.Windows) { Title = "WinTuner" })
                 .Build();
         }
         else
@@ -50,8 +53,10 @@ public sealed class InteractiveAuthenticationProvider : IAuthenticationProvider
 
     private async Task LoadCache()
     {
+        await semaphoreSlim.WaitAsync();
         if (CacheLoaded)
         {
+            semaphoreSlim.Release();
             return;
         }
         var storageProperties = new StorageCreationPropertiesBuilder(".accounts", Path.Combine(Path.GetTempPath(), "wintuner"))
@@ -59,11 +64,14 @@ public sealed class InteractiveAuthenticationProvider : IAuthenticationProvider
         var cacheHelper = await MsalCacheHelper.CreateAsync(storageProperties);
         cacheHelper.RegisterCache(publicClientApplication.UserTokenCache);
         CacheLoaded = true;
+        semaphoreSlim.Release();
     }
 
     public async Task<AuthenticationResult> AccuireTokenAsync(IEnumerable<string> scopes, string? tenantId = null, string? userId = null, CancellationToken cancellationToken = default)
     {
-        await LoadCache();
+        if (!CacheLoaded)
+            await LoadCache();
+
         if (authenticationResult is not null && authenticationResult.ExpiresOn > DateTimeOffset.UtcNow)
         {
             return authenticationResult;
@@ -80,12 +88,17 @@ public sealed class InteractiveAuthenticationProvider : IAuthenticationProvider
         }
         catch (MsalUiRequiredException)
         {
-            return await AcquireTokenInteractiveAsync(scopes, tenantId, userId, cancellationToken);
+            return await AcquireTokenInteractiveAsync(scopes, tenantId, account?.Username ?? userId, cancellationToken);
         }
     }
 
     public async Task<AuthenticationResult> AcquireTokenInteractiveAsync(IEnumerable<string> scopes, string? tenantId = null, string? userId = null, CancellationToken cancellationToken = default)
     {
+        using var timeoutCancellation = new CancellationTokenSource(30000);
+
+        // Create a "LinkedTokenSource" combining two CancellationTokens into one.
+        using var combinedCancellation = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, timeoutCancellation.Token);
+
         if (!CacheLoaded)
             await LoadCache();
         //logger.LogInformation("Acquiring token interactively {@scopes} {tenantId} {userId}", scopes, tenantId, userId);
@@ -105,7 +118,7 @@ public sealed class InteractiveAuthenticationProvider : IAuthenticationProvider
             builder = builder.WithParentActivityOrWindow(BrokerHandle.GetConsoleOrTerminalWindow());
         }
 
-        return authenticationResult = await builder.ExecuteAsync(cancellationToken);
+        return authenticationResult = await builder.ExecuteAsync(combinedCancellation.Token);
     }
 
     public async Task AuthenticateRequestAsync(RequestInformation request, Dictionary<string, object>? additionalAuthenticationContext = null, CancellationToken cancellationToken = default)
@@ -129,7 +142,7 @@ public class InteractiveAuthenticationProviderOptions
 {
     public string[] Scopes { get; set; }
     public bool UseBroker { get; set; } = RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
-    public string Username { get; set; }
+    public string? Username { get; set; }
     public string? ClientId { get; set; }
     public string? TenantId { get; set; }
 }

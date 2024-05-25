@@ -53,7 +53,7 @@ public class DeployWtMsStoreApp : BaseIntuneCmdlet
     private GraphStoreAppUploader? graphStoreAppUploader;
 
     [ServiceDependency]
-    private HttpClient? httpClient;
+    private WingetIntune.Graph.GraphClientFactory? gcf;
 
     /// <inheritdoc/>
     public override async Task ProcessRecordAsync(CancellationToken cancellationToken)
@@ -79,7 +79,7 @@ public class DeployWtMsStoreApp : BaseIntuneCmdlet
         ArgumentException.ThrowIfNullOrWhiteSpace(PackageId);
 #endif
         logger!.LogInformation("Uploading MSStore app {PackageId} to Intune", PackageId);
-        var graphServiceClient = CreateGraphServiceClient(httpClient!);
+        var graphServiceClient = gcf!.CreateClient(CreateAuthenticationProvider(cancellationToken: cancellationToken));
         try
         {
             var app = await graphStoreAppUploader!.CreateStoreAppAsync(graphServiceClient, PackageId!, cancellationToken);
