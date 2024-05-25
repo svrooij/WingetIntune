@@ -32,7 +32,7 @@ public class RemoveWtWin32App : BaseIntuneCmdlet
     private ILogger<RemoveWtWin32App>? logger;
 
     [ServiceDependency]
-    private HttpClient? httpClient;
+    private WingetIntune.Graph.GraphClientFactory? gcf;
 
     /// <inheritdoc/>
     public override async Task ProcessRecordAsync(CancellationToken cancellationToken)
@@ -40,7 +40,7 @@ public class RemoveWtWin32App : BaseIntuneCmdlet
         ValidateAuthenticationParameters();
         logger?.LogInformation("Removing app {appId} from Intune", AppId);
 
-        var graphServiceClient = CreateGraphServiceClient(httpClient!);
+        var graphServiceClient = gcf!.CreateClient(CreateAuthenticationProvider(cancellationToken: cancellationToken));
 
         // Load the app to get the relationships
         var app = await graphServiceClient.DeviceAppManagement.MobileApps[AppId].GetAsync(cancellationToken: cancellationToken);

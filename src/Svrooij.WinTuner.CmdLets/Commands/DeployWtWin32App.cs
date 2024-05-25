@@ -132,7 +132,7 @@ public class DeployWtWin32App : BaseIntuneCmdlet
     private MetadataManager? metadataManager;
 
     [ServiceDependency]
-    private HttpClient? httpClient;
+    private WingetIntune.Graph.GraphClientFactory? gcf;
 
     /// <inheritdoc/>
     public override async Task ProcessRecordAsync(CancellationToken cancellationToken)
@@ -166,7 +166,7 @@ public class DeployWtWin32App : BaseIntuneCmdlet
         }
 
         logger?.LogInformation("Uploading Win32App {DisplayName} to Intune with file {IntuneWinFile}", App!.DisplayName, IntuneWinFile);
-        var graphServiceClient = CreateGraphServiceClient(httpClient!);
+        var graphServiceClient = gcf!.CreateClient(CreateAuthenticationProvider(cancellationToken: cancellationToken));
         var newApp = await graphAppUploader!.CreateNewAppAsync(graphServiceClient, App, IntuneWinFile!, LogoPath, cancellationToken);
         logger?.LogInformation("Created Win32App {DisplayName} with id {appId}", newApp!.DisplayName, newApp.Id);
 

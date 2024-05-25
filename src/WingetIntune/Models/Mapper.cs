@@ -83,7 +83,8 @@ internal partial class Mapper
                     ScriptContent = System.Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes(packageInfo.DetectionScript!)),
                     EnforceSignatureCheck = false,
                     // Not sure if winget is even available on 32 bit systems
-                    RunAs32Bit = packageInfo.Architecture == Architecture.X86
+                    //RunAs32Bit = packageInfo.Architecture == Architecture.X86,
+                    RunAs32Bit = false,
                 }
             };
         }
