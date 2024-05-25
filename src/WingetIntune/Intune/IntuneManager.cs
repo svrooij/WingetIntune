@@ -64,7 +64,7 @@ public partial class IntuneManager
         {
             ComputeInstallerDetails(ref packageInfo, packageOptions);
         }
-        LogGeneratePackage(packageInfo.PackageIdentifier!, packageInfo.Version!, outputFolder);
+        LogGeneratePackage(packageInfo.PackageIdentifier!, packageInfo.Version!, packageInfo.Architecture, packageInfo.InstallerContext, outputFolder);
         var packageTempFolder = fileManager.CreateFolderForPackage(tempFolder, packageInfo.PackageIdentifier!, packageInfo.Version!);
         var packageFolder = fileManager.CreateFolderForPackage(outputFolder, packageInfo.PackageIdentifier!, packageInfo.Version!);
         var installerPath = await DownloadInstallerAsync(packageTempFolder, packageInfo, cancellationToken);
@@ -114,7 +114,7 @@ public partial class IntuneManager
         {
             return await GenerateMsiPackage(tempFolder, outputFolder, packageInfo, packageOptions, cancellationToken);
         }
-        LogGeneratePackage(packageInfo.PackageIdentifier!, packageInfo.Version!, outputFolder);
+        LogGeneratePackage(packageInfo.PackageIdentifier!, packageInfo.Version!, packageInfo.Architecture, packageInfo.InstallerContext, outputFolder);
         return await GenerateNoneMsiInstaller(tempFolder, outputFolder, packageInfo, packageOptions, cancellationToken);
     }
 
@@ -702,8 +702,8 @@ public partial class IntuneManager
         return new GraphServiceClient(httpClient, provider, "https://graph.microsoft.com/beta");
     }
 
-    [LoggerMessage(EventId = 1, Level = LogLevel.Information, Message = "Generating IntuneWin package for {PackageId} {Version} in {OutputFolder}")]
-    private partial void LogGeneratePackage(string PackageId, string Version, string OutputFolder);
+    [LoggerMessage(EventId = 1, Level = LogLevel.Information, Message = "Generating IntuneWin package for {PackageId} {Version} {Architecture} {Context} in {OutputFolder}")]
+    private partial void LogGeneratePackage(string PackageId, string Version, Architecture? Architecture, InstallerContext? Context, string OutputFolder);
 
     [LoggerMessage(EventId = 3, Level = LogLevel.Information, Message = "Downloading content prep tool from {ContentPrepUri}")]
     private partial void LogDownloadContentPrepTool(Uri ContentPrepUri);
