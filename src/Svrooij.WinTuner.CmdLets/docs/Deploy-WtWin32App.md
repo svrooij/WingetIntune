@@ -16,24 +16,26 @@ Create a Win32Lob app in Intune
 ```
 Deploy-WtWin32App [-App] <Win32LobApp> [-IntuneWinFile] <String> [[-LogoPath] <String>]
  [-OverrideAppName <String>] [-GraphId <String>] [[-UseManagedIdentity] <Boolean>]
- [-UseDefaultAzureCredential <Boolean>] [[-Token] <String>] [[-Username] <String>] [[-TenantId] <String>]
- [[-ClientId] <String>] [-ClientSecret <String>] [-ProgressAction <ActionPreference>] [<CommonParameters>]
+ [-UseDefaultAzureCredential <Boolean>] [[-Token] <String>] [-NoBroker <Boolean>] [[-Username] <String>]
+ [[-TenantId] <String>] [[-ClientId] <String>] [-ClientSecret <String>] [-Scopes <String[]>]
+ [-ProgressAction <ActionPreference>] [<CommonParameters>]
 ```
 
 ### WinGet
 ```
 Deploy-WtWin32App [-PackageId] <String> [-Version] <String> [-RootPackageFolder] <String>
  [-OverrideAppName <String>] [-GraphId <String>] [[-UseManagedIdentity] <Boolean>]
- [-UseDefaultAzureCredential <Boolean>] [[-Token] <String>] [[-Username] <String>] [[-TenantId] <String>]
- [[-ClientId] <String>] [-ClientSecret <String>] [-ProgressAction <ActionPreference>] [<CommonParameters>]
+ [-UseDefaultAzureCredential <Boolean>] [[-Token] <String>] [-NoBroker <Boolean>] [[-Username] <String>]
+ [[-TenantId] <String>] [[-ClientId] <String>] [-ClientSecret <String>] [-Scopes <String[]>]
+ [-ProgressAction <ActionPreference>] [<CommonParameters>]
 ```
 
 ### PackageFolder
 ```
 Deploy-WtWin32App [-PackageFolder] <String> [-OverrideAppName <String>] [-GraphId <String>]
  [[-UseManagedIdentity] <Boolean>] [-UseDefaultAzureCredential <Boolean>] [[-Token] <String>]
- [[-Username] <String>] [[-TenantId] <String>] [[-ClientId] <String>] [-ClientSecret <String>]
- [-ProgressAction <ActionPreference>] [<CommonParameters>]
+ [-NoBroker <Boolean>] [[-Username] <String>] [[-TenantId] <String>] [[-ClientId] <String>]
+ [-ClientSecret <String>] [-Scopes <String[]>] [-ProgressAction <ActionPreference>] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -295,6 +297,36 @@ Override the name of the app in Intune
 
 ```yaml
 Type: String
+Parameter Sets: (All)
+Aliases:
+
+Required: False
+Position: Named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -NoBroker
+Disable Windows authentication broker
+
+```yaml
+Type: Boolean
+Parameter Sets: (All)
+Aliases:
+
+Required: False
+Position: Named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -Scopes
+Specify the scopes to request, default is `DeviceManagementConfiguration.ReadWrite.All`, `DeviceManagementApps.ReadWrite.All`
+
+```yaml
+Type: String[]
 Parameter Sets: (All)
 Aliases:
 

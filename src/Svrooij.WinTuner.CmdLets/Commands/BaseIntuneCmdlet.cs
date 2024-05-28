@@ -15,6 +15,7 @@ namespace Svrooij.WinTuner.CmdLets.Commands;
 public abstract class BaseIntuneCmdlet : DependencyCmdlet<Startup>
 {
     private const string DefaultClientId = "d5a8a406-3b1d-4069-91cc-d76acdd812fe";
+    private const string DefaultClientCredentialScope = "https://graph.microsoft.com/.default";
 
     /// <summary>
     /// 
@@ -25,7 +26,7 @@ public abstract class BaseIntuneCmdlet : DependencyCmdlet<Startup>
         ValueFromPipeline = false,
         ValueFromPipelineByPropertyName = false,
         HelpMessage = "Use a managed identity to connect to Intune")]
-    public bool UseManagedIdentity { get; set; }
+    public bool UseManagedIdentity { get; set; } = Environment.GetEnvironmentVariable("AZURE_USE_MANAGED_IDENTITY")?.Equals("true", StringComparison.OrdinalIgnoreCase) == true;
 
     /// <summary>
     /// 
@@ -36,7 +37,7 @@ public abstract class BaseIntuneCmdlet : DependencyCmdlet<Startup>
         ValueFromPipeline = false,
         ValueFromPipelineByPropertyName = false,
         HelpMessage = "Use default Azure Credentials from Azure.Identity to connect to Intune")]
-    public bool UseDefaultAzureCredential { get; set; }
+    public bool UseDefaultAzureCredential { get; set; } = Environment.GetEnvironmentVariable("AZURE_USE_DEFAULT_CREDENTIALS")?.Equals("true", StringComparison.OrdinalIgnoreCase) == true;
 
     /// <summary>
     /// 
@@ -47,7 +48,7 @@ public abstract class BaseIntuneCmdlet : DependencyCmdlet<Startup>
         ValueFromPipeline = false,
         ValueFromPipelineByPropertyName = false,
         HelpMessage = "Use a token from another source to connect to Intune")]
-    public string? Token { get; set; }
+    public string? Token { get; set; } = Environment.GetEnvironmentVariable("AZURE_TOKEN");
 
     /// <summary>
     /// 
@@ -108,6 +109,17 @@ public abstract class BaseIntuneCmdlet : DependencyCmdlet<Startup>
     /// <summary>
     /// 
     /// </summary>
+    [Parameter(
+        Mandatory = false,
+        Position = 40,
+        ValueFromPipeline = false,
+        ValueFromPipelineByPropertyName = false,
+        HelpMessage = "Specify the scopes to request, default is `DeviceManagementConfiguration.ReadWrite.All`, `DeviceManagementApps.ReadWrite.All`")]
+    public string[]? Scopes { get; set; } = Environment.GetEnvironmentVariable("AZURE_SCOPES")?.Split(' ');
+
+    /// <summary>
+    /// 
+    /// </summary>
     internal static string[] DefaultScopes { get; } = new[] { "DeviceManagementConfiguration.ReadWrite.All", "DeviceManagementApps.ReadWrite.All" };
 
     internal void ValidateAuthenticationParameters()
@@ -119,11 +131,18 @@ public abstract class BaseIntuneCmdlet : DependencyCmdlet<Startup>
 
         if (UseManagedIdentity || UseDefaultAzureCredential)
         {
+            Scopes ??= new[] { DefaultClientCredentialScope };
             return;
         }
 
         if (!string.IsNullOrEmpty(Username))
         {
+            return;
+        }
+
+        if (!string.IsNullOrEmpty(ClientId) && !string.IsNullOrEmpty(ClientSecret) && !string.IsNullOrEmpty(TenantId))
+        {
+            Scopes ??= new[] { DefaultClientCredentialScope };
             return;
         }
 
@@ -137,7 +156,7 @@ public abstract class BaseIntuneCmdlet : DependencyCmdlet<Startup>
             return new WingetIntune.Internal.Msal.StaticAuthenticationProvider(Token);
         }
 
-        var scope = (scopes ?? DefaultScopes)[0];
+        var scope = (Scopes ?? scopes ?? DefaultScopes)[0];
 
         if (UseManagedIdentity || UseDefaultAzureCredential)
         {
@@ -148,16 +167,19 @@ public abstract class BaseIntuneCmdlet : DependencyCmdlet<Startup>
             return new Microsoft.Graph.Authentication.AzureIdentityAuthenticationProvider(credentials, null, null, scope);
         }
 
-        if (!string.IsNullOrEmpty(ClientId) && !string.IsNullOrEmpty(ClientSecret) && !string.IsNullOrEmpty(TenantId))
+        if (!string.IsNullOrEmpty(ClientId) && !string.IsNullOrEmpty(TenantId))
         {
-            return new Microsoft.Graph.Authentication.AzureIdentityAuthenticationProvider(new Azure.Identity.ClientSecretCredential(TenantId, ClientId, ClientSecret, new Azure.Identity.ClientSecretCredentialOptions
-            {
-                TokenCachePersistenceOptions = new Azure.Identity.TokenCachePersistenceOptions
+            if (!string.IsNullOrEmpty(ClientSecret)) {
+                return new Microsoft.Graph.Authentication.AzureIdentityAuthenticationProvider(new Azure.Identity.ClientSecretCredential(TenantId, ClientId, ClientSecret, new Azure.Identity.ClientSecretCredentialOptions
                 {
-                    Name = "WinTuner-PowerShell-CC",
-                    UnsafeAllowUnencryptedStorage = true,
-                }
-            }), scopes: new[] { scope });
+                    TokenCachePersistenceOptions = new Azure.Identity.TokenCachePersistenceOptions
+                    {
+                        Name = "WinTuner-PowerShell-CC",
+                        UnsafeAllowUnencryptedStorage = true,
+                    }
+                }), scopes: scope);
+            }
+            
         }
 
         // Alternative interactive authentication in case the broker is not working as expected.
