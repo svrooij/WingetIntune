@@ -6,14 +6,14 @@ Describe 'Search-WtWinGetPackage' {
     }
 
     It 'Should return a list of packages' {
-        $packages = Search-WtWinGetPackage -Name 'Firef'
+        $packages = Search-WtWinGetPackage 'Firef'
         $packages | Should -Not -BeNullOrEmpty
     }
 
     It 'Should return a list of packages with a specific name' {
-        $packages = Search-WtWinGetPackage -Name 'Firef'
+        $packages = Search-WtWinGetPackage 'Firef'
         $packages | ForEach-Object {
-            $_.PackageId | Should -Match 'Firef'
+            $_.PackageId | Should -Match '(?i)Firef'
         }
     }
 }
