@@ -12,6 +12,14 @@
       "cwd": "${fileDirname}"
     },
     {
+      "name": "Build and Load PowerShell Module",
+      "type": "PowerShell",
+      "request": "launch",
+      "preLaunchTask": "dotnet: build-module", // replace with your actual build task name
+      "script": "Import-Module .\\bin\\Debug\\net6.0\\WinTuner.psd1  -Verbose", // replace with your actual script path
+      "cwd": "${workspaceFolder}\\src\\Svrooij.WinTuner.CmdLets"
+    },
+    {
       "name": ".NET Core Package Microsoft SQL Server Management Studio",
       "type": "coreclr",
       "request": "launch",

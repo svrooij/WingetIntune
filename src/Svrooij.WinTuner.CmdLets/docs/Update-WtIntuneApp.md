@@ -16,8 +16,8 @@ Update an app in Intune
 Update-WtIntuneApp -AppId <String> [-Categories <String[]>] [-AvailableFor <String[]>]
  [-RequiredFor <String[]>] [-UninstallFor <String[]>] [-EnableAutoUpdate <Boolean>]
  [[-UseManagedIdentity] <Boolean>] [[-UseDefaultAzureCredential] <Boolean>] [[-Token] <String>]
- [[-Username] <String>] [[-TenantId] <String>] [[-ClientId] <String>] [[-ClientSecret] <String>]
- [-ProgressAction <ActionPreference>] [<CommonParameters>]
+ [-NoBroker <Boolean>] [[-Username] <String>] [[-TenantId] <String>] [[-ClientId] <String>]
+ [[-ClientSecret] <String>] [-Scopes <String[]>] [-ProgressAction <ActionPreference>] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -237,6 +237,36 @@ Enable auto update for the app
 
 ```yaml
 Type: Boolean
+Parameter Sets: (All)
+Aliases:
+
+Required: False
+Position: Named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -NoBroker
+Disable Windows authentication broker
+
+```yaml
+Type: Boolean
+Parameter Sets: (All)
+Aliases:
+
+Required: False
+Position: Named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -Scopes
+Specify the scopes to request, default is `DeviceManagementConfiguration.ReadWrite.All`, `DeviceManagementApps.ReadWrite.All`
+
+```yaml
+Type: String[]
 Parameter Sets: (All)
 Aliases:
 

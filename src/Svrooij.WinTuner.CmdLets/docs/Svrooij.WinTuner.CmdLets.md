@@ -29,6 +29,9 @@ Create intunewin file from Winget installer
 ### [Remove-WtWin32App](Remove-WtWin32App.md)
 Remove an app from Intune
 
+### [Search-WtWinGetPackage](Search-WtWinGetPackage.md)
+Search for packages in winget
+
 ### [Unprotect-IntuneWinPackage](Unprotect-IntuneWinPackage.md)
 Decrypt an IntuneWin package
 

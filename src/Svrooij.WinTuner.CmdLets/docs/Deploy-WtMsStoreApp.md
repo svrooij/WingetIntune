@@ -15,15 +15,17 @@ Create a MsStore app in Intune
 ### PackageId (Default)
 ```
 Deploy-WtMsStoreApp [-PackageId] <String> [[-UseManagedIdentity] <Boolean>]
- [[-UseDefaultAzureCredential] <Boolean>] [[-Token] <String>] [[-Username] <String>] [[-TenantId] <String>]
- [[-ClientId] <String>] [[-ClientSecret] <String>] [-ProgressAction <ActionPreference>] [<CommonParameters>]
+ [[-UseDefaultAzureCredential] <Boolean>] [[-Token] <String>] [-NoBroker <Boolean>] [[-Username] <String>]
+ [[-TenantId] <String>] [[-ClientId] <String>] [[-ClientSecret] <String>] [-Scopes <String[]>]
+ [-ProgressAction <ActionPreference>] [<CommonParameters>]
 ```
 
 ### SearchQuery
 ```
 Deploy-WtMsStoreApp [-SearchQuery] <String> [[-UseManagedIdentity] <Boolean>]
- [[-UseDefaultAzureCredential] <Boolean>] [[-Token] <String>] [[-Username] <String>] [[-TenantId] <String>]
- [[-ClientId] <String>] [[-ClientSecret] <String>] [-ProgressAction <ActionPreference>] [<CommonParameters>]
+ [[-UseDefaultAzureCredential] <Boolean>] [[-Token] <String>] [-NoBroker <Boolean>] [[-Username] <String>]
+ [[-TenantId] <String>] [[-ClientId] <String>] [[-ClientSecret] <String>] [-Scopes <String[]>]
+ [-ProgressAction <ActionPreference>] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -185,6 +187,36 @@ Accept wildcard characters: False
 Type: ActionPreference
 Parameter Sets: (All)
 Aliases: proga
+
+Required: False
+Position: Named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -NoBroker
+Disable Windows authentication broker
+
+```yaml
+Type: Boolean
+Parameter Sets: (All)
+Aliases:
+
+Required: False
+Position: Named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -Scopes
+Specify the scopes to request, default is `DeviceManagementConfiguration.ReadWrite.All`, `DeviceManagementApps.ReadWrite.All`
+
+```yaml
+Type: String[]
+Parameter Sets: (All)
+Aliases:
 
 Required: False
 Position: Named

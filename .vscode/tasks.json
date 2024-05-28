@@ -10,6 +10,16 @@
 					"isDefault": true
 			},
 			"problemMatcher": "$msCompile"
-	}
+		},
+		{
+			"type": "shell",
+			"label": "dotnet: build-module",
+			"command": "dotnet build ${workspaceFolder}\\src\\Svrooij.WinTuner.CmdLets\\Svrooij.WinTuner.CmdLets.csproj",
+			"group": {
+					"kind": "build",
+					"isDefault": true
+			},
+			"problemMatcher": "$msCompile"
+		}
 	]
 }
