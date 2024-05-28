@@ -40,7 +40,7 @@ public class SearchWtWinGetPackage : DependencyCmdlet<Startup>
             throw new ArgumentException("PackageId is required");
         }
         var packages = await wingetRepository.SearchPackage(PackageId ?? throw new ArgumentNullException(nameof(PackageId)), cancellationToken);
-        
+
         WriteObject(packages);
     }
 }

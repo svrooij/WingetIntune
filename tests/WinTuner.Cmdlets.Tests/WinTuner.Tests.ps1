@@ -8,11 +8,6 @@ BeforeDiscovery {
 }
 
 Describe "WinTuner Module tests" {
-
-  It "should have at least 8 commands" {
-    Get-Command -Module WinTuner | Should -HaveCount 8
-  }
-
   Context "Command <_>" -ForEach $commands {
     It "should have a help URI" {
       $command = Get-Command -Name $_

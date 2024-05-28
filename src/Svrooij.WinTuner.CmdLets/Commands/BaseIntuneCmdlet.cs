@@ -169,7 +169,8 @@ public abstract class BaseIntuneCmdlet : DependencyCmdlet<Startup>
 
         if (!string.IsNullOrEmpty(ClientId) && !string.IsNullOrEmpty(TenantId))
         {
-            if (!string.IsNullOrEmpty(ClientSecret)) {
+            if (!string.IsNullOrEmpty(ClientSecret))
+            {
                 return new Microsoft.Graph.Authentication.AzureIdentityAuthenticationProvider(new Azure.Identity.ClientSecretCredential(TenantId, ClientId, ClientSecret, new Azure.Identity.ClientSecretCredentialOptions
                 {
                     TokenCachePersistenceOptions = new Azure.Identity.TokenCachePersistenceOptions
@@ -179,7 +180,7 @@ public abstract class BaseIntuneCmdlet : DependencyCmdlet<Startup>
                     }
                 }), scopes: scope);
             }
-            
+
         }
 
         // Alternative interactive authentication in case the broker is not working as expected.
