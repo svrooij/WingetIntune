@@ -16,4 +16,12 @@ Describe 'Search-WtWinGetPackage' {
             $_.PackageId | Should -Match '(?i)Firef'
         }
     }
+
+    It 'Should allow filtering outputs' {
+        $packages = Search-WtWinGetPackage 'Microsoft.Visual'
+        $packageFiltered = Search-WtWinGetPackage 'Microsoft.Visual'  | Where-Object { $_.PackageId -eq 'Microsoft.VisualStudioCode' }
+
+        $packages.Count | Should -BeGreaterThan $packageFiltered.Count
+        $packageFiltered.Count | Should -Be 1
+    }
 }

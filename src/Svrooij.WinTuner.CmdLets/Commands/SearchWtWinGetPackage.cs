@@ -1,5 +1,6 @@
 ﻿using Svrooij.PowerShell.DependencyInjection;
 using System;
+using System.Collections.Generic;
 using System.Management.Automation;
 using System.Threading;
 using System.Threading.Tasks;
@@ -15,7 +16,7 @@ namespace Svrooij.WinTuner.CmdLets.Commands;
 /// <code>Search-WtWinGetPackage fire</code>
 /// </example>
 [Cmdlet(VerbsCommon.Search, "WtWinGetPackage", HelpUri = "https://wintuner.app/docs/wintuner-powershell/Search-WtWingetPackage")]
-[OutputType(typeof(Winget.CommunityRepository.Models.WingetEntry[]))]
+[OutputType(typeof(IReadOnlyCollection<Winget.CommunityRepository.Models.WingetEntry>))]
 public class SearchWtWinGetPackage : DependencyCmdlet<Startup>
 {
     /// <summary>
@@ -41,6 +42,9 @@ public class SearchWtWinGetPackage : DependencyCmdlet<Startup>
         }
         var packages = await wingetRepository.SearchPackage(PackageId ?? throw new ArgumentNullException(nameof(PackageId)), cancellationToken);
 
-        WriteObject(packages);
+        foreach (var package in packages)
+        {
+            WriteObject(package);
+        }
     }
 }

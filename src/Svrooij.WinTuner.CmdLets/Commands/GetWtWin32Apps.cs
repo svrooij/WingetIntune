@@ -96,6 +96,9 @@ public class GetWtWin32Apps : BaseIntuneCmdlet
             result = Superseding.Value ? result.Where(x => x.SupersededAppCount > 0).ToList() : result.Where(x => x.SupersededAppCount == 0).ToList();
         }
 
-        WriteObject(result);
+        foreach (var item in result)
+        {
+            WriteObject(item);
+        }
     }
 }

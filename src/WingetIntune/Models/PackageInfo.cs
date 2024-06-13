@@ -43,7 +43,7 @@ public class PackageInfo
             ;
     }
 
-    internal bool InstallersLoaded => Installers?.Any() == true;
+    internal bool InstallersLoaded => Installers?.Count > 0 == true;
 
     public static PackageInfo Parse(string wingetOutput)
     {
