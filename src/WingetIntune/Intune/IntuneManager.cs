@@ -499,10 +499,10 @@ public partial class IntuneManager
 
     private void ComputeInstallerDetails(ref PackageInfo package, PackageOptions packageOptions)
     {
-        var installer = package.GetBestFit(packageOptions.Architecture, packageOptions.InstallerContext)
-            ?? package.GetBestFit(Architecture.Neutral, InstallerContext.Unknown)
-            ?? package.GetBestFit(Architecture.Neutral, packageOptions.InstallerContext)
-            ?? package.GetBestFit(packageOptions.Architecture, InstallerContext.Unknown);
+        var installer = package.GetBestFit(packageOptions.Architecture, packageOptions.InstallerContext, packageOptions.Locale)
+            ?? package.GetBestFit(Architecture.Neutral, InstallerContext.Unknown, packageOptions.Locale)
+            ?? package.GetBestFit(Architecture.Neutral, packageOptions.InstallerContext, packageOptions.Locale)
+            ?? package.GetBestFit(packageOptions.Architecture, InstallerContext.Unknown, packageOptions.Locale);
         if (installer == null && packageOptions.Architecture == Architecture.X64)
         {
             installer = package.GetBestFit(Architecture.X86, packageOptions.InstallerContext)

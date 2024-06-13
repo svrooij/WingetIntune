@@ -31,15 +31,15 @@ public class PackageInfo
 
     public string? DetectionScript { get; set; }
 
-    internal WingetInstaller? GetBestFit(Architecture architecture, InstallerContext context)
+    internal WingetInstaller? GetBestFit(Architecture architecture, InstallerContext context, string? locale = null)
     {
         if (Installers is null) { return null; }
-        return Installers.SingleOrDefault(Models.InstallerType.Msi, architecture, context)
-            ?? Installers.SingleOrDefault(Models.InstallerType.Msi, architecture, Models.InstallerContext.Unknown)
-            ?? Installers.SingleOrDefault(Models.InstallerType.Wix, architecture, context)
-            ?? Installers.SingleOrDefault(Models.InstallerType.Wix, architecture, Models.InstallerContext.Unknown)
-            ?? Installers.SingleOrDefault(Models.InstallerType.Unknown, architecture, context)
-            ?? Installers.SingleOrDefault(Models.InstallerType.Unknown, architecture, Models.InstallerContext.Unknown)
+        return Installers.SingleOrDefault(Models.InstallerType.Msi, architecture, context, locale)
+            ?? Installers.SingleOrDefault(Models.InstallerType.Msi, architecture, Models.InstallerContext.Unknown, locale)
+            ?? Installers.SingleOrDefault(Models.InstallerType.Wix, architecture, context, locale)
+            ?? Installers.SingleOrDefault(Models.InstallerType.Wix, architecture, Models.InstallerContext.Unknown, locale)
+            ?? Installers.SingleOrDefault(Models.InstallerType.Unknown, architecture, context, locale)
+            ?? Installers.SingleOrDefault(Models.InstallerType.Unknown, architecture, Models.InstallerContext.Unknown, locale)
             ;
     }
 

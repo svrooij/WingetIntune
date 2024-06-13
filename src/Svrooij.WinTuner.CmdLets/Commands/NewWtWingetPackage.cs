@@ -96,6 +96,17 @@ public class NewWtWingetPackage : DependencyCmdlet<Startup>
         HelpMessage = "Package WinGet script, instead of the actual installer. Helpful for installers that don't really work with WinTuner.")]
     public bool? PackageScript { get; set; }
 
+    /// <summary>
+    /// Desired locale
+    /// </summary>
+    [Parameter(
+        Mandatory = false,
+        Position = 7,
+        ValueFromPipeline = true,
+        ValueFromPipelineByPropertyName = true,
+        HelpMessage = "The desired locale, if available (eg. 'en-US')")]
+    public string? Locale { get; set; }
+
     [ServiceDependency]
     private ILogger<NewWtWingetPackage> logger;
 
@@ -139,7 +150,8 @@ public class NewWtWingetPackage : DependencyCmdlet<Startup>
                 {
                     Architecture = Architecture,
                     InstallerContext = InstallerContext,
-                    PackageScript = PackageScript ?? false
+                    PackageScript = PackageScript ?? false,
+                    Locale = Locale,
                 },
                 cancellationToken: cancellationToken);
 

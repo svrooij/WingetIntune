@@ -24,19 +24,29 @@ public class MetadataManager
 
     public async Task<PackageInfo> LoadPackageInfoFromFolderAsync(string folder, CancellationToken cancellationToken)
     {
+        logger.LogDebug("Loading package info from {folder}", folder);
 #if NET8_0_OR_GREATER
         ArgumentException.ThrowIfNullOrEmpty(folder);
 #endif
         var filename = Path.Combine(folder, "app.json");
         if (!fileManager.FileExists(filename))
         {
-            throw new FileNotFoundException($"Could not find app.json in folder {folder}", filename);
+            var ex = new FileNotFoundException($"Could not find app.json in folder {folder}", filename);
+            logger.LogWarning(ex, "Could not find app.json in folder {folder}", folder);
+            throw ex;
         }
 
         logger.LogDebug("Loading package info from {filename}", filename);
 
         var data = await fileManager.ReadAllBytesAsync(filename, cancellationToken);
-        return JsonSerializer.Deserialize<PackageInfo>(data, MyJsonContext.Default.PackageInfo)!;
+        var result = JsonSerializer.Deserialize<PackageInfo>(data, MyJsonContext.Default.PackageInfo);
+        if (result == null)
+        {
+            var ex = new InvalidOperationException($"Could not deserialize app.json");
+            logger.LogWarning(ex, "Could not deserialize app.json in folder {folder}", folder);
+            throw ex;
+        }
+        return result;
     }
 
     public Task<PackageInfo> LoadPackageInfoFromFolderAsync(string rootFolder, string packageId, string version, CancellationToken cancellationToken) =>
