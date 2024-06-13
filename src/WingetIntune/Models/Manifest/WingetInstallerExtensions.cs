@@ -2,10 +2,10 @@
 
 internal static class WingetInstallerExtensions
 {
-    public static Winget.CommunityRepository.Models.WingetInstaller? SingleOrDefault(this IList<Winget.CommunityRepository.Models.WingetInstaller>? installers, InstallerType installerType, Architecture architecture, InstallerContext installerContext)
+    public static Winget.CommunityRepository.Models.WingetInstaller? SingleOrDefault(this IList<Winget.CommunityRepository.Models.WingetInstaller>? installers, InstallerType installerType, Architecture architecture, InstallerContext installerContext, string? locale = null)
     {
         if (installers is null || !installers.Any()) { return null; }
-        return installers.singleOrDefault(installerType, architecture, installerContext, "en-US")
+        return installers.singleOrDefault(installerType, architecture, installerContext, locale ?? "en-US")
             ?? installers.singleOrDefault(installerType, architecture, installerContext);
     }
 
@@ -13,7 +13,7 @@ internal static class WingetInstallerExtensions
     {
         return installers.FirstOrDefault(i =>
             (i.ParseInstallerType() == installerType || installerType == InstallerType.Unknown)
-            && (i.InstallerArchitecture() == architecture || architecture == Architecture.Unknown)
+            && (i.InstallerArchitecture() == architecture || (architecture == Architecture.Unknown && i.InstallerArchitecture() == Architecture.X64))
             && (i.ParseInstallerContext() == installerContext || installerContext == InstallerContext.Unknown)
             && (string.IsNullOrWhiteSpace(locale) || i.InstallerLocale == locale));
     }

@@ -64,7 +64,8 @@ public partial class WingetInstallerSwitches
 
     public string? GetPreferred()
     {
-        return Custom ?? Silent ?? SilentWithProgress; // ?? Interactive;
+        var result = string.Join(' ', Custom, (Silent ?? SilentWithProgress)).Trim();
+        return string.IsNullOrEmpty(result) ? null : result; // ?? Interactive
     }
 }
 
