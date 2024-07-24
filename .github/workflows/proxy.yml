@@ -11,6 +11,9 @@ jobs:
     name: ✅ Check proxy
     runs-on: ubuntu-latest
     steps:
+      - name: 👨‍💻 Check-out code
+        uses: actions/checkout@v4
+
       - name: 📦 Install Pester
         shell: pwsh
         run: Install-Module -Name Pester -Force -SkipPublisherCheck -Scope CurrentUser
