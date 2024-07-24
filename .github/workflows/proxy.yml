@@ -45,8 +45,12 @@ jobs:
         env:
           WINTUNER_PROXY_TOKEN: ${{ secrets.WINTUNER_PROXY_TOKEN }}
 
-      # - name: Publish Test Results
-      #   uses: EnricoMi/publish-unit-test-result-action@v2
-      #   if: always()
-      #   with:
-      #     files: ${{ github.workspace }}/testresults/*.xml
+      - name: Publish Test Results
+        uses: EnricoMi/publish-unit-test-result-action@v2
+        if: always()
+        with:
+          files: ${{ github.workspace }}/testresults/*.xml
+          check_run: false
+          job_summary: true
+          compare_to_earlier_commit: false
+          
