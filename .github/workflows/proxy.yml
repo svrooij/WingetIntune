@@ -42,6 +42,8 @@ jobs:
             }
           }
           Invoke-Pester -Configuration $pesterConfig
+        env:
+          WINTUNER_PROXY_TOKEN: ${{ secrets.WINTUNER_PROXY_TOKEN }}
 
       - name: Publish Test Results
         uses: EnricoMi/publish-unit-test-result-action@v2
