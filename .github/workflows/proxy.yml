@@ -1,4 +1,4 @@
-name: 🧪 Test Proxy
+name: 🧪 WinTuner proxy
 on:
   workflow_dispatch:
   schedule:
@@ -11,6 +11,9 @@ jobs:
     name: ✅ Check proxy
     runs-on: ubuntu-latest
     steps:
+      - name: 👨‍💻 Check-out code
+        uses: actions/checkout@v4
+
       - name: 📦 Install Pester
         shell: pwsh
         run: Install-Module -Name Pester -Force -SkipPublisherCheck -Scope CurrentUser
@@ -21,8 +24,8 @@ jobs:
           Import-Module Pester
           $pesterConfig = [PesterConfiguration]@{
             Output = @{
-              Verbosity = "Normal"
-              CIFormat = "Auto"
+              Verbosity = "Detailed"
+              CIFormat = "GithubActions"
               StackTraceVerbosity = "FirstLine"
             }
             TestResult = @{
@@ -39,9 +42,14 @@ jobs:
             }
           }
           Invoke-Pester -Configuration $pesterConfig
+        env:
+          WINTUNER_PROXY_CODE: ${{ secrets.WINTUNER_PROXY_TOKEN }}
 
       - name: Publish Test Results
         uses: EnricoMi/publish-unit-test-result-action@v2
         if: always()
         with:
           files: ${{ github.workspace }}/testresults/*.xml
+          check_run: false
+          job_summary: true
+          compare_to_earlier_commit: false
