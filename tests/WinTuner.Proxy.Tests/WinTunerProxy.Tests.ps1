@@ -12,7 +12,7 @@ Describe 'WinTunerProxy' {
 
   Describe 'Package' {
     It 'Should return package information for "9NZVDKPMR9RD"' {
-        $response = Invoke-RestMethod -Uri https://proxy.wintuner.app/api/store/package/9NZVDKPMR9RD -Headers @{ 'x-functions-key' = $env:WINTUNER_PROXY_CODE }
+        $response = Invoke-RestMethod -Uri https://proxy.wintuner.app/api/store/package/9NZVDKPMR9RD -Headers @{ 'x-functions-key' = $env:WINTUNER_PROXY_TOKEN }
         $response.packageIdentifier | Should -Be '9NZVDKPMR9RD'
         $response.displayName | Should -Be 'Mozilla Firefox'
         $response.publisher | Should -Be 'Mozilla'
@@ -25,7 +25,7 @@ Describe 'WinTunerProxy' {
     }
 
     It 'Should return package information for "XP9KHM4BK9FZ7Q"' {
-      $response = Invoke-RestMethod -Uri https://proxy.wintuner.app/api/store/package/XP9KHM4BK9FZ7Q -Headers @{ 'x-functions-key' = $env:WINTUNER_PROXY_CODE }
+      $response = Invoke-RestMethod -Uri https://proxy.wintuner.app/api/store/package/XP9KHM4BK9FZ7Q -Headers @{ 'x-functions-key' = $env:WINTUNER_PROXY_TOKEN }
       $response.packageIdentifier | Should -Be 'XP9KHM4BK9FZ7Q'
       $response.displayName | Should -Be 'Visual Studio Code'
       $response.publisher | Should -Be 'Microsoft Corporation'
@@ -40,7 +40,7 @@ Describe 'WinTunerProxy' {
 
   Describe 'Search' {
     It 'Should find packageIdentifier for "Visual Studio Code"' {
-        $response = Invoke-RestMethod -Uri https://proxy.wintuner.app/api/store/search?searchString=Visual+Studio+Code -Headers @{ 'x-functions-key' = $env:WINTUNER_PROXY_CODE }
+        $response = Invoke-RestMethod -Uri https://proxy.wintuner.app/api/store/search?searchString=Visual+Studio+Code -Headers @{ 'x-functions-key' = $env:WINTUNER_PROXY_TOKEN }
         # The response looks like:
         # [{"packageIdentifier": "string","displayName": "string","publisher": "string"}]
         # and is valid JSON with an array of objects
