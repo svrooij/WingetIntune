@@ -24,15 +24,15 @@ jobs:
           Import-Module Pester
           $pesterConfig = [PesterConfiguration]@{
             Output = @{
-              Verbosity = "Normal"
-              CIFormat = "Auto"
+              Verbosity = "Detailed"
+              CIFormat = "GithubActions"
               StackTraceVerbosity = "FirstLine"
             }
-            TestResult = @{
-              Enabled = $true
-              OutputPath = "${{ github.workspace }}/testresults/TestResults.xml"
-              OutputFormat = "JUnitXml"
-            }
+            # TestResult = @{
+            #   Enabled = $true
+            #   OutputPath = "${{ github.workspace }}/testresults/TestResults.xml"
+            #   OutputFormat = "JUnitXml"
+            # }
             Run = @{
               Path = "./tests/WinTuner.Proxy.Tests"
               Exit = $true
@@ -45,8 +45,8 @@ jobs:
         env:
           WINTUNER_PROXY_TOKEN: ${{ secrets.WINTUNER_PROXY_TOKEN }}
 
-      - name: Publish Test Results
-        uses: EnricoMi/publish-unit-test-result-action@v2
-        if: always()
-        with:
-          files: ${{ github.workspace }}/testresults/*.xml
+      # - name: Publish Test Results
+      #   uses: EnricoMi/publish-unit-test-result-action@v2
+      #   if: always()
+      #   with:
+      #     files: ${{ github.workspace }}/testresults/*.xml
