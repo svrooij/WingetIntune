@@ -15,7 +15,8 @@ public class Startup : PsStartup
     {
         services.AddTransient<SvRooij.ContentPrep.Packager>();
         services.AddTransient<Winget.CommunityRepository.WingetRepository>();
-        services.AddWingetServices();
+        const string code = "*REPLACED_AT_BUILD*";
+        services.AddWingetServices(code);
     }
 
     /// <inheritdoc/>

@@ -33,6 +33,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Winget.CommunityRepository.
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Apps", "Apps", "{4D1367F6-2076-481E-A7BD-0BFA6BEFCA3D}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WinTuner.Proxy.Client", "src\WinTuner.Proxy.Client\WinTuner.Proxy.Client.csproj", "{1074A148-FDB2-48B1-91C6-1D37A5D139A6}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -63,6 +65,10 @@ Global
 		{516169B3-872B-443B-8736-27E2A08E7091}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{516169B3-872B-443B-8736-27E2A08E7091}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{516169B3-872B-443B-8736-27E2A08E7091}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1074A148-FDB2-48B1-91C6-1D37A5D139A6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1074A148-FDB2-48B1-91C6-1D37A5D139A6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1074A148-FDB2-48B1-91C6-1D37A5D139A6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1074A148-FDB2-48B1-91C6-1D37A5D139A6}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -74,6 +80,7 @@ Global
 		{C32DB1BC-299E-4742-8372-278C8843026C} = {4D1367F6-2076-481E-A7BD-0BFA6BEFCA3D}
 		{050B8AB3-6232-4220-950F-578D9E3E2203} = {4D1367F6-2076-481E-A7BD-0BFA6BEFCA3D}
 		{516169B3-872B-443B-8736-27E2A08E7091} = {70C0FC9B-4495-43AC-AB67-331201AEAA52}
+		{1074A148-FDB2-48B1-91C6-1D37A5D139A6} = {70C0FC9B-4495-43AC-AB67-331201AEAA52}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {94A78033-8BE6-4A61-BC28-66CE040924C8}

@@ -12,6 +12,15 @@ on:
   workflow_dispatch:
 
 jobs:
+  api:
+    name: 💤 Wake api
+    runs-on: ubuntu-latest
+    steps:
+      - name: ✅ Load OpenAPI specs
+        shell: pwsh
+        run: |
+          $homepage = iwr -Uri https://proxy.wintuner.app
+          $specs = Iwr -Uri https://proxy.wintuner.app/api/swagger.json
   test:
     name: 🛠️ Build and Test C#
     runs-on: ubuntu-latest
@@ -40,7 +49,10 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-nuget
 
-      - name: 🎒 Load packages
+      - name: 🎒 Install Kiota
+        run: dotnet tool install --global Microsoft.OpenApi.Kiota
+
+      - name: 🎒 Load packages (and generate api client)
         run: dotnet restore
 
       - name: 🛠️ Build code
@@ -90,7 +102,10 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-nuget
 
-      - name: 🎒 Load packages
+      - name: 🎒 Install Kiota
+        run: dotnet tool install --global Microsoft.OpenApi.Kiota
+
+      - name: 🎒 Load packages (and generate api client)
         run: dotnet restore
 
       - name: 🛠️ Build module
@@ -168,7 +183,10 @@ jobs:
         restore-keys: |
           ${{ runner.os }}-nuget
 
-    - name: 🎒 Load packages
+    - name: 🎒 Install Kiota
+      run: dotnet tool install --global Microsoft.OpenApi.Kiota
+
+    - name: 🎒 Load packages (and generate api client)
       run: dotnet restore
 
     - name: 🛠️ Build code
@@ -212,7 +230,10 @@ jobs:
         restore-keys: |
           ${{ runner.os }}-nuget
 
-    - name: 🎒 Load packages
+    - name: 🎒 Install Kiota
+      run: dotnet tool install --global Microsoft.OpenApi.Kiota
+
+    - name: 🎒 Load packages (and generate api client)
       run: dotnet restore
 
     - name: 📝 Set module version
@@ -223,6 +244,12 @@ jobs:
         $module = Get-Content -Path src/Svrooij.WinTuner.CmdLets/WinTuner.psd1
         $module = $module -replace 'ModuleVersion = ''\d+\.\d+\.\d+''', "ModuleVersion = '$version'"
         $module | Set-Content -Path src/Svrooij.WinTuner.CmdLets/WinTuner.psd1
+        $startupContent = Get-Content -Path src/Svrooij.WinTuner.CmdLets/Startup.cs
+        $startupContent = $startupContent -replace '*REPLACED_AT_BUILD*', $env:WINTUNER_PROXY_TOKEN
+        $startupContent | Set-Content -Path src/Svrooij.WinTuner.CmdLets/Startup.cs
+
+      env:
+        WINTUNER_PROXY_TOKEN: ${{ secrets.WINTUNER_PROXY_TOKEN }}
 
     - name: 🛠️ Build module
       shell: pwsh

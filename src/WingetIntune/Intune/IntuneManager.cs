@@ -27,12 +27,11 @@ public partial class IntuneManager
     private readonly Mapper mapper = new Mapper();
     private readonly IAzureFileUploader azureFileUploader;
     private readonly IIntunePackager intunePackager;
-    private readonly Internal.MsStore.MicrosoftStoreClient microsoftStoreClient;
     private readonly PublicClientAuth publicClient;
     private readonly GraphAppUploader graphAppUploader;
     private readonly GraphStoreAppUploader graphStoreAppUploader;
 
-    public IntuneManager(ILoggerFactory? loggerFactory, IFileManager fileManager, IProcessManager processManager, HttpClient httpClient, IAzureFileUploader azureFileUploader, Internal.MsStore.MicrosoftStoreClient microsoftStoreClient, PublicClientAuth publicClient, IIntunePackager intunePackager, IWingetRepository wingetRepository, GraphAppUploader graphAppUploader, GraphStoreAppUploader graphStoreAppUploader)
+    public IntuneManager(ILoggerFactory? loggerFactory, IFileManager fileManager, IProcessManager processManager, HttpClient httpClient, IAzureFileUploader azureFileUploader, PublicClientAuth publicClient, IIntunePackager intunePackager, IWingetRepository wingetRepository, GraphAppUploader graphAppUploader, GraphStoreAppUploader graphStoreAppUploader)
     {
         this.loggerFactory = loggerFactory ?? new NullLoggerFactory();
         this.logger = this.loggerFactory.CreateLogger<IntuneManager>();
@@ -40,7 +39,6 @@ public partial class IntuneManager
         this.processManager = processManager;
         this.httpClient = httpClient;
         this.azureFileUploader = azureFileUploader;
-        this.microsoftStoreClient = microsoftStoreClient;
         this.publicClient = publicClient;
         this.intunePackager = intunePackager;
         this.wingetRepository = wingetRepository;
@@ -499,15 +497,7 @@ public partial class IntuneManager
 
     private void ComputeInstallerDetails(ref PackageInfo package, PackageOptions packageOptions)
     {
-        var installer = package.GetBestFit(packageOptions.Architecture, packageOptions.InstallerContext, packageOptions.Locale)
-            ?? package.GetBestFit(Architecture.Neutral, InstallerContext.Unknown, packageOptions.Locale)
-            ?? package.GetBestFit(Architecture.Neutral, packageOptions.InstallerContext, packageOptions.Locale)
-            ?? package.GetBestFit(packageOptions.Architecture, InstallerContext.Unknown, packageOptions.Locale);
-        if (installer == null && packageOptions.Architecture == Architecture.X64)
-        {
-            installer = package.GetBestFit(Architecture.X86, packageOptions.InstallerContext)
-                ?? package.GetBestFit(Architecture.X86, InstallerContext.Unknown);
-        }
+        var installer = package.GetBestInstaller(packageOptions);
         if (installer is null)
         {
             throw new ArgumentException($"No installer found for {package.PackageIdentifier} {package.Version} {packageOptions.Architecture}");

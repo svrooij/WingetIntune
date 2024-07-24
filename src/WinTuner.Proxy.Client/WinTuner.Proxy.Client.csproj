@@ -1,0 +1,35 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+	<ProxyBaseUrl>https://proxy.wintuner.app/api/</ProxyBaseUrl>
+  </PropertyGroup>
+
+	<ItemGroup>
+		<PackageReference Include="Microsoft.Kiota.Abstractions" Version="1.9.11" />
+		<PackageReference Include="Microsoft.Kiota.Http.HttpClientLibrary" Version="1.9.11" />
+		<PackageReference Include="Microsoft.Kiota.Serialization.Json" Version="1.9.11" />
+		<PackageReference Include="Microsoft.Extensions.Http" Version="8.0.0" />
+		<PackageReference Include="System.Text.Json" Version="8.0.4" />
+	</ItemGroup>
+	<Target Name="GenerateRestClient" DependsOnTargets="CleanGenerateRestClient;AutoGenerateRestClient">
+
+	</Target>
+
+	<Target Name="CleanGenerateRestClient" AfterTargets="CoreClean">
+		<RemoveDir Directories="Generated" />
+	</Target>
+
+	<Target Name="InstallKiotaMessage">
+		<Error Text="Install Kioata: &quot;dotnet tool install --global Microsoft.OpenApi.Kiota&quot;" />
+	</Target>
+
+	<Target Name="AutoGenerateRestClient" BeforeTargets="CollectPackageReferences" Outputs="Generated/WinTunerProxyClient.cs">
+		<Message Text="Genering REST Client" Importance="High" Condition="!Exists('./Generated/WinTunerProxyClient.cs')" />
+		<Exec Command="kiota generate --ll Error -l CSharp -c WinTunerProxyClient -n WinTuner.Proxy.Client -d $(ProxyBaseUrl)swagger.json -o ./Generated --serializer Microsoft.Kiota.Serialization.Json.JsonSerializationWriterFactory --deserializer Microsoft.Kiota.Serialization.Json.JsonParseNodeFactory" Condition="!Exists('./Generated/WinTunerProxyClient.cs')" />
+		<OnError ExecuteTargets="InstallKiotaMessage" />
+	</Target>
+
+</Project>

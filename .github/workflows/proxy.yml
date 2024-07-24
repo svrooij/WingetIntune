@@ -1,0 +1,47 @@
+name: 🧪 Test Proxy
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '28 7 * * 1,4,6'
+
+jobs:
+  proxy:
+    permissions:
+      checks: write
+    name: ✅ Check proxy
+    runs-on: ubuntu-latest
+    steps:
+      - name: 📦 Install Pester
+        shell: pwsh
+        run: Install-Module -Name Pester -Force -SkipPublisherCheck -Scope CurrentUser
+
+      - name: 🧪 Run test
+        shell: pwsh
+        run: |
+          Import-Module Pester
+          $pesterConfig = [PesterConfiguration]@{
+            Output = @{
+              Verbosity = "Normal"
+              CIFormat = "Auto"
+              StackTraceVerbosity = "FirstLine"
+            }
+            TestResult = @{
+              Enabled = $true
+              OutputPath = "${{ github.workspace }}/testresults/TestResults.xml"
+              OutputFormat = "JUnitXml"
+            }
+            Run = @{
+              Path = "./tests/WinTuner.Proxy.Tests"
+              Exit = $true
+            }
+            Should = @{
+              ErrorAction = "Continue"
+            }
+          }
+          Invoke-Pester -Configuration $pesterConfig
+
+      - name: Publish Test Results
+        uses: EnricoMi/publish-unit-test-result-action@v2
+        if: always()
+        with:
+          files: ${{ github.workspace }}/testresults/*.xml
