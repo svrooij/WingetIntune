@@ -1,4 +1,4 @@
-name: 🧪 Test Proxy
+name: 🧪 WinTuner proxy
 on:
   workflow_dispatch:
   schedule:
@@ -28,11 +28,11 @@ jobs:
               CIFormat = "GithubActions"
               StackTraceVerbosity = "FirstLine"
             }
-            # TestResult = @{
-            #   Enabled = $true
-            #   OutputPath = "${{ github.workspace }}/testresults/TestResults.xml"
-            #   OutputFormat = "JUnitXml"
-            # }
+            TestResult = @{
+              Enabled = $true
+              OutputPath = "${{ github.workspace }}/testresults/TestResults.xml"
+              OutputFormat = "JUnitXml"
+            }
             Run = @{
               Path = "./tests/WinTuner.Proxy.Tests"
               Exit = $true
@@ -43,7 +43,7 @@ jobs:
           }
           Invoke-Pester -Configuration $pesterConfig
         env:
-          WINTUNER_PROXY_TOKEN: ${{ secrets.WINTUNER_PROXY_TOKEN }}
+          WINTUNER_PROXY_CODE: ${{ secrets.WINTUNER_PROXY_TOKEN }}
 
       - name: Publish Test Results
         uses: EnricoMi/publish-unit-test-result-action@v2
@@ -53,4 +53,3 @@ jobs:
           check_run: false
           job_summary: true
           compare_to_earlier_commit: false
-          

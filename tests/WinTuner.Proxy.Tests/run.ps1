@@ -1,10 +1,9 @@
 $pesterConfig = [PesterConfiguration]@{
   Output = @{
-    Verbosity = "Normal"
+    Verbosity = "Detailed"
     CIFormat = "Auto"
     StackTraceVerbosity = "FirstLine"
   }
-  OutputFormat = "NUnitXML"
   TestResult = @{
     Enabled = $true
     OutputPath = "TestResults.xml"
