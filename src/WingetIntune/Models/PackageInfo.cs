@@ -43,6 +43,22 @@ public class PackageInfo
             ;
     }
 
+    internal WingetInstaller? GetBestInstaller(PackageOptions packageOptions)
+    {
+        if (Installers is null) { return null; }
+        var installer = GetBestFit(packageOptions.Architecture, packageOptions.InstallerContext, packageOptions.Locale)
+            ?? GetBestFit(Models.Architecture.Neutral, Models.InstallerContext.Unknown, packageOptions.Locale)
+            ?? GetBestFit(Models.Architecture.Neutral, packageOptions.InstallerContext, packageOptions.Locale)
+            ?? GetBestFit(packageOptions.Architecture, Models.InstallerContext.Unknown, packageOptions.Locale);
+        // if the installer is still null and we are not explicitly looking for arm64 or x64, try x86
+        if (installer == null && packageOptions.Architecture != WingetIntune.Models.Architecture.X64 && packageOptions.Architecture != Models.Architecture.Arm64)
+        {
+            installer = GetBestFit(Models.Architecture.X86, packageOptions.InstallerContext)
+                ?? GetBestFit(Models.Architecture.X86, Models.InstallerContext.Unknown);
+        }
+        return installer;
+    }
+
     internal bool InstallersLoaded => Installers?.Count > 0 == true;
 
     public static PackageInfo Parse(string wingetOutput)

@@ -1,16 +1,16 @@
 ﻿using System.Runtime.CompilerServices;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Kiota.Http.HttpClientLibrary;
-using Microsoft.Kiota.Http.HttpClientLibrary.Middleware;
-using Microsoft.Kiota.Http.HttpClientLibrary.Middleware.Options;
 using WingetIntune.Interfaces;
 using WingetIntune.Intune;
+using WinTuner.Proxy.Client;
 [assembly: InternalsVisibleTo("WingetIntune.Tests")]
 namespace WingetIntune;
 
 public static class WingetServiceCollectionExtension
 {
-    public static IServiceCollection AddWingetServices(this IServiceCollection services)
+    public const string DefaultProxyCode = "*REPLACED_AT_BUILD*";
+    public static IServiceCollection AddWingetServices(this IServiceCollection services, string? proxyCode = null)
     {
         services.ConfigureHttpClientDefaults(config =>
         {
@@ -53,30 +53,52 @@ public static class WingetServiceCollectionExtension
         services.AddTransient<Graph.GraphAppUploader>();
         services.AddTransient<Graph.GraphStoreAppUploader>();
         services.AddSingleton<Internal.Msal.PublicClientAuth>();
-        services.AddTransient<Internal.MsStore.MicrosoftStoreClient>();
         services.AddSingleton<IntuneManager>();
+
+        services.AddWinTunerProxyClient(config =>
+        {
+            var codeFromEnv = Environment.GetEnvironmentVariable("WINTUNER_PROXY_CODE");
+            if (!string.IsNullOrEmpty(codeFromEnv))
+            {
+                config.Code = codeFromEnv;
+            }
+            else if (!string.IsNullOrEmpty(proxyCode) && proxyCode != DefaultProxyCode)
+            {
+                config.Code = proxyCode;
+            }
+            var proxyUrl = Environment.GetEnvironmentVariable("WINTUNER_PROXY_URL");
+            if (!string.IsNullOrEmpty(proxyUrl))
+            {
+                config.BaseAddress = new Uri(proxyUrl);
+            }
+        });
 
         return services;
     }
 
     private static IServiceCollection AddKiotaHandlers(this IServiceCollection services)
     {
-        services.AddTransient<RetryHandler>();
-        services.AddTransient<RedirectHandler>();
-        services.AddTransient<ParametersNameDecodingHandler>();
-        services.AddTransient<UserAgentHandler>();
-        services.AddTransient<HeadersInspectionHandler>();
+        // Dynamically load the Kiota handlers from the Client Factory
+        var kiotaHandlers = KiotaClientFactory.GetDefaultHandlerTypes();
+        // And register them in the DI container
+        foreach (var handler in kiotaHandlers)
+        {
+            services.AddTransient(handler);
+        }
+
         return services;
     }
 
     private static IHttpClientBuilder AttachKiotaHandlers(this IHttpClientBuilder builder)
     {
-        //builder.AddHttpMessageHandler<UriReplacementHandler<UriReplacementHandlerOption>>();
-        //builder.AddHttpMessageHandler<RetryHandler>();
-        builder.AddHttpMessageHandler<RedirectHandler>();
-        builder.AddHttpMessageHandler<ParametersNameDecodingHandler>();
-        builder.AddHttpMessageHandler<UserAgentHandler>();
-        builder.AddHttpMessageHandler<HeadersInspectionHandler>();
+        // Dynamically load the Kiota handlers from the Client Factory
+        var kiotaHandlers = KiotaClientFactory.GetDefaultHandlerTypes();
+        // And attach them to the http client builder
+        foreach (var handler in kiotaHandlers)
+        {
+            builder.AddHttpMessageHandler((sp) => (DelegatingHandler)sp.GetRequiredService(handler));
+        }
+
         return builder;
     }
 }

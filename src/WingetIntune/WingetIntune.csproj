@@ -39,5 +39,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Winget.CommunityRepository\Winget.CommunityRepository.csproj" />
+    <ProjectReference Include="..\WinTuner.Proxy.Client\WinTuner.Proxy.Client.csproj" />
   </ItemGroup>
 </Project>
