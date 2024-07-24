@@ -12,6 +12,15 @@ on:
   workflow_dispatch:
 
 jobs:
+  api:
+    name: 💤 Wake api
+    runs-on: ubuntu-latest
+    steps:
+      - name: ✅ Load OpenAPI specs
+        shell: pwsh
+        run: |
+          $homepage = iwr -Uri https://proxy.wintuner.app
+          $specs = Iwr -Uri https://proxy.wintuner.app/api/swagger.json
   test:
     name: 🛠️ Build and Test C#
     runs-on: ubuntu-latest
@@ -43,7 +52,7 @@ jobs:
       - name: 🎒 Install Kiota
         run: dotnet tool install --global Microsoft.OpenApi.Kiota
 
-      - name: 🎒 Load packages
+      - name: 🎒 Load packages (and generate api client)
         run: dotnet restore
 
       - name: 🛠️ Build code
@@ -96,7 +105,7 @@ jobs:
       - name: 🎒 Install Kiota
         run: dotnet tool install --global Microsoft.OpenApi.Kiota
 
-      - name: 🎒 Load packages
+      - name: 🎒 Load packages (and generate api client)
         run: dotnet restore
 
       - name: 🛠️ Build module
@@ -177,7 +186,7 @@ jobs:
     - name: 🎒 Install Kiota
       run: dotnet tool install --global Microsoft.OpenApi.Kiota
 
-    - name: 🎒 Load packages
+    - name: 🎒 Load packages (and generate api client)
       run: dotnet restore
 
     - name: 🛠️ Build code
@@ -224,7 +233,7 @@ jobs:
     - name: 🎒 Install Kiota
       run: dotnet tool install --global Microsoft.OpenApi.Kiota
 
-    - name: 🎒 Load packages
+    - name: 🎒 Load packages (and generate api client)
       run: dotnet restore
 
     - name: 📝 Set module version
