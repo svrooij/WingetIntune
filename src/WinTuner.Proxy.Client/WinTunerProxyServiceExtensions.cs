@@ -13,7 +13,7 @@ public static class WinTunerProxyServiceExtensions
         {
             services.AddKiotaHandlers();
         }
-        
+
         services.AddHttpClient<WinTunerProxyClientFactory>().AttachKiotaHandlers();
         services.AddTransient<WinTunerProxyClient>((sp) => sp.GetRequiredService<WinTunerProxyClientFactory>().GetClient());
         return services;

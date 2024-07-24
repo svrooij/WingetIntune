@@ -245,7 +245,7 @@ public class DeployWtWin32App : BaseIntuneCmdlet
                 {
                     if (assignment.Intent == GraphModels.InstallIntent.Available && assignment.Settings is null)
                     {
-                        assignment.Settings = new GraphModels.Win32LobAppAssignmentSettings { AutoUpdateSettings = new GraphModels.Win32LobAppAutoUpdateSettings { AutoUpdateSupersededApps = GraphModels.Win32LobAppAutoUpdateSupersededApps.Enabled } };
+                        //assignment.Settings = new GraphModels.Win32LobAppAssignmentSettings { AutoUpdateSettings = new GraphModels.Win32LobAppAutoUpdateSettings { AutoUpdateSupersededApps = GraphModels.Win32LobAppAutoUpdateSupersededApps.Enabled } };
                     }
                 }
 
