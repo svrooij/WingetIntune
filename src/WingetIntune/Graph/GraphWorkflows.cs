@@ -70,7 +70,8 @@ public static class GraphWorkflows
         MobileAppAssignmentSettings? settings = null;
         if (intent == InstallIntent.Available && addSetting)
         {
-            //settings = new Win32LobAppAssignmentSettings { AutoUpdateSettings = new Win32LobAppAutoUpdateSettings { AutoUpdateSupersededApps = Win32LobAppAutoUpdateSupersededApps.Enabled } };
+            settings = new Win32LobAppAssignmentSettings { Notifications = Win32LobAppNotification.ShowReboot };
+            settings.AdditionalData.Add("autoUpdateSettings", new Win32LobAppAutoUpdateSettings());
         }
         if (groups is not null && groups.Any())
         {
