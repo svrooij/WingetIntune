@@ -245,7 +245,7 @@ jobs:
         $module = $module -replace 'ModuleVersion = ''\d+\.\d+\.\d+''', "ModuleVersion = '$version'"
         $module | Set-Content -Path src/Svrooij.WinTuner.CmdLets/WinTuner.psd1
         $startupContent = Get-Content -Path src/Svrooij.WinTuner.CmdLets/Startup.cs
-        $startupContent = $startupContent -replace '*REPLACED_AT_BUILD*', $env:WINTUNER_PROXY_TOKEN
+        $startupContent = $startupContent -replace '\*REPLACED_AT_BUILD\*', $env:WINTUNER_PROXY_TOKEN
         $startupContent | Set-Content -Path src/Svrooij.WinTuner.CmdLets/Startup.cs
 
       env:
