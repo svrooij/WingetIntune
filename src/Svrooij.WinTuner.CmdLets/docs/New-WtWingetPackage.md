@@ -15,7 +15,7 @@ Create intunewin file from Winget installer
 ```
 New-WtWingetPackage [-PackageId] <String> [[-PackageFolder] <String>] [[-Version] <String>]
  [[-TempFolder] <String>] [-Architecture <Architecture>] [-InstallerContext <InstallerContext>]
- [-PackageScript <Boolean>] [-ProgressAction <ActionPreference>] [<CommonParameters>]
+ [-PackageScript <Boolean>] [-Locale <String>] [-ProgressAction <ActionPreference>] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -142,6 +142,21 @@ Package WinGet script, instead of the actual installer. Helpful for installers t
 
 ```yaml
 Type: Boolean
+Parameter Sets: (All)
+Aliases:
+
+Required: False
+Position: Named
+Default value: None
+Accept pipeline input: True (ByPropertyName, ByValue)
+Accept wildcard characters: False
+```
+
+### -Locale
+The desired locale, if available (eg. 'en-US')
+
+```yaml
+Type: String
 Parameter Sets: (All)
 Aliases:
 
