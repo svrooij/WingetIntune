@@ -8,12 +8,21 @@ using System.Threading.Tasks;
 using WingetIntune.Models;
 
 namespace WingetIntune.Testing;
+
+/// <summary>
+/// Helper to test packages in the Windows Sandbox
+/// </summary>
 public class WindowsSandbox
 {
     private readonly ILogger<WindowsSandbox> logger;
     private readonly Packager packager;
     private readonly IProcessManager processManager;
 
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="loggerFactory"></param>
+    /// <param name="processManager"></param>
     public WindowsSandbox(ILoggerFactory loggerFactory, IProcessManager processManager)
     {
         this.logger = loggerFactory.CreateLogger<WindowsSandbox>();
@@ -21,25 +30,85 @@ public class WindowsSandbox
         this.processManager = processManager;
     }
 
-    public async Task<string> PrepareSandboxFileForPackage(PackageInfo packageInfo, string intuneWinFile, string outputFolder, int? timeout = null, CancellationToken cancellationToken = default)
+    /// <summary>
+    /// Prepares a sandbox file for a package
+    /// </summary>
+    /// <param name="intuneWinFile">The absolute path to the .intunewin file</param>
+    /// <param name="installerFilename">Name of the setup file inside the intune win, if not provided the name from the intunewin metadata will be used</param>
+    /// <param name="installerArguments">Silent arguments for this setup</param>
+    /// <param name="timeout">When a number above -1 is provided a shutdown command will be added to the script</param>
+    /// <param name="cancellationToken"></param>
+    /// <returns>The location of the sandbox file, which may be started with <see cref="RunSandbox(string, bool, CancellationToken)"/> method.</returns>
+    /// <remarks>Will decrypt the intunewin file to a temp folder, create install scripts and creates a Windows Sandbox file.</remarks>
+    public async Task<string> PrepareSandboxFileForPackage(string intuneWinFile, string? installerFilename, string? installerArguments, int? timeout = null, CancellationToken cancellationToken = default)
     {
-        logger.LogInformation("Preparing sandbox file for {PackageId} {Version}", packageInfo.PackageIdentifier, packageInfo.Version);
+        var outputFolder = Path.Combine(Path.GetTempPath(), "wintuner-sandbox", Guid.NewGuid().ToString());
+        logger.LogInformation("Preparing sandbox file for {IntuneWinFile}", intuneWinFile);
+        //logger.LogInformation("Preparing sandbox file for {PackageId} {Version}", packageInfo.PackageIdentifier, packageInfo.Version);
 
         var installerFolder = Path.Combine(outputFolder, "installer");
         var logsFolder = Path.Combine(outputFolder, "logs");
 
         Directory.CreateDirectory(installerFolder);
         Directory.CreateDirectory(logsFolder);
-        await packager.Unpack(intuneWinFile, installerFolder, cancellationToken);
+        var info = await packager.Unpack(intuneWinFile, installerFolder, cancellationToken);
+        logger.LogDebug("Unpackaged intunewin file {intuneWinFile} to {installerFolder} contained installer {InstallerFilename}", intuneWinFile, installerFolder, info?.SetupFile);
+        installerFilename ??= info!.SetupFile!;
+        if (!File.Exists(Path.Combine(installerFolder, installerFilename)))
+        {
+            throw new FileNotFoundException("Installer in the unpacked folder", installerFilename!);
+        }
 
         var sandboxFile = Path.Combine(outputFolder, "sandbox.wsb");
         await WriteSandboxConfig(sandboxFile, installerFolder, logsFolder);
-        await WriteTestScript(installerFolder, packageInfo, timeout);
+        var scriptFolder = Path.Combine(installerFolder, "wt_scripts");
+        await WriteTestScript(scriptFolder, installerFilename, installerArguments, timeout);
 
         return sandboxFile;
     }
 
-    private static async Task WriteSandboxConfig(string sandboxFilename, string installerFolder, string logFolder)
+    /// <summary>
+    /// Prepares a sandbox file for an installer
+    /// </summary>
+    /// <param name="setupFile">Absolute path to the installer</param>
+    /// <param name="installerArguments">Arguments that should be used</param>
+    /// <param name="timeout">Want to auto shutdown the Sandbox?</param>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
+    /// <exception cref="FileNotFoundException"></exception>
+    public async Task<string> PrepareSandboxForInstaller(string setupFile, string? installerArguments, int? timeout = null, CancellationToken cancellationToken = default)
+    {
+        var outputFolder = Path.Combine(Path.GetTempPath(), "wintuner-sandbox", Guid.NewGuid().ToString());
+        var installerFolder = Directory.GetParent(setupFile)!.FullName;
+        logger.LogInformation("Preparing sandbox file for {setupFile}", setupFile);
+
+        var scriptFolder = Path.Combine(outputFolder, "wt_scripts");
+        var logsFolder = Path.Combine(outputFolder, "logs");
+
+        Directory.CreateDirectory(scriptFolder);
+        Directory.CreateDirectory(logsFolder);
+
+        if (!File.Exists(setupFile))
+        {
+            throw new FileNotFoundException("Installer file not found", setupFile);
+        }
+
+        var sandboxFile = Path.Combine(outputFolder, "sandbox.wsb");
+        await WriteSandboxConfig(sandboxFile, installerFolder, logsFolder, scriptFolder);
+        await WriteTestScript(scriptFolder, Path.GetFileName(setupFile), installerArguments, timeout);
+
+        return sandboxFile;
+    }
+
+    /// <summary>
+    /// Creates a Windows Sandbox configuration file
+    /// </summary>
+    /// <param name="sandboxFilename">Absolute path the the sandbox file</param>
+    /// <param name="installerFolder">Where is the installer located, this folder will be mapped to the Sandbox as readonly</param>
+    /// <param name="logFolder">Where should the logs be placed? This folder will be mapped to the Sandbox as writable</param>
+    /// <param name="scriptFolder">Additional script folder if not in the installer folder</param>
+    /// <returns></returns>
+    private static async Task WriteSandboxConfig(string sandboxFilename, string installerFolder, string logFolder, string? scriptFolder = null)
     {
         var stringBuilder = new StringBuilder();
         stringBuilder.AppendLine("<Configuration>");
@@ -48,7 +117,7 @@ public class WindowsSandbox
         stringBuilder.AppendLine("  <MappedFolders>");
         stringBuilder.AppendLine("    <MappedFolder>");
         stringBuilder.AppendLine($"      <HostFolder>{installerFolder}</HostFolder>");
-        stringBuilder.AppendLine("      <SandboxFolder>c:\\Users\\WDAGUtilityAccount\\Downloads\\installer</SandboxFolder>");
+        stringBuilder.AppendLine("      <SandboxFolder>c:\\Users\\WDAGUtilityAccount\\Downloads\\Wintuner</SandboxFolder>");
         stringBuilder.AppendLine("      <ReadOnly>true</ReadOnly>");
         stringBuilder.AppendLine("    </MappedFolder>");
         stringBuilder.AppendLine("    <MappedFolder>");
@@ -56,11 +125,19 @@ public class WindowsSandbox
         stringBuilder.AppendLine("      <SandboxFolder>c:\\Users\\WDAGUtilityAccount\\Desktop\\logs</SandboxFolder>");
         stringBuilder.AppendLine("      <ReadOnly>false</ReadOnly>");
         stringBuilder.AppendLine("    </MappedFolder>");
+        if (scriptFolder is not null)
+        {
+            stringBuilder.AppendLine("    <MappedFolder>");
+            stringBuilder.AppendLine($"      <HostFolder>{scriptFolder}</HostFolder>");
+            stringBuilder.AppendLine("      <SandboxFolder>c:\\Users\\WDAGUtilityAccount\\Downloads\\Wintuner\\wt_scripts</SandboxFolder>");
+            stringBuilder.AppendLine("      <ReadOnly>true</ReadOnly>");
+            stringBuilder.AppendLine("    </MappedFolder>");
+        }
         stringBuilder.AppendLine("  </MappedFolders>");
 
         // Startup command
         stringBuilder.AppendLine("  <LogonCommand>");
-        stringBuilder.AppendLine("    <Command>c:\\Users\\WDAGUtilityAccount\\Downloads\\installer\\wintuner\\startup.cmd</Command>");
+        stringBuilder.AppendLine("    <Command>c:\\Users\\WDAGUtilityAccount\\Downloads\\Wintuner\\wt_scripts\\startup.cmd</Command>");
         stringBuilder.AppendLine("  </LogonCommand>");
 
         // Security settings
@@ -75,32 +152,50 @@ public class WindowsSandbox
         await File.WriteAllTextAsync(sandboxFilename, stringBuilder.ToString());
     }
 
-    private static async Task WriteTestScript(string installerFolder, PackageInfo packageInfo, int? timeout)
+    /// <summary>
+    /// Creates the test script that will be executed in the sandbox
+    /// </summary>
+    /// <param name="scriptFolder">Script folder location, it will create the scripts here.</param>
+    /// <param name="installerFilename">Filename of the installer</param>
+    /// <param name="installerArguments">Arguments of the installer, will be added to the install script</param>
+    /// <param name="timeout">If a value above -1 is provided, 'shutdown /s /t {timeout}' is added to the install script</param>
+    /// <returns></returns>
+    private static async Task WriteTestScript(string scriptFolder, string installerFilename, string? installerArguments, int? timeout)
     {
-        var arguments = packageInfo.InstallCommandLine?.Replace($"\"{packageInfo.InstallerFilename}\" ", "");
+
         // Create a batch script that will run a powershell script (Execution policy stuff...)
         var sb = new StringBuilder();
         sb.AppendLine("@echo off");
-        sb.AppendLine("start /wait /low powershell.exe -ExecutionPolicy Bypass -File \"C:\\Users\\WDAGUtilityAccount\\Downloads\\installer\\wintuner\\install.ps1\"");
+        sb.AppendLine("start /wait /low powershell.exe -ExecutionPolicy Bypass -File \"C:\\Users\\WDAGUtilityAccount\\Downloads\\Wintuner\\wt_scripts\\install.ps1\"");
         sb.AppendLine();
-        Directory.CreateDirectory(Path.Combine(installerFolder, "wintuner"));
-        await File.WriteAllTextAsync(Path.Combine(installerFolder, "wintuner", "startup.cmd"), sb.ToString());
+        Directory.CreateDirectory(scriptFolder);
+        await File.WriteAllTextAsync(Path.Combine(scriptFolder, "startup.cmd"), sb.ToString());
 
         sb.Clear();
 
         // Create the powershell script that will install the app
         // and collect the installed apps
         // This script will also shutdown the sandbox after the installation (if a timeout above -1 is provided)
-
         sb.AppendLine("Start-Transcript -Path c:\\Users\\WDAGUtilityAccount\\Desktop\\logs\\wintuner.log -Append -Force");
         sb.AppendLine("Write-Host \"Starting installation\"");
-        sb.AppendLine($"Write-Host \"Installer: {packageInfo.InstallerFilename}\"");
-        sb.AppendLine($"Write-Host \"Arguments: {arguments}\"");
+        sb.AppendLine($"Write-Host \"Installer: {installerFilename}\"");
+        sb.AppendLine($"Write-Host \"Arguments: {installerArguments}\"");
 
         // execute the installer and capture the exit code in powershell
-        sb.AppendLine($"& c:\\Users\\WDAGUtilityAccount\\Downloads\\installer\\{packageInfo.InstallerFilename} {arguments}");
+        //sb.AppendLine($"& \"c:\\Users\\WDAGUtilityAccount\\Downloads\\Wintuner\\{installerFilename}\" {installerArguments}");
         //sb.AppendLine("& cmd exit /b 5"); // This is a dummy command to test the exit code
-        sb.AppendLine("$exitCode = $LASTEXITCODE");
+        //sb.AppendLine("$exitCode = $LASTEXITCODE");
+
+        if (string.IsNullOrWhiteSpace(installerArguments))
+        {
+            sb.AppendLine($"$setupProcess = Start-Process -FilePath \"c:\\Users\\WDAGUtilityAccount\\Downloads\\Wintuner\\{installerFilename}\" -Wait -PassThru");
+        }
+        else
+        {
+            sb.AppendLine($"$setupProcess = Start-Process -FilePath \"c:\\Users\\WDAGUtilityAccount\\Downloads\\Wintuner\\{installerFilename}\" -ArgumentList \"{installerArguments}\" -Wait -PassThru");
+        }
+        
+        sb.AppendLine("$exitCode = $setupProcess.ExitCode");
         sb.AppendLine("Write-Host \"Installer finished with exitcode $exitCode\"");
 
         // write the exit code to a file
@@ -127,9 +222,16 @@ public class WindowsSandbox
         }
         // Exit with the exit code of the installer (not sure if that does anything)
         sb.AppendLine("exit $exitCode");
-        await File.WriteAllTextAsync(Path.Combine(installerFolder, "wintuner", "install.ps1"), sb.ToString());
+        await File.WriteAllTextAsync(Path.Combine(scriptFolder, "install.ps1"), sb.ToString());
     }
 
+    /// <summary>
+    /// Runs a sandbox file
+    /// </summary>
+    /// <param name="sandboxFile">Absolute path of the .wsb file</param>
+    /// <param name="cleanup">Should we try to cleanup the folder containing the sandbox file?</param>
+    /// <param name="cancellationToken">In case you want to cancel the process.</param>
+    /// <returns></returns>
     public async Task<SandboxResult?> RunSandbox(string sandboxFile, bool cleanup, CancellationToken cancellationToken)
     {
         logger.LogInformation("Running sandbox {sandboxFile}", sandboxFile);
@@ -151,9 +253,9 @@ public class WindowsSandbox
             var exitCodeFile = Path.Combine(logDirectory, "exitcode.txt");
             result = new SandboxResult
             {
-                ExitCode = File.Exists(exitCodeFile) && int.TryParse(await File.ReadAllTextAsync(exitCodeFile), out int exitCode) ? exitCode : 0,
-                Log = File.Exists(logFile) ? await File.ReadAllTextAsync(logFile) : null,
-                InstalledApps = await ParseInstalledApps(Path.Combine(logDirectory, "installed.csv"))
+                ExitCode = File.Exists(exitCodeFile) && int.TryParse(await File.ReadAllTextAsync(exitCodeFile, cancellationToken), out int exitCode) ? exitCode : 0,
+                Log = File.Exists(logFile) ? await File.ReadAllTextAsync(logFile, cancellationToken) : null,
+                InstalledApps = await ParseInstalledApps(Path.Combine(logDirectory, "installed.csv"), cancellationToken)
             };
         }
 
@@ -166,7 +268,7 @@ public class WindowsSandbox
 
     }
 
-    private async Task<IEnumerable<SandboxInstalledApps>?> ParseInstalledApps(string filename)
+    private async Task<IEnumerable<SandboxInstalledApps>?> ParseInstalledApps(string filename, CancellationToken cancellationToken = default)
     {
 
         // the file is a csv with headers Version,Vendor,Name and uses , as separator
@@ -177,7 +279,7 @@ public class WindowsSandbox
             return null;
         }
 
-        var lines = await File.ReadAllLinesAsync(filename);
+        var lines = await File.ReadAllLinesAsync(filename, cancellationToken);
         if (lines.Length < 2)
         {
             logger.LogWarning("Installed apps file is empty {filename}", filename);
