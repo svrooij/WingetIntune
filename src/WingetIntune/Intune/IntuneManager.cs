@@ -584,7 +584,7 @@ public partial class IntuneManager
                     if (installerSwitches?.Contains("/quiet") != true)
                     {
                         installerSwitches += " " + DefaultInstallerSwitches[InstallerType.Burn];
-                        installerSwitches = installerSwitches.Trim();
+                        installerSwitches = string.Join(" ", installerSwitches.Split(' ').Distinct()).Trim();
                     }
                     package.InstallCommandLine = $"\"{package.InstallerFilename}\" {installerSwitches}";
                     // Have to check the uninstall command
