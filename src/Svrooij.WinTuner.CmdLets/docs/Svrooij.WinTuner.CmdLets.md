@@ -32,6 +32,12 @@ Remove an app from Intune
 ### [Search-WtWinGetPackage](Search-WtWinGetPackage.md)
 Search for packages in winget
 
+### [Test-WtIntuneWin](Test-WtIntuneWin.md)
+Test if a package will install
+
+### [Test-WtSetupFile](Test-WtSetupFile.md)
+Test your silent install switches
+
 ### [Unprotect-IntuneWinPackage](Unprotect-IntuneWinPackage.md)
 Decrypt an IntuneWin package
 
