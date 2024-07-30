@@ -72,7 +72,7 @@ public partial class IntuneManager
         await WriteReadmeAsync(packageFolder, packageInfo, cancellationToken);
         await WritePackageInfo(packageFolder, packageInfo, cancellationToken);
 
-        return new Models.WingetPackage(packageInfo, packageFolder, intunePackage!);
+        return new Models.WingetPackage(packageInfo, packageFolder, intunePackage!) { InstallerArguments = packageInfo.InstallCommandLine?.Substring(packageInfo.InstallerFilename?.Length + 3 ?? 0), InstallerFile = packageInfo.InstallerFilename };
     }
 
     /// <summary>
@@ -183,7 +183,7 @@ public partial class IntuneManager
         await WritePackageInfo(packageFolder, packageInfo, cancellationToken);
         await WriteReadmeAsync(packageFolder, packageInfo, cancellationToken);
 
-        return new WingetPackage(packageInfo, packageFolder, intuneFile);
+        return new WingetPackage(packageInfo, packageFolder, intuneFile) { InstallerFile = packageInfo.InstallerFilename, InstallerArguments = packageInfo.InstallCommandLine?.Substring(packageInfo.InstallerFilename?.Length + 3 ?? 0) };
     }
 
     private static string GetPsCommandContent(string command, string successSearch, string message, string? packageId = null, string? action = null)
@@ -521,7 +521,7 @@ public partial class IntuneManager
         package.InstallerContext = installer.ParseInstallerContext() == InstallerContext.Unknown ? (package.InstallerContext ?? packageOptions.InstallerContext) : installer.ParseInstallerContext();
         package.InstallerType = installer.ParseInstallerType();
         package.Installer = installer;
-        if (!package.InstallerType.IsMsi() || packageOptions.PackageScript == true)
+        if (!package.InstallerType.IsMsi() || packageOptions.PackageScript)
         {
             ComputeInstallerCommands(ref package, packageOptions);
         }
@@ -549,7 +549,7 @@ public partial class IntuneManager
     private static readonly Dictionary<InstallerType, string> DefaultInstallerSwitches = new()
     {
         { InstallerType.Inno, "/VERYSILENT /SUPPRESSMSGBOXES /NORESTART /SP-" },
-        { InstallerType.Burn, "/quiet /norestart" },
+        { InstallerType.Burn, "/quiet /norestart /install" },
         { InstallerType.Nullsoft, "/S" },
     };
 
@@ -565,7 +565,7 @@ public partial class IntuneManager
         // And it also helps with installers that otherwise would just not install silently or install at all
         if (packageOptions.PackageScript != true)
         {
-            string? installerSwitches = package.Installer?.InstallerSwitches?.GetPreferred();
+            string? installerSwitches = packageOptions.OverrideArguments ?? package.Installer?.InstallerSwitches?.GetPreferred();
             switch (package.InstallerType)
             {
                 case InstallerType.Inno:
@@ -574,14 +574,19 @@ public partial class IntuneManager
                         installerSwitches += " " + DefaultInstallerSwitches[InstallerType.Inno];
                         installerSwitches = installerSwitches.Trim();
                     }
-                    package.InstallCommandLine = $"\"{package.InstallerFilename}\" {installerSwitches ?? DefaultInstallerSwitches[InstallerType.Inno]}";
+                    package.InstallCommandLine = $"\"{package.InstallerFilename}\" {installerSwitches}";
                     // Don't know the uninstall command
                     // Configure the uninstall command for Inno Setup
                     //package.UninstallCommandLine = $"\"{package.InstallerFilename}\" /VERYSILENT /SUPPRESSMSGBOXES /NORESTART /SP- /D={{0}}";
                     break;
 
                 case InstallerType.Burn:
-                    package.InstallCommandLine = $"\"{package.InstallerFilename}\" {installerSwitches ?? DefaultInstallerSwitches[InstallerType.Burn]}";
+                    if (installerSwitches?.Contains("/quiet") != true)
+                    {
+                        installerSwitches += " " + DefaultInstallerSwitches[InstallerType.Burn];
+                        installerSwitches = string.Join(" ", installerSwitches.Split(' ').Distinct()).Trim();
+                    }
+                    package.InstallCommandLine = $"\"{package.InstallerFilename}\" {installerSwitches}";
                     // Have to check the uninstall command
                     package.UninstallCommandLine = $"\"{package.InstallerFilename}\" /quiet /norestart /uninstall /passive"; // /burn.ignoredependencies=\"{package.PackageIdentifier}\"
                     break;

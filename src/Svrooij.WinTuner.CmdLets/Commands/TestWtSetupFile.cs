@@ -1,19 +1,11 @@
 ﻿using Microsoft.Extensions.Logging;
-using Microsoft.Graph.Beta;
 using Svrooij.PowerShell.DependencyInjection;
-using System;
 using System.IO;
 using System.Linq;
 using System.Management.Automation;
-using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
-using WingetIntune;
-using WingetIntune.Graph;
-using WingetIntune.Intune;
-using WingetIntune.Models;
 using WingetIntune.Testing;
-using GraphModels = Microsoft.Graph.Beta.Models;
 
 namespace Svrooij.WinTuner.CmdLets.Commands;
 /// <summary>
@@ -29,16 +21,11 @@ namespace Svrooij.WinTuner.CmdLets.Commands;
 [OutputType(typeof(string))]
 public class TestWtSetupFile : DependencyCmdlet<Startup>
 {
-    /// <summary>
-    /// <para type="description">The absolute path to your setup file</para>
-    /// </summary>
-    [Parameter(
-        Mandatory = true,
-        Position = 0,
-        ValueFromPipeline = false,
-        ValueFromPipelineByPropertyName = true,
-        HelpMessage = "Absolute path to your setup file")]
-    public string? SetupFile { get; set; }
+    [ServiceDependency]
+    private ILogger<TestWtSetupFile>? logger;
+
+    [ServiceDependency]
+    private WindowsSandbox? sandbox;
 
     /// <summary>
     /// <para type="description">Override the installer arguments</para>
@@ -52,29 +39,27 @@ public class TestWtSetupFile : DependencyCmdlet<Startup>
     public string? InstallerArguments { get; set; }
 
     /// <summary>
+    /// <para type="description">The absolute path to your setup file</para>
+    /// </summary>
+    [Parameter(
+        Mandatory = true,
+        Position = 0,
+        ValueFromPipeline = false,
+        ValueFromPipelineByPropertyName = true,
+        HelpMessage = "Absolute path to your setup file")]
+    public string? SetupFile { get; set; }
+    /// <summary>
     /// <para type="description">Sleep for x seconds before closing</para>
     /// </summary>
     [Parameter(
         Mandatory = false,
         HelpMessage = "Sleep for x seconds before auto shutdown")]
     public int? Sleep { get; set; }
-
-    [ServiceDependency]
-    private ILogger<TestWtSetupFile>? logger;
-
-    [ServiceDependency]
-    private WindowsSandbox? sandbox;
-
-    [ServiceDependency]
-    private MetadataManager? metadataManager;
-
     /// <inheritdoc/>
     public override async Task ProcessRecordAsync(CancellationToken cancellationToken)
     {
-
-
         var sandboxFile = await sandbox!.PrepareSandboxForInstaller(SetupFile!, InstallerArguments, Sleep, cancellationToken);
-        logger?.LogDebug("Sandbox file created at {sandboxFile}", sandboxFile);
+        logger?.LogDebug("Sandbox file created at {SandboxFile}", sandboxFile);
         var result = await sandbox.RunSandbox(sandboxFile, true, cancellationToken);
         if (result is null)
         {

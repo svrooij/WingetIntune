@@ -1,19 +1,13 @@
 ﻿using Microsoft.Extensions.Logging;
-using Microsoft.Graph.Beta;
 using Svrooij.PowerShell.DependencyInjection;
 using System;
 using System.IO;
 using System.Linq;
 using System.Management.Automation;
-using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
-using WingetIntune;
-using WingetIntune.Graph;
 using WingetIntune.Intune;
-using WingetIntune.Models;
 using WingetIntune.Testing;
-using GraphModels = Microsoft.Graph.Beta.Models;
 
 namespace Svrooij.WinTuner.CmdLets.Commands;
 /// <summary>

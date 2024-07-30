@@ -34,7 +34,7 @@ public class NewWtWingetPackage : DependencyCmdlet<Startup>
     /// The folder to store the package in
     /// </summary>
     [Parameter(
-        Mandatory = false,
+        Mandatory = true,
         Position = 1,
         ValueFromPipeline = true,
         ValueFromPipelineByPropertyName = true,
@@ -107,6 +107,17 @@ public class NewWtWingetPackage : DependencyCmdlet<Startup>
         HelpMessage = "The desired locale, if available (eg. 'en-US')")]
     public string? Locale { get; set; }
 
+    /// <summary>
+    /// Override the installer arguments
+    /// </summary>
+    [Parameter(
+        Mandatory = false,
+        Position = 8,
+        ValueFromPipeline = false,
+        ValueFromPipelineByPropertyName = false,
+        HelpMessage = "Override the installer arguments")]
+    public string? InstallerArguments { get; set; }
+
     [ServiceDependency]
     private ILogger<NewWtWingetPackage> logger;
 
@@ -152,6 +163,7 @@ public class NewWtWingetPackage : DependencyCmdlet<Startup>
                     InstallerContext = InstallerContext,
                     PackageScript = PackageScript ?? false,
                     Locale = Locale,
+                    OverrideArguments = InstallerArguments
                 },
                 cancellationToken: cancellationToken);
 

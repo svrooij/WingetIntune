@@ -34,4 +34,14 @@ public class WingetPackage
     /// The filename of the intunewin file
     /// </summary>
     public string PackageFile { get; set; }
+
+    /// <summary>
+    /// Installer filename
+    /// </summary>
+    public string? InstallerFile { get; set; }
+
+    /// <summary>
+    /// Installer arguments
+    /// </summary>
+    public string? InstallerArguments { get; set; }
 }
