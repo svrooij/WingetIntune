@@ -194,7 +194,7 @@ public class WindowsSandbox
         {
             sb.AppendLine($"$setupProcess = Start-Process -FilePath \"c:\\Users\\WDAGUtilityAccount\\Downloads\\Wintuner\\{installerFilename}\" -ArgumentList \"{installerArguments}\" -Wait -PassThru");
         }
-        
+
         sb.AppendLine("$exitCode = $setupProcess.ExitCode");
         sb.AppendLine("Write-Host \"Installer finished with exitcode $exitCode\"");
 

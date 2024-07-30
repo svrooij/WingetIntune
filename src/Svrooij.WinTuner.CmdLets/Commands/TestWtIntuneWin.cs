@@ -140,7 +140,7 @@ public class TestWtIntuneWin : DependencyCmdlet<Startup>
     public int? Sleep { get; set; }
 
     [ServiceDependency]
-    private ILogger<TestWtWin32App>? logger;
+    private ILogger<TestWtIntuneWin>? logger;
 
     [ServiceDependency]
     private WindowsSandbox? sandbox;
@@ -167,7 +167,7 @@ public class TestWtIntuneWin : DependencyCmdlet<Startup>
             InstallerArguments ??= packageInfo.InstallCommandLine?.Replace($"\"{packageInfo.InstallerFilename!}\" ", "");
             IntuneWinFile = metadataManager.GetIntuneWinFileName(PackageFolder, packageInfo);
         }
-        
+
         if (IntuneWinFile is null)
         {
             var ex = new ArgumentException("PackageFolder was provided");
