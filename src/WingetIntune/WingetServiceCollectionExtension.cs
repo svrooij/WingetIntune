@@ -3,6 +3,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Kiota.Http.HttpClientLibrary;
 using WingetIntune.Interfaces;
 using WingetIntune.Intune;
+using WingetIntune.Testing;
 using WinTuner.Proxy.Client;
 [assembly: InternalsVisibleTo("WingetIntune.Tests")]
 namespace WingetIntune;
@@ -54,6 +55,7 @@ public static class WingetServiceCollectionExtension
         services.AddTransient<Graph.GraphStoreAppUploader>();
         services.AddSingleton<Internal.Msal.PublicClientAuth>();
         services.AddSingleton<IntuneManager>();
+        services.AddTransient<WindowsSandbox>();
 
         services.AddWinTunerProxyClient(config =>
         {
