@@ -13,9 +13,10 @@ Create intunewin file from Winget installer
 ## SYNTAX
 
 ```
-New-WtWingetPackage [-PackageId] <String> [[-PackageFolder] <String>] [[-Version] <String>]
+New-WtWingetPackage [-PackageId] <String> [-PackageFolder] <String> [[-Version] <String>]
  [[-TempFolder] <String>] [-Architecture <Architecture>] [-InstallerContext <InstallerContext>]
- [-PackageScript <Boolean>] [-Locale <String>] [-ProgressAction <ActionPreference>] [<CommonParameters>]
+ [-PackageScript <Boolean>] [-Locale <String>] [-InstallerArguments <String>]
+ [-ProgressAction <ActionPreference>] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -40,7 +41,7 @@ Type: String
 Parameter Sets: (All)
 Aliases:
 
-Required: False
+Required: True
 Position: 1
 Default value: None
 Accept pipeline input: True (ByPropertyName, ByValue)
@@ -164,6 +165,21 @@ Required: False
 Position: Named
 Default value: None
 Accept pipeline input: True (ByPropertyName, ByValue)
+Accept wildcard characters: False
+```
+
+### -InstallerArguments
+Override the installer arguments
+
+```yaml
+Type: String
+Parameter Sets: (All)
+Aliases:
+
+Required: False
+Position: Named
+Default value: None
+Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
