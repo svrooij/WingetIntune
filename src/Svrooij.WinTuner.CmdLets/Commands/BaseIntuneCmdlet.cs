@@ -3,6 +3,7 @@ using Microsoft.Graph.Beta;
 using Microsoft.Kiota.Abstractions.Authentication;
 using Svrooij.PowerShell.DependencyInjection;
 using System;
+using System.IO;
 using System.Management.Automation;
 using System.Runtime.InteropServices;
 using System.Threading;
@@ -124,33 +125,38 @@ public abstract class BaseIntuneCmdlet : DependencyCmdlet<Startup>
 
     internal void ValidateAuthenticationParameters()
     {
-        if (!string.IsNullOrEmpty(Token))
+        // if (!string.IsNullOrEmpty(Token))
+        // {
+        //     return;
+        // }
+        //
+        // if (UseManagedIdentity || UseDefaultAzureCredential)
+        // {
+        //     Scopes ??= new[] { DefaultClientCredentialScope };
+        //     return;
+        // }
+        //
+        // if (!string.IsNullOrEmpty(Username))
+        // {
+        //     return;
+        // }
+        //
+        // if (!string.IsNullOrEmpty(ClientId) && !string.IsNullOrEmpty(ClientSecret) && !string.IsNullOrEmpty(TenantId))
+        // {
+        //     Scopes ??= new[] { DefaultClientCredentialScope };
+        //     return;
+        // }
+        //
+        // throw new ArgumentException($"Use `{nameof(Token)}`, `{nameof(UseManagedIdentity)}`, `{nameof(UseDefaultAzureCredential)}` or `{nameof(Username)}` to select the graph connection type", nameof(ParameterSetName));
+        if (ConnectWtWinTuner.AuthenticationProvider is null)
         {
-            return;
+            throw new InvalidDataException("Not logged in");
         }
-
-        if (UseManagedIdentity || UseDefaultAzureCredential)
-        {
-            Scopes ??= new[] { DefaultClientCredentialScope };
-            return;
-        }
-
-        if (!string.IsNullOrEmpty(Username))
-        {
-            return;
-        }
-
-        if (!string.IsNullOrEmpty(ClientId) && !string.IsNullOrEmpty(ClientSecret) && !string.IsNullOrEmpty(TenantId))
-        {
-            Scopes ??= new[] { DefaultClientCredentialScope };
-            return;
-        }
-
-        throw new ArgumentException($"Use `{nameof(Token)}`, `{nameof(UseManagedIdentity)}`, `{nameof(UseDefaultAzureCredential)}` or `{nameof(Username)}` to select the graph connection type", nameof(ParameterSetName));
     }
 
     internal IAuthenticationProvider CreateAuthenticationProvider(string[]? scopes = null, CancellationToken cancellationToken = default)
     {
+        return ConnectWtWinTuner.AuthenticationProvider!;
         if (!string.IsNullOrEmpty(Token))
         {
             return new WingetIntune.Internal.Msal.StaticAuthenticationProvider(Token);
