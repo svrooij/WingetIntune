@@ -7,6 +7,7 @@ using System.Management.Automation;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Kiota.Abstractions.Authentication;
 using WingetIntune.Graph;
 using WingetIntune.Intune;
 using GraphModels = Microsoft.Graph.Beta.Models;
@@ -21,7 +22,7 @@ namespace Svrooij.WinTuner.CmdLets.Commands;
 /// <para type="description">Upload a pre-packaged application, from just it's folder, using interactive authentication</para>
 /// <code>Deploy-WtWin32App -PackageFolder C:\Tools\packages\JanDeDobbeleer.OhMyPosh\19.5.2 -Username admin@myofficetenant.onmicrosoft.com</code>
 /// </example>
-[Cmdlet(VerbsLifecycle.Deploy, "WtWin32App", DefaultParameterSetName = ParameterSetApp)]
+[Cmdlet(VerbsLifecycle.Deploy, "WtWin32App", DefaultParameterSetName = ParameterSetApp, HelpUri = "https://wintuner.app/docs/wintuner-powershell/Deploy-WtWin32App")]
 [OutputType(typeof(GraphModels.Win32LobApp))]
 public class DeployWtWin32App : BaseIntuneCmdlet
 {
@@ -135,11 +136,9 @@ public class DeployWtWin32App : BaseIntuneCmdlet
     private WingetIntune.Graph.GraphClientFactory? gcf;
 
     /// <inheritdoc/>
-    public override async Task ProcessRecordAsync(CancellationToken cancellationToken)
+    protected override async Task ProcessAuthenticatedAsync(IAuthenticationProvider provider, CancellationToken cancellationToken)
     {
-        logger?.LogDebug("Validating authentication parameters");
-        ValidateAuthenticationParameters();
-        logger?.LogDebug("Authentication parameters validated");
+        
 
         if (App is null)
         {
@@ -172,7 +171,7 @@ public class DeployWtWin32App : BaseIntuneCmdlet
         }
 
         logger?.LogInformation("Uploading Win32App {DisplayName} to Intune with file {IntuneWinFile}", App!.DisplayName, IntuneWinFile);
-        var graphServiceClient = gcf!.CreateClient(CreateAuthenticationProvider(cancellationToken: cancellationToken));
+        var graphServiceClient = gcf!.CreateClient(provider);
         var newApp = await graphAppUploader!.CreateNewAppAsync(graphServiceClient, App, IntuneWinFile!, LogoPath, cancellationToken);
         logger?.LogInformation("Created Win32App {DisplayName} with id {appId}", newApp!.DisplayName, newApp.Id);
 

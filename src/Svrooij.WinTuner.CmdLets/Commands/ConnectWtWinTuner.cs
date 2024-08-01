@@ -12,15 +12,34 @@ using Microsoft.Kiota.Abstractions;
 
 namespace Svrooij.WinTuner.CmdLets.Commands;
 /// <summary>
-/// Connecting WinTuner to your Intune instance
+/// <para type="synopsis">Connect to Intune</para>
+/// <para type="description">A separate command to select the correct authentication provider, you no longer have to provide the auth parameters with each command.</para>
+/// <para type="link" uri="https://wintuner.app/docs/wintuner-powershell/Connect-WtWinTuner">Documentation</para> 
 /// </summary>
-[Cmdlet(VerbsCommunications.Connect, "WtWinTuner", DefaultParameterSetName = ParamSetInteractive)]
+/// <example>
+/// <para type="description">Connect using interactive authentication</para>
+/// <code>Connect-WtWinTuner -Username "youruser@contoso.com"</code>
+/// </example>
+/// <example>
+/// <para type="description">Connect using managed identity</para>
+/// <code>Connect-WtWinTuner -UseManagedIdentity</code>
+/// </example>
+/// <example>
+/// <para type="description">Connect using default credentials</para>
+/// <code>az login &amp; Connect-WtWinTuner -UseDefaultCredentials</code>
+/// </example>
+[Cmdlet(VerbsCommunications.Connect, "WtWinTuner", DefaultParameterSetName = ParamSetInteractive, HelpUri = "https://wintuner.app/docs/wintuner-powershell/Connect-WtWinTuner")]
 public class ConnectWtWinTuner : DependencyCmdlet<Startup>
 {
     private const string DefaultClientId = "d5a8a406-3b1d-4069-91cc-d76acdd812fe";
     private const string DefaultClientCredentialScope = "https://graph.microsoft.com/.default";
     private const string ParamSetInteractive = "Interactive";
     private const string ParamSetClientCredentials = "ClientCredentials";
+    
+    /// <summary>
+    /// Used default scopes
+    /// </summary>
+    private static readonly string[] DefaultScopes = { "DeviceManagementConfiguration.ReadWrite.All", "DeviceManagementApps.ReadWrite.All" };
     
     internal static IAuthenticationProvider? AuthenticationProvider { get; private set; }
 
@@ -124,7 +143,7 @@ public class ConnectWtWinTuner : DependencyCmdlet<Startup>
 
 
     /// <summary>
-    /// 
+    /// Client secret for client credentials flow
     /// </summary>
     [Parameter(
                Mandatory = true,
@@ -136,35 +155,40 @@ public class ConnectWtWinTuner : DependencyCmdlet<Startup>
     public string? ClientSecret { get; set; } = Environment.GetEnvironmentVariable("AZURE_CLIENT_SECRET");
 
     /// <summary>
-    /// 
+    /// Specify scopes to use
     /// </summary>
     [Parameter(
         Mandatory = false,
-        Position = 40,
+        Position = 10,
         ValueFromPipeline = false,
         ValueFromPipelineByPropertyName = false,
         HelpMessage = "Specify the scopes to request, default is `DeviceManagementConfiguration.ReadWrite.All`, `DeviceManagementApps.ReadWrite.All`")]
     public string[]? Scopes { get; set; } = Environment.GetEnvironmentVariable("AZURE_SCOPES")?.Split(' ');
 
     /// <summary>
-    /// 
+    /// Try getting a token after connecting.
     /// </summary>
-    internal static string[] DefaultScopes { get; } = { "DeviceManagementConfiguration.ReadWrite.All", "DeviceManagementApps.ReadWrite.All" };
+    [Parameter(Mandatory = false, Position = 11, HelpMessage = "Try to get a token after connecting, useful for testing.")]
+    public SwitchParameter Test { get; set; }
     
     [ServiceDependency]
-    private ILogger<ConnectWtWinTuner>? logger;
+    private ILogger<ConnectWtWinTuner>? _logger;
 
+    /// <inheritdoc />
     public override async Task ProcessRecordAsync(CancellationToken cancellationToken)
     {
-        AuthenticationProvider = await CreateAuthenticationProvider(cancellationToken);
+        _logger?.LogInformation("Connecting to Intune using {ParameterSetName}", ParameterSetName);
+        AuthenticationProvider = CreateAuthenticationProvider(cancellationToken);
 
-        // var ri = new RequestInformation(Method.GET, "https://graph.microsoft.com/test", new Dictionary<string, object>());
-        // await AuthenticationProvider.AuthenticateRequestAsync(ri, cancellationToken: cancellationToken);
-        // var headerValue = ri.Headers.TryGetValue("Authorization", out var values) ? values.FirstOrDefault() : "";
-        // logger?.LogInformation("Got auth header value {HeaderValue}", headerValue);
+        if (Test)
+        {
+            var token = await GetTokenAsync(cancellationToken);
+            _logger?.LogInformation("Got token {Token}", token);
+            WriteObject(token);
+        }
     }
 
-    internal async Task<IAuthenticationProvider> CreateAuthenticationProvider(CancellationToken cancellationToken = default)
+    private IAuthenticationProvider CreateAuthenticationProvider(CancellationToken cancellationToken = default)
     {
         if (!string.IsNullOrEmpty(Token))
         {
@@ -244,7 +268,28 @@ public class ConnectWtWinTuner : DependencyCmdlet<Startup>
         }
 
         // This should never happen, but just in case.
-        // The ValidateAuthenticationParameters should have caught this.
         throw new NotImplementedException();
+    }
+    
+    /// <summary>
+    /// Asynchronously retrieves a token from the authentication provider.
+    /// </summary>
+    /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
+    /// <returns>A task that represents the asynchronous operation. The task result contains the token string if successful; otherwise, null.</returns>
+    /// <exception cref="InvalidOperationException">Thrown when the authentication provider is not set.</exception>
+    internal static async Task<string?> GetTokenAsync(CancellationToken cancellationToken = default)
+    {
+        if (AuthenticationProvider == null)
+        {
+            throw new InvalidOperationException("AuthenticationProvider is not set, please run Connect-WtWinTuner first.");
+        }
+        // This is a "hack" to get a token from the authentication provider.
+        var ri = new RequestInformation(Method.GET, "https://graph.microsoft.com/test", new Dictionary<string, object>());
+        await AuthenticationProvider.AuthenticateRequestAsync(ri, cancellationToken: cancellationToken);
+        string? headerValue = ri.Headers.TryGetValue("Authorization", out var values) ? values.FirstOrDefault() : null;
+
+        // Header should be in the format "Bearer <token>"
+        // So we need to remove the "Bearer " part.
+        return headerValue?.Length > 7 ? headerValue.Substring(7) : null;
     }
 }

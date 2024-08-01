@@ -6,6 +6,7 @@ using System.Management.Automation;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Kiota.Abstractions.Authentication;
 using WingetIntune.Graph;
 
 namespace Svrooij.WinTuner.CmdLets.Commands;
@@ -19,7 +20,7 @@ namespace Svrooij.WinTuner.CmdLets.Commands;
 /// <para type="description">Get all apps that have updates, using interactive authentication</para>
 /// <code>Get-WtWin32Apps -Update $true -Username admin@myofficetenant.onmicrosoft.com</code>
 /// </example>
-[Cmdlet(VerbsCommon.Get, "WtWin32Apps")]
+[Cmdlet(VerbsCommon.Get, "WtWin32Apps", HelpUri = "https://wintuner.app/docs/wintuner-powershell/Get-WtWin32Apps")]
 [OutputType(typeof(Models.WtWin32App[]))]
 public class GetWtWin32Apps : BaseIntuneCmdlet
 {
@@ -54,12 +55,11 @@ public class GetWtWin32Apps : BaseIntuneCmdlet
     private Winget.CommunityRepository.WingetRepository? repo;
 
     /// <inheritdoc/>
-    public override async Task ProcessRecordAsync(CancellationToken cancellationToken)
+    protected override async Task ProcessAuthenticatedAsync(IAuthenticationProvider provider, CancellationToken cancellationToken)
     {
-        ValidateAuthenticationParameters();
         logger?.LogInformation("Getting list of published apps");
 
-        var graphServiceClient = gcf!.CreateClient(CreateAuthenticationProvider(cancellationToken: cancellationToken));
+        var graphServiceClient = gcf!.CreateClient(provider);
         var apps = await graphServiceClient.DeviceAppManagement.MobileApps.GetWinTunerAppsAsync(cancellationToken);
 
         List<Models.WtWin32App> result = new();
@@ -96,9 +96,6 @@ public class GetWtWin32Apps : BaseIntuneCmdlet
             result = Superseding.Value ? result.Where(x => x.SupersededAppCount > 0).ToList() : result.Where(x => x.SupersededAppCount == 0).ToList();
         }
 
-        foreach (var item in result)
-        {
-            WriteObject(item);
-        }
+        WriteObject(result, true);
     }
 }

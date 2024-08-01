@@ -6,6 +6,7 @@ using System.Management.Automation;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Kiota.Abstractions.Authentication;
 
 namespace Svrooij.WinTuner.CmdLets.Commands;
 
@@ -16,9 +17,9 @@ namespace Svrooij.WinTuner.CmdLets.Commands;
 /// </summary>
 /// <example>
 /// <para type="description">Delete a single app by ID with interactive authentication</para>
-/// <code>Remove-WtWin32App -AppId "1450c17d-aee5-4bef-acf9-9e0107d340f2" -Username admin@myofficetenant.onmicrosoft.com</code>
+/// <code>Remove-WtWin32App -AppId "1450c17d-aee5-4bef-acf9-9e0107d340f2"</code>
 /// </example>
-[Cmdlet(VerbsCommon.Remove, "WtWin32App")]
+[Cmdlet(VerbsCommon.Remove, "WtWin32App", HelpUri = "https://wintuner.app/docs/wintuner-powershell/Remove-WtWin32App")]
 public class RemoveWtWin32App : BaseIntuneCmdlet
 {
     /// <summary>
@@ -35,12 +36,11 @@ public class RemoveWtWin32App : BaseIntuneCmdlet
     private WingetIntune.Graph.GraphClientFactory? gcf;
 
     /// <inheritdoc/>
-    public override async Task ProcessRecordAsync(CancellationToken cancellationToken)
+    protected override async Task ProcessAuthenticatedAsync(IAuthenticationProvider provider, CancellationToken cancellationToken)
     {
-        ValidateAuthenticationParameters();
         logger?.LogInformation("Removing app {appId} from Intune", AppId);
 
-        var graphServiceClient = gcf!.CreateClient(CreateAuthenticationProvider(cancellationToken: cancellationToken));
+        var graphServiceClient = gcf!.CreateClient(provider);
 
         // Load the app to get the relationships
         var app = await graphServiceClient.DeviceAppManagement.MobileApps[AppId].GetAsync(cancellationToken: cancellationToken);

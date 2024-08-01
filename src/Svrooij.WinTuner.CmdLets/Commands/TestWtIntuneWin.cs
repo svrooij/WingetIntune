@@ -19,7 +19,7 @@ namespace Svrooij.WinTuner.CmdLets.Commands;
 /// <para type="description">Test a packaged installer in sandbox</para>
 /// <code>Test-WtIntuneWin -PackageFolder D:\packages\JanDeDobbeleer.OhMyPosh\22.0.3</code>
 /// </example>
-[Cmdlet(VerbsDiagnostic.Test, "WtIntuneWin", DefaultParameterSetName = nameof(PackageFolder))]
+[Cmdlet(VerbsDiagnostic.Test, "WtIntuneWin", DefaultParameterSetName = nameof(PackageFolder), HelpUri = "https://wintuner.app/docs/wintuner-powershell/Test-WtIntuneWin/")]
 [OutputType(typeof(string))]
 public class TestWtIntuneWin : DependencyCmdlet<Startup>
 {

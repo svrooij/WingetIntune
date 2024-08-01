@@ -17,7 +17,7 @@ namespace Svrooij.WinTuner.CmdLets.Commands;
 /// <para type="description">Package all files in C:\Temp\Source, with setup file ..\setup.exe to the specified folder</para>
 /// <code>New-IntuneWinPackage -SourcePath C:\Temp\Source -SetupFile C:\Temp\Source\setup.exe -DestinationPath C:\Temp\Destination</code>
 /// </example>
-[Cmdlet(VerbsCommon.New, "IntuneWinPackage", HelpUri = "https://wintuner.app/docs/related/content-prep-tool#new-intunewinpackage")]
+[Cmdlet(VerbsCommon.New, "IntuneWinPackage", HelpUri = "https://wintuner.app/docs/wintuner-powershell/contentprep/New-IntuneWinPackage")]
 public class NewIntuneWinPackage : DependencyCmdlet<Startup>
 {
     /// <summary>

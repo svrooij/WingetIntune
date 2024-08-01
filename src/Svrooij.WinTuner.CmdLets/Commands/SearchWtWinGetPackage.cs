@@ -10,6 +10,7 @@ namespace Svrooij.WinTuner.CmdLets.Commands;
 /// <summary>
 /// <para type="synopsis">Search for packages in winget</para>
 /// <para type="description">Search for WinGet packages, but faster</para>
+/// <para type="link" uri="https://wintuner.app/docs/wintuner-powershell/Search-WtWingetPackage">Documentation</para> 
 /// </summary>
 /// <example>
 /// <para type="description">Search for 'fire', did I tell you it's fast?</para>
