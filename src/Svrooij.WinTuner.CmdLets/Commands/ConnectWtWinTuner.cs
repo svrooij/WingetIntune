@@ -35,12 +35,12 @@ public class ConnectWtWinTuner : DependencyCmdlet<Startup>
     private const string DefaultClientCredentialScope = "https://graph.microsoft.com/.default";
     private const string ParamSetInteractive = "Interactive";
     private const string ParamSetClientCredentials = "ClientCredentials";
-    
+
     /// <summary>
     /// Used default scopes
     /// </summary>
     private static readonly string[] DefaultScopes = { "DeviceManagementConfiguration.ReadWrite.All", "DeviceManagementApps.ReadWrite.All" };
-    
+
     internal static IAuthenticationProvider? AuthenticationProvider { get; private set; }
 
     /// <summary>
@@ -170,7 +170,7 @@ public class ConnectWtWinTuner : DependencyCmdlet<Startup>
     /// </summary>
     [Parameter(Mandatory = false, Position = 11, HelpMessage = "Try to get a token after connecting, useful for testing.")]
     public SwitchParameter Test { get; set; }
-    
+
     [ServiceDependency]
     private ILogger<ConnectWtWinTuner>? _logger;
 
@@ -195,7 +195,7 @@ public class ConnectWtWinTuner : DependencyCmdlet<Startup>
             return new WingetIntune.Internal.Msal.StaticAuthenticationProvider(Token);
         }
 
-        var scope = (Scopes  ?? DefaultScopes)[0];
+        var scope = (Scopes ?? DefaultScopes)[0];
 
         if (UseManagedIdentity || UseDefaultCredentials)
         {
@@ -257,7 +257,7 @@ public class ConnectWtWinTuner : DependencyCmdlet<Startup>
 
                 return new Microsoft.Graph.Authentication.AzureIdentityAuthenticationProvider(credential, isCaeEnabled: false, scopes: Scopes ?? DefaultScopes);
             }
-            
+
             return new WingetIntune.Internal.Msal.InteractiveAuthenticationProvider(new WingetIntune.Internal.Msal.InteractiveAuthenticationProviderOptions
             {
                 ClientId = ClientId,
@@ -270,7 +270,7 @@ public class ConnectWtWinTuner : DependencyCmdlet<Startup>
         // This should never happen, but just in case.
         throw new NotImplementedException();
     }
-    
+
     /// <summary>
     /// Asynchronously retrieves a token from the authentication provider.
     /// </summary>

@@ -207,7 +207,8 @@ public class DeployWtWin32App : BaseIntuneCmdlet
         if (GraphId is not null)
         {
             await SupersedeApp(logger!, graphServiceClient, newApp!.Id!, GraphId, cancellationToken);
-        } else
+        }
+        else
         {
             if (Categories is not null && Categories.Any())
             {

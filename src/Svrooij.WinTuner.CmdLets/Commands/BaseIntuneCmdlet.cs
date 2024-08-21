@@ -33,7 +33,7 @@ public abstract class BaseIntuneCmdlet : DependencyCmdlet<Startup>
     {
         throw new NotImplementedException();
     }
-    
+
 
     private void ValidateAuthenticationParameters()
     {

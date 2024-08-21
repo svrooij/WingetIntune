@@ -26,13 +26,13 @@ public class GetWtToken : BaseIntuneCmdlet
     /// </summary>
     [Parameter(Mandatory = false, HelpMessage = "Decode the token")]
     public SwitchParameter DecodeToken { get; set; }
-    
+
     /// <summary>
     /// Output the token to the logs?
     /// </summary>
     [Parameter(Mandatory = false, HelpMessage = "Output the token to the logs?")]
     public SwitchParameter ShowToken { get; set; }
-    
+
     [ServiceDependency]
     private ILogger<GetWtToken>? _logger;
 
@@ -55,7 +55,7 @@ public class GetWtToken : BaseIntuneCmdlet
             var jwt = new JwtSecurityToken(token);
             _logger?.LogInformation("Token claims: {@Claims}", jwt.Claims);
         }
-        
+
         WriteObject(token);
     }
 }
