@@ -203,7 +203,7 @@ public class ConnectWtWinTuner : DependencyCmdlet<Startup>
             Azure.Core.TokenCredential credentials = UseManagedIdentity
                 ? new Azure.Identity.ManagedIdentityCredential(ClientId)
                 : new Azure.Identity.DefaultAzureCredential();
-            return new Microsoft.Graph.Authentication.AzureIdentityAuthenticationProvider(credentials, null, null, DefaultClientCredentialScope);
+            return new Microsoft.Graph.Authentication.AzureIdentityAuthenticationProvider(credentials, null, null, isCaeEnabled: false, DefaultClientCredentialScope);
         }
 
         if (ParameterSetName == ParamSetClientCredentials)
@@ -220,7 +220,7 @@ public class ConnectWtWinTuner : DependencyCmdlet<Startup>
                                 Name = "WinTuner-PowerShell-CC",
                                 UnsafeAllowUnencryptedStorage = true,
                             }
-                        }), scopes: scope);
+                        }), isCaeEnabled: false, scopes: scope);
             }
             else
             {
@@ -255,7 +255,7 @@ public class ConnectWtWinTuner : DependencyCmdlet<Startup>
                 // This will trigger the login screen early in the process.
                 //var result = credential.Authenticate(new Azure.Core.TokenRequestContext(scopes!, tenantId: TenantId), cancellationToken);
 
-                return new Microsoft.Graph.Authentication.AzureIdentityAuthenticationProvider(credential, scopes: Scopes ?? DefaultScopes);
+                return new Microsoft.Graph.Authentication.AzureIdentityAuthenticationProvider(credential, isCaeEnabled: false, scopes: Scopes ?? DefaultScopes);
             }
             
             return new WingetIntune.Internal.Msal.InteractiveAuthenticationProvider(new WingetIntune.Internal.Msal.InteractiveAuthenticationProviderOptions
@@ -277,7 +277,7 @@ public class ConnectWtWinTuner : DependencyCmdlet<Startup>
     /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
     /// <returns>A task that represents the asynchronous operation. The task result contains the token string if successful; otherwise, null.</returns>
     /// <exception cref="InvalidOperationException">Thrown when the authentication provider is not set.</exception>
-    internal static async Task<string?> GetTokenAsync(CancellationToken cancellationToken = default)
+    internal static async ValueTask<string?> GetTokenAsync(CancellationToken cancellationToken = default)
     {
         if (AuthenticationProvider == null)
         {
@@ -290,6 +290,9 @@ public class ConnectWtWinTuner : DependencyCmdlet<Startup>
 
         // Header should be in the format "Bearer <token>"
         // So we need to remove the "Bearer " part.
-        return headerValue?.Length > 7 ? headerValue.Substring(7) : null;
+        int AuthenticationSchemeLength = AuthenticationScheme.Length + 1;
+        return headerValue?.Length > AuthenticationSchemeLength && headerValue.StartsWith(AuthenticationScheme, StringComparison.InvariantCultureIgnoreCase) ? headerValue.Substring(AuthenticationSchemeLength) : null;
     }
+
+    private const string AuthenticationScheme = "Bearer";
 }

@@ -14,8 +14,8 @@ Create intunewin file from Winget installer
 
 ```
 New-WtWingetPackage [-PackageId] <String> [-PackageFolder] <String> [[-Version] <String>]
- [[-TempFolder] <String>] [-Architecture <Architecture>] [-InstallerContext <InstallerContext>]
- [-PackageScript <Boolean>] [-Locale <String>] [-InstallerArguments <String>]
+ [[-TempFolder] <String>] [[-Architecture] <Architecture>] [[-InstallerContext] <InstallerContext>]
+ [[-PackageScript] <Boolean>] [[-Locale] <String>] [[-InstallerArguments] <String>]
  [-ProgressAction <ActionPreference>] [<CommonParameters>]
 ```
 
@@ -32,6 +32,68 @@ PS C:\> New-WtWingetPackage -PackageId JanDeDobbeleer.OhMyPosh -PackageFolder C:
 Package all files in C:\Temp\Source, with setup file ..\setup.exe to the specified folder
 
 ## PARAMETERS
+
+### -Architecture
+Pick this architecture
+
+```yaml
+Type: Architecture
+Parameter Sets: (All)
+Aliases:
+Accepted values: Unknown, X86, X64, Arm64, Neutral
+
+Required: False
+Position: 4
+Default value: None
+Accept pipeline input: True (ByPropertyName, ByValue)
+Accept wildcard characters: False
+```
+
+### -InstallerArguments
+Override the installer arguments
+
+```yaml
+Type: String
+Parameter Sets: (All)
+Aliases:
+
+Required: False
+Position: 8
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -InstallerContext
+The installer context
+
+```yaml
+Type: InstallerContext
+Parameter Sets: (All)
+Aliases:
+Accepted values: Unknown, User, System
+
+Required: False
+Position: 5
+Default value: None
+Accept pipeline input: True (ByPropertyName, ByValue)
+Accept wildcard characters: False
+```
+
+### -Locale
+The desired locale, if available (eg. 'en-US')
+
+```yaml
+Type: String
+Parameter Sets: (All)
+Aliases:
+
+Required: False
+Position: 7
+Default value: None
+Accept pipeline input: True (ByPropertyName, ByValue)
+Accept wildcard characters: False
+```
 
 ### -PackageFolder
 The folder to store the package in
@@ -58,6 +120,21 @@ Aliases:
 
 Required: True
 Position: 0
+Default value: None
+Accept pipeline input: True (ByPropertyName, ByValue)
+Accept wildcard characters: False
+```
+
+### -PackageScript
+Package WinGet script, instead of the actual installer. Helpful for installers that don't really work with WinTuner.
+
+```yaml
+Type: Boolean
+Parameter Sets: (All)
+Aliases:
+
+Required: False
+Position: 6
 Default value: None
 Accept pipeline input: True (ByPropertyName, ByValue)
 Accept wildcard characters: False
@@ -100,81 +177,6 @@ Accept wildcard characters: False
 Type: ActionPreference
 Parameter Sets: (All)
 Aliases: proga
-
-Required: False
-Position: Named
-Default value: None
-Accept pipeline input: False
-Accept wildcard characters: False
-```
-
-### -Architecture
-Pick this architecture
-
-```yaml
-Type: Architecture
-Parameter Sets: (All)
-Aliases:
-
-Required: False
-Position: Named
-Default value: None
-Accept pipeline input: True (ByPropertyName, ByValue)
-Accept wildcard characters: False
-```
-
-### -InstallerContext
-The installer context
-
-```yaml
-Type: InstallerContext
-Parameter Sets: (All)
-Aliases:
-
-Required: False
-Position: Named
-Default value: None
-Accept pipeline input: True (ByPropertyName, ByValue)
-Accept wildcard characters: False
-```
-
-### -PackageScript
-Package WinGet script, instead of the actual installer. Helpful for installers that don't really work with WinTuner.
-
-```yaml
-Type: Boolean
-Parameter Sets: (All)
-Aliases:
-
-Required: False
-Position: Named
-Default value: None
-Accept pipeline input: True (ByPropertyName, ByValue)
-Accept wildcard characters: False
-```
-
-### -Locale
-The desired locale, if available (eg. 'en-US')
-
-```yaml
-Type: String
-Parameter Sets: (All)
-Aliases:
-
-Required: False
-Position: Named
-Default value: None
-Accept pipeline input: True (ByPropertyName, ByValue)
-Accept wildcard characters: False
-```
-
-### -InstallerArguments
-Override the installer arguments
-
-```yaml
-Type: String
-Parameter Sets: (All)
-Aliases:
 
 Required: False
 Position: Named

@@ -10,7 +10,7 @@ namespace Svrooij.WinTuner.CmdLets.Commands;
 
 /// <summary>
 /// <para type="synopsis">Get a token for graph</para>
-/// <para type="description">This command will get a token for the graph api, the token is cached, so you can call this as often as you want.</para>
+/// <para type="description">This command will get a token for the graph api. The token is cached, so you can call this as often as you want.</para>
 /// <para type="link" uri="https://wintuner.app/docs/wintuner-powershell/Get-WtToken">Documentation</para>
 /// </summary>
 /// <example>
@@ -18,6 +18,7 @@ namespace Svrooij.WinTuner.CmdLets.Commands;
 /// <code>Get-WtToken -DecodeToken | Set-Clipboard</code>
 /// </example>
 [Cmdlet(VerbsCommon.Get, "WtToken", HelpUri = "https://wintuner.app/docs/wintuner-powershell/Get-WtToken")]
+[OutputType(typeof(string))]
 public class GetWtToken : BaseIntuneCmdlet
 {
     /// <summary>

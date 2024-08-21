@@ -16,10 +16,10 @@ public abstract class BaseIntuneCmdlet : DependencyCmdlet<Startup>
     /// </summary>
     /// <param name="cancellationToken"></param>
     /// <remarks>This is sealed, override ProcessAuthenticatedAsync</remarks>
-    public sealed override Task ProcessRecordAsync(CancellationToken cancellationToken)
+    public sealed override async Task ProcessRecordAsync(CancellationToken cancellationToken)
     {
         ValidateAuthenticationParameters();
-        return ProcessAuthenticatedAsync(CreateAuthenticationProvider(cancellationToken), cancellationToken);
+        await ProcessAuthenticatedAsync(CreateAuthenticationProvider(cancellationToken), cancellationToken);
     }
 
     /// <summary>
