@@ -29,6 +29,7 @@ namespace Svrooij.WinTuner.CmdLets.Commands;
 /// <code>az login &amp; Connect-WtWinTuner -UseDefaultCredentials</code>
 /// </example>
 [Cmdlet(VerbsCommunications.Connect, "WtWinTuner", DefaultParameterSetName = ParamSetInteractive, HelpUri = "https://wintuner.app/docs/wintuner-powershell/Connect-WtWinTuner")]
+[Alias("Connect-WinTuner")]
 public class ConnectWtWinTuner : DependencyCmdlet<Startup>
 {
     private const string DefaultClientId = "d5a8a406-3b1d-4069-91cc-d76acdd812fe";
@@ -292,6 +293,16 @@ public class ConnectWtWinTuner : DependencyCmdlet<Startup>
         // So we need to remove the "Bearer " part.
         int AuthenticationSchemeLength = AuthenticationScheme.Length + 1;
         return headerValue?.Length > AuthenticationSchemeLength && headerValue.StartsWith(AuthenticationScheme, StringComparison.InvariantCultureIgnoreCase) ? headerValue.Substring(AuthenticationSchemeLength) : null;
+    }
+
+    internal static Task ClearAuthentication(CancellationToken cancellationToken = default)
+    {
+        if (AuthenticationProvider is IDisposable disposable)
+        {
+            disposable.Dispose();
+        }
+        AuthenticationProvider = null;
+        return Task.CompletedTask;
     }
 
     private const string AuthenticationScheme = "Bearer";

@@ -20,6 +20,9 @@ Create a MsStore app in Intune
 ### [Deploy-WtWin32App](Deploy-WtWin32App.md)
 Create a Win32Lob app in Intune
 
+### [Disconnect-WtWinTuner](Disconnect-WtWinTuner.md)
+Clear authentication data from module
+
 ### [Get-WtToken](Get-WtToken.md)
 Get a token for graph
 
