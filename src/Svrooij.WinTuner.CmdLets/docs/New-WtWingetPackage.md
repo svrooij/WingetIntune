@@ -15,8 +15,8 @@ Create intunewin file from Winget installer
 ```
 New-WtWingetPackage [-PackageId] <String> [-PackageFolder] <String> [[-Version] <String>]
  [[-TempFolder] <String>] [[-Architecture] <Architecture>] [[-InstallerContext] <InstallerContext>]
- [[-PackageScript] <Boolean>] [[-Locale] <String>] [[-InstallerArguments] <String>]
- [-ProgressAction <ActionPreference>] [<CommonParameters>]
+ [-PackageScript] [[-Locale] <String>] [[-InstallerArguments] <String>] [-ProgressAction <ActionPreference>]
+ [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -129,7 +129,7 @@ Accept wildcard characters: False
 Package WinGet script, instead of the actual installer. Helpful for installers that don't really work with WinTuner.
 
 ```yaml
-Type: Boolean
+Type: SwitchParameter
 Parameter Sets: (All)
 Aliases:
 

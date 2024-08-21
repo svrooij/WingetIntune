@@ -64,7 +64,7 @@ public class UpdateWtIntuneApp : BaseIntuneCmdlet
     /// </summary>
     [Parameter(Mandatory = false,
                       HelpMessage = "Enable auto update for the app")]
-    public bool EnableAutoUpdate { get; set; } = false;
+    public SwitchParameter EnableAutoUpdate { get; set; }
 
     [ServiceDependency]
     private ILogger<UpdateWtIntuneApp>? logger;
