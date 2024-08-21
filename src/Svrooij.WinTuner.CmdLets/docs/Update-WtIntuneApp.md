@@ -14,8 +14,8 @@ Update an app in Intune
 
 ```
 Update-WtIntuneApp -AppId <String> [-Categories <String[]>] [-AvailableFor <String[]>]
- [-RequiredFor <String[]>] [-UninstallFor <String[]>] [-EnableAutoUpdate <Boolean>]
- [-ProgressAction <ActionPreference>] [<CommonParameters>]
+ [-RequiredFor <String[]>] [-UninstallFor <String[]>] [-EnableAutoUpdate] [-ProgressAction <ActionPreference>]
+ [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -81,7 +81,7 @@ Accept wildcard characters: False
 Enable auto update for the app
 
 ```yaml
-Type: Boolean
+Type: SwitchParameter
 Parameter Sets: (All)
 Aliases:
 
