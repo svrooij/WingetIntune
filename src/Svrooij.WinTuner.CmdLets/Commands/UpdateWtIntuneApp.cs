@@ -6,6 +6,7 @@ using System.Management.Automation;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Kiota.Abstractions.Authentication;
 using WingetIntune.Graph;
 
 namespace Svrooij.WinTuner.CmdLets.Commands;
@@ -72,12 +73,11 @@ public class UpdateWtIntuneApp : BaseIntuneCmdlet
     private WingetIntune.Graph.GraphClientFactory? gcf;
 
     /// <inheritdoc/>
-    public override async Task ProcessRecordAsync(CancellationToken cancellationToken)
+    protected override async Task ProcessAuthenticatedAsync(IAuthenticationProvider provider, CancellationToken cancellationToken)
     {
-        ValidateAuthenticationParameters();
         logger?.LogInformation("Updating app {appId} in Intune", AppId);
 
-        var graphServiceClient = gcf!.CreateClient(CreateAuthenticationProvider(cancellationToken: cancellationToken));
+        var graphServiceClient = gcf!.CreateClient(provider);
 
         if (Categories is not null && Categories.Any())
         {

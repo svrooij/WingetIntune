@@ -15,7 +15,7 @@ namespace Svrooij.WinTuner.CmdLets.Commands;
 /// <para type="description">Package all files in C:\Temp\Source, with setup file ..\setup.exe to the specified folder</para>
 /// <code>New-WtWingetPackage -PackageId JanDeDobbeleer.OhMyPosh -PackageFolder C:\Tools\Packages</code>
 /// </example>
-[Cmdlet(VerbsCommon.New, "WtWingetPackage")]
+[Cmdlet(VerbsCommon.New, "WtWingetPackage", HelpUri = "https://wintuner.app/docs/wintuner-powershell/New-WtWingetPackage")]
 [OutputType(typeof(WingetIntune.Models.WingetPackage))]
 public class NewWtWingetPackage : DependencyCmdlet<Startup>
 {

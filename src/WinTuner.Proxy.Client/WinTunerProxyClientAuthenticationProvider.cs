@@ -1,10 +1,5 @@
 ﻿using Microsoft.Kiota.Abstractions;
 using Microsoft.Kiota.Abstractions.Authentication;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace WinTuner.Proxy.Client;
 internal class WinTunerProxyClientAuthenticationProvider : IAuthenticationProvider

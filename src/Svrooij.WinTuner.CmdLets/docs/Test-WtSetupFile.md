@@ -13,7 +13,7 @@ Test your silent install switches
 ## SYNTAX
 
 ```
-Test-WtSetupFile [-SetupFile] <String> [[-InstallerArguments] <String>] [-Sleep <Int32>]
+Test-WtSetupFile [[-InstallerArguments] <String>] [-SetupFile] <String> [-Sleep <Int32>]
  [-ProgressAction <ActionPreference>] [<CommonParameters>]
 ```
 

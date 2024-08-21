@@ -7,9 +7,11 @@ using System.Management.Automation;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Kiota.Abstractions.Authentication;
 using WingetIntune.Graph;
 using WingetIntune.Intune;
 using GraphModels = Microsoft.Graph.Beta.Models;
+using System.Linq;
 
 namespace Svrooij.WinTuner.CmdLets.Commands;
 /// <summary>
@@ -18,10 +20,10 @@ namespace Svrooij.WinTuner.CmdLets.Commands;
 /// <para type="link" uri="https://wintuner.app/docs/wintuner-powershell/Deploy-WtWin32App">Documentation</para> 
 /// </summary>
 /// <example>
-/// <para type="description">Upload a pre-packaged application, from just it's folder, using interactive authentication</para>
-/// <code>Deploy-WtWin32App -PackageFolder C:\Tools\packages\JanDeDobbeleer.OhMyPosh\19.5.2 -Username admin@myofficetenant.onmicrosoft.com</code>
+/// <para type="description">Upload a pre-packaged application, from just it's folder</para>
+/// <code>Deploy-WtWin32App -PackageFolder C:\Tools\packages\JanDeDobbeleer.OhMyPosh\19.5.2</code>
 /// </example>
-[Cmdlet(VerbsLifecycle.Deploy, "WtWin32App", DefaultParameterSetName = ParameterSetApp)]
+[Cmdlet(VerbsLifecycle.Deploy, "WtWin32App", DefaultParameterSetName = ParameterSetApp, HelpUri = "https://wintuner.app/docs/wintuner-powershell/Deploy-WtWin32App")]
 [OutputType(typeof(GraphModels.Win32LobApp))]
 public class DeployWtWin32App : BaseIntuneCmdlet
 {
@@ -120,7 +122,36 @@ public class DeployWtWin32App : BaseIntuneCmdlet
     /// <para type="description">The graph id of the app to supersede</para>
     /// </summary>
     [Parameter(DontShow = true, HelpMessage = "Graph ID of the app to supersede", Mandatory = false)]
+    [Alias("AppId")]
     public string? GraphId { get; set; }
+
+    /// <summary>
+    /// <para type="description">Categories to add to the app</para>
+    /// </summary>
+    [Parameter(Mandatory = false,
+        HelpMessage = "Categories to add to the app")]
+    public string[]? Categories { get; set; }
+
+    /// <summary>
+    /// <para type="description">Groups that the app should available for, Group Object ID or 'AllUsers'/'AllDevices'</para>
+    /// </summary>
+    [Parameter(Mandatory = false,
+               HelpMessage = "Groups that the app should available for, Group Object ID or 'AllUsers'/'AllDevices'")]
+    public string[]? AvailableFor { get; set; }
+
+    /// <summary>
+    /// <para type="description">Groups that the app is required for, Group Object ID or 'AllUsers'/'AllDevices'</para>
+    /// </summary>
+    [Parameter(Mandatory = false,
+                      HelpMessage = "Groups that the app is required for, Group Object ID or 'AllUsers'/'AllDevices'")]
+    public string[]? RequiredFor { get; set; }
+
+    /// <summary>
+    /// <para type="description">Groups that the app should be uninstalled for, Group Object ID or 'AllUsers'/'AllDevices'</para>
+    /// </summary>
+    [Parameter(Mandatory = false,
+                             HelpMessage = "Groups that the app should be uninstalled for, Group Object ID or 'AllUsers'/'AllDevices'")]
+    public string[]? UninstallFor { get; set; }
 
     [ServiceDependency]
     private ILogger<DeployWtWin32App>? logger;
@@ -135,12 +166,8 @@ public class DeployWtWin32App : BaseIntuneCmdlet
     private WingetIntune.Graph.GraphClientFactory? gcf;
 
     /// <inheritdoc/>
-    public override async Task ProcessRecordAsync(CancellationToken cancellationToken)
+    protected override async Task ProcessAuthenticatedAsync(IAuthenticationProvider provider, CancellationToken cancellationToken)
     {
-        logger?.LogDebug("Validating authentication parameters");
-        ValidateAuthenticationParameters();
-        logger?.LogDebug("Authentication parameters validated");
-
         if (App is null)
         {
             if (ParameterSetName == ParameterSetWinGet)
@@ -172,7 +199,7 @@ public class DeployWtWin32App : BaseIntuneCmdlet
         }
 
         logger?.LogInformation("Uploading Win32App {DisplayName} to Intune with file {IntuneWinFile}", App!.DisplayName, IntuneWinFile);
-        var graphServiceClient = gcf!.CreateClient(CreateAuthenticationProvider(cancellationToken: cancellationToken));
+        var graphServiceClient = gcf!.CreateClient(provider);
         var newApp = await graphAppUploader!.CreateNewAppAsync(graphServiceClient, App, IntuneWinFile!, LogoPath, cancellationToken);
         logger?.LogInformation("Created Win32App {DisplayName} with id {appId}", newApp!.DisplayName, newApp.Id);
 
@@ -180,6 +207,22 @@ public class DeployWtWin32App : BaseIntuneCmdlet
         if (GraphId is not null)
         {
             await SupersedeApp(logger!, graphServiceClient, newApp!.Id!, GraphId, cancellationToken);
+        }
+        else
+        {
+            if (Categories is not null && Categories.Any())
+            {
+                logger?.LogInformation("Adding categories to app {appId}", newApp!.Id);
+                await graphServiceClient.AddIntuneCategoriesToAppAsync(newApp!.Id!, Categories, cancellationToken);
+            }
+
+            if ((AvailableFor is not null && AvailableFor.Any()) ||
+                (RequiredFor is not null && RequiredFor.Any()) ||
+                (UninstallFor is not null && UninstallFor.Any()))
+            {
+                logger?.LogInformation("Assigning app {appId} to groups", newApp!.Id);
+                await graphServiceClient.AssignAppAsync(newApp!.Id!, RequiredFor, AvailableFor, UninstallFor, false, cancellationToken);
+            }
         }
 
         WriteObject(newApp!);

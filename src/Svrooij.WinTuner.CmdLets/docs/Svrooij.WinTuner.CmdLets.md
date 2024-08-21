@@ -1,8 +1,8 @@
 ---
 Module Name: Svrooij.WinTuner.CmdLets
-Module Guid: d813f5e2-ef9a-44a3-8f14-d282c01b5ead
-Download Help Link: https://wintuner.app/docs/category/wintuner-powershell
-Help Version: 
+Module Guid: 00000000-0000-0000-0000-000000000000
+Download Help Link: {{ Update Download Link }}
+Help Version: {{ Please enter version of help manually (X.X.X.X) format }}
 Locale: en-US
 ---
 
@@ -11,11 +11,20 @@ Locale: en-US
 WinTuner PowerShell is a module to help you create an deploy Win32 apps in Microsoft Intune. It can create an IntuneWin package from any folder or from an installer downloaded from WinGet.
 
 ## Svrooij.WinTuner.CmdLets Cmdlets
+### [Connect-WtWinTuner](Connect-WtWinTuner.md)
+Connect to Intune
+
 ### [Deploy-WtMsStoreApp](Deploy-WtMsStoreApp.md)
 Create a MsStore app in Intune
 
 ### [Deploy-WtWin32App](Deploy-WtWin32App.md)
 Create a Win32Lob app in Intune
+
+### [Disconnect-WtWinTuner](Disconnect-WtWinTuner.md)
+Clear authentication data from module
+
+### [Get-WtToken](Get-WtToken.md)
+Get a token for graph
 
 ### [Get-WtWin32Apps](Get-WtWin32Apps.md)
 Get all apps from Intune packaged by WinTuner

@@ -5,8 +5,10 @@ using System.Management.Automation;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Kiota.Abstractions.Authentication;
 using WingetIntune.Graph;
 using GraphModels = Microsoft.Graph.Beta.Models;
+using System.Linq;
 
 namespace Svrooij.WinTuner.CmdLets.Commands;
 /// <summary>
@@ -15,10 +17,10 @@ namespace Svrooij.WinTuner.CmdLets.Commands;
 /// <para type="link" uri="https://wintuner.app/docs/wintuner-powershell/Deploy-WtMsStoreApp">Documentation</para> 
 /// </summary>
 /// <example>
-/// <para type="description">Add Firefox to Intune, using interactive authentication</para>
-/// <code>Deploy-WtMsStoreApp -PackageId 9NZVDKPMR9RD -Username admin@myofficetenant.onmicrosoft.com</code>
+/// <para type="description">Add Firefox to Intune</para>
+/// <code>Deploy-WtMsStoreApp -PackageId 9NZVDKPMR9RD</code>
 /// </example>
-[Cmdlet(VerbsLifecycle.Deploy, "WtMsStoreApp", DefaultParameterSetName = nameof(PackageId))]
+[Cmdlet(VerbsLifecycle.Deploy, "WtMsStoreApp", DefaultParameterSetName = nameof(PackageId), HelpUri = "https://wintuner.app/docs/wintuner-powershell/Deploy-WtMsStoreApp")]
 [OutputType(typeof(GraphModels.WinGetApp))]
 public class DeployWtMsStoreApp : BaseIntuneCmdlet
 {
@@ -46,6 +48,34 @@ public class DeployWtMsStoreApp : BaseIntuneCmdlet
         HelpMessage = "Name of the app to look for, first match will be created.")]
     public string? SearchQuery { get; set; }
 
+    /// <summary>
+    /// <para type="description">Categories to add to the app</para>
+    /// </summary>
+    [Parameter(Mandatory = false,
+        HelpMessage = "Categories to add to the app")]
+    public string[]? Categories { get; set; }
+
+    /// <summary>
+    /// <para type="description">Groups that the app should available for, Group Object ID or 'AllUsers'/'AllDevices'</para>
+    /// </summary>
+    [Parameter(Mandatory = false,
+               HelpMessage = "Groups that the app should available for, Group Object ID or 'AllUsers'/'AllDevices'")]
+    public string[]? AvailableFor { get; set; }
+
+    /// <summary>
+    /// <para type="description">Groups that the app is required for, Group Object ID or 'AllUsers'/'AllDevices'</para>
+    /// </summary>
+    [Parameter(Mandatory = false,
+                      HelpMessage = "Groups that the app is required for, Group Object ID or 'AllUsers'/'AllDevices'")]
+    public string[]? RequiredFor { get; set; }
+
+    /// <summary>
+    /// <para type="description">Groups that the app should be uninstalled for, Group Object ID or 'AllUsers'/'AllDevices'</para>
+    /// </summary>
+    [Parameter(Mandatory = false,
+                             HelpMessage = "Groups that the app should be uninstalled for, Group Object ID or 'AllUsers'/'AllDevices'")]
+    public string[]? UninstallFor { get; set; }
+
     [ServiceDependency]
     private ILogger<DeployWtMsStoreApp>? logger;
 
@@ -55,10 +85,9 @@ public class DeployWtMsStoreApp : BaseIntuneCmdlet
     [ServiceDependency]
     private WingetIntune.Graph.GraphClientFactory? gcf;
 
-    /// <inheritdoc/>
-    public override async Task ProcessRecordAsync(CancellationToken cancellationToken)
+    /// <inheritdoc />
+    protected override async Task ProcessAuthenticatedAsync(IAuthenticationProvider provider, CancellationToken cancellationToken)
     {
-        ValidateAuthenticationParameters();
         if (ParameterSetName == nameof(SearchQuery))
         {
 #if NET8_0_OR_GREATER
@@ -79,19 +108,31 @@ public class DeployWtMsStoreApp : BaseIntuneCmdlet
         ArgumentException.ThrowIfNullOrWhiteSpace(PackageId);
 #endif
         logger!.LogInformation("Uploading MSStore app {PackageId} to Intune", PackageId);
-        var graphServiceClient = gcf!.CreateClient(CreateAuthenticationProvider(cancellationToken: cancellationToken));
+        var graphServiceClient = gcf!.CreateClient(provider);
         try
         {
             var app = await graphStoreAppUploader!.CreateStoreAppAsync(graphServiceClient, PackageId!, cancellationToken);
 
             logger!.LogInformation("Created MSStore app {PackageId} with id {appId}", PackageId, app!.Id);
+
+            if (Categories is not null && Categories.Any())
+            {
+                logger?.LogInformation("Adding categories to app {appId}", app!.Id);
+                await graphServiceClient.AddIntuneCategoriesToAppAsync(app!.Id!, Categories, cancellationToken);
+            }
+
+            if ((AvailableFor is not null && AvailableFor.Any()) ||
+                (RequiredFor is not null && RequiredFor.Any()) ||
+                (UninstallFor is not null && UninstallFor.Any()))
+            {
+                logger?.LogInformation("Assigning app {appId} to groups", app!.Id);
+                await graphServiceClient.AssignAppAsync(app!.Id!, RequiredFor, AvailableFor, UninstallFor, false, cancellationToken);
+            }
             WriteObject(app);
         }
         catch (Exception ex)
         {
             logger!.LogError(ex, "Error creating MSStore app {PackageId}", PackageId);
         }
-
-
     }
 }

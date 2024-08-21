@@ -15,27 +15,22 @@ Create a Win32Lob app in Intune
 ### Win32LobApp (Default)
 ```
 Deploy-WtWin32App [-App] <Win32LobApp> [-IntuneWinFile] <String> [[-LogoPath] <String>]
- [-OverrideAppName <String>] [-GraphId <String>] [[-UseManagedIdentity] <Boolean>]
- [-UseDefaultAzureCredential <Boolean>] [[-Token] <String>] [-NoBroker <Boolean>] [[-Username] <String>]
- [[-TenantId] <String>] [[-ClientId] <String>] [-ClientSecret <String>] [-Scopes <String[]>]
- [-ProgressAction <ActionPreference>] [<CommonParameters>]
+ [-OverrideAppName <String>] [-GraphId <String>] [-Categories <String[]>] [-AvailableFor <String[]>]
+ [-RequiredFor <String[]>] [-UninstallFor <String[]>] [-ProgressAction <ActionPreference>] [<CommonParameters>]
 ```
 
 ### WinGet
 ```
 Deploy-WtWin32App [-PackageId] <String> [-Version] <String> [-RootPackageFolder] <String>
- [-OverrideAppName <String>] [-GraphId <String>] [[-UseManagedIdentity] <Boolean>]
- [-UseDefaultAzureCredential <Boolean>] [[-Token] <String>] [-NoBroker <Boolean>] [[-Username] <String>]
- [[-TenantId] <String>] [[-ClientId] <String>] [-ClientSecret <String>] [-Scopes <String[]>]
- [-ProgressAction <ActionPreference>] [<CommonParameters>]
+ [-OverrideAppName <String>] [-GraphId <String>] [-Categories <String[]>] [-AvailableFor <String[]>]
+ [-RequiredFor <String[]>] [-UninstallFor <String[]>] [-ProgressAction <ActionPreference>] [<CommonParameters>]
 ```
 
 ### PackageFolder
 ```
 Deploy-WtWin32App [-PackageFolder] <String> [-OverrideAppName <String>] [-GraphId <String>]
- [[-UseManagedIdentity] <Boolean>] [-UseDefaultAzureCredential <Boolean>] [[-Token] <String>]
- [-NoBroker <Boolean>] [[-Username] <String>] [[-TenantId] <String>] [[-ClientId] <String>]
- [-ClientSecret <String>] [-Scopes <String[]>] [-ProgressAction <ActionPreference>] [<CommonParameters>]
+ [-Categories <String[]>] [-AvailableFor <String[]>] [-RequiredFor <String[]>] [-UninstallFor <String[]>]
+ [-ProgressAction <ActionPreference>] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -44,11 +39,11 @@ Use this command to upload an intunewin package to Microsoft Intune as a new Win
 ## EXAMPLES
 
 ### Example 1
-```
-PS C:\> Deploy-WtWin32App -PackageFolder C:\Tools\packages\JanDeDobbeleer.OhMyPosh\19.5.2 -Username admin@myofficetenant.onmicrosoft.com
+```powershell
+PS C:\> Deploy-WtWin32App -PackageFolder C:\Tools\packages\JanDeDobbeleer.OhMyPosh\19.5.2
 ```
 
-Upload a pre-packaged application, from just it's folder, using interactive authentication
+Upload a pre-packaged application, from just it's folder
 
 ## PARAMETERS
 
@@ -67,16 +62,46 @@ Accept pipeline input: True (ByValue)
 Accept wildcard characters: False
 ```
 
-### -ClientId
-(optionally) Use a different client ID, apart from the default configured one.
+### -AvailableFor
+Groups that the app should available for, Group Object ID or 'AllUsers'/'AllDevices'
 
 ```yaml
-Type: String
+Type: String[]
 Parameter Sets: (All)
 Aliases:
 
 Required: False
-Position: 27
+Position: Named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -Categories
+Categories to add to the app
+
+```yaml
+Type: String[]
+Parameter Sets: (All)
+Aliases:
+
+Required: False
+Position: Named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -GraphId
+Graph ID of the app to supersede
+
+```yaml
+Type: String
+Parameter Sets: (All)
+Aliases: AppId
+
+Required: False
+Position: Named
 Default value: None
 Accept pipeline input: False
 Accept wildcard characters: False
@@ -112,6 +137,21 @@ Accept pipeline input: True (ByValue)
 Accept wildcard characters: False
 ```
 
+### -OverrideAppName
+Override the name of the app in Intune
+
+```yaml
+Type: String
+Parameter Sets: (All)
+Aliases:
+
+Required: False
+Position: Named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
 ### -PackageFolder
 The folder where the package is
 
@@ -142,6 +182,21 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
+### -RequiredFor
+Groups that the app is required for, Group Object ID or 'AllUsers'/'AllDevices'
+
+```yaml
+Type: String[]
+Parameter Sets: (All)
+Aliases:
+
+Required: False
+Position: Named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
 ### -RootPackageFolder
 The Root folder where all the package live in.
 
@@ -157,61 +212,16 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
-### -TenantId
-Specify the tenant ID, if you want to use another tenant then your home tenant
+### -UninstallFor
+Groups that the app should be uninstalled for, Group Object ID or 'AllUsers'/'AllDevices'
 
 ```yaml
-Type: String
+Type: String[]
 Parameter Sets: (All)
 Aliases:
 
 Required: False
-Position: 26
-Default value: None
-Accept pipeline input: False
-Accept wildcard characters: False
-```
-
-### -Token
-Use a token from another source to connect to Intune
-
-```yaml
-Type: String
-Parameter Sets: (All)
-Aliases:
-
-Required: False
-Position: 21
-Default value: None
-Accept pipeline input: False
-Accept wildcard characters: False
-```
-
-### -UseManagedIdentity
-Use a managed identity to connect to Intune
-
-```yaml
-Type: Boolean
-Parameter Sets: (All)
-Aliases:
-
-Required: False
-Position: 20
-Default value: None
-Accept pipeline input: False
-Accept wildcard characters: False
-```
-
-### -Username
-Use a username to trigger interactive login or SSO
-
-```yaml
-Type: String
-Parameter Sets: (All)
-Aliases:
-
-Required: False
-Position: 25
+Position: Named
 Default value: None
 Accept pipeline input: False
 Accept wildcard characters: False
@@ -247,106 +257,22 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
-### -ClientSecret
-Specify the client secret, mandatory for Client Credentials flow. Loaded from `AZURE_CLIENT_SECRET`
-
-```yaml
-Type: String
-Parameter Sets: (All)
-Aliases:
-
-Required: False
-Position: Named
-Default value: None
-Accept pipeline input: False
-Accept wildcard characters: False
-```
-
-### -UseDefaultAzureCredential
-Use default Azure Credentials from Azure.Identity to connect to Intune
-
-```yaml
-Type: Boolean
-Parameter Sets: (All)
-Aliases:
-
-Required: False
-Position: Named
-Default value: None
-Accept pipeline input: False
-Accept wildcard characters: False
-```
-
-### -GraphId
-Graph ID of the app to supersede
-
-```yaml
-Type: String
-Parameter Sets: (All)
-Aliases:
-
-Required: False
-Position: Named
-Default value: None
-Accept pipeline input: False
-Accept wildcard characters: False
-```
-
-### -OverrideAppName
-Override the name of the app in Intune
-
-```yaml
-Type: String
-Parameter Sets: (All)
-Aliases:
-
-Required: False
-Position: Named
-Default value: None
-Accept pipeline input: False
-Accept wildcard characters: False
-```
-
-### -NoBroker
-Disable Windows authentication broker
-
-```yaml
-Type: Boolean
-Parameter Sets: (All)
-Aliases:
-
-Required: False
-Position: Named
-Default value: None
-Accept pipeline input: False
-Accept wildcard characters: False
-```
-
-### -Scopes
-Specify the scopes to request, default is `DeviceManagementConfiguration.ReadWrite.All`, `DeviceManagementApps.ReadWrite.All`
-
-```yaml
-Type: String[]
-Parameter Sets: (All)
-Aliases:
-
-Required: False
-Position: Named
-Default value: None
-Accept pipeline input: False
-Accept wildcard characters: False
-```
-
 ### CommonParameters
 This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable, -InformationAction, -InformationVariable, -OutVariable, -OutBuffer, -PipelineVariable, -Verbose, -WarningAction, and -WarningVariable. For more information, see [about_CommonParameters](http://go.microsoft.com/fwlink/?LinkID=113216).
 
 ## INPUTS
 
 ### Microsoft.Graph.Beta.Models.Win32LobApp
+
 ### System.String
+
 ## OUTPUTS
 
 ### Microsoft.Graph.Beta.Models.Win32LobApp
+
 ## NOTES
 
 ## RELATED LINKS
+
+[https://wintuner.app/docs/wintuner-powershell/Deploy-WtWin32App](https://wintuner.app/docs/wintuner-powershell/Deploy-WtWin32App)
+

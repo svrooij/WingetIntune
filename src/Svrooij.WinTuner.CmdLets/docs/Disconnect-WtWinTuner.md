@@ -1,49 +1,32 @@
 ---
 external help file: Svrooij.WinTuner.CmdLets.dll-Help.xml
 Module Name: Svrooij.WinTuner.CmdLets
-online version: https://wintuner.app/docs/wintuner-powershell/Remove-WtWin32App
+online version: https://wintuner.app/docs/wintuner-powershell/Disconnect-WtWinTuner
 schema: 2.0.0
 ---
 
-# Remove-WtWin32App
+# Disconnect-WtWinTuner
 
 ## SYNOPSIS
-Remove an app from Intune
+Clear authentication data from module
 
 ## SYNTAX
 
 ```
-Remove-WtWin32App -AppId <String> [-ProgressAction <ActionPreference>] [<CommonParameters>]
+Disconnect-WtWinTuner [-ProgressAction <ActionPreference>] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
-Will remove the relationships (if any) first and then remove the app.
+You can call Connect-WtWinTuner which will keep security things in memory, to be able to clear things we made this command
 
 ## EXAMPLES
 
 ### Example 1
 ```powershell
-PS C:\> Remove-WtWin32App -AppId "1450c17d-aee5-4bef-acf9-9e0107d340f2" -Username admin@myofficetenant.onmicrosoft.com
+PS C:\>
 ```
-
-Delete a single app by ID with interactive authentication
 
 ## PARAMETERS
-
-### -AppId
-Id of the app in Intune
-
-```yaml
-Type: String
-Parameter Sets: (All)
-Aliases:
-
-Required: True
-Position: Named
-Default value: None
-Accept pipeline input: False
-Accept wildcard characters: False
-```
 
 ### -ProgressAction
 {{ Fill ProgressAction Description }}
@@ -73,3 +56,6 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 ## NOTES
 
 ## RELATED LINKS
+
+[https://wintuner.app/docs/wintuner-powershell/Disconnect-WtWinTuner](https://wintuner.app/docs/wintuner-powershell/Disconnect-WtWinTuner)
+
