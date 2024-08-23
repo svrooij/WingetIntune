@@ -1,24 +1,34 @@
 ﻿using Microsoft.Extensions.Logging;
+using Microsoft.Kiota.Abstractions.Authentication;
 using Svrooij.PowerShell.DependencyInjection;
 using System.Collections.Generic;
 using System.Linq;
 using System.Management.Automation;
-using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.Kiota.Abstractions.Authentication;
 using WingetIntune.Graph;
 
 namespace Svrooij.WinTuner.CmdLets.Commands;
 
 /// <summary>
 /// <para type="synopsis">Get all apps from Intune packaged by WinTuner</para>
-/// <para type="description">Load apps from Tenant and filter based on Update Availabe, pipe to `New-IntuneWinPackage`</para>
-/// <para type="link" uri="https://wintuner.app/docs/wintuner-powershell/Get-WtWin32Apps">Documentation</para> 
+/// <para type="description">Load apps from Tenant and filter based on Update available</para>
 /// </summary>
+/// <psOrder>12</psOrder>
 /// <example>
-/// <para type="description">Get all apps that have updates, using interactive authentication</para>
-/// <code>Get-WtWin32Apps -Update $true -Username admin@myofficetenant.onmicrosoft.com</code>
+/// <para type="name">Get all apps with updates</para>
+/// <para type="description">Get all apps that have updates available</para>
+/// <code>Get-WtWin32Apps -Update $true</code>
+/// </example>
+/// <example>
+/// <para type="name">Update apps</para>
+/// <para type="description">Get all apps that have be an update available and are not superseeded. This executes the [New-WtWingetPackage](./New-WtWingetPackage) command.\r\nYou could run this on a weekly bases.</para>
+/// <code>$updatedApps = Get-WtWin32Apps -Update $true -Superseded $false\r\nforeach($app in $updatedApps) { New-WtWingetPackage -PackageId $($app.PackageId) -PackageFolder $rootPackageFolder -Version $($app.LatestVersion) | Deploy-WtWin32App -GraphId $($app.GraphId) }</code>
+/// </example>
+/// <example>
+/// <para type="name">Remove superseeded apps</para>
+/// <para type="description">Get all apps that have been superseeded and remove them. This executes the [Remove-WtWin32App](./Remove-WtWin32App) command.\r\nYou could run this on a weekly bases.</para>
+/// <code>$oldApps = Get-WtWin32Apps -Superseded $true\r\nforeach($app in $oldApps) { Remove-WtWin32App -AppId $app.GraphId }</code>
 /// </example>
 [Cmdlet(VerbsCommon.Get, "WtWin32Apps", HelpUri = "https://wintuner.app/docs/wintuner-powershell/Get-WtWin32Apps")]
 [OutputType(typeof(Models.WtWin32App[]))]

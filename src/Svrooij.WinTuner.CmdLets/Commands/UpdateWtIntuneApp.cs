@@ -3,7 +3,6 @@ using Microsoft.Graph.Beta.Models;
 using Svrooij.PowerShell.DependencyInjection;
 using System.Linq;
 using System.Management.Automation;
-using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Kiota.Abstractions.Authentication;
@@ -14,8 +13,8 @@ namespace Svrooij.WinTuner.CmdLets.Commands;
 /// <summary>
 /// <para type="synopsis">Update an app in Intune</para>
 /// <para type="description">Update the assignments and/or categories for an app in Intune.</para>
-/// <para type="link" uri="https://wintuner.app/docs/wintuner-powershell/Update-WtIntuneApp">Documentation</para> 
 /// </summary>
+/// <psOrder>13</psOrder>
 /// <example>
 /// <para type="description">Update the categories of an app and make it available for all users</para>
 /// <code>Update-WtIntuneApp -AppId "1450c17d-aee5-4bef-acf9-9e0107d340f2" -UseDefaultCredentials -Categories "Productivity","Business" -AvailableFor "AllUsers" -EnableAutoUpdate $true</code>

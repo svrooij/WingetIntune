@@ -10,9 +10,9 @@ namespace Svrooij.WinTuner.CmdLets.Commands;
 
 /// <summary>
 /// <para type="synopsis">Decrypt an IntuneWin package</para>
-/// <para type="description">Decrypt IntuneWin files, based on this post https://svrooij.io/2023/10/09/decrypting-intunewin-files/</para>
-/// <para type="link" uri="https://wintuner.app/docs/wintuner-powershell/contentprep/Unprotect-IntuneWinPackage">Documentation</para>
+/// <para type="description">Decrypt IntuneWin files, based on [this post](https://svrooij.io/2023/10/09/decrypting-intunewin-files/)</para>
 /// </summary>
+/// <psOrder>101</psOrder>
 /// <example>
 /// <code>Unprotect-IntuneWinPackage -SourceFile C:\Temp\Source\MyApp.intunewin -DestinationPath C:\Temp\Destination</code>
 /// </example>

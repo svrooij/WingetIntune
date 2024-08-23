@@ -17,13 +17,26 @@ namespace Svrooij.WinTuner.CmdLets.Commands;
 /// <summary>
 /// <para type="synopsis">Create a Win32Lob app in Intune</para>
 /// <para type="description">Use this command to upload an intunewin package to Microsoft Intune as a new Win32LobApp.</para>
-/// <para type="link" uri="https://wintuner.app/docs/wintuner-powershell/Deploy-WtWin32App">Documentation</para> 
 /// </summary>
+/// <psOrder>11</psOrder>
+/// <parameterSet>
+/// <para type="name">WinGet</para>
+/// <para type="description">Deploy an app packaged by WinTuner. If you used the [New-WtWingetPackage](./New-WtWingetPackage) commandlet to create the package, there will be some metadata available to us that is needed to create the Win32App in Intune.</para>
+/// </parameterSet>
+/// <parameterSet>
+/// <para type="name">Win32LobApp</para>
+/// <para type="description">Deploy an application, by specifying all the needed properties of the `Win32LobApp` and an IntuneWinFile.</para>
+/// </parameterSet>
+/// <parameterSet>
+/// <para type="name">PackageFolder</para>
+/// <para type="description">Deploy a pre-packaged application, from just it's folder</para>
+/// </parameterSet>
 /// <example>
-/// <para type="description">Upload a pre-packaged application, from just it's folder</para>
-/// <code>Deploy-WtWin32App -PackageFolder C:\Tools\packages\JanDeDobbeleer.OhMyPosh\19.5.2</code>
+/// <para type="name">Deploy OhMyPosh</para>
+/// <para type="description">OhMyPosh v19.5.0 is packaged to this folder, now deploy it to Azure</para>
+/// <code>Deploy-WtWin32App -PackageFolder &quot;C:\Tools\packages\JanDeDobbeleer.OhMyPosh\19.5.2&quot;</code>
 /// </example>
-[Cmdlet(VerbsLifecycle.Deploy, "WtWin32App", DefaultParameterSetName = ParameterSetApp, HelpUri = "https://wintuner.app/docs/wintuner-powershell/Deploy-WtWin32App")]
+[Cmdlet(VerbsLifecycle.Deploy, "WtWin32App", DefaultParameterSetName = ParameterSetWinGet, HelpUri = "https://wintuner.app/docs/wintuner-powershell/Deploy-WtWin32App")]
 [OutputType(typeof(GraphModels.Win32LobApp))]
 public class DeployWtWin32App : BaseIntuneCmdlet
 {
@@ -115,13 +128,13 @@ public class DeployWtWin32App : BaseIntuneCmdlet
     /// <summary>
     /// Override the name of the app in Intune
     /// </summary>
-    [Parameter(HelpMessage = "Override the name of the app in Intune", Mandatory = false)]
+    [Parameter(HelpMessage = "Override the name of the app in Intune", Position = 100, Mandatory = false)]
     public string? OverrideAppName { get; set; }
 
     /// <summary>
     /// <para type="description">The graph id of the app to supersede</para>
     /// </summary>
-    [Parameter(DontShow = true, HelpMessage = "Graph ID of the app to supersede", Mandatory = false)]
+    [Parameter(DontShow = true, HelpMessage = "Graph ID of the app to supersede", Position = 30, Mandatory = false)]
     [Alias("AppId")]
     public string? GraphId { get; set; }
 
@@ -129,6 +142,7 @@ public class DeployWtWin32App : BaseIntuneCmdlet
     /// <para type="description">Categories to add to the app</para>
     /// </summary>
     [Parameter(Mandatory = false,
+        Position = 11,
         HelpMessage = "Categories to add to the app")]
     public string[]? Categories { get; set; }
 
@@ -136,6 +150,7 @@ public class DeployWtWin32App : BaseIntuneCmdlet
     /// <para type="description">Groups that the app should available for, Group Object ID or 'AllUsers'/'AllDevices'</para>
     /// </summary>
     [Parameter(Mandatory = false,
+        Position = 12,
                HelpMessage = "Groups that the app should available for, Group Object ID or 'AllUsers'/'AllDevices'")]
     public string[]? AvailableFor { get; set; }
 
@@ -143,6 +158,7 @@ public class DeployWtWin32App : BaseIntuneCmdlet
     /// <para type="description">Groups that the app is required for, Group Object ID or 'AllUsers'/'AllDevices'</para>
     /// </summary>
     [Parameter(Mandatory = false,
+        Position = 13,
                       HelpMessage = "Groups that the app is required for, Group Object ID or 'AllUsers'/'AllDevices'")]
     public string[]? RequiredFor { get; set; }
 
@@ -150,6 +166,7 @@ public class DeployWtWin32App : BaseIntuneCmdlet
     /// <para type="description">Groups that the app should be uninstalled for, Group Object ID or 'AllUsers'/'AllDevices'</para>
     /// </summary>
     [Parameter(Mandatory = false,
+        Position = 14,
                              HelpMessage = "Groups that the app should be uninstalled for, Group Object ID or 'AllUsers'/'AllDevices'")]
     public string[]? UninstallFor { get; set; }
 

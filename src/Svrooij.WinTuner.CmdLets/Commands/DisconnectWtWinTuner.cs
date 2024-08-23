@@ -8,8 +8,13 @@ namespace Svrooij.WinTuner.CmdLets.Commands;
 /// <summary>
 /// <para type="synopsis">Clear authentication data from module</para>
 /// <para type="description">You can call Connect-WtWinTuner which will keep security things in memory, to be able to clear things we made this command</para>
-/// <para type="link" uri="https://wintuner.app/docs/wintuner-powershell/Disconnect-WtWinTuner">Documentation</para> 
 /// </summary>
+/// <psOrder>4</psOrder>
+/// <example>
+/// <para type="name">Logout</para>
+/// <para type="description">This will remove all credentials from the memory</para>
+/// <code>Disconnect-WtWinTuner</code>
+/// </example>
 [Cmdlet(VerbsCommunications.Disconnect, "WtWinTuner", HelpUri = "https://wintuner.app/docs/wintuner-powershell/Disconnect-WtWinTuner")]
 [Alias("Disconnect-WinTuner")]
 public class DisconnectWtWinTuner : DependencyCmdlet<Startup>

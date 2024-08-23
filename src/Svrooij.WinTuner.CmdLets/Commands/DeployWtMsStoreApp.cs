@@ -14,11 +14,20 @@ namespace Svrooij.WinTuner.CmdLets.Commands;
 /// <summary>
 /// <para type="synopsis">Create a MsStore app in Intune</para>
 /// <para type="description">Use this command to create an Microsoft Store app in Microsoft Intune</para>
-/// <para type="link" uri="https://wintuner.app/docs/wintuner-powershell/Deploy-WtMsStoreApp">Documentation</para> 
 /// </summary>
+/// <psOrder>20</psOrder>
+/// <parameterSet>
+/// <para type="name">PackageId</para>
+/// <para type="description">Deploy an app to Intune by specifying the package ID of the app in the Microsoft Store.</para>
+/// </parameterSet>
+/// <parameterSet>
+/// <para type="name">SearchQuery</para>
+/// <para type="description">Deploy an app to Intune by searching for packages and pick the first one, use carefully!</para>
+/// </parameterSet>
 /// <example>
-/// <para type="description">Add Firefox to Intune</para>
-/// <code>Deploy-WtMsStoreApp -PackageId 9NZVDKPMR9RD</code>
+/// <para type="name">Add Firefox to Intune</para>
+/// <para type="description">Add Firefox to Intune and make available for 'AllUsers'</para>
+/// <code>Deploy-WtMsStoreApp -PackageId &quot;9NZVDKPMR9RD&quot; -AvailableFor AllUsers</code>
 /// </example>
 [Cmdlet(VerbsLifecycle.Deploy, "WtMsStoreApp", DefaultParameterSetName = nameof(PackageId), HelpUri = "https://wintuner.app/docs/wintuner-powershell/Deploy-WtMsStoreApp")]
 [OutputType(typeof(GraphModels.WinGetApp))]
@@ -52,6 +61,7 @@ public class DeployWtMsStoreApp : BaseIntuneCmdlet
     /// <para type="description">Categories to add to the app</para>
     /// </summary>
     [Parameter(Mandatory = false,
+        Position = 1,
         HelpMessage = "Categories to add to the app")]
     public string[]? Categories { get; set; }
 
@@ -59,13 +69,15 @@ public class DeployWtMsStoreApp : BaseIntuneCmdlet
     /// <para type="description">Groups that the app should available for, Group Object ID or 'AllUsers'/'AllDevices'</para>
     /// </summary>
     [Parameter(Mandatory = false,
-               HelpMessage = "Groups that the app should available for, Group Object ID or 'AllUsers'/'AllDevices'")]
+        Position = 2,
+        HelpMessage = "Groups that the app should available for, Group Object ID or 'AllUsers'/'AllDevices'")]
     public string[]? AvailableFor { get; set; }
 
     /// <summary>
     /// <para type="description">Groups that the app is required for, Group Object ID or 'AllUsers'/'AllDevices'</para>
     /// </summary>
     [Parameter(Mandatory = false,
+        Position = 3,
                       HelpMessage = "Groups that the app is required for, Group Object ID or 'AllUsers'/'AllDevices'")]
     public string[]? RequiredFor { get; set; }
 
@@ -73,7 +85,8 @@ public class DeployWtMsStoreApp : BaseIntuneCmdlet
     /// <para type="description">Groups that the app should be uninstalled for, Group Object ID or 'AllUsers'/'AllDevices'</para>
     /// </summary>
     [Parameter(Mandatory = false,
-                             HelpMessage = "Groups that the app should be uninstalled for, Group Object ID or 'AllUsers'/'AllDevices'")]
+        Position = 4,
+        HelpMessage = "Groups that the app should be uninstalled for, Group Object ID or 'AllUsers'/'AllDevices'")]
     public string[]? UninstallFor { get; set; }
 
     [ServiceDependency]

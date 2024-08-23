@@ -9,10 +9,11 @@ namespace Svrooij.WinTuner.CmdLets.Commands;
 /// <summary>
 /// <para type="synopsis">Create intunewin file from Winget installer</para>
 /// <para type="description">Downloads the installer for the package and creates an `.intunewin` file for uploading in Intune.</para>
-/// <para type="link" uri="https://wintuner.app/docs/wintuner-powershell/New-WtWingetPackage">Documentation</para> 
 /// </summary>
+/// <psOrder>10</psOrder>
 /// <example>
-/// <para type="description">Package all files in C:\Temp\Source, with setup file ..\setup.exe to the specified folder</para>
+/// <para type="name">Package winget installer</para>
+/// <para type="description">Package the latest version of `JanDeDobbeleer.OhMyPosh` to `C:\tools\packages`. The package will be in `C:\tools\packages\{packageId}\{version}`</para>
 /// <code>New-WtWingetPackage -PackageId JanDeDobbeleer.OhMyPosh -PackageFolder C:\Tools\Packages</code>
 /// </example>
 [Cmdlet(VerbsCommon.New, "WtWingetPackage", HelpUri = "https://wintuner.app/docs/wintuner-powershell/New-WtWingetPackage")]
