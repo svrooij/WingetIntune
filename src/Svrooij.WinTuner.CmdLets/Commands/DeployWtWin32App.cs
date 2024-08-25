@@ -16,7 +16,7 @@ using System.Linq;
 namespace Svrooij.WinTuner.CmdLets.Commands;
 /// <summary>
 /// <para type="synopsis">Create a Win32Lob app in Intune</para>
-/// <para type="description">Use this command to upload an intunewin package to Microsoft Intune as a new Win32LobApp.</para>
+/// <para type="description">Use this command to upload an intunewin package to Microsoft Intune as a new Win32LobApp.\r\n\r\nThis is an [**authenticated command**](./authentication), so call [Connect-WtWinTuner](./Connect-WtWinTuner) before calling this command.</para>
 /// </summary>
 /// <psOrder>11</psOrder>
 /// <parameterSet>
@@ -35,6 +35,11 @@ namespace Svrooij.WinTuner.CmdLets.Commands;
 /// <para type="name">Deploy OhMyPosh</para>
 /// <para type="description">OhMyPosh v19.5.0 is packaged to this folder, now deploy it to Azure</para>
 /// <code>Deploy-WtWin32App -PackageFolder &quot;C:\Tools\packages\JanDeDobbeleer.OhMyPosh\19.5.2&quot;</code>
+/// </example>
+/// <example>
+/// <para type="name">Package and deploy OhMyPosh</para>
+/// <para type="description">Combining both the `New-WtWinGetPackage` and the `Deploy-WtWin32App` command, and making it available to All Users</para>
+/// <code>New-WtWingetPackage -PackageId JanDeDobbeleer.OhMyPosh -PackageFolder C:\Tools\Packages | Deploy-WtWin32App -Available AllUsers</code>
 /// </example>
 [Cmdlet(VerbsLifecycle.Deploy, "WtWin32App", DefaultParameterSetName = ParameterSetWinGet, HelpUri = "https://wintuner.app/docs/wintuner-powershell/Deploy-WtWin32App")]
 [OutputType(typeof(GraphModels.Win32LobApp))]
@@ -147,27 +152,27 @@ public class DeployWtWin32App : BaseIntuneCmdlet
     public string[]? Categories { get; set; }
 
     /// <summary>
-    /// <para type="description">Groups that the app should available for, Group Object ID or 'AllUsers'/'AllDevices'</para>
+    /// <para type="description">Groups that the app should available for, Group Object ID or `AllUsers` / `AllDevices`</para>
     /// </summary>
     [Parameter(Mandatory = false,
         Position = 12,
-               HelpMessage = "Groups that the app should available for, Group Object ID or 'AllUsers'/'AllDevices'")]
+               HelpMessage = "Groups that the app should available for, Group Object ID or `AllUsers` / `AllDevices`")]
     public string[]? AvailableFor { get; set; }
 
     /// <summary>
-    /// <para type="description">Groups that the app is required for, Group Object ID or 'AllUsers'/'AllDevices'</para>
+    /// <para type="description">Groups that the app is required for, Group Object ID or `AllUsers` / `AllDevices`</para>
     /// </summary>
     [Parameter(Mandatory = false,
         Position = 13,
-                      HelpMessage = "Groups that the app is required for, Group Object ID or 'AllUsers'/'AllDevices'")]
+                      HelpMessage = "Groups that the app is required for, Group Object ID or `AllUsers` / `AllDevices`")]
     public string[]? RequiredFor { get; set; }
 
     /// <summary>
-    /// <para type="description">Groups that the app should be uninstalled for, Group Object ID or 'AllUsers'/'AllDevices'</para>
+    /// <para type="description">Groups that the app should be uninstalled for, Group Object ID or `AllUsers` / `AllDevices`</para>
     /// </summary>
     [Parameter(Mandatory = false,
         Position = 14,
-                             HelpMessage = "Groups that the app should be uninstalled for, Group Object ID or 'AllUsers'/'AllDevices'")]
+                             HelpMessage = "Groups that the app should be uninstalled for, Group Object ID or `AllUsers` / `AllDevices`")]
     public string[]? UninstallFor { get; set; }
 
     [ServiceDependency]

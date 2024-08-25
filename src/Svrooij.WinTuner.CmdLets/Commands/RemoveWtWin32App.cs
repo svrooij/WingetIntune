@@ -12,7 +12,7 @@ namespace Svrooij.WinTuner.CmdLets.Commands;
 
 /// <summary>
 /// <para type="synopsis">Remove an app from Intune</para>
-/// <para type="description">Will remove the relationships (if any) first and then remove the app.</para>
+/// <para type="description">Will remove the relationships (if any) first and then remove the app.\r\n\r\nThis is an [**authenticated command**](./authentication), so call [Connect-WtWinTuner](./Connect-WtWinTuner) before calling this command.</para>
 /// </summary>
 /// <psOrder>4</psOrder>
 /// <example>

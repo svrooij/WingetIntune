@@ -2,7 +2,6 @@
 using Svrooij.PowerShell.DependencyInjection;
 using System;
 using System.Management.Automation;
-using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Kiota.Abstractions.Authentication;
@@ -13,7 +12,7 @@ using System.Linq;
 namespace Svrooij.WinTuner.CmdLets.Commands;
 /// <summary>
 /// <para type="synopsis">Create a MsStore app in Intune</para>
-/// <para type="description">Use this command to create an Microsoft Store app in Microsoft Intune</para>
+/// <para type="description">Use this command to create an Microsoft Store app in Microsoft Intune.\r\n\r\nThis is an [**authenticated command**](./authentication), so call [Connect-WtWinTuner](./Connect-WtWinTuner) before calling this command.</para>
 /// </summary>
 /// <psOrder>20</psOrder>
 /// <parameterSet>
@@ -26,7 +25,7 @@ namespace Svrooij.WinTuner.CmdLets.Commands;
 /// </parameterSet>
 /// <example>
 /// <para type="name">Add Firefox to Intune</para>
-/// <para type="description">Add Firefox to Intune and make available for 'AllUsers'</para>
+/// <para type="description">Add Firefox to Intune and make available for `AllUsers`</para>
 /// <code>Deploy-WtMsStoreApp -PackageId &quot;9NZVDKPMR9RD&quot; -AvailableFor AllUsers</code>
 /// </example>
 [Cmdlet(VerbsLifecycle.Deploy, "WtMsStoreApp", DefaultParameterSetName = nameof(PackageId), HelpUri = "https://wintuner.app/docs/wintuner-powershell/Deploy-WtMsStoreApp")]
@@ -66,27 +65,27 @@ public class DeployWtMsStoreApp : BaseIntuneCmdlet
     public string[]? Categories { get; set; }
 
     /// <summary>
-    /// <para type="description">Groups that the app should available for, Group Object ID or 'AllUsers'/'AllDevices'</para>
+    /// <para type="description">Groups that the app should available for, Group Object ID or `AllUsers` / `AllDevices`</para>
     /// </summary>
     [Parameter(Mandatory = false,
         Position = 2,
-        HelpMessage = "Groups that the app should available for, Group Object ID or 'AllUsers'/'AllDevices'")]
+        HelpMessage = "Groups that the app should available for, Group Object ID or `AllUsers` / `AllDevices`")]
     public string[]? AvailableFor { get; set; }
 
     /// <summary>
-    /// <para type="description">Groups that the app is required for, Group Object ID or 'AllUsers'/'AllDevices'</para>
+    /// <para type="description">Groups that the app is required for, Group Object ID or `AllUsers` / `AllDevices`</para>
     /// </summary>
     [Parameter(Mandatory = false,
         Position = 3,
-                      HelpMessage = "Groups that the app is required for, Group Object ID or 'AllUsers'/'AllDevices'")]
+                      HelpMessage = "Groups that the app is required for, Group Object ID or `AllUsers` / `AllDevices`")]
     public string[]? RequiredFor { get; set; }
 
     /// <summary>
-    /// <para type="description">Groups that the app should be uninstalled for, Group Object ID or 'AllUsers'/'AllDevices'</para>
+    /// <para type="description">Groups that the app should be uninstalled for, Group Object ID or `AllUsers` / `AllDevices`</para>
     /// </summary>
     [Parameter(Mandatory = false,
         Position = 4,
-        HelpMessage = "Groups that the app should be uninstalled for, Group Object ID or 'AllUsers'/'AllDevices'")]
+        HelpMessage = "Groups that the app should be uninstalled for, Group Object ID or `AllUsers` / `AllDevices`")]
     public string[]? UninstallFor { get; set; }
 
     [ServiceDependency]

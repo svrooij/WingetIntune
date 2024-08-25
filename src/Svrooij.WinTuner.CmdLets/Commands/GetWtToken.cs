@@ -10,7 +10,7 @@ namespace Svrooij.WinTuner.CmdLets.Commands;
 
 /// <summary>
 /// <para type="synopsis">Get a token for graph</para>
-/// <para type="description">This command will get a token for the graph api. The token is cached, so you can call this as often as you want.</para>
+/// <para type="description">This command will get a token for the graph api. The token is cached, so you can call this as often as you want.\r\n\r\nThis is an [**authenticated command**](./authentication), so call [Connect-WtWinTuner](./Connect-WtWinTuner) before calling this command.</para>
 /// </summary>
 /// <psOrder>100</psOrder>
 /// <example>

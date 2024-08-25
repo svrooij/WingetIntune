@@ -12,7 +12,7 @@ namespace Svrooij.WinTuner.CmdLets.Commands;
 
 /// <summary>
 /// <para type="synopsis">Update an app in Intune</para>
-/// <para type="description">Update the assignments and/or categories for an app in Intune.</para>
+/// <para type="description">Update the assignments and/or categories for an app in Intune.\r\n\r\nThis is an [**authenticated command**](./authentication), so call [Connect-WtWinTuner](./Connect-WtWinTuner) before calling this command.</para>
 /// </summary>
 /// <psOrder>13</psOrder>
 /// <example>
@@ -38,24 +38,24 @@ public class UpdateWtIntuneApp : BaseIntuneCmdlet
     public string[]? Categories { get; set; }
 
     /// <summary>
-    /// <para type="description">Groups that the app should available for, Group Object ID or 'AllUsers'/'AllDevices'</para>
+    /// <para type="description">Groups that the app should available for, Group Object ID or `AllUsers` / `AllDevices`</para>
     /// </summary>
     [Parameter(Mandatory = false,
-               HelpMessage = "Groups that the app should available for, Group Object ID or 'AllUsers'/'AllDevices'")]
+               HelpMessage = "Groups that the app should available for, Group Object ID or `AllUsers` / `AllDevices`")]
     public string[]? AvailableFor { get; set; }
 
     /// <summary>
-    /// <para type="description">Groups that the app is required for, Group Object ID or 'AllUsers'/'AllDevices'</para>
+    /// <para type="description">Groups that the app is required for, Group Object ID or `AllUsers` / `AllDevices`</para>
     /// </summary>
     [Parameter(Mandatory = false,
-                      HelpMessage = "Groups that the app is required for, Group Object ID or 'AllUsers'/'AllDevices'")]
+                      HelpMessage = "Groups that the app is required for, Group Object ID or `AllUsers` / `AllDevices`")]
     public string[]? RequiredFor { get; set; }
 
     /// <summary>
-    /// <para type="description">Groups that the app should be uninstalled for, Group Object ID or 'AllUsers'/'AllDevices'</para>
+    /// <para type="description">Groups that the app should be uninstalled for, Group Object ID or `AllUsers` / `AllDevices`</para>
     /// </summary>
     [Parameter(Mandatory = false,
-                             HelpMessage = "Groups that the app should be uninstalled for, Group Object ID or 'AllUsers'/'AllDevices'")]
+                             HelpMessage = "Groups that the app should be uninstalled for, Group Object ID or `AllUsers` / `AllDevices`")]
     public string[]? UninstallFor { get; set; }
 
     /// <summary>

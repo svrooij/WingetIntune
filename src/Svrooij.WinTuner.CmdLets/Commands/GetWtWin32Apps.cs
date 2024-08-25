@@ -12,7 +12,7 @@ namespace Svrooij.WinTuner.CmdLets.Commands;
 
 /// <summary>
 /// <para type="synopsis">Get all apps from Intune packaged by WinTuner</para>
-/// <para type="description">Load apps from Tenant and filter based on Update available</para>
+/// <para type="description">Load apps from Tenant and filter based on Update available.\r\n\r\nThis is an [**authenticated command**](./authentication), so call [Connect-WtWinTuner](./Connect-WtWinTuner) before calling this command.</para>
 /// </summary>
 /// <psOrder>12</psOrder>
 /// <example>
