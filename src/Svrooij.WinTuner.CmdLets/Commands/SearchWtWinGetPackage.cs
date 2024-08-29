@@ -8,16 +8,17 @@ using System.Threading.Tasks;
 namespace Svrooij.WinTuner.CmdLets.Commands;
 
 /// <summary>
-/// <para type="synopsis">Search for packages in winget</para>
-/// <para type="description">Search for WinGet packages, but faster</para>
-/// <para type="link" uri="https://wintuner.app/docs/wintuner-powershell/Search-WtWingetPackage">Documentation</para> 
+/// <para type="synopsis">Search for packages in WinGet</para>
+/// <para type="description">Search for WinGet packages, but faster. This uses the an [online index](https://wintuner.app/docs/related/winget-package-index).</para>
 /// </summary>
+/// <psOrder>9</psOrder>
 /// <example>
-/// <para type="description">Search for 'fire', did I tell you it's fast?</para>
+/// <para type="name">Search for `fire`</para>
+/// <para type="description">Searching in the online index, by a part of the package id.</para>
 /// <code>Search-WtWinGetPackage fire</code>
 /// </example>
 [Cmdlet(VerbsCommon.Search, "WtWinGetPackage", HelpUri = "https://wintuner.app/docs/wintuner-powershell/Search-WtWingetPackage")]
-[OutputType(typeof(IReadOnlyCollection<Winget.CommunityRepository.Models.WingetEntry>))]
+[OutputType(typeof(Winget.CommunityRepository.Models.WingetEntry))]
 public class SearchWtWinGetPackage : DependencyCmdlet<Startup>
 {
     /// <summary>
@@ -43,9 +44,6 @@ public class SearchWtWinGetPackage : DependencyCmdlet<Startup>
         }
         var packages = await wingetRepository.SearchPackage(PackageId ?? throw new ArgumentNullException(nameof(PackageId)), cancellationToken);
 
-        foreach (var package in packages)
-        {
-            WriteObject(package);
-        }
+        WriteObject(packages, true);
     }
 }

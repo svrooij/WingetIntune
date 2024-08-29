@@ -14,19 +14,42 @@ namespace Svrooij.WinTuner.CmdLets.Commands;
 /// <summary>
 /// <para type="synopsis">Connect to Intune</para>
 /// <para type="description">A separate command to select the correct authentication provider, you no longer have to provide the auth parameters with each command.</para>
-/// <para type="link" uri="https://wintuner.app/docs/wintuner-powershell/Connect-WtWinTuner">Documentation</para> 
 /// </summary>
+/// <psOrder>3</psOrder>
+/// <parameterSet>
+/// <para type="name">Interactive</para>
+/// <para type="description">If you're running WinTuner on your local machine, you can use the interactive browser login. This will integrate with the native browser based login screen on Windows and with the default browser on other platforms.</para>
+/// </parameterSet>
+/// <parameterSet>
+/// <para type="name">UseManagedIdentity</para>
+/// <para type="description">WinTuner supports Managed Identity authentication, this is the recommended way if you run WinTuner in the Azure Environment.</para>
+/// </parameterSet>
+/// <parameterSet>
+/// <para type="name">UseDefaultCredentials</para>
+/// <para type="description">A more extended version of the Managed Identity is the Default Credentials, this will use the [DefaultAzureCredential](https://learn.microsoft.com/dotnet/api/azure.identity.defaultazurecredential?view=azure-dotnet&amp;wt.mc_id=SEC-MVP-5004985), from the `Azure.Identity` package. This will try several methods to authenticate, Environment Variables, Managed Identity, Azure CLI and more.</para>
+/// </parameterSet>
+/// <parameterSet>
+/// <para type="name">Token</para>
+/// <para type="description">Let's say you have a token from another source, just hand us to token and we'll use it to connect to Intune. This token has a limited lifetime, so you'll be responsible for refreshing it.</para>
+/// </parameterSet>
+/// <parameterSet>
+/// <para type="name">ClientCredentials</para>
+/// <para type="description">:::warning Last resort\r\nUsing client credentials is not recommended because you'll have to keep the secret, **secret**!\r\n\r\nPlease let us know if you have to use this method, we might be able to help you with a better solution.\r\n:::</para>
+/// </parameterSet>
 /// <example>
-/// <para type="description">Connect using interactive authentication</para>
+/// <para type="name">Connect using interactive authentication</para>
+/// <para type="description">This will trigger a login broker popup (Windows Hello) on Windows and the default browser on other platforms</para>
 /// <code>Connect-WtWinTuner -Username "youruser@contoso.com"</code>
 /// </example>
 /// <example>
-/// <para type="description">Connect using managed identity</para>
+/// <para type="name">Connect using managed identity</para>
+/// <para type="description">Try to connect using a managed identity on the current platform, obviously only works in Azure.</para>
 /// <code>Connect-WtWinTuner -UseManagedIdentity</code>
 /// </example>
 /// <example>
-/// <para type="description">Connect using default credentials</para>
-/// <code>az login &amp; Connect-WtWinTuner -UseDefaultCredentials</code>
+/// <para type="name">Connect using default credentials</para>
+/// <para type="description">A chain of credentials is tried until one succeeds. Including Environment Variables, Managed Identity, Visual Studio (code) and Azure CLI</para>
+/// <code>az login\r\nConnect-WtWinTuner -UseDefaultCredentials</code>
 /// </example>
 [Cmdlet(VerbsCommunications.Connect, "WtWinTuner", DefaultParameterSetName = ParamSetInteractive, HelpUri = "https://wintuner.app/docs/wintuner-powershell/Connect-WtWinTuner")]
 [Alias("Connect-WinTuner")]
@@ -161,15 +184,40 @@ public class ConnectWtWinTuner : DependencyCmdlet<Startup>
     [Parameter(
         Mandatory = false,
         Position = 10,
+        ParameterSetName = ParamSetClientCredentials,
+        ValueFromPipeline = false,
+        ValueFromPipelineByPropertyName = false,
+        HelpMessage = "Specify the scopes to request, default is `https://graph.microsoft.com/.default`")]
+    [Parameter(
+        Mandatory = false,
+        Position = 10,
+        ParameterSetName = nameof(UseDefaultCredentials),
+        ValueFromPipeline = false,
+        ValueFromPipelineByPropertyName = false,
+        HelpMessage = "Specify the scopes to request, default is `https://graph.microsoft.com/.default`")]
+    [Parameter(
+        Mandatory = false,
+        Position = 10,
+        ParameterSetName = nameof(UseManagedIdentity),
+        ValueFromPipeline = false,
+        ValueFromPipelineByPropertyName = false,
+        HelpMessage = "Specify the scopes to request, default is `https://graph.microsoft.com/.default`")]
+    [Parameter(
+        Mandatory = false,
+        Position = 10,
+        ParameterSetName = ParamSetInteractive,
         ValueFromPipeline = false,
         ValueFromPipelineByPropertyName = false,
         HelpMessage = "Specify the scopes to request, default is `DeviceManagementConfiguration.ReadWrite.All`, `DeviceManagementApps.ReadWrite.All`")]
     public string[]? Scopes { get; set; } = Environment.GetEnvironmentVariable("AZURE_SCOPES")?.Split(' ');
 
     /// <summary>
-    /// Try getting a token after connecting.
+    /// Immediately try to get a token.
     /// </summary>
-    [Parameter(Mandatory = false, Position = 11, HelpMessage = "Try to get a token after connecting, useful for testing.")]
+    [Parameter(Mandatory = false, Position = 11, ParameterSetName = nameof(UseManagedIdentity), HelpMessage = "Immediately try to get a token.")]
+    [Parameter(Mandatory = false, Position = 11, ParameterSetName = ParamSetInteractive, HelpMessage = "Immediately try to get a token.")]
+    [Parameter(Mandatory = false, Position = 11, ParameterSetName = nameof(UseDefaultCredentials), HelpMessage = "Immediately try to get a token.")]
+    [Parameter(Mandatory = false, Position = 11, ParameterSetName = ParamSetClientCredentials, HelpMessage = "Immediately try to get a token.")]
     public SwitchParameter Test { get; set; }
 
     [ServiceDependency]

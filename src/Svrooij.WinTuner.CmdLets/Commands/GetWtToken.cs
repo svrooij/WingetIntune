@@ -10,10 +10,11 @@ namespace Svrooij.WinTuner.CmdLets.Commands;
 
 /// <summary>
 /// <para type="synopsis">Get a token for graph</para>
-/// <para type="description">This command will get a token for the graph api. The token is cached, so you can call this as often as you want.</para>
-/// <para type="link" uri="https://wintuner.app/docs/wintuner-powershell/Get-WtToken">Documentation</para>
+/// <para type="description">This command will get a token for the graph api. The token is cached, so you can call this as often as you want.\r\n\r\nThis is an [**authenticated command**](./authentication), so call [Connect-WtWinTuner](./Connect-WtWinTuner) before calling this command.</para>
 /// </summary>
+/// <psOrder>100</psOrder>
 /// <example>
+/// <para type="name">Get a token</para>
 /// <para type="description">Get token, show details and copy to clipboard</para>
 /// <code>Get-WtToken -DecodeToken | Set-Clipboard</code>
 /// </example>

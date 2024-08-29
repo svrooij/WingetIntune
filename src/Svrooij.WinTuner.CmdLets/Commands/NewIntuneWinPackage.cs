@@ -11,10 +11,10 @@ namespace Svrooij.WinTuner.CmdLets.Commands;
 /// <summary>
 /// <para type="synopsis">Create a new IntuneWin package</para>
 /// <para type="description">This is a re-implementation of the IntuneWinAppUtil.exe tool, it's not feature complete use at your own risk.</para>
-/// <para type="link" uri="https://wintuner.app/docs/related/content-prep-tool">Documentation</para>
 /// </summary>
+/// <psOrder>100</psOrder>
 /// <example>
-/// <para type="description">Package all files in C:\Temp\Source, with setup file ..\setup.exe to the specified folder</para>
+/// <para type="description">Package all files in `C:\Temp\Source`, with setup file `..\setup.exe` to the specified folder</para>
 /// <code>New-IntuneWinPackage -SourcePath C:\Temp\Source -SetupFile C:\Temp\Source\setup.exe -DestinationPath C:\Temp\Destination</code>
 /// </example>
 [Cmdlet(VerbsCommon.New, "IntuneWinPackage", HelpUri = "https://wintuner.app/docs/wintuner-powershell/contentprep/New-IntuneWinPackage")]

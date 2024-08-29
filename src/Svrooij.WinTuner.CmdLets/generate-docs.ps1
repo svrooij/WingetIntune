@@ -12,7 +12,7 @@ if ($buildOutput -match "Build succeeded.") {
 else {
     Write-Output "Build failed"
     Write-Output $buildOutput
-    exit
+    exit 100
 }
 
 Write-Output "Generating docs"

@@ -12,11 +12,12 @@ namespace Svrooij.WinTuner.CmdLets.Commands;
 
 /// <summary>
 /// <para type="synopsis">Remove an app from Intune</para>
-/// <para type="description">Will remove the relationships (if any) first and then remove the app.</para>
-/// <para type="link" uri="https://wintuner.app/docs/wintuner-powershell/Remove-WtWin32App">Documentation</para> 
+/// <para type="description">Will remove the relationships (if any) first and then remove the app.\r\n\r\nThis is an [**authenticated command**](./authentication), so call [Connect-WtWinTuner](./Connect-WtWinTuner) before calling this command.</para>
 /// </summary>
+/// <psOrder>4</psOrder>
 /// <example>
-/// <para type="description">Delete a single app by ID with interactive authentication</para>
+/// <para type="name">Delete an app</para>
+/// <para type="description">Delete a single app by ID, mind the quotes around the ID!</para>
 /// <code>Remove-WtWin32App -AppId "1450c17d-aee5-4bef-acf9-9e0107d340f2"</code>
 /// </example>
 [Cmdlet(VerbsCommon.Remove, "WtWin32App", HelpUri = "https://wintuner.app/docs/wintuner-powershell/Remove-WtWin32App")]
@@ -27,6 +28,7 @@ public class RemoveWtWin32App : BaseIntuneCmdlet
     /// </summary>
     [Parameter(Mandatory = true,
         HelpMessage = "Id of the app in Intune")]
+    [Alias("GraphId")]
     public string? AppId { get; set; }
 
     [ServiceDependency]

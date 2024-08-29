@@ -12,15 +12,15 @@ using WingetIntune.Testing;
 namespace Svrooij.WinTuner.CmdLets.Commands;
 /// <summary>
 /// <para type="synopsis">Test if a package will install</para>
-/// <para type="description">Test if a package will install on the Windows Sandbox</para>
-/// <para type="link" uri="https://wintuner.app/docs/wintuner-powershell/Test-WtIntuneWin">Documentation</para> 
+/// <para type="description">Use the Windows Sandbox to test if the provided installer arguments will make it install silently and if it exists with the expected exit code.</para>
 /// </summary>
+/// <psOrder>30</psOrder>
 /// <example>
+/// <para type="name">Test OhMyPosh version 22.0.3</para>
 /// <para type="description">Test a packaged installer in sandbox</para>
-/// <code>Test-WtIntuneWin -PackageFolder D:\packages\JanDeDobbeleer.OhMyPosh\22.0.3</code>
+/// <code>Test-WtIntuneWin -PackageFolder &quot;D:\packages\JanDeDobbeleer.OhMyPosh\22.0.3&quot;</code>
 /// </example>
 [Cmdlet(VerbsDiagnostic.Test, "WtIntuneWin", DefaultParameterSetName = nameof(PackageFolder), HelpUri = "https://wintuner.app/docs/wintuner-powershell/Test-WtIntuneWin/")]
-[OutputType(typeof(string))]
 public class TestWtIntuneWin : DependencyCmdlet<Startup>
 {
     private const string ParameterSetWinGet = "WinGet";
@@ -31,7 +31,7 @@ public class TestWtIntuneWin : DependencyCmdlet<Startup>
     /// </summary>
     [Parameter(
         Mandatory = true,
-        Position = 0,
+        Position = 1,
         ParameterSetName = ParameterSetWinGet,
         ValueFromPipeline = false,
         ValueFromPipelineByPropertyName = false,
@@ -43,7 +43,7 @@ public class TestWtIntuneWin : DependencyCmdlet<Startup>
     /// </summary>
     [Parameter(
         Mandatory = true,
-        Position = 1,
+        Position = 2,
         ParameterSetName = ParameterSetWinGet,
         ValueFromPipeline = false,
         HelpMessage = "The version to upload to Intune"
@@ -55,7 +55,7 @@ public class TestWtIntuneWin : DependencyCmdlet<Startup>
     /// </summary>
     [Parameter(
         Mandatory = true,
-        Position = 2,
+        Position = 3,
         ParameterSetName = ParameterSetWinGet,
         ValueFromPipeline = false,
         HelpMessage = "The Root folder where all the package live in.")]
@@ -66,7 +66,7 @@ public class TestWtIntuneWin : DependencyCmdlet<Startup>
     /// </summary>
     [Parameter(
         Mandatory = true,
-        Position = 0,
+        Position = 1,
         ParameterSetName = nameof(PackageFolder),
         ValueFromPipeline = false,
         ValueFromPipelineByPropertyName = true,
@@ -78,7 +78,7 @@ public class TestWtIntuneWin : DependencyCmdlet<Startup>
     /// </summary>
     [Parameter(
         Mandatory = true,
-        Position = 0,
+        Position = 1,
         ParameterSetName = ParameterSetIntuneWin,
         ValueFromPipeline = false,
         ValueFromPipelineByPropertyName = true,
@@ -90,7 +90,7 @@ public class TestWtIntuneWin : DependencyCmdlet<Startup>
     /// </summary>
     [Parameter(
         Mandatory = false,
-        Position = 1,
+        Position = 2,
         ParameterSetName = ParameterSetIntuneWin,
         ValueFromPipeline = false,
         ValueFromPipelineByPropertyName = true,
@@ -102,7 +102,7 @@ public class TestWtIntuneWin : DependencyCmdlet<Startup>
     /// </summary>
     [Parameter(
         Mandatory = false,
-        Position = 2,
+        Position = 3,
         ParameterSetName = ParameterSetIntuneWin,
         ValueFromPipeline = false,
         ValueFromPipelineByPropertyName = true,
@@ -122,6 +122,18 @@ public class TestWtIntuneWin : DependencyCmdlet<Startup>
     /// </summary>
     [Parameter(
         Mandatory = false,
+        ParameterSetName = nameof(PackageFolder),
+        Position = 3,
+        HelpMessage = "Clean the test files after run")]
+    [Parameter(
+        Mandatory = false,
+        ParameterSetName = ParameterSetWinGet,
+        Position = 4,
+        HelpMessage = "Clean the test files after run")]
+    [Parameter(
+        Mandatory = false,
+        ParameterSetName = ParameterSetIntuneWin,
+        Position = 4,
         HelpMessage = "Clean the test files after run")]
     public SwitchParameter Clean { get; set; }
 
@@ -130,6 +142,18 @@ public class TestWtIntuneWin : DependencyCmdlet<Startup>
     /// </summary>
     [Parameter(
         Mandatory = false,
+        ParameterSetName = nameof(PackageFolder),
+        Position = 4,
+        HelpMessage = "Sleep for x seconds before auto shutdown")]
+    [Parameter(
+        Mandatory = false,
+        ParameterSetName = ParameterSetWinGet,
+        Position = 5,
+        HelpMessage = "Sleep for x seconds before auto shutdown")]
+    [Parameter(
+        Mandatory = false,
+        ParameterSetName = ParameterSetIntuneWin,
+        Position = 5,
         HelpMessage = "Sleep for x seconds before auto shutdown")]
     public int? Sleep { get; set; }
 
