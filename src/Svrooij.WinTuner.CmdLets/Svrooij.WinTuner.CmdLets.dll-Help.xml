@@ -2473,5 +2473,11 @@ You could run this on a weekly bases.
         </dev:remarks>
       </command:example>
     </command:examples>
+    <command:relatedLinks>
+      <maml:navigationLink>
+        <maml:linkText>Online Version</maml:linkText>
+        <maml:uri>https://wintuner.app/docs/wintuner-powershell/Update-WtIntuneApp</maml:uri>
+      </maml:navigationLink>
+    </command:relatedLinks>
   </command:command>
 </helpItems>
