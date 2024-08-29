@@ -10,6 +10,7 @@
     <Nullable>enable</Nullable>
     <NoWarn>CS8618;CS0649</NoWarn>
     <RestorePackagesWithLockFile>true</RestorePackagesWithLockFile>
+	<PowerShellDocsFile>Svrooij.WinTuner.CmdLets.dll-Help.xml</PowerShellDocsFile>
   </PropertyGroup>
 
   <ItemGroup>
@@ -24,6 +25,20 @@
     <ProjectReference Include="..\WingetIntune\WingetIntune.csproj" />
   </ItemGroup>
 
+	<Target Name="GenerateDocumentation" AfterTargets="AfterBuild" Outputs="$(PowerShellDocsFile)" Condition="!Exists($(PowerShellDocsFile))">
+		<Message Text="Generating $(PowerShellDocsFile)" Importance="high" />
+		<Message Text="Project path $(ProjectDir)" Importance="high" />
+		<Message Text="Output path $(OutputPath)" Importance="high" />
+		<Exec Command="pwsh-docs --dll $(ProjectDir)$(OutputPath)\Svrooij.WinTuner.CmdLets.dll --use-xml-docs --maml-file $(ProjectDir)\$(PowerShellDocsFile)" />
+		<OnError ExecuteTargets="DocsGenerationError" />
+	</Target>
+	<Target Name="DocsGenerationError">
+		<Error Text="Documentation could not be generated" />
+	</Target>
+	<Target Name="RemoveDocumentation" AfterTargets="CoreClean">
+		<Delete Files="$(PowerShellDocsFile)" />
+	</Target>
+
   <ItemGroup>
     <None Update="Svrooij.WinTuner.CmdLets.dll-Help.xml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
@@ -34,10 +49,6 @@
     <None Update="WinTuner.psm1">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="docs\" />
   </ItemGroup>
 
 </Project>
