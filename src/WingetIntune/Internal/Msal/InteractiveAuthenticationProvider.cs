@@ -40,7 +40,8 @@ public sealed class InteractiveAuthenticationProvider : IAuthenticationProvider
         if (!string.IsNullOrWhiteSpace(_options.TenantId))
         {
             builder.WithTenantId(_options.TenantId);
-        } else
+        }
+        else
         {
             builder.WithAuthority(AzureCloudInstance.AzurePublic, AadAuthorityAudience.AzureAdMultipleOrgs);
         }
@@ -85,7 +86,7 @@ public sealed class InteractiveAuthenticationProvider : IAuthenticationProvider
         && (string.IsNullOrEmpty(userId) || a.Username.Equals(userId, StringComparison.InvariantCultureIgnoreCase)));
 
         try
-        { 
+        {
             authenticationResult = account is null
                 ? await publicClientApplication.AcquireTokenSilent(scopes, userId).ExecuteAsync(cancellationToken)
                 : await publicClientApplication.AcquireTokenSilent(scopes, account).ExecuteAsync(cancellationToken);
