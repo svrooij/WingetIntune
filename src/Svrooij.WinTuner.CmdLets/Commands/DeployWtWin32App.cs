@@ -12,6 +12,8 @@ using WingetIntune.Graph;
 using WingetIntune.Intune;
 using GraphModels = Microsoft.Graph.Beta.Models;
 using System.Linq;
+using Microsoft.Kiota.Abstractions.Serialization;
+using Microsoft.Kiota.Abstractions.Extensions;
 
 namespace Svrooij.WinTuner.CmdLets.Commands;
 /// <summary>
@@ -175,6 +177,12 @@ public class DeployWtWin32App : BaseIntuneCmdlet
                              HelpMessage = "Groups that the app should be uninstalled for, Group Object ID or `AllUsers` / `AllDevices`")]
     public string[]? UninstallFor { get; set; }
 
+    /// <summary>
+    /// <para type="description">The role scope tags for this app</para>
+    /// </summary>
+    [Parameter(Mandatory = false, Position = 15, HelpMessage = "The role scope tags for this app")]
+    public string[]? RoleScopeTags { get; set; }
+
     [ServiceDependency]
     private ILogger<DeployWtWin32App>? logger;
 
@@ -196,16 +204,28 @@ public class DeployWtWin32App : BaseIntuneCmdlet
             {
                 logger?.LogDebug("Loading package details from RootPackageFolder {RootPackageFolder}, PackageId {PackageId}, Version {Version}", RootPackageFolder, PackageId, Version);
                 PackageFolder = Path.Combine(RootPackageFolder!, PackageId!, Version!);
-                logger?.LogDebug("Loading package details from folder {packageFolder}", PackageFolder);
+                logger?.LogDebug("Loading package details from folder {PackageFolder}", PackageFolder);
             }
 
             if (PackageFolder is not null)
             {
-                logger?.LogInformation("Loading package details from folder {packageFolder}", PackageFolder);
-                var packageInfo = await metadataManager!.LoadPackageInfoFromFolderAsync(PackageFolder, cancellationToken);
-                App = metadataManager.ConvertPackageInfoToWin32App(packageInfo);
-                LogoPath = Path.Combine(PackageFolder, "..", "logo.png");
-                IntuneWinFile = metadataManager.GetIntuneWinFileName(PackageFolder, packageInfo);
+                logger?.LogInformation("Loading package details from folder {PackageFolder}", PackageFolder);
+                var win32LobAppFile = Path.Combine(PackageFolder, "win32LobApp.json");
+                if (File.Exists(win32LobAppFile))
+                {
+                    logger?.LogDebug("Loading Win32LobApp from file {Win32LobAppFile}", win32LobAppFile);
+                    var json = await File.ReadAllTextAsync(win32LobAppFile, cancellationToken);
+                    App = await KiotaSerializer.DeserializeAsync<GraphModels.Win32LobApp>("application/json", json, cancellationToken);
+                    IntuneWinFile = Path.Combine(PackageFolder, App!.FileName!);
+                }
+                else
+                {
+                    logger?.LogDebug("Loading package info from folder {PackageFolder}", PackageFolder);
+                    var packageInfo = await metadataManager!.LoadPackageInfoFromFolderAsync(PackageFolder, cancellationToken);
+                    App = metadataManager.ConvertPackageInfoToWin32App(packageInfo);
+                    LogoPath = Path.Combine(PackageFolder, "..", "logo.png");
+                    IntuneWinFile = metadataManager.GetIntuneWinFileName(PackageFolder, packageInfo);
+                }
             }
             else
             {
@@ -213,6 +233,12 @@ public class DeployWtWin32App : BaseIntuneCmdlet
                 logger?.LogError(ex, "No App or PackageFolder was provided");
                 throw ex;
             }
+        }
+
+        if (RoleScopeTags is not null && RoleScopeTags.Any())
+        {
+            logger?.LogInformation("Adding role scope tags to app");
+            App.RoleScopeTagIds = RoleScopeTags.AsList();
         }
 
         if (!string.IsNullOrEmpty(OverrideAppName))

@@ -690,6 +690,17 @@ Connect-WtWinTuner -UseDefaultCredentials</dev:code>
           </dev:type>
           <dev:defaultValue>None</dev:defaultValue>
         </command:parameter>
+        <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="15" aliases="none">
+          <maml:name>RoleScopeTags</maml:name>
+          <maml:description>
+            <maml:para>The role scope tags for this app</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="true">String[]</command:parameterValue>
+          <dev:type>
+            <maml:name>String[]</maml:name>
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
         <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="30" aliases="none">
           <maml:name>GraphId</maml:name>
           <maml:description>
@@ -792,6 +803,17 @@ Connect-WtWinTuner -UseDefaultCredentials</dev:code>
           </dev:type>
           <dev:defaultValue>None</dev:defaultValue>
         </command:parameter>
+        <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="15" aliases="none">
+          <maml:name>RoleScopeTags</maml:name>
+          <maml:description>
+            <maml:para>The role scope tags for this app</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="true">String[]</command:parameterValue>
+          <dev:type>
+            <maml:name>String[]</maml:name>
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
         <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="30" aliases="none">
           <maml:name>GraphId</maml:name>
           <maml:description>
@@ -865,6 +887,17 @@ Connect-WtWinTuner -UseDefaultCredentials</dev:code>
           <maml:name>UninstallFor</maml:name>
           <maml:description>
             <maml:para>Groups that the app should be uninstalled for, Group Object ID or `AllUsers` / `AllDevices`</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="true">String[]</command:parameterValue>
+          <dev:type>
+            <maml:name>String[]</maml:name>
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="15" aliases="none">
+          <maml:name>RoleScopeTags</maml:name>
+          <maml:description>
+            <maml:para>The role scope tags for this app</maml:para>
           </maml:description>
           <command:parameterValue required="false" variableLength="true">String[]</command:parameterValue>
           <dev:type>
@@ -1033,6 +1066,17 @@ Connect-WtWinTuner -UseDefaultCredentials</dev:code>
         <maml:name>UninstallFor</maml:name>
         <maml:description>
           <maml:para>Groups that the app should be uninstalled for, Group Object ID or `AllUsers` / `AllDevices`</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="true">String[]</command:parameterValue>
+        <dev:type>
+          <maml:name>String[]</maml:name>
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="15" aliases="none">
+        <maml:name>RoleScopeTags</maml:name>
+        <maml:description>
+          <maml:para>The role scope tags for this app</maml:para>
         </maml:description>
         <command:parameterValue required="false" variableLength="true">String[]</command:parameterValue>
         <dev:type>
