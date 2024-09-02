@@ -4,6 +4,7 @@ using Microsoft.Graph.Beta;
 using Microsoft.Graph.Beta.Models;
 using Microsoft.Graph.Beta.Models.ODataErrors;
 using Microsoft.Kiota.Abstractions.Authentication;
+using Microsoft.Kiota.Abstractions.Serialization;
 using System.Text;
 using System.Text.Json;
 using WingetIntune.Graph;
@@ -677,6 +678,20 @@ public partial class IntuneManager
         var json = JsonSerializer.SerializeToUtf8Bytes(packageInfo, MyJsonContext.Default.PackageInfo);
         var jsonFile = Path.Combine(packageFolder, "app.json");
         await fileManager.WriteAllBytesAsync(jsonFile, json, cancellationToken);
+
+        var win32File = Path.Combine(packageFolder, "win32LobApp.json");
+
+        var win32App = mapper.ToWin32LobApp(packageInfo);
+        var logoPath = Path.Combine(packageFolder, "..", "logo.png");
+        win32App.LargeIcon = new MimeContent
+        {
+            Type = "image/png",
+            Value = await fileManager.ReadAllBytesAsync(logoPath, cancellationToken)
+        };
+        using var stream = new FileStream(win32File, FileMode.Create);
+        using var jsonStream = KiotaSerializer.SerializeAsStream("application/json", win32App, false);
+        await jsonStream.CopyToAsync(stream, cancellationToken);
+        await stream.FlushAsync(cancellationToken);
     }
 
     private GraphServiceClient CreateGraphClientFromOptions(IntunePublishOptions options)
