@@ -33,22 +33,25 @@ public sealed class InteractiveAuthenticationProvider : IAuthenticationProvider
             _options.ClientId = DefaultClientId;
         }
 
-        if (_options.UseBroker)
+        var builder = PublicClientApplicationBuilder
+            .Create(_options.ClientId)
+            .WithDefaultRedirectUri();
+
+        if (!string.IsNullOrWhiteSpace(_options.TenantId))
         {
-            publicClientApplication = PublicClientApplicationBuilder
-                .Create(_options.ClientId)
-                .WithDefaultRedirectUri()
-                .WithBroker(new BrokerOptions(BrokerOptions.OperatingSystems.Windows) { Title = "WinTuner" })
-                .Build();
+            builder.WithTenantId(_options.TenantId);
         }
         else
         {
-            publicClientApplication = PublicClientApplicationBuilder
-                .Create(_options.ClientId)
-                .WithAuthority(AzureCloudInstance.AzurePublic, AadAuthorityAudience.AzureAdMultipleOrgs)
-                .WithDefaultRedirectUri()
-                .Build();
+            builder.WithAuthority(AzureCloudInstance.AzurePublic, AadAuthorityAudience.AzureAdMultipleOrgs);
         }
+
+        if (_options.UseBroker)
+        {
+            builder.WithBroker(new BrokerOptions(BrokerOptions.OperatingSystems.Windows) { Title = "WinTuner" });
+        }
+
+        publicClientApplication = builder.Build();
     }
 
     private async Task LoadCache()
@@ -76,17 +79,20 @@ public sealed class InteractiveAuthenticationProvider : IAuthenticationProvider
         {
             return authenticationResult;
         }
+
         var accounts = await publicClientApplication.GetAccountsAsync();
         bool tenantIsGuid = Guid.TryParse(tenantId, out _);
         var account = accounts.FirstOrDefault(a => (string.IsNullOrWhiteSpace(tenantId) || tenantIsGuid == false || a.HomeAccountId.TenantId == tenantId)
-            && (string.IsNullOrEmpty(userId) || a.Username.Equals(userId, StringComparison.InvariantCultureIgnoreCase)));
+        && (string.IsNullOrEmpty(userId) || a.Username.Equals(userId, StringComparison.InvariantCultureIgnoreCase)));
 
         try
         {
-            authenticationResult = await publicClientApplication.AcquireTokenSilent(scopes, account).ExecuteAsync(cancellationToken);
+            authenticationResult = account is null
+                ? await publicClientApplication.AcquireTokenSilent(scopes, userId).ExecuteAsync(cancellationToken)
+                : await publicClientApplication.AcquireTokenSilent(scopes, account).ExecuteAsync(cancellationToken);
             return authenticationResult;
         }
-        catch (MsalUiRequiredException)
+        catch (MsalUiRequiredException ex)
         {
             return await AcquireTokenInteractiveAsync(scopes, tenantId, account?.Username ?? userId, cancellationToken);
         }
@@ -94,7 +100,7 @@ public sealed class InteractiveAuthenticationProvider : IAuthenticationProvider
 
     public async Task<AuthenticationResult> AcquireTokenInteractiveAsync(IEnumerable<string> scopes, string? tenantId = null, string? userId = null, CancellationToken cancellationToken = default)
     {
-        using var timeoutCancellation = new CancellationTokenSource(30000);
+        using var timeoutCancellation = new CancellationTokenSource(120000);
 
         // Create a "LinkedTokenSource" combining two CancellationTokens into one.
         using var combinedCancellation = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, timeoutCancellation.Token);
