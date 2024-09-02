@@ -683,15 +683,22 @@ public partial class IntuneManager
 
         var win32App = mapper.ToWin32LobApp(packageInfo);
         var logoPath = Path.Combine(packageFolder, "..", "logo.png");
-        win32App.LargeIcon = new MimeContent
+        var logoBytes = await fileManager.ReadAllBytesAsync(logoPath, cancellationToken);
+        if (logoBytes.Length > 0)
         {
-            Type = "image/png",
-            Value = await fileManager.ReadAllBytesAsync(logoPath, cancellationToken)
-        };
-        using var stream = new FileStream(win32File, FileMode.Create);
+            win32App.LargeIcon = new MimeContent
+            {
+                Type = "image/png",
+                Value = logoBytes
+            };
+        }
+
+        using var stream = new MemoryStream();
         using var jsonStream = KiotaSerializer.SerializeAsStream("application/json", win32App, false);
         await jsonStream.CopyToAsync(stream, cancellationToken);
         await stream.FlushAsync(cancellationToken);
+        stream.Seek(0, SeekOrigin.Begin);
+        await fileManager.WriteAllBytesAsync(win32File, stream.ToArray(), cancellationToken);
     }
 
     private GraphServiceClient CreateGraphClientFromOptions(IntunePublishOptions options)

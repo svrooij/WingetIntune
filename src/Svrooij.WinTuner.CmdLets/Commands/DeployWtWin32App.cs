@@ -13,6 +13,7 @@ using WingetIntune.Intune;
 using GraphModels = Microsoft.Graph.Beta.Models;
 using System.Linq;
 using Microsoft.Kiota.Abstractions.Serialization;
+using Microsoft.Kiota.Abstractions.Extensions;
 
 namespace Svrooij.WinTuner.CmdLets.Commands;
 /// <summary>
@@ -176,6 +177,12 @@ public class DeployWtWin32App : BaseIntuneCmdlet
                              HelpMessage = "Groups that the app should be uninstalled for, Group Object ID or `AllUsers` / `AllDevices`")]
     public string[]? UninstallFor { get; set; }
 
+    /// <summary>
+    /// <para type="description">The role scope tags for this app</para>
+    /// </summary>
+    [Parameter(Mandatory = false, Position = 15, HelpMessage = "The role scope tags for this app")]
+    public string[]? RoleScopeTags { get; set; }
+
     [ServiceDependency]
     private ILogger<DeployWtWin32App>? logger;
 
@@ -226,6 +233,12 @@ public class DeployWtWin32App : BaseIntuneCmdlet
                 logger?.LogError(ex, "No App or PackageFolder was provided");
                 throw ex;
             }
+        }
+
+        if (RoleScopeTags is not null && RoleScopeTags.Any())
+        {
+            logger?.LogInformation("Adding role scope tags to app");
+            App.RoleScopeTagIds = RoleScopeTags.AsList();
         }
 
         if (!string.IsNullOrEmpty(OverrideAppName))
