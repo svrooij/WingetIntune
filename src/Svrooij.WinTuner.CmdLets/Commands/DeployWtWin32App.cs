@@ -216,6 +216,8 @@ public class DeployWtWin32App : BaseIntuneCmdlet
                     logger?.LogDebug("Loading Win32LobApp from file {Win32LobAppFile}", win32LobAppFile);
                     var json = await File.ReadAllTextAsync(win32LobAppFile, cancellationToken);
                     App = await KiotaSerializer.DeserializeAsync<GraphModels.Win32LobApp>("application/json", json, cancellationToken);
+                    App!.BackingStore.InitializationCompleted = false;
+                    App.BackingStore.ReturnOnlyChangedValues = false;
                     IntuneWinFile = Path.Combine(PackageFolder, App!.FileName!);
                 }
                 else

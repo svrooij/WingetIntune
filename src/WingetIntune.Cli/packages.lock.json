@@ -585,10 +585,10 @@
       },
       "Microsoft.Kiota.Serialization.Form": {
         "type": "Transitive",
-        "resolved": "1.12.2",
-        "contentHash": "MtKfAQEzfxZndL05xofNRiU20hj5fgwPQEAL1kujIFH+K/zKjMhHCauDQIHWWIbBBuyGpdnKRfL0mA53ruzvlQ==",
+        "resolved": "1.11.3",
+        "contentHash": "qeOOkVw6iB7xbDaFzlvE4x/LTAQ/EeuVHJEl0LwdE1nm9elrLZtQrUW1juwsnFIiTLkyEfR5lebfTK9Wln5iRw==",
         "dependencies": {
-          "Microsoft.Kiota.Abstractions": "1.12.2"
+          "Microsoft.Kiota.Abstractions": "1.11.3"
         }
       },
       "Microsoft.Kiota.Serialization.Json": {
@@ -601,18 +601,18 @@
       },
       "Microsoft.Kiota.Serialization.Multipart": {
         "type": "Transitive",
-        "resolved": "1.12.2",
-        "contentHash": "NfWpMyKaJM6hMRoebGavN+9TDPwnwzcqnnNZfyds6M5AEli9OSHONkn/71g8QDF1nQAhPiDwAYncQ5hUZjhFMQ==",
+        "resolved": "1.11.3",
+        "contentHash": "FN6RNDPyOwnVcBvtElHE/C3Eky7RC3GL5//XVC6GbW/2YGCZJdcbATcFpQ7KlWGNSuf31zrS/mltT+dh8yauSA==",
         "dependencies": {
-          "Microsoft.Kiota.Abstractions": "1.12.2"
+          "Microsoft.Kiota.Abstractions": "1.11.3"
         }
       },
       "Microsoft.Kiota.Serialization.Text": {
         "type": "Transitive",
-        "resolved": "1.12.2",
-        "contentHash": "R/tjcz8eOhBHFE+xWgBhZDabVg3FYt2kBdVx2/qGutiFTD+U5AITud8iimW68TSHg7qDdh47LsvMuhiaod4uCg==",
+        "resolved": "1.11.3",
+        "contentHash": "0vw3voEjENx2cXBqVFOhOGnqzC9ECBlpYhkEPXr8D+pTBYl8RDPS3N2mVWaib4CASqrwqqKYCksTGVpsnDA8Pw==",
         "dependencies": {
-          "Microsoft.Kiota.Abstractions": "1.12.2"
+          "Microsoft.Kiota.Abstractions": "1.11.3"
         }
       },
       "Microsoft.NETCore.Platforms": {
@@ -787,13 +787,6 @@
           "Microsoft.Graph.Core": "[3.1.20, )",
           "Microsoft.Identity.Client.Broker": "[4.64.0, )",
           "Microsoft.Identity.Client.Extensions.Msal": "[4.64.0, )",
-          "Microsoft.Kiota.Abstractions": "[1.12.2, )",
-          "Microsoft.Kiota.Authentication.Azure": "[1.12.2, )",
-          "Microsoft.Kiota.Http.HttpClientLibrary": "[1.12.2, )",
-          "Microsoft.Kiota.Serialization.Form": "[1.12.2, )",
-          "Microsoft.Kiota.Serialization.Json": "[1.12.2, )",
-          "Microsoft.Kiota.Serialization.Multipart": "[1.12.2, )",
-          "Microsoft.Kiota.Serialization.Text": "[1.12.2, )",
           "Riok.Mapperly": "[3.6.0, )",
           "SvRooij.ContentPrep": "[0.1.3-alpha0001, )",
           "System.IdentityModel.Tokens.Jwt": "[8.0.2, )",
