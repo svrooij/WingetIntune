@@ -12,7 +12,7 @@ public sealed class WingetRepositoryWithEf : WingetRepository
         response.EnsureSuccessStatusCode();
         using var stream = await response.Content.ReadAsStreamAsync(cancellationToken);
         using var zip = new ZipArchive(stream, ZipArchiveMode.Read);
-        zip.ExtractToDirectory(folder);
+        ExtractToDirectory(zip, folder);
         var file = Path.Combine(folder, "Public", "index.db");
         var connectionString = $"Data Source='{file}';Pooling=false;";
         var results = new List<Models.WingetEntry>();
@@ -53,5 +53,26 @@ public sealed class WingetRepositoryWithEf : WingetRepository
         Directory.Delete(folder, true);
 
         return results;
+    }
+
+    private void ExtractToDirectory(ZipArchive archive, string destinationDirectoryName)
+    {
+        foreach (ZipArchiveEntry entry in archive.Entries)
+        {
+            string filePath = Path.Combine(destinationDirectoryName, entry.FullName);
+
+            if (!filePath.StartsWith(destinationDirectoryName, StringComparison.OrdinalIgnoreCase))
+            {
+                throw new IOException("Extracting Zip entry would have resulted in a file outside the specified destination directory.");
+            }
+
+            if (string.IsNullOrEmpty(entry.Name))
+            {
+                Directory.CreateDirectory(Path.GetDirectoryName(filePath));
+                continue;
+            }
+
+            entry.ExtractToFile(filePath, true);
+        }
     }
 }
