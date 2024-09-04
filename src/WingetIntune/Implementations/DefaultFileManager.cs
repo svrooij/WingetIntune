@@ -1,4 +1,4 @@
-﻿using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging;
 using System.IO.Compression;
 using System.Security.Cryptography;
 
@@ -134,7 +134,29 @@ public partial class DefaultFileManager : IFileManager
 
     public void ExtractFileToFolder(string zipPath, string destinationFolder)
     {
-        ZipFile.ExtractToDirectory(zipPath, destinationFolder);
+        using (FileStream inputStream = new FileStream(zipPath, FileMode.Open, FileAccess.Read, FileShare.None, bufferSize: 4096, useAsync: false))
+        {
+            using (ZipArchive archive = new ZipArchive(inputStream, ZipArchiveMode.Read, false))
+            {
+                foreach (ZipArchiveEntry entry in archive.Entries)
+                {
+                    string filePath = Path.Combine(destinationFolder, entry.FullName);
+
+                    if (!filePath.StartsWith(destinationFolder, StringComparison.OrdinalIgnoreCase))
+                    {
+                        throw new IOException("Extracting Zip entry would have resulted in a file outside the specified destination directory.");
+                    }
+
+                    if (string.IsNullOrEmpty(entry.Name))
+                    {
+                        Directory.CreateDirectory(Path.GetDirectoryName(filePath));
+                        continue;
+                    }
+
+                    entry.ExtractToFile(filePath, true);
+                }
+            }
+        }
     }
 
     public async Task ExtractFileToFolderAsync(string zipPath, string destinationFolder, CancellationToken cancellationToken = default)
@@ -147,6 +169,13 @@ public partial class DefaultFileManager : IFileManager
                 {
                     if (cancellationToken.IsCancellationRequested)
                         break;
+                    string filePath = Path.Combine(destinationFolder, entry.FullName);
+
+                    if (!filePath.StartsWith(destinationFolder, StringComparison.OrdinalIgnoreCase))
+                    {
+                        throw new IOException("Extracting Zip entry would have resulted in a file outside the specified destination directory.");
+                    }
+
                     string directoryName = Path.Combine(destinationFolder, Path.GetDirectoryName(entry.FullName)!);
                     if (!string.IsNullOrEmpty(directoryName))
                         Directory.CreateDirectory(directoryName);
