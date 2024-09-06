@@ -34,6 +34,10 @@ namespace Svrooij.WinTuner.CmdLets.Commands;
 /// <para type="description">Let's say you have a token from another source, just hand us to token and we'll use it to connect to Intune. This token has a limited lifetime, so you'll be responsible for refreshing it.</para>
 /// </parameterSet>
 /// <parameterSet>
+/// <para type="name">ClientCertificateCredentials</para>
+/// <para type="description">Client credentials flow using a certificate in the user or local computer store.\r\n\r\nMake sure to mark the certificate as not exportable, this helps in keeping the certificate secure.</para>
+/// </parameterSet>
+/// <parameterSet>
 /// <para type="name">ClientCredentials</para>
 /// <para type="description">:::warning Last resort\r\nUsing client credentials is not recommended because you'll have to keep the secret, **secret**!\r\n\r\nPlease let us know if you have to use this method, we might be able to help you with a better solution.\r\n:::</para>
 /// </parameterSet>
@@ -202,8 +206,8 @@ public class ConnectWtWinTuner : DependencyCmdlet<Startup>
                 Position = 1,
                 ParameterSetName = ParamSetClientCertificateCredentials,
                 ValueFromPipeline = false,
-                HelpMessage = "Specify the thumbprint of the certificate.")]
-    public string? ClientCertificateThumbprint { get; set; }
+                HelpMessage = "Specify the thumbprint of the certificate. Loaded from `AZURE_CLIENT_CERT_THUMBPRINT`")]
+    public string? ClientCertificateThumbprint { get; set; } = Environment.GetEnvironmentVariable("AZURE_CLIENT_CERT_THUMBPRINT");
 
     /// <summary>
     /// Specify scopes to use
