@@ -58,7 +58,7 @@ public class RemoveWtWin32App : BaseIntuneCmdlet
                 var parentRelationShips = await graphServiceClient.DeviceAppManagement.MobileApps[relationship.TargetId].Relationships.GetAsync(cancellationToken: cancellationToken);
                 await graphServiceClient.DeviceAppManagement.MobileApps[relationship.TargetId].UpdateRelationships.PostAsync(new Microsoft.Graph.Beta.DeviceAppManagement.MobileApps.Item.UpdateRelationships.UpdateRelationshipsPostRequestBody
                 {
-                    Relationships = parentRelationShips?.Value?.Where(r => r.TargetId != AppId).ToList() ?? new List<Microsoft.Graph.Beta.Models.MobileAppRelationship>()
+                    Relationships = parentRelationShips?.Value?.Where(r => r.TargetId != AppId && r.TargetType != Microsoft.Graph.Beta.Models.MobileAppRelationshipType.Parent).ToList() ?? new List<Microsoft.Graph.Beta.Models.MobileAppRelationship>()
                 }, cancellationToken: cancellationToken);
             }
 
