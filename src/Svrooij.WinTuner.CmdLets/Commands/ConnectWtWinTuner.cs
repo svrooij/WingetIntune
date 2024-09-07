@@ -318,7 +318,7 @@ public class ConnectWtWinTuner : DependencyCmdlet<Startup>
 
         if (ParameterSetName == ParamSetClientCertificateCredentials)
         {
-            if( !string.IsNullOrEmpty(ClientId) && !string.IsNullOrEmpty(TenantId) && 
+            if (!string.IsNullOrEmpty(ClientId) && !string.IsNullOrEmpty(TenantId) &&
                 !string.IsNullOrEmpty(ClientCertificateThumbprint))
             {
                 using var store = new X509Store(StoreName.My, StoreLocation.CurrentUser);
@@ -332,13 +332,13 @@ public class ConnectWtWinTuner : DependencyCmdlet<Startup>
                     certificate = storeLocal.Certificates.Cast<X509Certificate2>().FirstOrDefault(cert => cert.Thumbprint == ClientCertificateThumbprint);
                     storeLocal.Close();
                 }
-                if( certificate == null)
+                if (certificate == null)
                 {
-                    throw new ArgumentException( "Cannot find cert thumbprint in User or Machine store");
+                    throw new ArgumentException("Cannot find cert thumbprint in User or Machine store");
                 }
-                
+
                 return new Microsoft.Graph.Authentication.AzureIdentityAuthenticationProvider(
-                    new Azure.Identity.ClientCertificateCredential (TenantId, ClientId, certificate,
+                    new Azure.Identity.ClientCertificateCredential(TenantId, ClientId, certificate,
                         new Azure.Identity.ClientCertificateCredentialOptions
                         {
                             TokenCachePersistenceOptions = new Azure.Identity.TokenCachePersistenceOptions
@@ -349,12 +349,12 @@ public class ConnectWtWinTuner : DependencyCmdlet<Startup>
                         }
                     ), isCaeEnabled: false, scopes: DefaultClientCredentialScope);
 
-            }  
+            }
             else
             {
                 throw new ArgumentException("Not all parameters for client certificate are specified",
                     nameof(ClientId));
-            }              
+            }
 
         }
         if (ParameterSetName == ParamSetInteractive)
