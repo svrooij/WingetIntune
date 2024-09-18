@@ -9,6 +9,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Microsoft.Kiota.Abstractions;
+using System.Security.Cryptography.X509Certificates;
 
 namespace Svrooij.WinTuner.CmdLets.Commands;
 /// <summary>
@@ -31,6 +32,10 @@ namespace Svrooij.WinTuner.CmdLets.Commands;
 /// <parameterSet>
 /// <para type="name">Token</para>
 /// <para type="description">Let's say you have a token from another source, just hand us to token and we'll use it to connect to Intune. This token has a limited lifetime, so you'll be responsible for refreshing it.</para>
+/// </parameterSet>
+/// <parameterSet>
+/// <para type="name">ClientCertificateCredentials</para>
+/// <para type="description">Client credentials flow using a certificate in the user or local computer store.\r\n\r\nMake sure to mark the certificate as not exportable, this helps in keeping the certificate secure.</para>
 /// </parameterSet>
 /// <parameterSet>
 /// <para type="name">ClientCredentials</para>
@@ -59,6 +64,7 @@ public class ConnectWtWinTuner : DependencyCmdlet<Startup>
     private const string DefaultClientCredentialScope = "https://graph.microsoft.com/.default";
     private const string ParamSetInteractive = "Interactive";
     private const string ParamSetClientCredentials = "ClientCredentials";
+    private const string ParamSetClientCertificateCredentials = "ClientCertificateCredentials";
 
     /// <summary>
     /// Used default scopes
@@ -144,6 +150,13 @@ public class ConnectWtWinTuner : DependencyCmdlet<Startup>
         ValueFromPipeline = false,
         ValueFromPipelineByPropertyName = false,
         HelpMessage = "Specify the tenant ID. Loaded from `AZURE_TENANT_ID`")]
+    [Parameter(
+        Mandatory = true,
+        Position = 2,
+        ParameterSetName = ParamSetClientCertificateCredentials,
+        ValueFromPipeline = false,
+        ValueFromPipelineByPropertyName = false,
+        HelpMessage = "Specify the tenant ID. Loaded from `AZURE_TENANT_ID`")]
     public string? TenantId { get; set; } = Environment.GetEnvironmentVariable("AZURE_TENANT_ID");
 
     /// <summary>
@@ -156,6 +169,13 @@ public class ConnectWtWinTuner : DependencyCmdlet<Startup>
                ValueFromPipeline = false,
                ValueFromPipelineByPropertyName = false,
                HelpMessage = "Specify the client ID, mandatory for Client Credentials flow. Loaded from `AZURE_CLIENT_ID`")]
+    [Parameter(
+               Mandatory = true,
+               Position = 0,
+               ParameterSetName = ParamSetClientCertificateCredentials,
+               ValueFromPipeline = false,
+               ValueFromPipelineByPropertyName = false,
+               HelpMessage = "Specify the client ID, mandatory for Client Certificate flow. Loaded from `AZURE_CLIENT_ID`")]
     [Parameter(
         Mandatory = false,
         Position = 3,
@@ -179,6 +199,17 @@ public class ConnectWtWinTuner : DependencyCmdlet<Startup>
     public string? ClientSecret { get; set; } = Environment.GetEnvironmentVariable("AZURE_CLIENT_SECRET");
 
     /// <summary>
+    /// Certificate Thumbprint for client authentication
+    /// </summary>
+    [Parameter(
+                Mandatory = true,
+                Position = 1,
+                ParameterSetName = ParamSetClientCertificateCredentials,
+                ValueFromPipeline = false,
+                HelpMessage = "Specify the thumbprint of the certificate. Loaded from `AZURE_CLIENT_CERT_THUMBPRINT`")]
+    public string? ClientCertificateThumbprint { get; set; } = Environment.GetEnvironmentVariable("AZURE_CLIENT_CERT_THUMBPRINT");
+
+    /// <summary>
     /// Specify scopes to use
     /// </summary>
     [Parameter(
@@ -199,6 +230,13 @@ public class ConnectWtWinTuner : DependencyCmdlet<Startup>
         Mandatory = false,
         Position = 10,
         ParameterSetName = nameof(UseManagedIdentity),
+        ValueFromPipeline = false,
+        ValueFromPipelineByPropertyName = false,
+        HelpMessage = "Specify the scopes to request, default is `https://graph.microsoft.com/.default`")]
+    [Parameter(
+        Mandatory = false,
+        Position = 10,
+        ParameterSetName = ParamSetClientCertificateCredentials,
         ValueFromPipeline = false,
         ValueFromPipelineByPropertyName = false,
         HelpMessage = "Specify the scopes to request, default is `https://graph.microsoft.com/.default`")]
@@ -278,6 +316,47 @@ public class ConnectWtWinTuner : DependencyCmdlet<Startup>
             }
         }
 
+        if (ParameterSetName == ParamSetClientCertificateCredentials)
+        {
+            if (!string.IsNullOrEmpty(ClientId) && !string.IsNullOrEmpty(TenantId) &&
+                !string.IsNullOrEmpty(ClientCertificateThumbprint))
+            {
+                using var store = new X509Store(StoreName.My, StoreLocation.CurrentUser);
+                store.Open(OpenFlags.ReadOnly);
+                var certificate = store.Certificates.Cast<X509Certificate2>().FirstOrDefault(cert => cert.Thumbprint == ClientCertificateThumbprint);
+                store.Close();
+                if (certificate == null)
+                {
+                    using var storeLocal = new X509Store(StoreName.My, StoreLocation.LocalMachine);
+                    storeLocal.Open(OpenFlags.ReadOnly);
+                    certificate = storeLocal.Certificates.Cast<X509Certificate2>().FirstOrDefault(cert => cert.Thumbprint == ClientCertificateThumbprint);
+                    storeLocal.Close();
+                }
+                if (certificate == null)
+                {
+                    throw new ArgumentException("Cannot find cert thumbprint in User or Machine store");
+                }
+
+                return new Microsoft.Graph.Authentication.AzureIdentityAuthenticationProvider(
+                    new Azure.Identity.ClientCertificateCredential(TenantId, ClientId, certificate,
+                        new Azure.Identity.ClientCertificateCredentialOptions
+                        {
+                            TokenCachePersistenceOptions = new Azure.Identity.TokenCachePersistenceOptions
+                            {
+                                Name = "WinTuner-PowerShell-CC",
+                                UnsafeAllowUnencryptedStorage = true,
+                            }
+                        }
+                    ), isCaeEnabled: false, scopes: DefaultClientCredentialScope);
+
+            }
+            else
+            {
+                throw new ArgumentException("Not all parameters for client certificate are specified",
+                    nameof(ClientId));
+            }
+
+        }
         if (ParameterSetName == ParamSetInteractive)
         {
             if (NoBroker || RuntimeInformation.IsOSPlatform(OSPlatform.Windows) == false)

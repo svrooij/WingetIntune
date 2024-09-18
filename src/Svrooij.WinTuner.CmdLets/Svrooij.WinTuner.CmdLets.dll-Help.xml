@@ -173,6 +173,53 @@
         <command:parameter required="true" variableLength="true" globbing="false" pipelineInput="False" position="0" aliases="none">
           <maml:name>ClientId</maml:name>
           <maml:description>
+            <maml:para>Specify the client ID, mandatory for Client Certificate flow. Loaded from `AZURE_CLIENT_ID`</maml:para>
+          </maml:description>
+          <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
+          <dev:type>
+            <maml:name>String</maml:name>
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="true" variableLength="true" globbing="false" pipelineInput="False" position="1" aliases="none">
+          <maml:name>ClientCertificateThumbprint</maml:name>
+          <maml:description>
+            <maml:para>Specify the thumbprint of the certificate. Loaded from `AZURE_CLIENT_CERT_THUMBPRINT`</maml:para>
+          </maml:description>
+          <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
+          <dev:type>
+            <maml:name>String</maml:name>
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="true" variableLength="true" globbing="false" pipelineInput="False" position="2" aliases="none">
+          <maml:name>TenantId</maml:name>
+          <maml:description>
+            <maml:para>Specify the tenant ID. Loaded from `AZURE_TENANT_ID`</maml:para>
+          </maml:description>
+          <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
+          <dev:type>
+            <maml:name>String</maml:name>
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="10" aliases="none">
+          <maml:name>Scopes</maml:name>
+          <maml:description>
+            <maml:para>Specify the scopes to request, default is `https://graph.microsoft.com/.default`</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="true">String[]</command:parameterValue>
+          <dev:type>
+            <maml:name>String[]</maml:name>
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+      </command:syntaxItem>
+      <command:syntaxItem>
+        <maml:name>Connect-WtWinTuner</maml:name>
+        <command:parameter required="true" variableLength="true" globbing="false" pipelineInput="False" position="0" aliases="none">
+          <maml:name>ClientId</maml:name>
+          <maml:description>
             <maml:para>Specify the client ID, mandatory for Client Credentials flow. Loaded from `AZURE_CLIENT_ID`</maml:para>
           </maml:description>
           <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
@@ -309,6 +356,17 @@
         <maml:name>ClientSecret</maml:name>
         <maml:description>
           <maml:para>Specify the client secret. Loaded from `AZURE_CLIENT_SECRET`</maml:para>
+        </maml:description>
+        <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
+        <dev:type>
+          <maml:name>String</maml:name>
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="true" variableLength="true" globbing="false" pipelineInput="False" position="1" aliases="none">
+        <maml:name>ClientCertificateThumbprint</maml:name>
+        <maml:description>
+          <maml:para>Specify the thumbprint of the certificate. Loaded from `AZURE_CLIENT_CERT_THUMBPRINT`</maml:para>
         </maml:description>
         <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
         <dev:type>
