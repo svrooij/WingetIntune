@@ -14,6 +14,7 @@ using GraphModels = Microsoft.Graph.Beta.Models;
 using System.Linq;
 using Microsoft.Kiota.Abstractions.Serialization;
 using Microsoft.Kiota.Abstractions.Extensions;
+using WingetIntune.Extensions;
 
 namespace Svrooij.WinTuner.CmdLets.Commands;
 /// <summary>
@@ -215,7 +216,7 @@ public class DeployWtWin32App : BaseIntuneCmdlet
                 {
                     logger?.LogDebug("Loading Win32LobApp from file {Win32LobAppFile}", win32LobAppFile);
                     var json = await File.ReadAllTextAsync(win32LobAppFile, cancellationToken);
-                    App = await KiotaSerializer.DeserializeAsync<GraphModels.Win32LobApp>("application/json", json, cancellationToken);
+                    App = await json!.ParseJson<GraphModels.Win32LobApp>(cancellationToken);
                     App!.BackingStore.InitializationCompleted = false;
                     App.BackingStore.ReturnOnlyChangedValues = false;
                     IntuneWinFile = Path.Combine(PackageFolder, App!.FileName!);
@@ -239,8 +240,9 @@ public class DeployWtWin32App : BaseIntuneCmdlet
 
         if (RoleScopeTags is not null && RoleScopeTags.Any())
         {
-            logger?.LogInformation("Adding role scope tags to app");
+            logger?.LogDebug("Adding role scope tags to app");
             App.RoleScopeTagIds = RoleScopeTags.AsList();
+            logger?.LogInformation("Role scope tags added to app {@RoleScopeTags}", App?.RoleScopeTagIds);
         }
 
         if (!string.IsNullOrEmpty(OverrideAppName))
