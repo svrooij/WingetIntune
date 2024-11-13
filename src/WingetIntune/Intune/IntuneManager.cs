@@ -445,12 +445,19 @@ public partial class IntuneManager
         }
     }
 
-    internal Task DownloadLogoAsync(string packageFolder, string packageId, CancellationToken cancellationToken)
+    internal async Task DownloadLogoAsync(string packageFolder, string packageId, CancellationToken cancellationToken)
     {
         var logoPath = Path.GetFullPath(Path.Combine(packageFolder, "..", "logo.png"));
-        var logoUri = $"https://api.winstall.app/icons/{packageId}.png";//new Uri($"https://winget.azureedge.net/cache/icons/48x48/{packageId}.png");
-        LogDownloadLogo(logoUri);
-        return fileManager.DownloadFileAsync(logoUri, logoPath, throwOnFailure: false, overrideFile: false, cancellationToken: cancellationToken);
+        try
+        {
+            var logoUri = $"https://api.winstall.app/icons/{packageId}.png";//new Uri($"https://winget.azureedge.net/cache/icons/48x48/{packageId}.png");
+            LogDownloadLogo(logoUri);
+            await fileManager.DownloadFileAsync(logoUri, logoPath, throwOnFailure: false, overrideFile: false, cancellationToken: cancellationToken);
+        } catch (Exception e)
+        {
+            logger.LogWarning(e, "Error downloading logo for {PackageId}, place your own logo here: {LogoPath}", packageId, logoPath);
+        }
+        
     }
 
     internal async Task<string> DownloadInstallerAsync(string tempPackageFolder, PackageInfo packageInfo, CancellationToken cancellationToken)

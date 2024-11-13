@@ -225,7 +225,7 @@ public class DeployWtWin32App : BaseIntuneCmdlet
                     logger?.LogDebug("Loading package info from folder {PackageFolder}", PackageFolder);
                     var packageInfo = await metadataManager!.LoadPackageInfoFromFolderAsync(PackageFolder, cancellationToken);
                     App = metadataManager.ConvertPackageInfoToWin32App(packageInfo);
-                    LogoPath = Path.Combine(PackageFolder, "..", "logo.png");
+                    LogoPath = Path.GetFullPath(Path.Combine(PackageFolder, "..", "logo.png"));
                     IntuneWinFile = metadataManager.GetIntuneWinFileName(PackageFolder, packageInfo);
                 }
             }
