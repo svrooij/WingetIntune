@@ -35,22 +35,22 @@
       },
       "NSubstitute": {
         "type": "Direct",
-        "requested": "[5.1.0, )",
-        "resolved": "5.1.0",
-        "contentHash": "ZCqOP3Kpp2ea7QcLyjMU4wzE+0wmrMN35PQMsdPOHYc2IrvjmusG9hICOiqiOTPKN0gJon6wyCn6ZuGHdNs9hQ==",
+        "requested": "[5.3.0, )",
+        "resolved": "5.3.0",
+        "contentHash": "lJ47Cps5Qzr86N99lcwd+OUvQma7+fBgr8+Mn+aOC0WrlqMNkdivaYD9IvnZ5Mqo6Ky3LS7ZI+tUq1/s9ERd0Q==",
         "dependencies": {
           "Castle.Core": "5.1.1"
         }
       },
       "xunit": {
         "type": "Direct",
-        "requested": "[2.9.0, )",
-        "resolved": "2.9.0",
-        "contentHash": "PtU3rZ0ThdmdJqTbK7GkgFf6iBaCR6Q0uvJHznID+XEYk2v6O/b7sRxqnbi3B2gRDXxjTqMkVNayzwsqsFUxRw==",
+        "requested": "[2.9.2, )",
+        "resolved": "2.9.2",
+        "contentHash": "7LhFS2N9Z6Xgg8aE5lY95cneYivRMfRI8v+4PATa4S64D5Z/Plkg0qa8dTRHSiGRgVZ/CL2gEfJDE5AUhOX+2Q==",
         "dependencies": {
-          "xunit.analyzers": "1.15.0",
-          "xunit.assert": "2.9.0",
-          "xunit.core": "[2.9.0]"
+          "xunit.analyzers": "1.16.0",
+          "xunit.assert": "2.9.2",
+          "xunit.core": "[2.9.2]"
         }
       },
       "xunit.runner.visualstudio": {
@@ -61,16 +61,16 @@
       },
       "Azure.Core": {
         "type": "Transitive",
-        "resolved": "1.42.0",
-        "contentHash": "Fg88OsrjD2nAvz3N0pk2d/AwIHQRrs9CjA9A35OW1YgYhMo0OTz4WkntQK6V2tf84g7SnfJM8ORcZl+bH6P9Cg==",
+        "resolved": "1.44.1",
+        "contentHash": "YyznXLQZCregzHvioip07/BkzjuWNXogJEVz9T5W6TwjNr17ax41YGzYMptlo2G10oLCuVPoyva62y0SIRDixg==",
         "dependencies": {
           "Microsoft.Bcl.AsyncInterfaces": "6.0.0",
-          "System.ClientModel": "1.0.0",
+          "System.ClientModel": "1.1.0",
           "System.Diagnostics.DiagnosticSource": "6.0.1",
-          "System.Memory.Data": "1.0.2",
+          "System.Memory.Data": "6.0.0",
           "System.Numerics.Vectors": "4.5.0",
           "System.Text.Encodings.Web": "6.0.0",
-          "System.Text.Json": "4.7.2",
+          "System.Text.Json": "6.0.10",
           "System.Threading.Tasks.Extensions": "4.5.4"
         }
       },
@@ -222,24 +222,24 @@
       },
       "Microsoft.Graph.Core": {
         "type": "Transitive",
-        "resolved": "3.1.20",
-        "contentHash": "/DDV57/pYoTTefliIIoXhg0JMbRvkYFsoSvyo337ybh+PfNJHgjtyOrt3Ij63OIK+TzrItNMzuMDXh57zBg6og==",
+        "resolved": "3.2.0",
+        "contentHash": "NlRqG6+1i2sE6AYJHBsAC9SiD1OMBonibiZUJgnWFujAeRAZR4lQ1gywf4B+y7YNa8xjxSHDm5hEmEdmcCt7UQ==",
         "dependencies": {
-          "Microsoft.IdentityModel.Protocols.OpenIdConnect": "8.0.1",
-          "Microsoft.IdentityModel.Validators": "8.0.1",
-          "Microsoft.Kiota.Abstractions": "1.12.2",
-          "Microsoft.Kiota.Authentication.Azure": "1.12.2",
-          "Microsoft.Kiota.Http.HttpClientLibrary": "1.12.2",
-          "Microsoft.Kiota.Serialization.Form": "1.11.3",
-          "Microsoft.Kiota.Serialization.Json": "1.12.2",
-          "Microsoft.Kiota.Serialization.Multipart": "1.11.3",
-          "Microsoft.Kiota.Serialization.Text": "1.11.3"
+          "Microsoft.IdentityModel.Protocols.OpenIdConnect": "8.0.2",
+          "Microsoft.IdentityModel.Validators": "8.0.2",
+          "Microsoft.Kiota.Abstractions": "1.14.0",
+          "Microsoft.Kiota.Authentication.Azure": "1.14.0",
+          "Microsoft.Kiota.Http.HttpClientLibrary": "1.14.0",
+          "Microsoft.Kiota.Serialization.Form": "1.14.0",
+          "Microsoft.Kiota.Serialization.Json": "1.14.0",
+          "Microsoft.Kiota.Serialization.Multipart": "1.14.0",
+          "Microsoft.Kiota.Serialization.Text": "1.14.0"
         }
       },
       "Microsoft.Identity.Client": {
         "type": "Transitive",
-        "resolved": "4.64.0",
-        "contentHash": "LY5Mr3+UdjWdc5ej93bE0uYTs5ZpD4zzg3w69tSO8b+JieEGZ6t0eUX003/x7gPadsxCw2RKLNKtfRGxWrUsNQ==",
+        "resolved": "4.66.2",
+        "contentHash": "OsWRWpJs5iY9DxAF7DfWRGVNeFhjz75x+/bpHKB9Hbnu3THUgqYfQrYeQMgwx30ctweiV7h00aQpEua2kLeUpg==",
         "dependencies": {
           "Microsoft.IdentityModel.Abstractions": "6.35.0",
           "System.Diagnostics.DiagnosticSource": "6.0.1"
@@ -247,19 +247,19 @@
       },
       "Microsoft.Identity.Client.Broker": {
         "type": "Transitive",
-        "resolved": "4.64.0",
-        "contentHash": "ZFUkqefAwUo81PtUj0gC92iwqOLpBVSdEPy1rncF77hPvN+O/86Vaygz9WhJ9gnZXkIenkfxboKAX2e/9h73Iw==",
+        "resolved": "4.66.2",
+        "contentHash": "KpvVCdtujXafUCh2tYUNEcRrrU93+og8KTCjC+gKuSlIFwp0emdvDTXm/hqYUxO+wsdJdaqlaFvUeWzmhYt56A==",
         "dependencies": {
-          "Microsoft.Identity.Client": "4.64.0",
+          "Microsoft.Identity.Client": "4.66.2",
           "Microsoft.Identity.Client.NativeInterop": "0.16.2"
         }
       },
       "Microsoft.Identity.Client.Extensions.Msal": {
         "type": "Transitive",
-        "resolved": "4.64.0",
-        "contentHash": "7bQCUz6rYBJYeVm3548dizD+Ww+ZSBUTignAZM5N8EUvG9ItSsUDeCVxDghidOqvbI9WBtEQe9v4BG/Eu7lOgg==",
+        "resolved": "4.66.2",
+        "contentHash": "ROTuFu8CTbENzCu0aan3n557EeakD4DKBXiK/ph+m9YNnwWdTfPTZMLSEmMzBorajYG3n7QGuang898AIcR+8w==",
         "dependencies": {
-          "Microsoft.Identity.Client": "4.64.0",
+          "Microsoft.Identity.Client": "4.66.2",
           "System.Security.Cryptography.ProtectedData": "4.5.0"
         }
       },
@@ -291,19 +291,19 @@
       },
       "Microsoft.IdentityModel.Protocols": {
         "type": "Transitive",
-        "resolved": "8.0.1",
-        "contentHash": "uA2vpKqU3I2mBBEaeJAWPTjT9v1TZrGWKdgK6G5qJd03CLx83kdiqO9cmiK8/n1erkHzFBwU/RphP83aAe3i3g==",
+        "resolved": "8.0.2",
+        "contentHash": "l6W99hw88Kd+2m7N7WMzo/PxiHRI6TD8hsWs2XlbEs6BWgRtLAeyNlASst1QOznDvQa2kPl9nMpvgo5Hbo7gsQ==",
         "dependencies": {
-          "Microsoft.IdentityModel.Tokens": "8.0.1"
+          "Microsoft.IdentityModel.Tokens": "8.0.2"
         }
       },
       "Microsoft.IdentityModel.Protocols.OpenIdConnect": {
         "type": "Transitive",
-        "resolved": "8.0.1",
-        "contentHash": "AQDbfpL+yzuuGhO/mQhKNsp44pm5Jv8/BI4KiFXR7beVGZoSH35zMV3PrmcfvSTsyI6qrcR898NzUauD6SRigg==",
+        "resolved": "8.0.2",
+        "contentHash": "1s4MqU31FWqZD5Lhcv4tOYq2P4q77eVHQJMnNCESaOwMaDAcx/FKUz9HlAngBfFNaIZj9KHQVtyXbIJXb/M8rw==",
         "dependencies": {
-          "Microsoft.IdentityModel.Protocols": "8.0.1",
-          "System.IdentityModel.Tokens.Jwt": "8.0.1"
+          "Microsoft.IdentityModel.Protocols": "8.0.2",
+          "System.IdentityModel.Tokens.Jwt": "8.0.2"
         }
       },
       "Microsoft.IdentityModel.Tokens": {
@@ -316,70 +316,70 @@
       },
       "Microsoft.IdentityModel.Validators": {
         "type": "Transitive",
-        "resolved": "8.0.1",
-        "contentHash": "jBxsa+u/6nE8qlGMl4tp+AeQEd3r/1fxE9Ex0bknKsSPi97LrkW5nT23v8m+A91x1KvlCoPPE8nIfuZDxFMu8A==",
+        "resolved": "8.0.2",
+        "contentHash": "1uTRGf1EWyWRihAg7ZmzQ+T6bkzJcpZIm3xa85F//1cUFyD+nyxixhhnBQ0LjW17i/vLvANeDVPHCPh0xk006w==",
         "dependencies": {
-          "Microsoft.IdentityModel.Protocols": "8.0.1",
-          "Microsoft.IdentityModel.Protocols.OpenIdConnect": "8.0.1",
-          "Microsoft.IdentityModel.Tokens": "8.0.1",
-          "System.IdentityModel.Tokens.Jwt": "8.0.1"
+          "Microsoft.IdentityModel.Protocols": "8.0.2",
+          "Microsoft.IdentityModel.Protocols.OpenIdConnect": "8.0.2",
+          "Microsoft.IdentityModel.Tokens": "8.0.2",
+          "System.IdentityModel.Tokens.Jwt": "8.0.2"
         }
       },
       "Microsoft.Kiota.Abstractions": {
         "type": "Transitive",
-        "resolved": "1.12.2",
-        "contentHash": "cQQsaviratxNzfGfm+2famoIoXeMvGswPCFQVDKMoIpHb6zinHK4AMNHSckjjeWlLdWnFWLUU+o4tehnzsrbpw==",
+        "resolved": "1.14.0",
+        "contentHash": "So3FWhqba6gvRpXMKGK826mNuQjh699Zxoui5AvUMJ9KA1LNnqFIxJ2cx2dqdb0FcMHJ+FZCrNQbMg1XqvCVBQ==",
         "dependencies": {
-          "Std.UriTemplate": "1.0.5"
+          "Std.UriTemplate": "2.0.0"
         }
       },
       "Microsoft.Kiota.Authentication.Azure": {
         "type": "Transitive",
-        "resolved": "1.12.2",
-        "contentHash": "/Yn7s2ysJmtcVaPngvinG8ZuiIeiY4yRFUmdX/wOZCojyFj3c948tQcybD1KcW8Oz+sGA6TF+wUhwStR4Xfjig==",
+        "resolved": "1.14.0",
+        "contentHash": "kjJBHbP6kJRwMacHqJhEHSgIN9ur5JDRlLj7sYUdZdysngb3uS+qOZIqVIOtcnrSJ8ZUsHy3bdfAVkdnuEpg8A==",
         "dependencies": {
-          "Azure.Core": "1.42.0",
-          "Microsoft.Kiota.Abstractions": "1.12.2"
+          "Azure.Core": "1.44.1",
+          "Microsoft.Kiota.Abstractions": "1.14.0"
         }
       },
       "Microsoft.Kiota.Http.HttpClientLibrary": {
         "type": "Transitive",
-        "resolved": "1.12.2",
-        "contentHash": "h9uiiysinSJVLDIHM/UK7HK2GKF+4MYGrixP8j+DngCK6U9kwLJg6bYOYTGDtJmlRRr0Z1oIGPoYsLn2PLDOhA==",
+        "resolved": "1.14.0",
+        "contentHash": "4ngpgjtCVXvBo2GAegJLVW4Bn8TyH5MD3gu0Se5/vMwFnpqzEaibIX1xMzKQiZJWWaormZA+Z4wl1/wxTBteTw==",
         "dependencies": {
-          "Microsoft.Kiota.Abstractions": "1.12.2"
+          "Microsoft.Kiota.Abstractions": "1.14.0"
         }
       },
       "Microsoft.Kiota.Serialization.Form": {
         "type": "Transitive",
-        "resolved": "1.11.3",
-        "contentHash": "qeOOkVw6iB7xbDaFzlvE4x/LTAQ/EeuVHJEl0LwdE1nm9elrLZtQrUW1juwsnFIiTLkyEfR5lebfTK9Wln5iRw==",
+        "resolved": "1.14.0",
+        "contentHash": "aueCKgh+lby9QzEkYCtZpzP4OUL/AAZ43O3A7v0EQjTCsNYo3sYnz5a5Rtz/Hjyd26xN5x2TilWPfgFg+X0QiA==",
         "dependencies": {
-          "Microsoft.Kiota.Abstractions": "1.11.3"
+          "Microsoft.Kiota.Abstractions": "1.14.0"
         }
       },
       "Microsoft.Kiota.Serialization.Json": {
         "type": "Transitive",
-        "resolved": "1.12.2",
-        "contentHash": "ZJb5fAuvpnSa8NqhCyGEUlx7agLX+ykyz6xF1egH4pLxhOXG2yMxVgeEc+Kg52ZdI5RBiFAdo0OiTl/H6ajLgg==",
+        "resolved": "1.14.0",
+        "contentHash": "oGt74kVtlIooh2KiBf9GGi9dUYz/xWkStxd/oawS0mxqSNm/eiNcwFNU3odUDxKfKjF9+zPJxDzkEE0rILus8w==",
         "dependencies": {
-          "Microsoft.Kiota.Abstractions": "1.12.2"
+          "Microsoft.Kiota.Abstractions": "1.14.0"
         }
       },
       "Microsoft.Kiota.Serialization.Multipart": {
         "type": "Transitive",
-        "resolved": "1.11.3",
-        "contentHash": "FN6RNDPyOwnVcBvtElHE/C3Eky7RC3GL5//XVC6GbW/2YGCZJdcbATcFpQ7KlWGNSuf31zrS/mltT+dh8yauSA==",
+        "resolved": "1.14.0",
+        "contentHash": "gzciQfs3v4h0TZcmeXjaIf+j+MGw+frXuXvGkrWP4BlJOv4NmVT614rmvfEWAUfDnVwfn3FP1ghEodHb1RI7vw==",
         "dependencies": {
-          "Microsoft.Kiota.Abstractions": "1.11.3"
+          "Microsoft.Kiota.Abstractions": "1.14.0"
         }
       },
       "Microsoft.Kiota.Serialization.Text": {
         "type": "Transitive",
-        "resolved": "1.11.3",
-        "contentHash": "0vw3voEjENx2cXBqVFOhOGnqzC9ECBlpYhkEPXr8D+pTBYl8RDPS3N2mVWaib4CASqrwqqKYCksTGVpsnDA8Pw==",
+        "resolved": "1.14.0",
+        "contentHash": "Q7AMnooas6aG55mBENwU2Wz9Ey1fwN3DfrzNlR2iUolalMftLtXGZeNY7gSYEBtCOo65OEhmSszrOlxNkFD92w==",
         "dependencies": {
-          "Microsoft.Kiota.Abstractions": "1.11.3"
+          "Microsoft.Kiota.Abstractions": "1.14.0"
         }
       },
       "Microsoft.NETCore.Platforms": {
@@ -416,8 +416,8 @@
       },
       "Std.UriTemplate": {
         "type": "Transitive",
-        "resolved": "1.0.5",
-        "contentHash": "ry++apw4RKBw/9N8TQxnTTQYf/lgGGdn9+mq7AUMf860qD8STssQRe5tRX0NO99rGwpSRZzHO7u6ebQ/wahSNw=="
+        "resolved": "2.0.0",
+        "contentHash": "GNBep1IBAGlVG3TUs1ZZ+1H9jgsw1ojBF6u34o8hpZC/YSTJCzCu4uYGU76a8SvhC8Q8baGqnmwJjHdxsVSUyg=="
       },
       "SvRooij.ContentPrep": {
         "type": "Transitive",
@@ -431,11 +431,11 @@
       },
       "System.ClientModel": {
         "type": "Transitive",
-        "resolved": "1.0.0",
-        "contentHash": "I3CVkvxeqFYjIVEP59DnjbeoGNfo/+SZrCLpRz2v/g0gpCHaEMPtWSY0s9k/7jR1rAsLNg2z2u1JRB76tPjnIw==",
+        "resolved": "1.1.0",
+        "contentHash": "UocOlCkxLZrG2CKMAAImPcldJTxeesHnHGHwhJ0pNlZEvEXcWKuQvVOER2/NiOkJGRJk978SNdw3j6/7O9H1lg==",
         "dependencies": {
           "System.Memory.Data": "1.0.2",
-          "System.Text.Json": "4.7.2"
+          "System.Text.Json": "6.0.9"
         }
       },
       "System.Diagnostics.DiagnosticSource": {
@@ -459,11 +459,10 @@
       },
       "System.Memory.Data": {
         "type": "Transitive",
-        "resolved": "1.0.2",
-        "contentHash": "JGkzeqgBsiZwKJZ1IxPNsDFZDhUvuEdX8L8BDC8N3KOj+6zMcNU28CNN59TpZE/VJYy9cP+5M+sbxtWJx3/xtw==",
+        "resolved": "6.0.0",
+        "contentHash": "ntFHArH3I4Lpjf5m4DCXQHJuGwWPNVJPaAvM95Jy/u+2Yzt2ryiyIN04LAogkjP9DeRcEOiviAjQotfmPq/FrQ==",
         "dependencies": {
-          "System.Text.Encodings.Web": "4.7.2",
-          "System.Text.Json": "4.6.0"
+          "System.Text.Json": "6.0.0"
         }
       },
       "System.Numerics.Vectors": {
@@ -488,16 +487,16 @@
       },
       "System.Text.Encodings.Web": {
         "type": "Transitive",
-        "resolved": "8.0.0",
-        "contentHash": "yev/k9GHAEGx2Rg3/tU6MQh4HGBXJs70y7j1LaM1i/ER9po+6nnQ6RRqTJn1E7Xu0fbIFK80Nh5EoODxrbxwBQ=="
+        "resolved": "6.0.0",
+        "contentHash": "Vg8eB5Tawm1IFqj4TVK1czJX89rhFxJo9ELqc/Eiq0eXy13RK00eubyU6TJE6y+GQXjyV5gSfiewDUZjQgSE0w==",
+        "dependencies": {
+          "System.Runtime.CompilerServices.Unsafe": "6.0.0"
+        }
       },
       "System.Text.Json": {
         "type": "Transitive",
-        "resolved": "8.0.4",
-        "contentHash": "bAkhgDJ88XTsqczoxEMliSrpijKZHhbJQldhAmObj/RbrN3sU5dcokuXmWJWsdQAhiMJ9bTayWsL1C9fbbCRhw==",
-        "dependencies": {
-          "System.Text.Encodings.Web": "8.0.0"
-        }
+        "resolved": "8.0.5",
+        "contentHash": "0f1B50Ss7rqxXiaBJyzUu9bWFOO2/zSlifZ/UNMdiIpDYe4cY4LQQicP4nirK1OS31I43rn062UIJ1Q9bpmHpg=="
       },
       "System.Threading.Tasks.Extensions": {
         "type": "Transitive",
@@ -511,37 +510,37 @@
       },
       "xunit.analyzers": {
         "type": "Transitive",
-        "resolved": "1.15.0",
-        "contentHash": "s+M8K/Rtlgr6CmD7AYQKrNTvT5sh0l0ZKDoZ3Z/ExhlIwfV9mGAMR4f7KqIB7SSK7ZOhqDTgTUMYPmKfmvWUWQ=="
+        "resolved": "1.16.0",
+        "contentHash": "hptYM7vGr46GUIgZt21YHO4rfuBAQS2eINbFo16CV/Dqq+24Tp+P5gDCACu1AbFfW4Sp/WRfDPSK8fmUUb8s0Q=="
       },
       "xunit.assert": {
         "type": "Transitive",
-        "resolved": "2.9.0",
-        "contentHash": "Z/1pyia//860wEYTKn6Q5dmgikJdRjgE4t5AoxJkK8oTmidzPLEPG574kmm7LFkMLbH6Frwmgb750kcyR+hwoA=="
+        "resolved": "2.9.2",
+        "contentHash": "QkNBAQG4pa66cholm28AxijBjrmki98/vsEh4Sx5iplzotvPgpiotcxqJQMRC8d7RV7nIT8ozh97957hDnZwsQ=="
       },
       "xunit.core": {
         "type": "Transitive",
-        "resolved": "2.9.0",
-        "contentHash": "uRaop9tZsZMCaUS4AfbSPGYHtvywWnm8XXFNUqII7ShWyDBgdchY6gyDNgO4AK1Lv/1NNW61Zq63CsDV6oH6Jg==",
+        "resolved": "2.9.2",
+        "contentHash": "O6RrNSdmZ0xgEn5kT927PNwog5vxTtKrWMihhhrT0Sg9jQ7iBDciYOwzBgP2krBEk5/GBXI18R1lKvmnxGcb4w==",
         "dependencies": {
-          "xunit.extensibility.core": "[2.9.0]",
-          "xunit.extensibility.execution": "[2.9.0]"
+          "xunit.extensibility.core": "[2.9.2]",
+          "xunit.extensibility.execution": "[2.9.2]"
         }
       },
       "xunit.extensibility.core": {
         "type": "Transitive",
-        "resolved": "2.9.0",
-        "contentHash": "zjDEUSxsr6UNij4gIwCgMqQox+oLDPRZ+mubwWLci+SssPBFQD1xeRR4SvgBuXqbE0QXCJ/STVTp+lxiB5NLVA==",
+        "resolved": "2.9.2",
+        "contentHash": "Ol+KlBJz1x8BrdnhN2DeOuLrr1I/cTwtHCggL9BvYqFuVd/TUSzxNT5O0NxCIXth30bsKxgMfdqLTcORtM52yQ==",
         "dependencies": {
           "xunit.abstractions": "2.0.3"
         }
       },
       "xunit.extensibility.execution": {
         "type": "Transitive",
-        "resolved": "2.9.0",
-        "contentHash": "5ZTQZvmPLlBw6QzCOwM0KnMsZw6eGjbmC176QHZlcbQoMhGIeGcYzYwn5w9yXxf+4phtplMuVqTpTbFDQh2bqQ==",
+        "resolved": "2.9.2",
+        "contentHash": "rKMpq4GsIUIJibXuZoZ8lYp5EpROlnYaRpwu9Zr0sRZXE7JqJfEEbCsUriZqB+ByXCLFBJyjkTRULMdC+U566g==",
         "dependencies": {
-          "xunit.extensibility.core": "[2.9.0]"
+          "xunit.extensibility.core": "[2.9.2]"
         }
       },
       "YamlDotNet": {
@@ -559,16 +558,16 @@
       "wingetintune": {
         "type": "Project",
         "dependencies": {
-          "Azure.Core": "[1.42.0, )",
+          "Azure.Core": "[1.44.1, )",
           "Microsoft.Bcl.AsyncInterfaces": "[8.0.0, )",
           "Microsoft.CSharp": "[4.7.0, )",
           "Microsoft.Extensions.Http": "[8.0.0, )",
           "Microsoft.Extensions.Logging.Abstractions": "[8.0.1, )",
           "Microsoft.Extensions.Options": "[8.0.2, )",
           "Microsoft.Graph.Beta": "[5.78.0-preview, )",
-          "Microsoft.Graph.Core": "[3.1.20, )",
-          "Microsoft.Identity.Client.Broker": "[4.64.0, )",
-          "Microsoft.Identity.Client.Extensions.Msal": "[4.64.0, )",
+          "Microsoft.Graph.Core": "[3.2.0, )",
+          "Microsoft.Identity.Client.Broker": "[4.66.2, )",
+          "Microsoft.Identity.Client.Extensions.Msal": "[4.66.2, )",
           "Riok.Mapperly": "[3.6.0, )",
           "SvRooij.ContentPrep": "[0.1.3-alpha0001, )",
           "System.IdentityModel.Tokens.Jwt": "[8.0.2, )",
@@ -580,10 +579,10 @@
         "type": "Project",
         "dependencies": {
           "Microsoft.Extensions.Http": "[8.0.0, )",
-          "Microsoft.Kiota.Abstractions": "[1.12.0, )",
-          "Microsoft.Kiota.Http.HttpClientLibrary": "[1.12.0, )",
-          "Microsoft.Kiota.Serialization.Json": "[1.12.0, )",
-          "System.Text.Json": "[8.0.4, )"
+          "Microsoft.Kiota.Abstractions": "[1.14.0, )",
+          "Microsoft.Kiota.Http.HttpClientLibrary": "[1.14.0, )",
+          "Microsoft.Kiota.Serialization.Json": "[1.14.0, )",
+          "System.Text.Json": "[8.0.5, )"
         }
       }
     }
