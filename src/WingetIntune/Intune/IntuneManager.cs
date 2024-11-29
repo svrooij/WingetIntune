@@ -708,7 +708,7 @@ public partial class IntuneManager
             logger.LogWarning("No logo found for {PackageId}, place your image at {LogoPath}", packageInfo.PackageIdentifier, Path.GetFullPath(logoPath));
         }
 
-            using var stream = new MemoryStream();
+        using var stream = new MemoryStream();
         using var jsonStream = KiotaSerializer.SerializeAsStream("application/json", win32App, false);
         await jsonStream.CopyToAsync(stream, cancellationToken);
         await stream.FlushAsync(cancellationToken);
