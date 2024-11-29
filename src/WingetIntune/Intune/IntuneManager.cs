@@ -67,7 +67,7 @@ public partial class IntuneManager
         var packageTempFolder = fileManager.CreateFolderForPackage(tempFolder, packageInfo.PackageIdentifier!, packageInfo.Version!);
         var packageFolder = fileManager.CreateFolderForPackage(outputFolder, packageInfo.PackageIdentifier!, packageInfo.Version!);
         var installerPath = await DownloadInstallerAsync(packageTempFolder, packageInfo, cancellationToken);
-        LoadMsiDetails(installerPath, ref packageInfo);
+        LoadMsiDetails(installerPath, ref packageInfo, packageOptions.OverrideArguments);
         var intunePackage = await intunePackager.CreatePackage(packageTempFolder, packageFolder, packageInfo.InstallerFilename!, packageInfo, cancellationToken);
         await DownloadLogoAsync(packageFolder, packageInfo.PackageIdentifier!, cancellationToken);
         await WriteReadmeAsync(packageFolder, packageInfo, cancellationToken);
@@ -492,7 +492,7 @@ public partial class IntuneManager
         return (null, null);
     }
 
-    private void LoadMsiDetails(string installerPath, ref PackageInfo packageInfo)
+    private void LoadMsiDetails(string installerPath, ref PackageInfo packageInfo, string? overrideInstallerArguments = null)
     {
         if (string.IsNullOrEmpty(packageInfo.MsiProductCode) || string.IsNullOrEmpty(packageInfo.MsiVersion))
         {
@@ -500,7 +500,7 @@ public partial class IntuneManager
             packageInfo.MsiProductCode = productCode ?? packageInfo.MsiProductCode;
             packageInfo.MsiVersion = msiVersion ?? packageInfo.MsiVersion;
         }
-        packageInfo.InstallCommandLine = $"msiexec /i {packageInfo.InstallerFilename!} /qn /norestart";
+        packageInfo.InstallCommandLine = $"msiexec /i {packageInfo.InstallerFilename!} " + (overrideInstallerArguments ?? "/qn /norestart");
         packageInfo.UninstallCommandLine = $"msiexec /x {packageInfo.MsiProductCode!} /qn /norestart";
     }
 
