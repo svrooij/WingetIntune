@@ -2568,7 +2568,7 @@ You could run this on a weekly bases.
     <command:examples>
       <command:example>
         <maml:title>----------------------------------  Example  -----------------------------------</maml:title>
-        <dev:code>PS C:\&gt; Update-WtIntuneApp -AppId "1450c17d-aee5-4bef-acf9-9e0107d340f2" -UseDefaultCredentials -Categories "Productivity","Business" -AvailableFor "AllUsers" -EnableAutoUpdate $true</dev:code>
+        <dev:code>PS C:\&gt; Update-WtIntuneApp -AppId "1450c17d-aee5-4bef-acf9-9e0107d340f2" -UseDefaultCredentials -Categories "Productivity","Business" -AvailableFor "AllUsers" -EnableAutoUpdate</dev:code>
         <dev:remarks>
           <maml:para>Update the categories of an app and make it available for all users
 </maml:para>

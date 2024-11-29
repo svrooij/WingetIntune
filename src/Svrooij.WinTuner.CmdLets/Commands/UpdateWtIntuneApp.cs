@@ -17,7 +17,7 @@ namespace Svrooij.WinTuner.CmdLets.Commands;
 /// <psOrder>13</psOrder>
 /// <example>
 /// <para type="description">Update the categories of an app and make it available for all users</para>
-/// <code>Update-WtIntuneApp -AppId "1450c17d-aee5-4bef-acf9-9e0107d340f2" -UseDefaultCredentials -Categories "Productivity","Business" -AvailableFor "AllUsers" -EnableAutoUpdate $true</code>
+/// <code>Update-WtIntuneApp -AppId "1450c17d-aee5-4bef-acf9-9e0107d340f2" -UseDefaultCredentials -Categories "Productivity","Business" -AvailableFor "AllUsers" -EnableAutoUpdate</code>
 /// </example>
 [Cmdlet(VerbsData.Update, "WtIntuneApp", HelpUri = "https://wintuner.app/docs/wintuner-powershell/Update-WtIntuneApp")]
 [OutputType(typeof(MobileApp))]
