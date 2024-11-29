@@ -691,14 +691,21 @@ public partial class IntuneManager
 
         var win32App = mapper.ToWin32LobApp(packageInfo);
         var logoPath = Path.Combine(packageFolder, "..", "logo.png");
-        var logoBytes = await fileManager.ReadAllBytesAsync(logoPath, cancellationToken);
-        if (logoBytes.Length > 0)
+        if (fileManager.FileExists(logoPath))
         {
-            win32App.LargeIcon = new MimeContent
+            var logoBytes = await fileManager.ReadAllBytesAsync(logoPath, cancellationToken);
+            if (logoBytes.Length > 0)
             {
-                Type = "image/png",
-                Value = logoBytes
-            };
+                win32App.LargeIcon = new MimeContent
+                {
+                    Type = "image/png",
+                    Value = logoBytes
+                };
+            }
+        }
+        else
+        {
+            logger.LogWarning("No logo found for {PackageId}, place your image at {LogoPath}", packageInfo.PackageIdentifier, Path.GetFullPath(logoPath));
         }
 
         using var stream = new MemoryStream();
