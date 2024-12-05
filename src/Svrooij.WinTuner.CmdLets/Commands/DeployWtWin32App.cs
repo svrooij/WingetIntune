@@ -196,6 +196,9 @@ public class DeployWtWin32App : BaseIntuneCmdlet
     [ServiceDependency]
     private WingetIntune.Graph.GraphClientFactory? gcf;
 
+    private bool isPartialPackage;
+    private string? metadataFilename;
+
     /// <inheritdoc/>
     protected override async Task ProcessAuthenticatedAsync(IAuthenticationProvider provider, CancellationToken cancellationToken)
     {
@@ -241,7 +244,14 @@ public class DeployWtWin32App : BaseIntuneCmdlet
         if (RoleScopeTags is not null && RoleScopeTags.Any())
         {
             logger?.LogDebug("Adding role scope tags to app");
-            App.RoleScopeTagIds = RoleScopeTags.AsList();
+            if (App.RoleScopeTagIds is null)
+            {
+                App.RoleScopeTagIds = new();
+            }
+            foreach (var tag in RoleScopeTags)
+            {
+                App.RoleScopeTagIds.Add(tag);
+            }
             logger?.LogInformation("Role scope tags added to app {@RoleScopeTags}", App?.RoleScopeTagIds);
         }
 
@@ -252,7 +262,36 @@ public class DeployWtWin32App : BaseIntuneCmdlet
 
         logger?.LogInformation("Uploading Win32App {DisplayName} to Intune with file {IntuneWinFile}", App!.DisplayName, IntuneWinFile);
         var graphServiceClient = gcf!.CreateClient(provider);
-        var newApp = await graphAppUploader!.CreateNewAppAsync(graphServiceClient, App, IntuneWinFile!, LogoPath, cancellationToken);
+
+        if (IntuneWinFile is null)
+        {
+            var ex = new ArgumentException("No IntuneWinFile was provided");
+            logger?.LogError(ex, "No IntuneWinFile was provided");
+            throw ex;
+        }
+
+        // Check if the file exists
+        if (!File.Exists(IntuneWinFile))
+        {
+            var partialFileName = Path.Combine(Path.GetDirectoryName(IntuneWinFile)!, Path.GetFileNameWithoutExtension(IntuneWinFile) + ".partial.intunewin");
+            metadataFilename = Path.Combine(Path.GetDirectoryName(IntuneWinFile)!, "metadata.xml");
+            if (File.Exists(partialFileName) && File.Exists(metadataFilename))
+            {
+                logger?.LogDebug("Found partial file {PartialFileName} and metadata.xml, using that instead of {IntuneWinFile}", partialFileName, IntuneWinFile);
+                IntuneWinFile = partialFileName;
+                isPartialPackage = true;
+            }
+            else
+            {
+                var ex = new FileNotFoundException("IntuneWin file not found", IntuneWinFile);
+                logger?.LogError(ex, "IntuneWin file not found");
+                throw ex;
+            }
+        }
+
+        var newApp = isPartialPackage
+            ? await graphAppUploader!.CreateNewAppAsync(graphServiceClient, App!, IntuneWinFile!, metadataFilename!, logoPath: LogoPath, cancellationToken: cancellationToken)
+            : await graphAppUploader!.CreateNewAppAsync(graphServiceClient, App!, IntuneWinFile!, LogoPath, cancellationToken);
         logger?.LogInformation("Created Win32App {DisplayName} with id {appId}", newApp!.DisplayName, newApp.Id);
 
         // Check if we need to supersede an app

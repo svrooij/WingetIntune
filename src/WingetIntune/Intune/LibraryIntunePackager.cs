@@ -16,7 +16,7 @@ internal class LibraryIntunePackager : IIntunePackager
         this.logger = logger;
     }
 
-    public async Task<string> CreatePackage(string inputFolder, string outputFolder, string installerFilename, PackageInfo? packageInfo = null, CancellationToken cancellationToken = default)
+    public async Task<string> CreatePackage(string inputFolder, string outputFolder, string installerFilename, PackageInfo? packageInfo = null, bool partialPackage = false, CancellationToken cancellationToken = default)
     {
         logger.LogInformation("Creating Intune package from {inputFolder}", inputFolder);
         var details = new SvRooij.ContentPrep.Models.ApplicationDetails
@@ -32,8 +32,25 @@ internal class LibraryIntunePackager : IIntunePackager
             };
         }
 
-        var info = await packager.CreatePackage(inputFolder, Path.Combine(inputFolder, installerFilename), outputFolder, details, cancellationToken);
+        if (partialPackage)
+        {
+            if (!Directory.Exists(outputFolder))
+            {
+                Directory.CreateDirectory(outputFolder);
+            }
+            var outputFilename = Path.GetFileNameWithoutExtension(installerFilename) + ".partial.intunewin";
 
+            using var partialFile = new FileStream(Path.Combine(outputFolder, outputFilename), FileMode.Create, FileAccess.ReadWrite, FileShare.Read, 4096, true);
+
+            var info = await packager.CreateUploadablePackage(inputFolder, partialFile, details, cancellationToken);
+            await partialFile.FlushAsync(cancellationToken);
+            await File.AppendAllTextAsync(Path.Combine(outputFolder, "metadata.xml"), info!.ToXml(), cancellationToken);
+
+            return outputFilename;
+        }
+
+
+        _ = await packager.CreatePackage(inputFolder, Path.Combine(inputFolder, installerFilename), outputFolder, details, cancellationToken);
         return Path.GetFileNameWithoutExtension(installerFilename) + ".intunewin";
     }
 }

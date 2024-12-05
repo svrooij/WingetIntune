@@ -15,7 +15,7 @@ public partial class ComputeBestInstallerForPackageCommand
 
     public void Execute(ref PackageInfo package, PackageOptions? packageOptions = null)
     {
-        packageOptions ??= new PackageOptions();
+        packageOptions ??= PackageOptions.Create();
         LogComputingBestInstaller(package.PackageIdentifier!, package.Version!, packageOptions.Architecture);
         var installer = package.GetBestInstaller(packageOptions);
         if (installer is null)
