@@ -1,4 +1,5 @@
 ﻿using System.IdentityModel.Tokens.Jwt;
+using System.Linq;
 using System.Management.Automation;
 using System.Threading;
 using System.Threading.Tasks;
@@ -54,7 +55,7 @@ public class GetWtToken : BaseIntuneCmdlet
         {
             // Decode the jwt token and output the claims to the logs
             var jwt = new JwtSecurityToken(token);
-            _logger?.LogInformation("Token claims: {@Claims}", jwt.Claims);
+            _logger?.LogInformation("Token claims: {Claims}", string.Join("\r\n", jwt.Claims.Select(c => $"{c.Type}\t{c.Value}")));
         }
 
         WriteObject(token);

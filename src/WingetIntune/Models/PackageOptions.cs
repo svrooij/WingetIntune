@@ -2,6 +2,7 @@
 
 public class PackageOptions
 {
+    public InstallerType InstallerType { get; init; } = InstallerType.Msi;
     public InstallerContext InstallerContext { get; init; }
     public Architecture Architecture { get; init; }
     public bool PackageScript { get; init; }

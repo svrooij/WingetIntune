@@ -119,6 +119,17 @@ public class NewWtWingetPackage : DependencyCmdlet<Startup>
         HelpMessage = "Override the installer arguments")]
     public string? InstallerArguments { get; set; }
 
+    /// <summary>
+    /// Prefered installer type, (default: Msi)
+    /// </summary>
+    [Parameter(
+        Mandatory = false,
+        Position = 9,
+        ValueFromPipeline = false,
+        ValueFromPipelineByPropertyName = false,
+        HelpMessage = "Prefered installer type")]
+    public WingetIntune.Models.InstallerType PreferedInstaller { get; set; } = WingetIntune.Models.InstallerType.Msi;
+
     [ServiceDependency]
     private ILogger<NewWtWingetPackage> logger;
 
@@ -164,7 +175,8 @@ public class NewWtWingetPackage : DependencyCmdlet<Startup>
                     InstallerContext = InstallerContext,
                     PackageScript = PackageScript,
                     Locale = Locale,
-                    OverrideArguments = InstallerArguments
+                    OverrideArguments = InstallerArguments,
+                    InstallerType = PreferedInstaller
                 },
                 cancellationToken: cancellationToken);
 

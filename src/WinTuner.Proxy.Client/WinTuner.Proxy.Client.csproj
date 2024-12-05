@@ -11,7 +11,7 @@
 		<PackageReference Include="Microsoft.Kiota.Abstractions" Version="1.14.0" />
 		<PackageReference Include="Microsoft.Kiota.Http.HttpClientLibrary" Version="1.14.0" />
 		<PackageReference Include="Microsoft.Kiota.Serialization.Json" Version="1.14.0" />
-		<PackageReference Include="Microsoft.Extensions.Http" Version="8.0.0" />
+		<PackageReference Include="Microsoft.Extensions.Http" Version="8.0.1" />
 		<PackageReference Include="System.Text.Json" Version="8.0.5" />
 	</ItemGroup>
 	<Target Name="GenerateRestClient" DependsOnTargets="CleanGenerateRestClient;AutoGenerateRestClient">

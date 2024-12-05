@@ -56,6 +56,7 @@ public static class WingetServiceCollectionExtension
         services.AddSingleton<Internal.Msal.PublicClientAuth>();
         services.AddSingleton<IntuneManager>();
         services.AddTransient<WindowsSandbox>();
+        services.AddTransient<Commands.ComputeBestInstallerForPackageCommand>();
 
         services.AddWinTunerProxyClient(config =>
         {
