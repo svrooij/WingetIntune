@@ -27,9 +27,9 @@ public partial class ProcessIntunePackager : IIntunePackager
         this.logger = logger;
     }
 
-    public Task CreatePackage(string inputFolder, string outputFolder, string installerFilename, CancellationToken cancellationToken) => CreatePackage(inputFolder, outputFolder, installerFilename, null, cancellationToken);
+    public Task CreatePackage(string inputFolder, string outputFolder, string installerFilename, CancellationToken cancellationToken) => CreatePackage(inputFolder, outputFolder, installerFilename, null, false, cancellationToken);
 
-    public async Task<string> CreatePackage(string inputFolder, string outputFolder, string installerFilename, PackageInfo? _ = null, CancellationToken cancellationToken = default)
+    public async Task<string> CreatePackage(string inputFolder, string outputFolder, string installerFilename, PackageInfo? _ = null, bool partialPackage = false, CancellationToken cancellationToken = default)
     {
 #if NET8_0_OR_GREATER
         ArgumentException.ThrowIfNullOrEmpty(inputFolder);

@@ -31,6 +31,46 @@ public class GraphAppUploader
         {
             throw new FileNotFoundException("IntuneWin file not found", intunePackageFile);
         }
+
+        var tempFolder = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
+        try
+        {
+            // Extract intunewin file to get the metadata file
+
+            await fileManager.ExtractFileToFolderAsync(intunePackageFile, tempFolder, cancellationToken);
+            var metadataFile = IntuneMetadata.GetMetadataPath(tempFolder);
+            var intuneWinFile = IntuneMetadata.GetContentsPath(tempFolder);
+
+            if (!fileManager.FileExists(metadataFile))
+            {
+                throw new FileNotFoundException("Metadata file not found", metadataFile);
+            }
+            if (!fileManager.FileExists(intuneWinFile))
+            {
+                throw new FileNotFoundException("IntuneWin file not found", intuneWinFile);
+            }
+
+            return await CreateNewAppAsync(graphServiceClient, win32LobApp, intuneWinFile, metadataFile, logoPath, cancellationToken);
+
+        }
+        finally
+        {
+            fileManager.DeleteFileOrFolder(tempFolder);
+        }
+
+    }
+
+    public async Task<Win32LobApp?> CreateNewAppAsync(GraphServiceClient graphServiceClient, Win32LobApp win32LobApp, string partialIntuneWinFile, string metadataFile, string? logoPath = null, CancellationToken cancellationToken = default)
+    {
+#if NET8_0_OR_GREATER
+        ArgumentNullException.ThrowIfNull(graphServiceClient);
+        ArgumentNullException.ThrowIfNull(win32LobApp);
+        ArgumentException.ThrowIfNullOrEmpty(partialIntuneWinFile);
+#endif
+        if (!fileManager.FileExists(partialIntuneWinFile))
+        {
+            throw new FileNotFoundException("IntuneWin file not found", partialIntuneWinFile);
+        }
         if (win32LobApp.LargeIcon is null && !string.IsNullOrEmpty(logoPath) && fileManager.FileExists(logoPath))
         {
             win32LobApp.LargeIcon = new MimeContent
@@ -50,7 +90,7 @@ public class GraphAppUploader
             await Task.Delay(1000, cancellationToken);
 
             // Upload the content and update the app with the latest commited file id.
-            await CreateNewContentVersionAsync(graphServiceClient, app!.Id!, intunePackageFile, cancellationToken);
+            await CreateNewContentVersionAsync(graphServiceClient, app!.Id!, partialIntuneWinFile, metadataFile, cancellationToken);
 
             // Load the app again to get the final state
             Win32LobApp? updatedApp = await graphServiceClient.DeviceAppManagement.MobileApps[app.Id].GetAsync(cancellationToken: cancellationToken) as Win32LobApp;
@@ -97,26 +137,21 @@ public class GraphAppUploader
         }
     }
 
-    public async Task<Win32LobApp?> CreateNewContentVersionAsync(GraphServiceClient graphServiceClient, string appId, string intunePackageFile, CancellationToken cancellationToken = default)
+    public async Task<Win32LobApp?> CreateNewContentVersionAsync(GraphServiceClient graphServiceClient, string appId, string partialIntuneWinFile, string metadataFile, CancellationToken cancellationToken = default)
     {
 #if NET8_0_OR_GREATER
         ArgumentNullException.ThrowIfNull(graphServiceClient);
         ArgumentException.ThrowIfNullOrEmpty(appId);
-        ArgumentException.ThrowIfNullOrEmpty(intunePackageFile);
+        ArgumentException.ThrowIfNullOrEmpty(partialIntuneWinFile);
 #endif
-        if (!fileManager.FileExists(intunePackageFile))
+        if (!fileManager.FileExists(partialIntuneWinFile))
         {
-            throw new FileNotFoundException("IntuneWin file not found", intunePackageFile);
+            throw new FileNotFoundException("IntuneWin file not found", partialIntuneWinFile);
         }
         logger.LogInformation("Creating new content version for app {appId}", appId);
 
-        var tempFolder = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
-
-        logger.LogDebug("Extracting intunewin file {file} to {tempFolder}", intunePackageFile, tempFolder);
-        await fileManager.ExtractFileToFolderAsync(intunePackageFile, tempFolder, cancellationToken);
-
         // Load the metadata file
-        var info = IntuneMetadata.GetApplicationInfo(await fileManager.ReadAllBytesAsync(IntuneMetadata.GetMetadataPath(tempFolder), cancellationToken))!;
+        var info = IntuneMetadata.GetApplicationInfo(await fileManager.ReadAllBytesAsync(metadataFile, cancellationToken))!;
 
         // Create the content version
         var contentVersion = await graphServiceClient.DeviceAppManagement.MobileApps[appId].GraphWin32LobApp.ContentVersions.PostAsync(new MobileAppContent(), cancellationToken: cancellationToken);
@@ -128,42 +163,27 @@ public class GraphAppUploader
             Name = info.FileName,
             IsDependency = false,
             Size = info.UnencryptedContentSize,
-            SizeEncrypted = fileManager.GetFileSize(IntuneMetadata.GetContentsPath(tempFolder)),
+            SizeEncrypted = fileManager.GetFileSize(partialIntuneWinFile),
             Manifest = null,
         };
 
         logger.LogDebug("Creating content file {name} {size} {sizeEncrypted}", mobileAppContentFileRequest.Name, mobileAppContentFileRequest.Size, mobileAppContentFileRequest.SizeEncrypted);
 
         MobileAppContentFile? mobileAppContentFile = await graphServiceClient.DeviceAppManagement.MobileApps[appId].GraphWin32LobApp.ContentVersions[contentVersion.Id!].Files.PostAsync(mobileAppContentFileRequest, cancellationToken: cancellationToken);
-        //var mobileAppContentFile = await graphServiceClient.Intune_CreateWin32LobAppContentVersionFileAsync(appId, contentVersion.Id!, mobileAppContentFileRequest, cancellationToken);
-
         logger.LogDebug("Created content file {id}", mobileAppContentFile?.Id);
         // Wait for a bit (it's generating the azure storage uri)
         await Task.Delay(3000, cancellationToken);
 
         MobileAppContentFile? updatedMobileAppContentFile = await graphServiceClient.DeviceAppManagement.MobileApps[appId].GraphWin32LobApp.ContentVersions[contentVersion.Id!].Files[mobileAppContentFile!.Id!].GetAsync(cancellationToken: cancellationToken);
 
-        //MobileAppContentFile? updatedMobileAppContentFile = await graphServiceClient.Intune_GetWin32LobAppContentVersionFileAsync(appId,
-        //    contentVersion!.Id!,
-        //    mobileAppContentFile!.Id!,
-        //    cancellationToken);
-
         logger.LogDebug("Loaded content file {id} {blobUri}", updatedMobileAppContentFile?.Id, updatedMobileAppContentFile?.AzureStorageUri);
 
         await azureFileUploader.UploadFileToAzureAsync(
-            IntuneMetadata.GetContentsPath(tempFolder),
+            partialIntuneWinFile,
             new Uri(updatedMobileAppContentFile!.AzureStorageUri!),
             cancellationToken);
 
         logger.LogDebug("Uploaded content file {id} {blobUri}", updatedMobileAppContentFile.Id, updatedMobileAppContentFile.AzureStorageUri);
-        fileManager.DeleteFileOrFolder(tempFolder);
-
-
-
-        //await graphServiceClient.DeviceAppManagement.MobileApps[appId].GraphWin32LobApp.ContentVersions[contentVersion.Id!].Files[mobileAppContentFile!.Id!].Commit
-        //    .PostAsync(new Microsoft.Graph.Beta.DeviceAppManagement.MobileApps.Item.GraphWin32LobApp.ContentVersions.Item.Files.Item.Commit.CommitPostRequestBody { 
-        //        FileEncryptionInfo = mapper.ToGraphEncryptionInfo(info.EncryptionInfo)
-        //    }, cancellationToken: cancellationToken);
 
         var encryptionInfo = mapper.ToFileEncryptionInfo(info.EncryptionInfo);
         await graphServiceClient.Intune_CommitWin32LobAppContentVersionFileAsync(appId,
@@ -183,6 +203,4 @@ public class GraphAppUploader
 
         return app;
     }
-
-
 }

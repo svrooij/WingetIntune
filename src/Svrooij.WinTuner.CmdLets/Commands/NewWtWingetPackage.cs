@@ -130,6 +130,18 @@ public class NewWtWingetPackage : DependencyCmdlet<Startup>
         HelpMessage = "Prefered installer type")]
     public WingetIntune.Models.InstallerType PreferedInstaller { get; set; } = WingetIntune.Models.InstallerType.Msi;
 
+    /// <summary>
+    /// Creating a partial package means that the files are not zipped into the intunewin file, but are left as is.
+    /// </summary>
+    [Parameter(
+        Mandatory = false,
+        Position = 10,
+        ValueFromPipeline = false,
+        ValueFromPipelineByPropertyName = false,
+        DontShow = true, // this is still experimental
+        HelpMessage = "Creating a partial package means that the files are not zipped into the intunewin file, but are left as is.")]
+    public SwitchParameter PartialPackage { get; set; }
+
     [ServiceDependency]
     private ILogger<NewWtWingetPackage> logger;
 
@@ -176,7 +188,8 @@ public class NewWtWingetPackage : DependencyCmdlet<Startup>
                     PackageScript = PackageScript,
                     Locale = Locale,
                     OverrideArguments = InstallerArguments,
-                    InstallerType = PreferedInstaller
+                    InstallerType = PreferedInstaller,
+                    PartialPackage = PartialPackage,
                 },
                 cancellationToken: cancellationToken);
 

@@ -94,6 +94,6 @@ public class MetadataManager
     /// <returns></returns>
     public string GetIntuneWinFileName(string packageFolder, PackageInfo packageInfo)
     {
-        return Path.Combine(packageFolder, Path.GetFileNameWithoutExtension(packageInfo.InstallerFilename!) + ".intunewin");
+        return Path.GetFullPath(Path.Combine(packageFolder, Path.GetFileNameWithoutExtension(packageInfo.InstallerFilename!) + ".intunewin"));
     }
 }
