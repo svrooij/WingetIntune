@@ -9,6 +9,16 @@ Source of WinTuner PowerShell module, available in the [PowerShell Gallery][link
 
 Documentation can be found [here](https://wintuner.app/docs/category/wintuner-powershell).
 
+## Development
+
+To regenerate the documentation, run the following command from the root of this repo:
+
+```powershell
+# Install the tool
+# dotnet tool install --global SvRooij.PowerShell.Docs --version 0.1.1
+PS> pwsh-docs --dll .\src\Svrooij.WinTuner.CmdLets\bin\Debug\net6.0\Svrooij.WinTuner.CmdLets.dll --use-xml-docs --maml-file .\src\Svrooij.WinTuner.CmdLets\Svrooij.WinTuner.CmdLets.dll-Help.xml
+```
+
 [badge_license]: https://img.shields.io/github/license/svrooij/WingetIntune?style=for-the-badge
 [link_license]: https://github.com/svrooij/WingetIntune/blob/main/LICENSE.txt
 [badge_powershell]: https://img.shields.io/powershellgallery/v/WinTuner?style=for-the-badge&logo=powershell&logoColor=white

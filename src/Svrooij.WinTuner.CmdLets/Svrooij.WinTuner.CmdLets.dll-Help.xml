@@ -1659,6 +1659,31 @@ You could run this on a weekly bases.
           </dev:type>
           <dev:defaultValue>None</dev:defaultValue>
         </command:parameter>
+        <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="9" aliases="none">
+          <maml:name>PreferedInstaller</maml:name>
+          <maml:description>
+            <maml:para>Prefered installer type</maml:para>
+          </maml:description>
+          <command:parameterValueGroup>
+            <command:parameterValue required="false" variableLength="false">Unknown</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">Msi</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">Msix</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">Appx</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">Exe</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">Zip</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">Inno</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">Nullsoft</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">Wix</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">Burn</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">Pwa</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">Portable</command:parameterValue>
+          </command:parameterValueGroup>
+          <command:parameterValue required="false" variableLength="false">InstallerType</command:parameterValue>
+          <dev:type>
+            <maml:name>InstallerType</maml:name>
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
       </command:syntaxItem>
     </command:syntax>
     <command:parameters>
@@ -1770,6 +1795,31 @@ You could run this on a weekly bases.
         <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
         <dev:type>
           <maml:name>String</maml:name>
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="9" aliases="none">
+        <maml:name>PreferedInstaller</maml:name>
+        <maml:description>
+          <maml:para>Prefered installer type</maml:para>
+        </maml:description>
+        <command:parameterValueGroup>
+          <command:parameterValue required="false" variableLength="false">Unknown</command:parameterValue>
+          <command:parameterValue required="false" variableLength="false">Msi</command:parameterValue>
+          <command:parameterValue required="false" variableLength="false">Msix</command:parameterValue>
+          <command:parameterValue required="false" variableLength="false">Appx</command:parameterValue>
+          <command:parameterValue required="false" variableLength="false">Exe</command:parameterValue>
+          <command:parameterValue required="false" variableLength="false">Zip</command:parameterValue>
+          <command:parameterValue required="false" variableLength="false">Inno</command:parameterValue>
+          <command:parameterValue required="false" variableLength="false">Nullsoft</command:parameterValue>
+          <command:parameterValue required="false" variableLength="false">Wix</command:parameterValue>
+          <command:parameterValue required="false" variableLength="false">Burn</command:parameterValue>
+          <command:parameterValue required="false" variableLength="false">Pwa</command:parameterValue>
+          <command:parameterValue required="false" variableLength="false">Portable</command:parameterValue>
+        </command:parameterValueGroup>
+        <command:parameterValue required="false" variableLength="false">InstallerType</command:parameterValue>
+        <dev:type>
+          <maml:name>InstallerType</maml:name>
         </dev:type>
         <dev:defaultValue>None</dev:defaultValue>
       </command:parameter>

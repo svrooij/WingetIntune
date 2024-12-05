@@ -267,9 +267,10 @@ public class ConnectWtWinTuner : DependencyCmdlet<Startup>
         _logger?.LogInformation("Connecting to Intune using {ParameterSetName}", ParameterSetName);
         AuthenticationProvider = CreateAuthenticationProvider(cancellationToken);
 
+        // Try getting a token at this point helps solve a lot of issues.
+        var token = await GetTokenAsync(cancellationToken);
         if (Test)
         {
-            var token = await GetTokenAsync(cancellationToken);
             _logger?.LogInformation("Got token {Token}", token);
             WriteObject(token);
         }

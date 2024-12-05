@@ -85,7 +85,8 @@ public class GraphAppUploader
             {
                 try
                 {
-                    await graphServiceClient.DeviceAppManagement.MobileApps[appId].DeleteAsync(cancellationToken: cancellationToken);
+                    // Do not use the cancellationToken here, we want to delete the app no matter what.
+                    await graphServiceClient.DeviceAppManagement.MobileApps[appId].DeleteAsync(cancellationToken: CancellationToken.None);
                 }
                 catch (Exception ex2)
                 {
