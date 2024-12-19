@@ -109,6 +109,12 @@
           "System.Security.Cryptography.ProtectedData": "4.5.0"
         }
       },
+      "OpenMcdf": {
+        "type": "Direct",
+        "requested": "[2.4.1, )",
+        "resolved": "2.4.1",
+        "contentHash": "0XVhI+P6pe80xYntIeF6H4F7AIL4ZolMTI5vkm3QUt9XTnRJht6CNYk1eSfI8YInRble6cw91ypF5llPXzKD/A=="
+      },
       "Riok.Mapperly": {
         "type": "Direct",
         "requested": "[3.6.0, )",
@@ -505,6 +511,12 @@
           "Microsoft.Identity.Client": "4.66.2",
           "System.Security.Cryptography.ProtectedData": "4.5.0"
         }
+      },
+      "OpenMcdf": {
+        "type": "Direct",
+        "requested": "[2.4.1, )",
+        "resolved": "2.4.1",
+        "contentHash": "0XVhI+P6pe80xYntIeF6H4F7AIL4ZolMTI5vkm3QUt9XTnRJht6CNYk1eSfI8YInRble6cw91ypF5llPXzKD/A=="
       },
       "Riok.Mapperly": {
         "type": "Direct",
