@@ -482,7 +482,8 @@ public partial class IntuneManager
 #if NET8_0_OR_GREATER
         ArgumentException.ThrowIfNullOrEmpty(setupFile);
 #endif
-        try{
+        try
+        {
             var decoder = new MsiDecoder(setupFile);
             return (decoder.GetCode(), decoder.GetVersion());
         }
