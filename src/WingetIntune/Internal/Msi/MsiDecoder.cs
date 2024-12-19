@@ -19,14 +19,6 @@ internal class MsiDecoder
     const int MSITYPE_TEMPORARY = 0x4000;
     const int MSITYPE_UNKNOWN = 0x8000;
 
-    public string GetCode()
-    {
-        return allTables["Property"].Where(row => (string)row["Property"] == "ProductCode").Select<Dictionary<string, object>, string>(row => row["Value"].ToString()).First();
-    }
-    public string GetVersion()
-    {
-        return allTables["Property"].Where(row => (string)row["Property"] == "ProductVersion").Select<Dictionary<string, object>, string>(row => row["Value"].ToString()).First();
-    }
     public MsiDecoder(string filePath)
     {
         using (var cf = new CompoundFile(filePath))
@@ -40,7 +32,14 @@ internal class MsiDecoder
         }
     }
 
-
+    public string GetCode()
+    {
+        return allTables["Property"].Where(row => (string)row["Property"] == "ProductCode").Select<Dictionary<string, object>, string>(row => row["Value"].ToString()).First();
+    }
+    public string GetVersion()
+    {
+        return allTables["Property"].Where(row => (string)row["Property"] == "ProductVersion").Select<Dictionary<string, object>, string>(row => row["Value"].ToString()).First();
+    }
 
     // references for the next lines:
     // https://stackoverflow.com/questions/9734978/view-msi-strings-in-binary
@@ -66,7 +65,7 @@ internal class MsiDecoder
         return (char)result;
     }
 
-    string DecodeStreamName(string name)
+    private string DecodeStreamName(string name)
     {
         var result = new List<char>();
         var source = name.ToCharArray();
@@ -123,7 +122,7 @@ internal class MsiDecoder
         return (char)result;
     }
 
-    string EncodeStreamName(string name)
+    private string EncodeStreamName(string name)
     {
         var result = new List<char>();
 
@@ -151,7 +150,7 @@ internal class MsiDecoder
         return new string(result.ToArray());
     }
 
-    Dictionary<uint, string> LoadStringPool(CompoundFile cf)
+    private Dictionary<uint, string> LoadStringPool(CompoundFile cf)
     {
         var decodedStringPool = EncodeStreamName("$_StringPool");
         var streamStringPool = cf.RootStorage.GetStream(decodedStringPool);
@@ -211,7 +210,7 @@ internal class MsiDecoder
         return strings;
     }
 
-    List<Dictionary<string, object>> LoadColumns(CompoundFile cf)
+    private List<Dictionary<string, object>> LoadColumns(CompoundFile cf)
     {
         var encodedColumnName = EncodeStreamName("$_Columns");
         var columnStream = cf.RootStorage.GetStream(encodedColumnName);
@@ -236,7 +235,7 @@ internal class MsiDecoder
         return ParseTable(columnBytes, columnTitles, columnTypes);
     }
 
-    string[] LoadTablesTable(CompoundFile cf)
+    private string[] LoadTablesTable(CompoundFile cf)
     {
         var encodedColumnName = EncodeStreamName("$_Tables");
         var tableStream = cf.RootStorage.GetStream(encodedColumnName);
@@ -258,7 +257,7 @@ internal class MsiDecoder
         return output;
     }
 
-    Dictionary<string, List<Dictionary<string, object>>> LoadAllTables(CompoundFile cf)
+    private Dictionary<string, List<Dictionary<string, object>>> LoadAllTables(CompoundFile cf)
     {
         var results = new Dictionary<string, List<Dictionary<string, object>>>();
         foreach (var table in tables)
@@ -303,7 +302,7 @@ internal class MsiDecoder
     }
 
     // I would use List<Dictionary<string, string|int>> but this ain't F#
-    List<Dictionary<string, object>> ParseTable(byte[] tableBytes, string[] columnTitles, int[] columnTypes)
+    private List<Dictionary<string, object>> ParseTable(byte[] tableBytes, string[] columnTitles, int[] columnTypes)
     {
         var columnCount = columnTitles.Length;
         var rowCount = tableBytes.Length / GetRowSize(columnTypes);
@@ -337,7 +336,7 @@ internal class MsiDecoder
         return output;
     }
 
-    int GetRowSize(int[] columnTypes)
+    private int GetRowSize(int[] columnTypes)
     {
         int size = 0;
 
@@ -357,7 +356,7 @@ internal class MsiDecoder
     }
 
     // Read a string, and return both the string, as well as the offset
-    (string, int) ReadString(byte[] data, int index)
+    private (string, int) ReadString(byte[] data, int index)
     {
         uint stringRef = 0;
         switch (stringSize)
@@ -379,7 +378,7 @@ internal class MsiDecoder
     }
 
     // Read an int, and return both the int and the offset
-    (int, int) ReadNumber(byte[] data, int index, int bytes)
+    private (int, int) ReadNumber(byte[] data, int index, int bytes)
     {
         int ret = 0, i;
 
