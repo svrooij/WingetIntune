@@ -34,9 +34,9 @@ internal class MsiDecoder
             intToString = LoadStringPool(cf);
             stringToInt = intToString.ToDictionary(x => x.Value, x => x.Key);
 
-            tables = loadTablesTable(cf);
-            columns = loadColumns(cf);
-            allTables = loadAllTables(cf);
+            tables = LoadTablesTable(cf);
+            columns = LoadColumns(cf);
+            allTables = LoadAllTables(cf);
         }
     }
 
@@ -211,7 +211,7 @@ internal class MsiDecoder
         return strings;
     }
 
-    List<Dictionary<string, object>> loadColumns(CompoundFile cf)
+    List<Dictionary<string, object>> LoadColumns(CompoundFile cf)
     {
         var encodedColumnName = EncodeStreamName("$_Columns");
         var columnStream = cf.RootStorage.GetStream(encodedColumnName);
@@ -236,7 +236,7 @@ internal class MsiDecoder
         return ParseTable(columnBytes, columnTitles, columnTypes);
     }
 
-    string[] loadTablesTable(CompoundFile cf)
+    string[] LoadTablesTable(CompoundFile cf)
     {
         var encodedColumnName = EncodeStreamName("$_Tables");
         var tableStream = cf.RootStorage.GetStream(encodedColumnName);
@@ -258,7 +258,7 @@ internal class MsiDecoder
         return output;
     }
 
-    Dictionary<string, List<Dictionary<string, object>>> loadAllTables(CompoundFile cf)
+    Dictionary<string, List<Dictionary<string, object>>> LoadAllTables(CompoundFile cf)
     {
         var results = new Dictionary<string, List<Dictionary<string, object>>>();
         foreach (var table in tables)
