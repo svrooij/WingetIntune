@@ -1,13 +1,5 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Microsoft.Graph.Beta.Models;
+﻿using System.Text;
 using OpenMcdf;
-using YamlDotNet.Core.Events;
 
 namespace WingetIntune.Internal.Msi;
 internal class MsiDecoder
@@ -45,18 +37,6 @@ internal class MsiDecoder
             tables = loadTablesTable(cf);
             columns = loadColumns(cf);
             allTables = loadAllTables(cf);
-
-            foreach(var tbl in allTables)
-            {
-                Console.WriteLine($"Printing table {tbl.Key}");
-                foreach(var rows in tbl.Value)
-                {
-                    foreach(var row in rows)
-                    {
-                        Console.WriteLine($"{row.Key}:{row.Value}");
-                    }
-                }
-            }
         }
     }
 
@@ -194,23 +174,18 @@ internal class MsiDecoder
         uint stringId = 1;
         for (int src = 4, offset = 0; src < poolLength; src += 4)
         {
-            Console.WriteLine("Starting decode");
             var entryLength = (int)BitConverter.ToUInt16(stringPoolBytes, src);
             var entryRef = (int)BitConverter.ToUInt16(stringPoolBytes, src + 2);
-
-            Console.WriteLine($"Of entry {entryLength} {entryRef}");
 
             if (entryLength == 0 && entryRef == 0)
             {
                 // Empty entry, skip.
-                Console.WriteLine("Skipping");
                 stringId++;
                 continue;
             }
             else if (entryLength == 0 && entryRef != 0)
             {
                 // wide entry over 64kb
-                Console.WriteLine("Wide Entry");
                 continue;
             }
 
@@ -219,16 +194,12 @@ internal class MsiDecoder
 
                 var previousEntryLength = BitConverter.ToInt16(stringPoolBytes, src - 4);
                 var previousEntryRef = BitConverter.ToInt16(stringPoolBytes, src - 2);
-                Console.WriteLine($"Previous entry {previousEntryLength} {previousEntryRef}");
 
                 if (previousEntryLength == 0 && previousEntryRef != 0)
                 {
                     entryLength += previousEntryLength << 16;
-                    Console.WriteLine($"New Size {entryLength}");
                 }
             }
-
-            Console.WriteLine($"Adding {Encoding.UTF8.GetString(stringDataBytes.Skip(offset).Take(entryLength).ToArray())}");
 
             strings.Add(stringId, Encoding.UTF8.GetString(stringDataBytes.Skip(offset).Take(entryLength).ToArray()));
             offset += entryLength;
@@ -358,14 +329,6 @@ internal class MsiDecoder
                     offset += read.Item2;
                     output[i][columnTitles[h]] = read.Item1;
                 }
-            }
-        }
-
-        foreach (var row in output)
-        {
-            foreach (var entry in row)
-            {
-                Console.WriteLine($"{entry.Key}:{entry.Value}");
             }
         }
 
