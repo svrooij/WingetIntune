@@ -421,7 +421,7 @@ internal class MsiDecoder
             ret = ret - 0x8000;
         } else
         {
-            ret = ret - 0x8000000;
+            ret = (int)((long)ret - 0x80000000);
         }
 
         return (ret, bytes);
