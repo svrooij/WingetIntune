@@ -5,6 +5,8 @@ using Microsoft.Graph.Beta.Models;
 using Microsoft.Graph.Beta.Models.ODataErrors;
 using Microsoft.Kiota.Abstractions.Authentication;
 using Microsoft.Kiota.Abstractions.Serialization;
+using OpenMcdf;
+using System.Collections;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Text;
@@ -14,6 +16,7 @@ using WingetIntune.Commands;
 using WingetIntune.Graph;
 using WingetIntune.Interfaces;
 using WingetIntune.Internal.Msal;
+using WingetIntune.Internal.Msi;
 using WingetIntune.Intune;
 using WingetIntune.Models;
 
@@ -487,58 +490,8 @@ public partial class IntuneManager
         catch (DllNotFoundException)
         {
             // WixSharp.UI.MsiParser uses Microsoft.Deployment.WindowsInstaller.dll which is not available on Linux
-            // Using `msiinfo` from `msitools` as an alternative
-        }
-        catch (Exception ex)
-        {
-            logger?.LogError(ex, "Error getting product code from {setupFile}", setupFile);
-            throw;
-        }
-
-        try
-        {
-            var processStartInfo = new ProcessStartInfo("msiinfo", $"export {setupFile} Property");
-            processStartInfo.RedirectStandardOutput = true;
-            processStartInfo.RedirectStandardError = true;
-
-            using var process = new System.Diagnostics.Process();
-            process.StartInfo = processStartInfo;
-            try
-            {
-                process.Start();
-            } catch(Win32Exception _)
-            {
-                logger?.LogError("The package 'msitools' does not appear to be installed or available on the PATH");
-                throw;
-            }
-            string output = process.StandardOutput.ReadToEnd();
-            string error = process.StandardError.ReadToEnd();
-            process.WaitForExit();
-
-            if (process.ExitCode != 0)
-            {
-                throw new ArgumentException("Could not open the msi file, or it did not contain a Property table.\n{error}", error);
-            }
-
-            var codePattern = new Regex(@"ProductCode\s*(.*)\x0D");
-            var codeMatch = codePattern.Match(output);
-            if (codeMatch.Groups.Count != 2)
-            {
-                throw new InvalidDataException("Expected msi file to contain a ProductCode entry in it's Property table, but none were found");
-            }
-            var codeString = codeMatch.Groups[1].Value;
-
-            var versionPattern = new Regex(@"ProductVersion\s*(.*)\x0D");
-            var versionMatch = versionPattern.Match(output);
-            logger?.LogInformation($"Found {versionMatch.Captures.Count} captures");
-            if (versionMatch.Groups.Count != 2)
-            {
-                logger?.LogError("Error reading product version from {setupFile}", setupFile);
-                throw new InvalidDataException("Expected msi file to contain a ProductVersion entry in it's Property table, but none were found");
-            }
-            var versionString = versionMatch.Groups[1].Value;
-
-            return (codeString, versionString);
+            var decoder = new MsiDecoder(setupFile);
+            return (decoder.GetCode(), decoder.GetVersion());
         }
         catch (Exception ex)
         {
