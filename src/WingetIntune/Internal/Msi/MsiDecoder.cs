@@ -21,7 +21,7 @@ internal class MsiDecoder
 
     public string GetCode()
     {
-        return allTables["Property"].Where(row => (string)row["Property"] == "ProductCode").Select<Dictionary<string, object>,string>(row => row["Value"].ToString()).First();
+        return allTables["Property"].Where(row => (string)row["Property"] == "ProductCode").Select<Dictionary<string, object>, string>(row => row["Value"].ToString()).First();
     }
     public string GetVersion()
     {
@@ -264,10 +264,12 @@ internal class MsiDecoder
         foreach (var table in tables)
         {
             CFStream? tableStream = null;
-            try { 
+            try
+            {
                 tableStream = cf.RootStorage.GetStream(EncodeStreamName($"${table}"));
-            } catch(CFItemNotFound)
-            {}
+            }
+            catch (CFItemNotFound)
+            { }
             if (tableStream == null)
             {
                 try
@@ -309,11 +311,11 @@ internal class MsiDecoder
         var output = new List<Dictionary<string, object>>();
 
         var offset = 0;
-        for(var h = 0; h < columnTitles.Length; h++)
+        for (var h = 0; h < columnTitles.Length; h++)
         {
             for (var i = 0; i < rowCount; i++)
             {
-                if(h == 0)
+                if (h == 0)
                 {
                     output.Add(new Dictionary<string, object>());
                 }
@@ -325,7 +327,7 @@ internal class MsiDecoder
                 }
                 else
                 {
-                    var read = ReadNumber(tableBytes, offset, columnTypes[h]&0xFF);
+                    var read = ReadNumber(tableBytes, offset, columnTypes[h] & 0xFF);
                     offset += read.Item2;
                     output[i][columnTitles[h]] = read.Item1;
                 }
@@ -335,7 +337,8 @@ internal class MsiDecoder
         return output;
     }
 
-    int GetRowSize(int[] columnTypes) {
+    int GetRowSize(int[] columnTypes)
+    {
         int size = 0;
 
         foreach (var columnType in columnTypes)
@@ -343,7 +346,8 @@ internal class MsiDecoder
             if ((columnType & MSITYPE_STRING) != 0)
             {
                 size += stringSize;
-            } else
+            }
+            else
             {
                 size += columnType & 0xff;
             }
@@ -353,14 +357,16 @@ internal class MsiDecoder
     }
 
     // Read a string, and return both the string, as well as the offset
-    (string, int) ReadString(byte[] data, int index) {
+    (string, int) ReadString(byte[] data, int index)
+    {
         uint stringRef = 0;
-        switch(stringSize){
+        switch (stringSize)
+        {
             case 2:
                 stringRef = BitConverter.ToUInt16(data, index);
                 break;
             case 3:
-                stringRef = BitConverter.ToUInt16(data, index) + (uint)(data[index+2] << 16);
+                stringRef = BitConverter.ToUInt16(data, index) + (uint)(data[index + 2] << 16);
                 break;
             case 4:
                 stringRef = BitConverter.ToUInt32(data, index);
@@ -373,16 +379,18 @@ internal class MsiDecoder
     }
 
     // Read an int, and return both the int and the offset
-    (int, int) ReadNumber(byte[] data, int index, int bytes) {
+    (int, int) ReadNumber(byte[] data, int index, int bytes)
+    {
         int ret = 0, i;
 
         for (i = 0; i < bytes; i++)
-            ret += (int)(data[index+i]) << i * 8;
+            ret += (int)(data[index + i]) << i * 8;
 
-        if(bytes == 2)
+        if (bytes == 2)
         {
             ret = ret - 0x8000;
-        } else
+        }
+        else
         {
             ret = (int)((long)ret - 0x80000000);
         }
