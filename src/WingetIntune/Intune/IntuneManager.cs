@@ -482,14 +482,7 @@ public partial class IntuneManager
 #if NET8_0_OR_GREATER
         ArgumentException.ThrowIfNullOrEmpty(setupFile);
 #endif
-        try
-        {
-            using var msi = new WixSharp.UI.MsiParser(setupFile);
-            return (msi.GetProductCode(), msi.GetProductVersion());
-        }
-        catch (DllNotFoundException)
-        {
-            // WixSharp.UI.MsiParser uses Microsoft.Deployment.WindowsInstaller.dll which is not available on Linux
+        try{
             var decoder = new MsiDecoder(setupFile);
             return (decoder.GetCode(), decoder.GetVersion());
         }
