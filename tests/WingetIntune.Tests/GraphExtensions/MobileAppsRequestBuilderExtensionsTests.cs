@@ -32,7 +32,7 @@ public class MobileAppsRequestBuilderExtensionsTests
             response);
 
         var httpClient = new HttpClient(handler);
-        var graphServiceClient = new GraphServiceClient(httpClient, new Internal.Msal.StaticAuthenticationProvider(token));
+        var graphServiceClient = new GraphServiceClient(httpClient, new WingetIntune.Internal.Msal.StaticAuthenticationProvider(token));
 
         var result = await graphServiceClient.DeviceAppManagement.MobileApps.PostAsync(app, CancellationToken.None);
         Assert.Equal("9607b530-b530-9607-30b5-079630b50796", result!.Id);
@@ -57,7 +57,7 @@ public class MobileAppsRequestBuilderExtensionsTests
             response);
 
         var httpClient = new HttpClient(handler);
-        var graphServiceClient = new GraphServiceClient(httpClient, new Internal.Msal.StaticAuthenticationProvider(token));
+        var graphServiceClient = new GraphServiceClient(httpClient, new WingetIntune.Internal.Msal.StaticAuthenticationProvider(token));
 
         Win32LobApp? result = await graphServiceClient.DeviceAppManagement.MobileApps[appId].PatchAsync(new Win32LobApp { CommittedContentVersion = "1" }, CancellationToken.None);
         Assert.Equal("9607b530-b530-9607-30b5-079630b50796", result!.Id);

@@ -29,7 +29,7 @@ internal class MsiDecoder
 
     public MsiDecoder(Stream msiStream)
     {
-        using(var cf= new CompoundFile(msiStream))
+        using (var cf = new CompoundFile(msiStream))
         {
             load(cf);
         }
@@ -44,7 +44,8 @@ internal class MsiDecoder
         return allTables["Property"].Where(row => (string)row["Property"] == "ProductVersion").Select<Dictionary<string, object>, string>(row => row["Value"].ToString()).First();
     }
 
-    private void load(CompoundFile cf) {
+    private void load(CompoundFile cf)
+    {
         intToString = LoadStringPool(cf);
         stringToInt = intToString.ToDictionary(x => x.Value, x => x.Key);
 

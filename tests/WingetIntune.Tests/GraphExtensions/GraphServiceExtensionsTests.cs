@@ -2,6 +2,7 @@
 using Microsoft.Graph.Beta.Models;
 using System.Net;
 using WingetIntune.Graph;
+using WingetIntune.Internal.Msal;
 
 namespace WingetIntune.Tests.GraphExtensions;
 
@@ -29,7 +30,7 @@ public class GraphServiceExtensionsTests
             response);
 
         var httpClient = new HttpClient(handler);
-        var graphServiceClient = new GraphServiceClient(httpClient, new Internal.Msal.StaticAuthenticationProvider(token));
+        var graphServiceClient = new GraphServiceClient(httpClient, new WingetIntune.Internal.Msal.StaticAuthenticationProvider(token));
 
         var result = await graphServiceClient.Intune_CreateWin32LobAppContentVersionAsync(appId, CancellationToken.None)!;
         Assert.Equal("1", result!.Id);
@@ -68,7 +69,7 @@ public class GraphServiceExtensionsTests
             response);
 
         var httpClient = new HttpClient(handler);
-        var graphServiceClient = new GraphServiceClient(httpClient, new Internal.Msal.StaticAuthenticationProvider(token));
+        var graphServiceClient = new GraphServiceClient(httpClient, new WingetIntune.Internal.Msal.StaticAuthenticationProvider(token));
 
         var mobileAppFileContent = new MobileAppContentFile
         {
@@ -105,7 +106,7 @@ public class GraphServiceExtensionsTests
             response);
 
         var httpClient = new HttpClient(handler);
-        var graphServiceClient = new GraphServiceClient(httpClient, new Internal.Msal.StaticAuthenticationProvider(token));
+        var graphServiceClient = new GraphServiceClient(httpClient, new WingetIntune.Internal.Msal.StaticAuthenticationProvider(token));
 
         var body = new WingetIntune.Graph.FileEncryptionInfo
         {
@@ -150,7 +151,7 @@ public class GraphServiceExtensionsTests
             response);
 
         var httpClient = new HttpClient(handler);
-        var graphServiceClient = new GraphServiceClient(httpClient, new Internal.Msal.StaticAuthenticationProvider(token));
+        var graphServiceClient = new GraphServiceClient(httpClient, new WingetIntune.Internal.Msal.StaticAuthenticationProvider(token));
         var result = await graphServiceClient.Intune_GetWin32LobAppContentVersionFileAsync(appId, contentVersionId.ToString(), fileId, CancellationToken.None)!;
 
         Assert.NotNull(result);
@@ -193,7 +194,7 @@ public class GraphServiceExtensionsTests
             response);
 
         var httpClient = new HttpClient(handler);
-        var graphServiceClient = new GraphServiceClient(httpClient, new Internal.Msal.StaticAuthenticationProvider(token));
+        var graphServiceClient = new GraphServiceClient(httpClient, new WingetIntune.Internal.Msal.StaticAuthenticationProvider(token));
         var result = await graphServiceClient.Intune_WaitForFinalCommitStateAsync(appId, contentVersionId.ToString(), fileId, default)!;
 
         Assert.NotNull(result);
@@ -236,7 +237,7 @@ public class GraphServiceExtensionsTests
             response);
 
         var httpClient = new HttpClient(handler);
-        var graphServiceClient = new GraphServiceClient(httpClient, new Internal.Msal.StaticAuthenticationProvider(token));
+        var graphServiceClient = new GraphServiceClient(httpClient, new WingetIntune.Internal.Msal.StaticAuthenticationProvider(token));
         await Assert.ThrowsAsync<Exception>(async () => await graphServiceClient.Intune_WaitForFinalCommitStateAsync(appId, contentVersionId.ToString(), fileId, CancellationToken.None)!);
     }
 
@@ -273,7 +274,7 @@ public class GraphServiceExtensionsTests
             response);
 
         var httpClient = new HttpClient(handler);
-        var graphServiceClient = new GraphServiceClient(httpClient, new Internal.Msal.StaticAuthenticationProvider(token));
+        var graphServiceClient = new GraphServiceClient(httpClient, new WingetIntune.Internal.Msal.StaticAuthenticationProvider(token));
         await Assert.ThrowsAsync<Exception>(async () => await graphServiceClient.Intune_WaitForFinalCommitStateAsync(appId, contentVersionId.ToString(), fileId, CancellationToken.None)!);
     }
 }
