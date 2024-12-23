@@ -1,5 +1,3 @@
-Import-Module -Force ".\src\Svrooij.WinTuner.CmdLets\bin\Debug\net6.0\Svrooij.WinTuner.CmdLets.dll"
-
 Describe 'Show-MsiInfo' {
     It 'Should be available' {
         $cmdlet = Get-Command -Name 'Show-MsiInfo'
