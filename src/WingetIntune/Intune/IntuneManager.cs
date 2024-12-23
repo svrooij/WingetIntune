@@ -11,6 +11,7 @@ using WingetIntune.Commands;
 using WingetIntune.Graph;
 using WingetIntune.Interfaces;
 using WingetIntune.Internal.Msal;
+using WingetIntune.Msi;
 using WingetIntune.Intune;
 using WingetIntune.Models;
 
@@ -478,20 +479,14 @@ public partial class IntuneManager
 #endif
         try
         {
-            using var msi = new WixSharp.UI.MsiParser(setupFile);
-            return (msi.GetProductCode(), msi.GetProductVersion());
-        }
-        catch (DllNotFoundException)
-        {
-            // WixSharp.UI.MsiParser uses Microsoft.Deployment.WindowsInstaller.dll which is not available on Linux
-            logger?.LogWarning("Unable to get product code from {setupFile} because Microsoft.Deployment.WindowsInstaller.dll is not available on Linux", setupFile);
+            var decoder = new MsiDecoder(setupFile);
+            return (decoder.GetCode(), decoder.GetVersion());
         }
         catch (Exception ex)
         {
             logger?.LogError(ex, "Error getting product code from {setupFile}", setupFile);
             throw;
         }
-        return (null, null);
     }
 
     private void LoadMsiDetails(string installerPath, ref PackageInfo packageInfo, string? overrideInstallerArguments = null)
@@ -605,7 +600,7 @@ public partial class IntuneManager
         }
         if (options.Credential is not null)
         {
-            provider = new Microsoft.Graph.Authentication.AzureIdentityAuthenticationProvider(options.Credential, null, null, RequiredScopes);
+            provider = new Microsoft.Graph.Authentication.AzureIdentityAuthenticationProvider(options.Credential, null, null, isCaeEnabled: false, RequiredScopes);
         }
         else if (!string.IsNullOrEmpty(options.Token))
         {

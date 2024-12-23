@@ -103,11 +103,11 @@ namespace WingetIntune.Tests
             var processManager = Substitute.For<IProcessManager>();
             var filemanagerMock = Substitute.For<IFileManager>();
             filemanagerMock.DownloadStringAsync(WingetManager.CreateManifestUri(packageId, version, null), true, Arg.Any<CancellationToken>())
-                .Returns(Task.FromResult(WingetManagerTestConstants.ohMyPoshYaml));
+                .Returns(WingetManagerTestConstants.ohMyPoshYaml);
             filemanagerMock.DownloadStringAsync(WingetManager.CreateManifestUri(packageId, version, ".installer"), true, Arg.Any<CancellationToken>())
-                .Returns(Task.FromResult(WingetManagerTestConstants.ohMyPoshInstallYaml));
+                .Returns(WingetManagerTestConstants.ohMyPoshInstallYaml);
             filemanagerMock.DownloadStringAsync(WingetManager.CreateManifestUri(packageId, version, ".locale.en-US"), true, Arg.Any<CancellationToken>())
-                .Returns(Task.FromResult(WingetManagerTestConstants.ohMyPoshLocaleYaml));
+                .Returns(WingetManagerTestConstants.ohMyPoshLocaleYaml);
 
             var wingetManager = new WingetManager(logger, processManager, filemanagerMock);
             var info = await wingetManager.GetPackageInfoAsync(packageId, version, source);
