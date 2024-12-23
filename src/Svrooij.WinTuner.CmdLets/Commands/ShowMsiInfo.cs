@@ -44,7 +44,7 @@ public class ShowMsiInfo : DependencyCmdlet<Startup>
     /// <summary>
     /// <para type="description">Path to save the MSI file</para>
     /// </summary>
-    [Parameter(Mandatory = true, Position = 1, ValueFromPipeline = true, ValueFromPipelineByPropertyName = true, ParameterSetName = nameof(MsiUrl))]
+    [Parameter(Mandatory = false, Position = 1, ValueFromPipeline = true, ValueFromPipelineByPropertyName = true, ParameterSetName = nameof(MsiUrl))]
     public string? OutputPath { get; set; }
 
     /// <summary>
@@ -69,7 +69,7 @@ public class ShowMsiInfo : DependencyCmdlet<Startup>
         else if (MsiUrl is not null)
         {
             logger?.LogInformation("Downloading MSI from URL to {OutputPath}: {MsiUrl}", MsiUrl, OutputPath);
-            var outputFile = Path.Combine(OutputPath!, OutputFilename ?? Path.GetFileName(MsiUrl.LocalPath));
+            var outputFile = Path.Combine(OutputPath ?? Path.GetTempPath(), OutputFilename ?? Path.GetFileName(MsiUrl.LocalPath));
             // The file managed does automatic chunking of the download, so it will also work for very large files.
             await fileManager!.DownloadFileAsync(MsiUrl!.ToString(), outputFile, cancellationToken: cancellationToken);
             MsiPath = outputFile;
