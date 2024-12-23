@@ -68,8 +68,9 @@ public class ShowMsiInfo : DependencyCmdlet<Startup>
         }
         else if (MsiUrl is not null)
         {
-            logger?.LogInformation("Downloading MSI from URL to {OutputPath}: {MsiUrl}", MsiUrl, OutputPath);
-            var outputFile = Path.Combine(OutputPath ?? Path.GetTempPath(), OutputFilename ?? Path.GetFileName(MsiUrl.LocalPath));
+            OutputPath ??= Path.GetTempPath();
+            logger?.LogInformation("Downloading MSI from URL {MsiUrl} to {OutputPath}", MsiUrl, OutputPath);
+            var outputFile = Path.Combine(OutputPath, OutputFilename ?? Path.GetFileName(MsiUrl.LocalPath));
             // The file managed does automatic chunking of the download, so it will also work for very large files.
             await fileManager!.DownloadFileAsync(MsiUrl!.ToString(), outputFile, cancellationToken: cancellationToken);
             MsiPath = outputFile;
@@ -91,5 +92,4 @@ public class ShowMsiInfo : DependencyCmdlet<Startup>
             ProductVersion = versionFromMsi
         });
     }
-
 }
