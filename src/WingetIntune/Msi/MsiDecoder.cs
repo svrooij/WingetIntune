@@ -1,8 +1,12 @@
 ﻿using System.Text;
 using OpenMcdf;
 
-namespace WingetIntune.Internal.Msi;
-internal class MsiDecoder
+namespace WingetIntune.Msi;
+/// <summary>
+/// Cross-platform MSI Decoder using OpenMcdf
+/// </summary>
+/// <remarks>Created by <see href="https://github.com/miyoyo">miyoyo</see> in <see href="https://github.com/svrooij/WingetIntune/pull/154">PR 154</see></remarks>
+public class MsiDecoder
 {
     private int stringSize = 2;
     private Dictionary<uint, string> intToString;
@@ -12,12 +16,12 @@ internal class MsiDecoder
     private Dictionary<string, List<Dictionary<string, object>>> allTables;
 
     const int MSITYPE_VALID = 0x0100;
-    const int MSITYPE_LOCALIZABLE = 0x200;
+    // const int MSITYPE_LOCALIZABLE = 0x200;
     const int MSITYPE_STRING = 0x0800;
-    const int MSITYPE_NULLABLE = 0x1000;
+    // const int MSITYPE_NULLABLE = 0x1000;
     const int MSITYPE_KEY = 0x2000;
-    const int MSITYPE_TEMPORARY = 0x4000;
-    const int MSITYPE_UNKNOWN = 0x8000;
+    // const int MSITYPE_TEMPORARY = 0x4000;
+    // const int MSITYPE_UNKNOWN = 0x8000;
 
     public MsiDecoder(string filePath)
     {
@@ -35,13 +39,33 @@ internal class MsiDecoder
         }
     }
 
-    public string GetCode()
+    /// <summary>
+    /// Get the product code of the MSI file (including the braces)
+    /// </summary>
+    /// <returns></returns>
+    public string? GetCode() => GetStringValue("Property", "ProductCode");
+
+    /// <summary>
+    /// Get the version of the MSI file
+    /// </summary>
+    /// <returns></returns>
+    public string? GetVersion() => GetStringValue("Property", "ProductVersion");
+
+    /// <summary>
+    /// Get the value of a property in a table
+    /// </summary>
+    /// <param name="table">MSI details are stored in the "Property" table</param>
+    /// <param name="property"></param>
+    /// <param name="value">You probably want the "Value", don't know what other options you have.</param>
+    /// <returns></returns>
+    public string? GetStringValue(string table, string property, string value = "Value")
     {
-        return allTables["Property"].Where(row => (string)row["Property"] == "ProductCode").Select<Dictionary<string, object>, string>(row => row["Value"].ToString()).First();
-    }
-    public string GetVersion()
-    {
-        return allTables["Property"].Where(row => (string)row["Property"] == "ProductVersion").Select<Dictionary<string, object>, string>(row => row["Value"].ToString()).First();
+        if (!allTables.ContainsKey(table))
+        {
+            return null;
+        }
+
+        return allTables[table].Where(row => (string)row["Property"] == property).Select<Dictionary<string, object>, string>(row => row[value].ToString()).FirstOrDefault();
     }
 
     private void load(CompoundFile cf)

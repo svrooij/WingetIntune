@@ -5,18 +5,13 @@ using Microsoft.Graph.Beta.Models;
 using Microsoft.Graph.Beta.Models.ODataErrors;
 using Microsoft.Kiota.Abstractions.Authentication;
 using Microsoft.Kiota.Abstractions.Serialization;
-using OpenMcdf;
-using System.Collections;
-using System.ComponentModel;
-using System.Diagnostics;
 using System.Text;
 using System.Text.Json;
-using System.Text.RegularExpressions;
 using WingetIntune.Commands;
 using WingetIntune.Graph;
 using WingetIntune.Interfaces;
 using WingetIntune.Internal.Msal;
-using WingetIntune.Internal.Msi;
+using WingetIntune.Msi;
 using WingetIntune.Intune;
 using WingetIntune.Models;
 
@@ -605,7 +600,7 @@ public partial class IntuneManager
         }
         if (options.Credential is not null)
         {
-            provider = new Microsoft.Graph.Authentication.AzureIdentityAuthenticationProvider(options.Credential, null, null, RequiredScopes);
+            provider = new Microsoft.Graph.Authentication.AzureIdentityAuthenticationProvider(options.Credential, null, null, isCaeEnabled: false, RequiredScopes);
         }
         else if (!string.IsNullOrEmpty(options.Token))
         {

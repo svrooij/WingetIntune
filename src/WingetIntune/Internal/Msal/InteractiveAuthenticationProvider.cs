@@ -92,7 +92,7 @@ public sealed class InteractiveAuthenticationProvider : IAuthenticationProvider
                 : await publicClientApplication.AcquireTokenSilent(scopes, account).ExecuteAsync(cancellationToken);
             return authenticationResult;
         }
-        catch (MsalUiRequiredException ex)
+        catch (MsalUiRequiredException)
         {
             return await AcquireTokenInteractiveAsync(scopes, tenantId, account?.Username ?? userId, cancellationToken);
         }

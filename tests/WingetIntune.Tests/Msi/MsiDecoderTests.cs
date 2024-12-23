@@ -1,11 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using WingetIntune.Internal.Msi;
+﻿using WingetIntune.Msi;
 
-namespace WingetIntune.Tests.Internal.Msi;
+namespace WingetIntune.Tests.Msi;
 public class MsiDecoderTests
 {
     Task<byte[]> msiBytes;
@@ -19,22 +14,23 @@ public class MsiDecoderTests
     }
 
     [Fact]
-    public async Task GetCode_ReturnsCorrectString() {
+    public async Task GetCode_ReturnsCorrectString()
+    {
         var msiStream = new MemoryStream(await msiBytes);
 
         var decoder = new MsiDecoder(msiStream);
-        var readCode = decoder.GetCode();
-
-        Assert.Equal("{97E2CA7B-B657-4FF7-A6DB-30ECC73E1E28}", readCode);
+        var codeFromMsi = decoder.GetCode();
+        Assert.Equal("{97E2CA7B-B657-4FF7-A6DB-30ECC73E1E28}", codeFromMsi);
     }
 
     [Fact]
-    public async Task GetVersion_ReturnsCorrectString() {
+    public async Task GetVersion_ReturnsCorrectString()
+    {
         var msiStream = new MemoryStream(await msiBytes);
 
         var decoder = new MsiDecoder(msiStream);
-        var readVersion = decoder.GetVersion();
+        var versionFromMsi = decoder.GetVersion();
 
-        Assert.Equal("6.2.0.0", readVersion);
+        Assert.Equal("6.2.0.0", versionFromMsi);
     }
 }
