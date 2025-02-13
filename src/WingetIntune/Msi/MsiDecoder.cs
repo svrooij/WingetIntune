@@ -417,6 +417,17 @@ public class MsiDecoder
     // Read an int, and return both the int and the offset
     private (int, int) ReadNumber(byte[] data, int index, int bytes)
     {
+        if (bytes == 1)
+        {
+            bytes = 2;
+        } else if (bytes == 3)
+        {
+            bytes = 4;
+        } else if (bytes > 4)
+        {
+            throw new InvalidDataException($"Attempted to parse an i{bytes}, but only i1,i2,i3 and i4 are supported.");
+        }
+
         int ret = 0, i;
 
         for (i = 0; i < bytes; i++)
