@@ -420,10 +420,12 @@ public class MsiDecoder
         if (bytes == 1)
         {
             bytes = 2;
-        } else if (bytes == 3)
+        }
+        else if (bytes == 3)
         {
             bytes = 4;
-        } else if (bytes > 4)
+        }
+        else if (bytes > 4)
         {
             throw new InvalidDataException($"Attempted to parse an i{bytes}, but only i1,i2,i3 and i4 are supported.");
         }
