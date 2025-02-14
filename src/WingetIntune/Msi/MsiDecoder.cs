@@ -232,7 +232,7 @@ public class MsiDecoder
 
                 if (previousEntryLength == 0 && previousEntryRef != 0)
                 {
-                    entryLength += previousEntryLength << 16;
+                    entryLength = (entryLength) + (entryRef << 16);
                 }
             }
 
