@@ -214,6 +214,7 @@ public class MsiDecoder
             if (entryLength == 0 && entryRef == 0)
             {
                 // Empty entry, skip.
+                strings.Add(stringId, "");
                 stringId++;
                 continue;
             }
