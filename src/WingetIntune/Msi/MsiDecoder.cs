@@ -10,7 +10,6 @@ public class MsiDecoder
 {
     private int stringSize = 2;
     private Dictionary<uint, string> intToString;
-    private Dictionary<string, uint> stringToInt;
     private string[] tables;
     private List<Dictionary<string, object>> columns;
     private Dictionary<string, List<Dictionary<string, object>>> allTables;
@@ -71,7 +70,6 @@ public class MsiDecoder
     private void load(CompoundFile cf)
     {
         intToString = LoadStringPool(cf);
-        stringToInt = intToString.ToDictionary(x => x.Value, x => x.Key);
 
         tables = LoadTablesTable(cf);
         columns = LoadColumns(cf);
