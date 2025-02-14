@@ -111,9 +111,9 @@
       },
       "OpenMcdf": {
         "type": "Direct",
-        "requested": "[2.3.0, )",
-        "resolved": "2.3.0",
-        "contentHash": "4KVqjDt8av6LiscYlIOKdWQe9ILoMIFs1YI/Le11wqR7SA32IWumqxagu7OzyRCyDZ2zL01WanHMycCmOnDuVw=="
+        "requested": "[2.3.1, 2.3.1]",
+        "resolved": "2.3.1",
+        "contentHash": "2Otbtp5FsIkdtWn4904oftoyOigllM/Auz2V7qIpxNaK+MC1C2ENjNXL3/ZdKWFLOs24/Bi/lYOE254C7s3Pgw=="
       },
       "Riok.Mapperly": {
         "type": "Direct",
@@ -514,9 +514,9 @@
       },
       "OpenMcdf": {
         "type": "Direct",
-        "requested": "[2.3.0, )",
-        "resolved": "2.3.0",
-        "contentHash": "4KVqjDt8av6LiscYlIOKdWQe9ILoMIFs1YI/Le11wqR7SA32IWumqxagu7OzyRCyDZ2zL01WanHMycCmOnDuVw=="
+        "requested": "[2.3.1, 2.3.1]",
+        "resolved": "2.3.1",
+        "contentHash": "2Otbtp5FsIkdtWn4904oftoyOigllM/Auz2V7qIpxNaK+MC1C2ENjNXL3/ZdKWFLOs24/Bi/lYOE254C7s3Pgw=="
       },
       "Riok.Mapperly": {
         "type": "Direct",
