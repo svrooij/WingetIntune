@@ -26,11 +26,11 @@ public class MsiDecoder
     {
         try
         {
-        using (var cf = new CompoundFile(filePath))
-        {
-            load(cf);
+            using (var cf = new CompoundFile(filePath))
+            {
+                load(cf);
+            }
         }
-    }
         catch (CFFileFormatException e)
         {
             throw new InvalidDataException($"MSI Parsing error: Attempted to parse the MSI file at {filePath}, but the file was corrupt.", e);
@@ -41,11 +41,11 @@ public class MsiDecoder
     {
         try
         {
-        using (var cf = new CompoundFile(msiStream))
-        {
-            load(cf);
+            using (var cf = new CompoundFile(msiStream))
+            {
+                load(cf);
+            }
         }
-    }
         catch (CFFileFormatException e)
         {
             throw new InvalidDataException($"MSI Parsing error: Attempted to parse an MSI Stream, but the data was corrupt.", e);
@@ -85,12 +85,12 @@ public class MsiDecoder
     {
         try
         {
-        intToString = LoadStringPool(cf);
+            intToString = LoadStringPool(cf);
 
-        tables = LoadTablesTable(cf);
-        columns = LoadColumns(cf);
-        allTables = LoadAllTables(cf);
-    }
+            tables = LoadTablesTable(cf);
+            columns = LoadColumns(cf);
+            allTables = LoadAllTables(cf);
+        }
         catch (CFItemNotFound e)
         {
             throw new InvalidDataException("MSI Parsing error: A stream was being looked for in the MSI file, but was not found. Either the MSI file is corrupt, or the library used to read the MSI file is broken.", e);
@@ -455,21 +455,13 @@ public class MsiDecoder
     // Read a string, and return both the string, as well as the offset
     private (string, int) ReadString(byte[] data, int index)
     {
-        uint stringRef = stringSize switch
-        switch (stringSize)
+        var stringRef = stringSize switch
         {
             2 => BitConverter.ToUInt16(data, index),
             3 => BitConverter.ToUInt16(data, index) + (uint)(data[index + 2] << 16),
             4 => BitConverter.ToUInt32(data, index),
             _ => throw new InvalidDataException($"MSI Parsing error: attempted to parse a string index of size {stringSize}, but only 2, 3 and 4 are supported.")
         };
-                break;
-            case 4:
-                stringRef = BitConverter.ToUInt32(data, index);
-                break;
-            default:
-                break;
-        }
 
         return (intToString[stringRef], stringSize);
     }
@@ -478,10 +470,6 @@ public class MsiDecoder
     private (int, int) ReadNumber(byte[] data, int index, int bytes)
     {
         bytes = bytes switch
-        {
-            bytes = 2;
-        }
-        else if (bytes == 3)
         {
             1 => 2,
             2 => 2,
