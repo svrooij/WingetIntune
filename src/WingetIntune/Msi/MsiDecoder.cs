@@ -24,17 +24,31 @@ public class MsiDecoder
 
     public MsiDecoder(string filePath)
     {
+        try
+        {
         using (var cf = new CompoundFile(filePath))
         {
             load(cf);
         }
     }
+        catch (CFFileFormatException e)
+        {
+            throw new InvalidDataException($"MSI Parsing error: Attempted to parse the MSI file at {filePath}, but the file was corrupt.", e);
+        }
+    }
 
     public MsiDecoder(Stream msiStream)
     {
+        try
+        {
         using (var cf = new CompoundFile(msiStream))
         {
             load(cf);
+        }
+    }
+        catch (CFFileFormatException e)
+        {
+            throw new InvalidDataException($"MSI Parsing error: Attempted to parse an MSI Stream, but the data was corrupt.", e);
         }
     }
 
@@ -69,11 +83,27 @@ public class MsiDecoder
 
     private void load(CompoundFile cf)
     {
+        try
+        {
         intToString = LoadStringPool(cf);
 
         tables = LoadTablesTable(cf);
         columns = LoadColumns(cf);
         allTables = LoadAllTables(cf);
+    }
+        catch (CFItemNotFound e)
+        {
+            throw new InvalidDataException("MSI Parsing error: A stream was being looked for in the MSI file, but was not found. Either the MSI file is corrupt, or the library used to read the MSI file is broken.", e);
+        }
+        catch (InvalidDataException)
+        {
+            throw;
+
+        }
+        catch (Exception e)
+        {
+            throw new InvalidDataException("MSI Parsing error: A generic error was encountered while parsing the MSI file.", e);
+        }
     }
 
     // references for the next lines:
@@ -196,10 +226,12 @@ public class MsiDecoder
         var poolWLength = BitConverter.ToUInt16(stringPoolBytes, 0);
         var poolRefCount = BitConverter.ToUInt16(stringPoolBytes, 2);
 
-        if (poolRefCount == 0)
-            stringSize = 2;
-        else if (poolRefCount == 0x8000)
-            stringSize = 3;
+        stringSize = poolRefCount switch
+        {
+            0 => 2,
+            0x8000 => 3,
+            _ => throw new InvalidDataException($"MSI Parsing error: attempted to read the expected size of strings from the string pool and got {poolRefCount}, but only 0 and 0x8000 (32768) are allowed.")
+        };
 
         var decodedStringData = EncodeStreamName("$_StringData");
         var streamStringData = cf.RootStorage.GetStream(decodedStringData);
@@ -236,6 +268,11 @@ public class MsiDecoder
                 {
                     entryLength = (entryLength) + (entryRef << 16);
                 }
+            }
+
+            if (offset + entryLength > stringDataBytes.Length)
+            {
+                throw new InvalidDataException($"MSI Parsing error: attempted to read too many bytes while parsing the string table. {stringDataBytes.Length} are available, but {offset + entryLength} were needed.");
             }
 
             strings.Add(stringId, Encoding.UTF8.GetString(stringDataBytes.Skip(offset).Take(entryLength).ToArray()));
@@ -343,7 +380,13 @@ public class MsiDecoder
     private List<Dictionary<string, object>> ParseTable(byte[] tableBytes, string[] columnTitles, int[] columnTypes)
     {
         var columnCount = columnTitles.Length;
-        var rowCount = tableBytes.Length / GetRowSize(columnTypes);
+        var rowSize = GetRowSize(columnTypes);
+        var rowCount = tableBytes.Length / rowSize;
+
+        if (tableBytes.Length % rowSize != 0)
+        {
+            throw new InvalidDataException($"MSI Parsing error: attempted to compute the amount of rows of a table, but the computed row size ({rowSize}) is not divisible by the table's byte count ({tableBytes.Length}).");
+        }
 
         var output = new List<Dictionary<string, object>>();
 
@@ -394,7 +437,15 @@ public class MsiDecoder
             }
             else
             {
-                size += columnType & 0xff;
+                var columnSize = (columnType & 0xFF);
+                size += columnSize switch
+                {
+                    1 => 2,
+                    2 => 2,
+                    3 => 4,
+                    4 => 4,
+                    _ => throw new InvalidDataException($"MSI Parsing error: attempted to add a column of size {columnSize}, but only 1, 2, 3 and 4 are supported.")
+                };
             }
         }
 
@@ -404,14 +455,14 @@ public class MsiDecoder
     // Read a string, and return both the string, as well as the offset
     private (string, int) ReadString(byte[] data, int index)
     {
-        uint stringRef = 0;
+        uint stringRef = stringSize switch
         switch (stringSize)
         {
-            case 2:
-                stringRef = BitConverter.ToUInt16(data, index);
-                break;
-            case 3:
-                stringRef = BitConverter.ToUInt16(data, index) + (uint)(data[index + 2] << 16);
+            2 => BitConverter.ToUInt16(data, index),
+            3 => BitConverter.ToUInt16(data, index) + (uint)(data[index + 2] << 16),
+            4 => BitConverter.ToUInt32(data, index),
+            _ => throw new InvalidDataException($"MSI Parsing error: attempted to parse a string index of size {stringSize}, but only 2, 3 and 4 are supported.")
+        };
                 break;
             case 4:
                 stringRef = BitConverter.ToUInt32(data, index);
@@ -426,17 +477,22 @@ public class MsiDecoder
     // Read an int, and return both the int and the offset
     private (int, int) ReadNumber(byte[] data, int index, int bytes)
     {
-        if (bytes == 1)
+        bytes = bytes switch
         {
             bytes = 2;
         }
         else if (bytes == 3)
         {
-            bytes = 4;
-        }
-        else if (bytes > 4)
+            1 => 2,
+            2 => 2,
+            3 => 4,
+            4 => 4,
+            _ => throw new InvalidDataException($"MSI Parsing error: Attempted to parse an integer of length {bytes}, but 1, 2, 3 and 4 are supported.")
+        };
+
+        if (index + bytes > data.Length)
         {
-            throw new InvalidDataException($"Attempted to parse an i{bytes}, but only i1,i2,i3 and i4 are supported.");
+            throw new InvalidDataException($"MSI Parsing error: Attempted to parse an integer of (adjusted) length {bytes}, but not enough bytes are left to parse.");
         }
 
         int ret = 0, i;
