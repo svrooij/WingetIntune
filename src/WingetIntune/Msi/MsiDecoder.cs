@@ -17,7 +17,7 @@ public class MsiDecoder
     const int MSITYPE_VALID = 0x0100;
     // const int MSITYPE_LOCALIZABLE = 0x200;
     const int MSITYPE_STRING = 0x0800;
-    // const int MSITYPE_NULLABLE = 0x1000;
+    const int MSITYPE_NULLABLE = 0x1000;
     const int MSITYPE_KEY = 0x2000;
     // const int MSITYPE_TEMPORARY = 0x4000;
     // const int MSITYPE_UNKNOWN = 0x8000;
@@ -184,6 +184,8 @@ public class MsiDecoder
 
         return new string(result.ToArray());
     }
+
+    private bool IsTypeBinary(int type) => (type & (~MSITYPE_NULLABLE)) == (MSITYPE_STRING | MSITYPE_VALID);
 
     private Dictionary<uint, string> LoadStringPool(CompoundFile cf)
     {
@@ -354,7 +356,11 @@ public class MsiDecoder
                 {
                     output.Add(new Dictionary<string, object>());
                 }
-                if ((columnTypes[h] & MSITYPE_STRING) != 0)
+                if (IsTypeBinary(columnTypes[h]))
+                {
+                    output[i][columnTitles[h]] = "Stub Value";
+                }
+                else if ((columnTypes[h] & MSITYPE_STRING) != 0)
                 {
                     var read = ReadString(tableBytes, offset);
                     offset += read.Item2;
@@ -378,7 +384,11 @@ public class MsiDecoder
 
         foreach (var columnType in columnTypes)
         {
-            if ((columnType & MSITYPE_STRING) != 0)
+            if (IsTypeBinary(columnType))
+            {
+                size += 2;
+            }
+            else if ((columnType & MSITYPE_STRING) != 0)
             {
                 size += stringSize;
             }
