@@ -70,7 +70,7 @@ public partial class IntuneManager
         var packageTempFolder = fileManager.CreateFolderForPackage(tempFolder, packageInfo.PackageIdentifier!, packageInfo.Version!);
         var packageFolder = fileManager.CreateFolderForPackage(outputFolder, packageInfo.PackageIdentifier!, packageInfo.Version!);
         var installerPath = await DownloadInstallerAsync(packageTempFolder, packageInfo, cancellationToken);
-        LoadMsiDetails(installerPath, ref packageInfo, packageOptions.OverrideArguments);
+        LoadMsiDetails(installerPath, ref packageInfo, packageOptions.OverrideArguments, packageOptions.MsiProductCode, packageOptions.MsiVersion);
         var intunePackage = await intunePackager.CreatePackage(packageTempFolder, packageFolder, packageInfo.InstallerFilename!, packageInfo, packageOptions.PartialPackage, cancellationToken: cancellationToken);
         await DownloadLogoAsync(packageFolder, packageInfo.PackageIdentifier!, cancellationToken);
         await WriteReadmeAsync(packageFolder, packageInfo, cancellationToken);
@@ -484,21 +484,30 @@ public partial class IntuneManager
         }
         catch (Exception ex)
         {
-            logger?.LogError(ex, "Error getting product code from {setupFile}", setupFile);
-            throw;
+            logger?.LogError(ex, "Error getting product code from {setupFile} ignoring error, is this actually an MSI? Provide 'MsiProductCode'", setupFile);
         }
+
+        return (null, null);
     }
 
-    private void LoadMsiDetails(string installerPath, ref PackageInfo packageInfo, string? overrideInstallerArguments = null)
+    private void LoadMsiDetails(string installerPath, ref PackageInfo packageInfo, string? overrideInstallerArguments = null, string? msiProductCode = null, string? msiVersion = null)
     {
+        if (!string.IsNullOrEmpty(msiProductCode))
+        {
+            packageInfo.MsiProductCode = msiProductCode;
+        }
+        if (!string.IsNullOrEmpty(msiVersion))
+        {
+            packageInfo.MsiVersion = msiVersion;
+        }
         if (string.IsNullOrEmpty(packageInfo.MsiProductCode) || string.IsNullOrEmpty(packageInfo.MsiVersion))
         {
-            var (productCode, msiVersion) = GetMsiInfo(installerPath, logger);
-            packageInfo.MsiProductCode = productCode ?? packageInfo.MsiProductCode;
-            packageInfo.MsiVersion = msiVersion ?? packageInfo.MsiVersion;
+            var (loadedMsiProductCode, loadedMsiVersion) = GetMsiInfo(installerPath, logger);
+            packageInfo.MsiProductCode ??= loadedMsiProductCode ?? packageInfo.MsiProductCode ?? throw new ArgumentException("MsiProductCode is required for MSI packages, one is not found in the installer or provided");
+            packageInfo.MsiVersion ??= loadedMsiVersion ?? packageInfo.MsiVersion;
         }
         packageInfo.InstallCommandLine = $"msiexec /i {packageInfo.InstallerFilename!} " + (overrideInstallerArguments ?? "/qn /norestart");
-        packageInfo.UninstallCommandLine = $"msiexec /x {packageInfo.MsiProductCode!} /qn /norestart";
+        packageInfo.UninstallCommandLine = $"msiexec /x {packageInfo.MsiProductCode} /qn /norestart";
     }
 
     private static readonly InstallerType[] SupportedInstallers = new[] { InstallerType.Inno, InstallerType.Msi, InstallerType.Burn, InstallerType.Wix, InstallerType.Nullsoft, InstallerType.Exe };

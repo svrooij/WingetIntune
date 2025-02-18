@@ -131,11 +131,33 @@ public class NewWtWingetPackage : DependencyCmdlet<Startup>
     public WingetIntune.Models.InstallerType PreferedInstaller { get; set; } = WingetIntune.Models.InstallerType.Msi;
 
     /// <summary>
-    /// Creating a partial package means that the files are not zipped into the intunewin file, but are left as is.
+    /// MSI Product code (optional), in case the installer is an MSI with the wrong product code in winget.
     /// </summary>
     [Parameter(
         Mandatory = false,
         Position = 10,
+        ValueFromPipeline = false,
+        ValueFromPipelineByPropertyName = false,
+        HelpMessage = "MSI Product code")]
+    public string? MsiProductCode { get; set; }
+
+    /// <summary>
+    /// MSI Product version (optional), in case the installer is an MSI with the wrong msi version in winget.
+    /// </summary>
+    [Parameter(
+        Mandatory = false,
+        Position = 11,
+        ValueFromPipeline = false,
+        ValueFromPipelineByPropertyName = false,
+        HelpMessage = "MSI Version")]
+    public string? MsiVersion { get; set; }
+
+    /// <summary>
+    /// Creating a partial package means that the files are not zipped into the intunewin file, but are left as is.
+    /// </summary>
+    [Parameter(
+        Mandatory = false,
+        Position = 15,
         ValueFromPipeline = false,
         ValueFromPipelineByPropertyName = false,
         DontShow = true, // this is still experimental
@@ -190,6 +212,8 @@ public class NewWtWingetPackage : DependencyCmdlet<Startup>
                     OverrideArguments = InstallerArguments,
                     InstallerType = PreferedInstaller,
                     PartialPackage = PartialPackage,
+                    MsiProductCode = MsiProductCode,
+                    MsiVersion = MsiVersion,
                 },
                 cancellationToken: cancellationToken);
 
