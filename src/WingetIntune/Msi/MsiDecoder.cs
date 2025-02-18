@@ -130,41 +130,6 @@ public class MsiDecoder
         return (char)result;
     }
 
-    private string DecodeStreamName(string name)
-    {
-        var result = new List<char>();
-        var source = name.ToCharArray();
-
-        foreach (char c in source)
-        {
-            var reduced = 0;
-            if (c == 0x4840)
-            {
-                result.Add('$');
-            }
-            else if ((c >= 0x3800) && (c < 0x4840))
-            {
-                if (c >= 0x4800)
-                {
-                    reduced = c - 0x4800;
-                    result.Add(BaseMSIDecode((char)(reduced)));
-                }
-                else
-                {
-                    reduced = c - 0x3800;
-                    result.Add(BaseMSIDecode((char)(reduced & 0x3F)));
-                    result.Add(BaseMSIDecode((char)((reduced >> 6) & 0x3F)));
-                }
-            }
-            else
-            {
-                result.Add(c);
-            }
-        }
-
-        return new string(result.ToArray());
-    }
-
     private char BaseMSIEncode(char c)
     {
         // only '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz._' are allowed and converted to 0-0x3F
