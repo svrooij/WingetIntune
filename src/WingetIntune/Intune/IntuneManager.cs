@@ -484,7 +484,7 @@ public partial class IntuneManager
         }
         catch (Exception ex)
         {
-            logger?.LogError(ex, "Error getting product code from {setupFile} ignoring error", setupFile);
+            logger?.LogError(ex, "Error getting product code from {setupFile} ignoring error, is this actually an MSI? Provide 'MsiProductCode'", setupFile);
         }
 
         return (null, null);
@@ -492,14 +492,22 @@ public partial class IntuneManager
 
     private void LoadMsiDetails(string installerPath, ref PackageInfo packageInfo, string? overrideInstallerArguments = null, string? msiProductCode = null, string? msiVersion = null)
     {
+        if (!string.IsNullOrEmpty(msiProductCode))
+        {
+            packageInfo.MsiProductCode = msiProductCode;
+        }
+        if (!string.IsNullOrEmpty(msiVersion))
+        {
+            packageInfo.MsiVersion = msiVersion;
+        }
         if (string.IsNullOrEmpty(packageInfo.MsiProductCode) || string.IsNullOrEmpty(packageInfo.MsiVersion))
         {
             var (loadedMsiProductCode, loadedMsiVersion) = GetMsiInfo(installerPath, logger);
-            packageInfo.MsiProductCode = msiProductCode ?? loadedMsiProductCode ?? packageInfo.MsiProductCode;
-            packageInfo.MsiVersion = msiVersion ?? loadedMsiVersion ?? packageInfo.MsiVersion;
+            packageInfo.MsiProductCode ??= loadedMsiProductCode ?? packageInfo.MsiProductCode ?? throw new ArgumentException("MsiProductCode is required for MSI packages, one is not found in the installer or provided");
+            packageInfo.MsiVersion ??= loadedMsiVersion ?? packageInfo.MsiVersion;
         }
         packageInfo.InstallCommandLine = $"msiexec /i {packageInfo.InstallerFilename!} " + (overrideInstallerArguments ?? "/qn /norestart");
-        packageInfo.UninstallCommandLine = $"msiexec /x {packageInfo.MsiProductCode!} /qn /norestart";
+        packageInfo.UninstallCommandLine = $"msiexec /x {packageInfo.MsiProductCode} /qn /norestart";
     }
 
     private static readonly InstallerType[] SupportedInstallers = new[] { InstallerType.Inno, InstallerType.Msi, InstallerType.Burn, InstallerType.Wix, InstallerType.Nullsoft, InstallerType.Exe };
