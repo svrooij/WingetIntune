@@ -50,7 +50,7 @@
     },
     "WingetIntune.Cli generate index": {
       "commandName": "Project",
-      "commandLineArgs": "generate-index -o C:\\Users\\stephan\\source\\repos\\winget-pkgs-index\\index.json",
+      "commandLineArgs": "generate-index --output-folder C:\\Users\\stephan\\source\\repos\\winget-pkgs-index\\ --csvv2 true --csv true --json true --update-github true",
       "environmentVariables": {
       }
     }

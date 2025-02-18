@@ -14,7 +14,7 @@ public partial class WingetRepository
     protected readonly HttpClient httpClient;
     protected readonly ILogger<WingetRepository> logger;
 
-    private List<Models.WingetEntry>? Entries;
+    private List<Models.WingetEntryExtended>? Entries;
 
     private readonly string cacheFile = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "WingetCommunityRepo", "index.json");
 
@@ -38,7 +38,7 @@ public partial class WingetRepository
         return entry?.PackageId;
     }
 
-    private async ValueTask<Models.WingetEntry?> GetEntry(string packageId, CancellationToken cancellationToken = default)
+    private async ValueTask<Models.WingetEntryExtended?> GetEntry(string packageId, CancellationToken cancellationToken = default)
     {
         await LoadEntries(cancellationToken, false, cacheFile);
 
@@ -46,7 +46,7 @@ public partial class WingetRepository
         return entry;
     }
 
-    public async ValueTask<IEnumerable<Models.WingetEntry>> SearchPackage(string query, CancellationToken cancellationToken = default)
+    public async ValueTask<IEnumerable<Models.WingetEntryExtended>> SearchPackage(string query, CancellationToken cancellationToken = default)
     {
         await LoadEntries(cancellationToken, false, cacheFile);
 
@@ -54,13 +54,13 @@ public partial class WingetRepository
         return results;
     }
 
-    public async ValueTask<IEnumerable<Models.WingetEntry>> RefreshPackages(bool saveToCache = false, CancellationToken cancellationToken = default)
+    public async ValueTask<IEnumerable<Models.WingetEntryExtended>> RefreshPackages(bool saveToCache = false, CancellationToken cancellationToken = default)
     {
         await LoadEntries(cancellationToken, true, saveToCache ? cacheFile : null);
         return Entries!;
     }
 
-    private async ValueTask<List<Models.WingetEntry>> LoadEntries(CancellationToken cancellationToken, bool refresh = false, string? cacheFile = null)
+    private async ValueTask<List<Models.WingetEntryExtended>> LoadEntries(CancellationToken cancellationToken, bool refresh = false, string? cacheFile = null)
     {
         if (Entries is not null && !refresh) { return Entries; }
 
@@ -72,7 +72,7 @@ public partial class WingetRepository
             {
                 LogCacheStillValid();
                 var cacheData = await File.ReadAllTextAsync(cacheFile, cancellationToken);
-                Entries = JsonSerializer.Deserialize<List<Models.WingetEntry>>(cacheData);
+                Entries = JsonSerializer.Deserialize<List<Models.WingetEntryExtended>>(cacheData);
                 return Entries!;
             }
         }
@@ -87,7 +87,7 @@ public partial class WingetRepository
             LogLoadingPackageIndex(IndexUri);
             var response = await httpClient.GetAsync(IndexUri!, cancellationToken);
             response.EnsureSuccessStatusCode();
-            Entries = await response.Content.ReadFromJsonAsync<List<Models.WingetEntry>>(cancellationToken: cancellationToken);
+            Entries = await response.Content.ReadFromJsonAsync<List<Models.WingetEntryExtended>>(cancellationToken: cancellationToken);
         }
 
         if (!string.IsNullOrEmpty(cacheFile))
@@ -102,7 +102,7 @@ public partial class WingetRepository
         return Entries!;
     }
 
-    protected virtual ValueTask<List<Models.WingetEntry>> LoadEntriesFromSqlLite(CancellationToken cancellationToken, string url = DefaultIndexUri)
+    protected virtual ValueTask<List<Models.WingetEntryExtended>> LoadEntriesFromSqlLite(CancellationToken cancellationToken, string url = DefaultIndexUri)
     {
         throw new NotImplementedException("Use the Winget.CommunityRepository.Ef package to use this method");
     }
