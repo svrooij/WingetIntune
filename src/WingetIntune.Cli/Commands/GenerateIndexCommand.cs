@@ -12,12 +12,12 @@ namespace WingetIntune.Commands;
 internal class GenerateIndexCommand : Command
 {
     private const string name = "generate-index";
-    private const string description = "(hidden) Generates the index.json file for the repository (cross platform)";
+    private const string description = "(hidden) Generates index files for the repository (cross platform)";
     public GenerateIndexCommand() : base(name, description)
     {
         IsHidden = true;
         AddOption(new Option<string>(["--output-path", "-o"], "The path to the v1 index.json") { IsRequired = false });
-        AddOption(new Option<string>(["--output-folder"], "Write all index files to this folder jsonv2 is always written here") { IsHidden = true });
+        AddOption(new Option<string>(["--output-folder"], "Write all index files to this folder (jsonv2 is always written here)") { IsHidden = true });
         AddOption(new Option<bool>(["--csv"], "Write the index as CSV") { IsHidden = true });
         AddOption(new Option<bool>(["--json"], "Write the index as JSON") { IsHidden = true });
         AddOption(new Option<bool>(["--csvv2"], "Write the index as CSV") { IsHidden = true });
@@ -56,7 +56,7 @@ internal class GenerateIndexCommand : Command
         {
             await WriteV1Json(logger, options.OutputPath, packages, combinedCancellation.Token);
         }
-        
+
 
         if (options.OutputFolder is not null)
         {
@@ -78,7 +78,7 @@ internal class GenerateIndexCommand : Command
             }
 
             var jsonV2Path = options.GetPath("index.v2.json");
-            DateTimeOffset? lastWrite = File.Exists(jsonV2Path) ? File.GetLastWriteTimeUtc(jsonV2Path) : null;
+            //DateTimeOffset? lastWrite = File.Exists(jsonV2Path) ? File.GetLastWriteTimeUtc(jsonV2Path) : null;
             packages = await WriteV2Json(logger, options, packages.ToList(), updatedAt, combinedCancellation.Token);
             if (options.CsvV2 == true)
             {
@@ -86,20 +86,17 @@ internal class GenerateIndexCommand : Command
                 csv.AppendLine("\"PackageId\",\"Version\",\"Name\",\"LastUpdate\"");
                 foreach (var package in packages)
                 {
-                    csv.AppendLine($"\"{package.PackageId}\",\"{package.Version}\",\"{package.Name?.Replace('"','\'')}\",\"{package.LastUpdate:u}\"");
+                    csv.AppendLine($"\"{package.PackageId}\",\"{package.Version}\",\"{package.Name?.Replace('"', '\'')}\",\"{package.LastUpdate:u}\"");
                 }
                 await File.WriteAllTextAsync(options.GetPath("index.v2.csv"), csv.ToString(), combinedCancellation.Token);
                 logger.LogInformation("Generated CSV file at {outputPath}", options.GetPath("index.v2.csv"));
             }
             if (options.DetectChanges)
             {
-                await HandleChanges(logger, options, packages, lastWrite, combinedCancellation.Token);
+                DateTimeOffset? previousUpdateStamp = packages.Where(p => p.LastUpdate < updatedAt).Max(p => p.LastUpdate);
+                await HandleChanges(logger, options, packages, previousUpdateStamp, combinedCancellation.Token);
             }
         }
-        
-
-        
-
 
         return 0;
     }
@@ -134,7 +131,6 @@ internal class GenerateIndexCommand : Command
         }
         else // File does not exist, set last update to the current time
         {
-
             packages.ForEach(p =>
             {
                 if (!p.LastUpdate.HasValue)
@@ -152,7 +148,7 @@ internal class GenerateIndexCommand : Command
 
     private static async Task HandleChanges(ILogger logger, GenerateIndexCommandOptions options, IEnumerable<Winget.CommunityRepository.Models.WingetEntryExtended> packages, DateTimeOffset? lastWrite, CancellationToken cancellationToken)
     {
-        logger.LogInformation("Detecting changes from existing index.json file at {outputFolder}", options.OutputFolder);
+        logger.LogInformation("Detecting changes since {LastUpdate} from existing index in {OutputFolder}", lastWrite, options.OutputFolder);
         var updates = packages
             .Where(p => !lastWrite.HasValue || !p.LastUpdate.HasValue || p.LastUpdate > lastWrite)
             .OrderBy(p => p.PackageId);
@@ -183,9 +179,11 @@ internal class GenerateIndexCommand : Command
                 // Write markdown table with update summary to environment variable GITHUB_STEP_SUMMARY
                 // get last file write date from the existing file
                 var markdown = new StringBuilder();
-                markdown.AppendLine("## Package updates ");
+                markdown.AppendLine("## Winget crawl results");
                 markdown.AppendLine("");
-                markdown.AppendLine($"Detected **{updates.Count()}** updates since `{lastWrite:yyyy-MM-dd HH:mm:ss} UTC`");
+                markdown.AppendLine($"Detected **{updates.Count()}** changes since `{lastWrite:yyyy-MM-dd HH:mm:ss} UTC`");
+                markdown.AppendLine("");
+                markdown.AppendLine("### Changed packages");
                 markdown.AppendLine("");
                 markdown.AppendLine("| PackageId | Version |");
                 markdown.AppendLine("| --- | --- |");
@@ -229,7 +227,7 @@ internal class GenerateIndexCommand : Command
         public string? UpdateCsv { get; set; }
         public string? UpdateJson { get; set; }
         public bool? UpdateGithub { get; set; }
-        public Uri? UpdateUri { get; set; }
+        public Uri? UpdateUri { get; set; } = Environment.GetEnvironmentVariable("WINGET_UPDATE_URI") is { } uri ? new Uri(uri) : null;
         public bool? Csv { get; set; }
         public bool? CsvV2 { get; set; }
         public bool? Json { get; set; }

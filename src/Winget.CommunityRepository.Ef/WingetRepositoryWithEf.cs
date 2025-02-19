@@ -1,5 +1,8 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
+using System.Diagnostics;
 using System.IO.Compression;
+using System.Linq;
 using Winget.CommunityRepository.Models;
 
 namespace Winget.CommunityRepository;
@@ -16,47 +19,56 @@ public sealed class WingetRepositoryWithEf : WingetRepository
         using var zip = new ZipArchive(stream, ZipArchiveMode.Read);
         ExtractToDirectory(zip, folder);
         logger.LogDebug("Index downloaded to {folder}", folder);
+        //var folder = "C:\\Users\\stephan\\AppData\\Local\\Temp\\WingetCommunityRepo\\2b73b4c2-e89d-49d0-a68b-133f36f3e65f";
         var file = Path.Combine(folder, "Public", "index.db");
-        var connectionString = $"Data Source='{file}';Pooling=false;";
+        var connectionString = $"Data Source='{file}';Pooling=true;";
         var results = new List<Models.WingetEntryExtended>();
+        //var stopWatch = new Stopwatch();
+        //stopWatch.Restart();
         using (var db = new DbModels.IndexContext(connectionString))
         {
-            var ids = db.Ids.OrderBy(x => x.Id1).ToList();
-            var totalCount = ids.Count;
+            var groupedManifests = await db.Manifests
+                .Include(m => m.NameValue)
+                .Include(m => m.VersionValue)
+                .Include(m => m.IdValue)
+                .GroupBy(m => m.Id)
+                .ToListAsync(cancellationToken);
+            var totalCount = groupedManifests.Count;
             int counter = 0;
-            foreach (var id in ids)
+            var tagMaps = await db.TagsMaps.Include(tm => tm.TagValue).ToListAsync(cancellationToken);
+            foreach (var manifests in groupedManifests)
             {
-                if(cancellationToken.IsCancellationRequested) { break; }
+                if (cancellationToken.IsCancellationRequested) { break; }
                 counter++;
                 if (counter % 50 == 0)
                 {
                     LogProcessing(counter, totalCount);
                 }
 
+                var id = manifests.First().IdValue.Id1;
+
                 try
                 {
-                    var entry = new Models.WingetEntryExtended { PackageId = id.Id1 };
-                    var versions = db.Manifests.Where(m => m.Id == id.Rowid).Select(x => x.VersionValue.Version1).ToList();
-                    var nameId = db.Manifests.First(m => m.Id == id.Rowid).Name;
-                    entry.Name = db.Names.FirstOrDefault(n => n.Rowid == nameId)?.Name1;
-                    entry.Version = versions?.GetHighestVersion();
+                    var entry = new Models.WingetEntryExtended { PackageId = id };
 
-                    var allManifestIds = db.Manifests.Where(db => db.Id == id.Rowid).Select(m => m.Rowid).ToList();
-                    var tagIds = db.TagsMaps.Where(tm => allManifestIds.Contains(tm.Manifest)).Select(tm => tm.Tag).Distinct().ToList();
+                    entry.Version = manifests.Select(x => x.VersionValue.Version1)?.GetHighestVersion();
+                    var manifest = manifests.First(m => m.VersionValue.Version1 == entry.Version);
 
-                    entry.Tags = db.Tags.Where(t => tagIds.Contains(t.Rowid)).Select(t => t.Tag1).ToArray();
+                    entry.Name = manifest.NameValue.Name1;
+                    entry.Tags = tagMaps.Where(tm => tm.Manifest == manifest.Rowid).Select(tm => tm.TagValue.Tag1).ToArray();
 
                     LogPackage(entry.PackageId, entry.Version);
-                    //entry.Name = db.Manifests.First(m => m.Id == id.Rowid).NameValue.Name1;
                     results.Add(entry);
                 }
                 catch (Exception ex)
                 {
-                    logger.LogError(ex, "Error parsing {id}", id.Id1);
+                    logger.LogError(ex, "Error parsing {id}", id);
                 }
 
             }
         }
+        //stopWatch.Stop();
+        //logger.LogInformation("Loaded {count} entries in {time}s", results.Count, stopWatch.Elapsed.TotalSeconds);
 
 
         await Task.Delay(2000, CancellationToken.None);
