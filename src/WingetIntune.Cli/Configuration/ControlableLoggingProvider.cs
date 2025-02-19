@@ -9,7 +9,7 @@ internal class ControlableLoggingProvider : ConfigurationProvider
 
     internal ControlableLoggingProvider()
     {
-        Data.Add("Logging:LogLevel:Default", "Warning");
+        Data.Add("Logging:LogLevel:Default", "Information");
         Data.Add("Logging:LogLevel:Microsoft", "Warning");
         Data.Add("Logging:LogLevel:Microsoft.Extensions.Http.DefaultHttpClientFactory", "Warning");
         Data.Add("Logging:LogLevel:WingetIntune.Os.ProcessManager", "Warning");

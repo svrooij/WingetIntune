@@ -1,10 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.ComponentModel.DataAnnotations;
 
 namespace Winget.CommunityRepository.DbModels;
 
 public partial class Manifest
 {
+    [Key]
     public long Rowid { get; set; }
 
     public long Id { get; set; }
