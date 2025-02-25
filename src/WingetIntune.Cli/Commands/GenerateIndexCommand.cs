@@ -11,6 +11,7 @@ using WingetIntune.Cli.Configuration;
 namespace WingetIntune.Commands;
 internal class GenerateIndexCommand : Command
 {
+    private const string GithubStepSummary = "GITHUB_STEP_SUMMARY";
     private const string name = "generate-index";
     private const string description = "(hidden) Generates index files for the repository (cross platform)";
     public GenerateIndexCommand() : base(name, description)
@@ -44,7 +45,6 @@ internal class GenerateIndexCommand : Command
         var logging = host.Services.GetRequiredService<ControlableLoggingProvider>();
         var logger = host.Services.GetRequiredService<ILogger<GenerateIndexCommand>>();
 
-        logging.SetLogLevel(Microsoft.Extensions.Logging.LogLevel.Information);
         logger.LogInformation("Loading packages from {sourceUri}", options.SourceUri);
         var repo = host.Services.GetRequiredService<Winget.CommunityRepository.WingetRepository>();
         repo.UseRespository = true;
@@ -119,6 +119,7 @@ internal class GenerateIndexCommand : Command
             // Load existing v2 file
             // Update the existing packages with the new version and the last update time
             // Add new packages
+            logger.LogInformation("Index.v2.json file exists, using it to track updates");
             var existingJson = await File.ReadAllTextAsync(Path.GetFullPath(v2Json), cancellationToken);
             var existingPackages = JsonSerializer.Deserialize<IEnumerable<Winget.CommunityRepository.Models.WingetEntryExtended>>(existingJson);
             if (existingPackages is not null)
@@ -131,6 +132,7 @@ internal class GenerateIndexCommand : Command
         }
         else // File does not exist, set last update to the current time
         {
+            logger.LogInformation("Index.v2.json does not exists, setting update time to now");
             packages.ForEach(p =>
             {
                 if (!p.LastUpdate.HasValue)
@@ -174,26 +176,42 @@ internal class GenerateIndexCommand : Command
                 logger.LogInformation("Generated updates.csv file at {outputPath}", options.UpdateCsv);
             }
 
-            if (options.UpdateGithub == true)
-            {
-                // Write markdown table with update summary to environment variable GITHUB_STEP_SUMMARY
-                // get last file write date from the existing file
-                var markdown = new StringBuilder();
-                markdown.AppendLine("## Winget crawl results");
-                markdown.AppendLine("");
-                markdown.AppendLine($"Detected **{updates.Count()}** changes since `{lastWrite:yyyy-MM-dd HH:mm:ss} UTC`");
-                markdown.AppendLine("");
-                markdown.AppendLine("### Changed packages");
-                markdown.AppendLine("");
-                markdown.AppendLine("| PackageId | Version |");
-                markdown.AppendLine("| --- | --- |");
-                foreach (var update in updates)
+                if (options.UpdateGithub == true || Environment.GetEnvironmentVariable(GithubStepSummary) is not null)
                 {
-                    markdown.AppendLine($"| {update.PackageId} | {update.Version} |");
+                    // Write markdown table with update summary to environment variable GITHUB_STEP_SUMMARY
+                    var markdown = new StringBuilder();
+                    markdown.AppendLine("## Winget crawl results");
+                    markdown.AppendLine("");
+                    markdown.AppendLine($"Detected **{updates.Count()}** updates since `{lastWrite:yyyy-MM-dd HH:mm:ss} UTC`");
+                    markdown.AppendLine("");
+                    markdown.AppendLine("### Changed packages");
+                    markdown.AppendLine("");
+                    markdown.AppendLine("| PackageId | Version |");
+                    markdown.AppendLine("| --- | --- |");
+                    foreach (var update in updates)
+                    {
+                        markdown.AppendLine($"| {update.PackageId} | {update.Version} |");
+                    }
+                    markdown.AppendLine("");
+                    var summary = markdown.ToString();
+                    
+                    var summaryVariable = Environment.GetEnvironmentVariable(GithubStepSummary);
+                    if (summaryVariable is not null)
+                    {
+                        try
+                        {
+                            logger.LogInformation("Writing GitHub step summary to {summaryVariable}", summaryVariable);
+                            await File.AppendAllTextAsync(summaryVariable, summary, cancellationToken);
+                        }
+                        catch (Exception ex)
+                        {
+                            logger.LogError(ex, "Failed to set GitHub step summary");
+                        }
+                    }
+
+                    await File.WriteAllTextAsync(options.GetPath("github-step-summary.md"), summary, cancellationToken);
+                    logger.LogInformation("Generated GitHub Action step summary");
                 }
-                Environment.SetEnvironmentVariable("GITHUB_STEP_SUMMARY", markdown.ToString(), EnvironmentVariableTarget.Process);
-                logger.LogInformation("Generated GitHub Action step summary");
-            }
 
             if (options.UpdateUri is not null && options.UpdateUri.IsAbsoluteUri)
             {
@@ -203,7 +221,7 @@ internal class GenerateIndexCommand : Command
         }
     }
 
-    private static async Task PostUpdatesToUri(ILogger logger, Uri uri, IEnumerable<Winget.CommunityRepository.Models.WingetEntry> updates, CancellationToken cancellationToken)
+    private static async Task PostUpdatesToUri(ILogger logger, Uri uri, IEnumerable<Winget.CommunityRepository.Models.WingetEntryExtended> updates, CancellationToken cancellationToken)
     {
         try
         {
