@@ -149,7 +149,7 @@ public partial class DefaultFileManager : IFileManager
 
                     if (string.IsNullOrEmpty(entry.Name))
                     {
-                        Directory.CreateDirectory(Path.GetDirectoryName(filePath));
+                        Directory.CreateDirectory(Path.GetDirectoryName(filePath)!);
                         continue;
                     }
 

@@ -7,7 +7,7 @@ namespace Winget.CommunityRepository;
 
 public partial class WingetRepository
 {
-    public const string OpenSourceIndexUri = "https://raw.githubusercontent.com/svrooij/winget-pkgs-index/main/index.json";
+    public const string OpenSourceIndexUri = "https://raw.githubusercontent.com/svrooij/winget-pkgs-index/main/index.v2.json";
     public const string DefaultIndexUri = "https://cdn.winget.microsoft.com/cache/source.msix";
     public bool UseRespository { get; set; }
     public Uri IndexUri { get; set; } = new(OpenSourceIndexUri);
@@ -16,7 +16,7 @@ public partial class WingetRepository
 
     private List<Models.WingetEntryExtended>? Entries;
 
-    private readonly string cacheFile = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "WingetCommunityRepo", "index.json");
+    private readonly string cacheFile = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "WingetCommunityRepo", "index.v2.json");
 
     public WingetRepository(HttpClient? httpClient = null, ILogger<WingetRepository>? logger = null)
     {
@@ -46,11 +46,21 @@ public partial class WingetRepository
         return entry;
     }
 
-    public async ValueTask<IEnumerable<Models.WingetEntryExtended>> SearchPackage(string query, CancellationToken cancellationToken = default)
+    public async ValueTask<IEnumerable<Models.WingetEntryExtended>> SearchPackage(string? query, CancellationToken cancellationToken = default)
     {
         await LoadEntries(cancellationToken, false, cacheFile);
 
-        var results = Entries!.Where(e => e.Name?.Contains(query, StringComparison.OrdinalIgnoreCase) == true || e.PackageId!.Contains(query, StringComparison.OrdinalIgnoreCase));
+        if (string.IsNullOrWhiteSpace(query))
+        {
+            return Entries!;
+        }
+
+        var results = Entries!
+            .Where(e => e.Name?.Contains(query, StringComparison.OrdinalIgnoreCase) == true
+                || e.PackageId!.Contains(query, StringComparison.OrdinalIgnoreCase)
+                || e.Tags?.Any(t => t.Contains(query, StringComparison.OrdinalIgnoreCase)) == true
+            )
+            .ToArray();
         return results;
     }
 
