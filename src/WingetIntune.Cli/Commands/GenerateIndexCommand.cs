@@ -176,42 +176,42 @@ internal class GenerateIndexCommand : Command
                 logger.LogInformation("Generated updates.csv file at {outputPath}", options.UpdateCsv);
             }
 
-                if (options.UpdateGithub == true || Environment.GetEnvironmentVariable(GithubStepSummary) is not null)
+            if (options.UpdateGithub == true || Environment.GetEnvironmentVariable(GithubStepSummary) is not null)
+            {
+                // Write markdown table with update summary to environment variable GITHUB_STEP_SUMMARY
+                var markdown = new StringBuilder();
+                markdown.AppendLine("## Winget crawl results");
+                markdown.AppendLine("");
+                markdown.AppendLine($"Detected **{updates.Count()}** updates since `{lastWrite:yyyy-MM-dd HH:mm:ss} UTC`");
+                markdown.AppendLine("");
+                markdown.AppendLine("### Changed packages");
+                markdown.AppendLine("");
+                markdown.AppendLine("| PackageId | Version |");
+                markdown.AppendLine("| --- | --- |");
+                foreach (var update in updates)
                 {
-                    // Write markdown table with update summary to environment variable GITHUB_STEP_SUMMARY
-                    var markdown = new StringBuilder();
-                    markdown.AppendLine("## Winget crawl results");
-                    markdown.AppendLine("");
-                    markdown.AppendLine($"Detected **{updates.Count()}** updates since `{lastWrite:yyyy-MM-dd HH:mm:ss} UTC`");
-                    markdown.AppendLine("");
-                    markdown.AppendLine("### Changed packages");
-                    markdown.AppendLine("");
-                    markdown.AppendLine("| PackageId | Version |");
-                    markdown.AppendLine("| --- | --- |");
-                    foreach (var update in updates)
-                    {
-                        markdown.AppendLine($"| {update.PackageId} | {update.Version} |");
-                    }
-                    markdown.AppendLine("");
-                    var summary = markdown.ToString();
-                    
-                    var summaryVariable = Environment.GetEnvironmentVariable(GithubStepSummary);
-                    if (summaryVariable is not null)
-                    {
-                        try
-                        {
-                            logger.LogInformation("Writing GitHub step summary to {summaryVariable}", summaryVariable);
-                            await File.AppendAllTextAsync(summaryVariable, summary, cancellationToken);
-                        }
-                        catch (Exception ex)
-                        {
-                            logger.LogError(ex, "Failed to set GitHub step summary");
-                        }
-                    }
-
-                    await File.WriteAllTextAsync(options.GetPath("github-step-summary.md"), summary, cancellationToken);
-                    logger.LogInformation("Generated GitHub Action step summary");
+                    markdown.AppendLine($"| {update.PackageId} | {update.Version} |");
                 }
+                markdown.AppendLine("");
+                var summary = markdown.ToString();
+
+                var summaryVariable = Environment.GetEnvironmentVariable(GithubStepSummary);
+                if (summaryVariable is not null)
+                {
+                    try
+                    {
+                        logger.LogInformation("Writing GitHub step summary to {summaryVariable}", summaryVariable);
+                        await File.AppendAllTextAsync(summaryVariable, summary, cancellationToken);
+                    }
+                    catch (Exception ex)
+                    {
+                        logger.LogError(ex, "Failed to set GitHub step summary");
+                    }
+                }
+
+                await File.WriteAllTextAsync(options.GetPath("github-step-summary.md"), summary, cancellationToken);
+                logger.LogInformation("Generated GitHub Action step summary");
+            }
 
             if (options.UpdateUri is not null && options.UpdateUri.IsAbsoluteUri)
             {
