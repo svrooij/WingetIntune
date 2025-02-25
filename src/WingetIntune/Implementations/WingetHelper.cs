@@ -92,7 +92,7 @@ public static class WingetHelper
         }
         args.Add(ArgExact);
         args.Add(ArgSourceAgreements);
-        args.Add(ArgDisableInteractivity);
+        //args.Add(ArgDisableInteractivity);
         return string.Join(" ", args);
     }
 
@@ -119,7 +119,7 @@ public static class WingetHelper
 
         args.Add(ArgSilent);
         args.Add(ArgSourceAgreements);
-        args.Add(ArgDisableInteractivity);
+        //args.Add(ArgDisableInteractivity);
 
         if (installerContext == InstallerContext.User)
         {
@@ -164,7 +164,7 @@ public static class WingetHelper
         args.Add(ArgSilent);
         args.Add(ArgPackageAgreements);
         args.Add(ArgSourceAgreements);
-        args.Add(ArgDisableInteractivity);
+        //args.Add(ArgDisableInteractivity);
 
         if (installerContext == InstallerContext.User)
         {
