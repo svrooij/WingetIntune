@@ -1991,9 +1991,9 @@ You could run this on a weekly bases.
       <command:syntaxItem>
         <maml:name>Search-WtWinGetPackage</maml:name>
         <command:parameter required="true" variableLength="true" globbing="false" pipelineInput="True (ByPropertyName, ByValue)" position="0" aliases="none">
-          <maml:name>PackageId</maml:name>
+          <maml:name>SearchQuery</maml:name>
           <maml:description>
-            <maml:para>Part of the package ID, 2 characters minimum</maml:para>
+            <maml:para>Search query, used in wildcard search</maml:para>
           </maml:description>
           <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
           <dev:type>
@@ -2001,13 +2001,49 @@ You could run this on a weekly bases.
           </dev:type>
           <dev:defaultValue>None</dev:defaultValue>
         </command:parameter>
+        <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="1" aliases="none">
+          <maml:name>UpdatedAfter</maml:name>
+          <maml:description>
+            <maml:para>Only return packages updated after this date</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">DateTime</command:parameterValue>
+          <dev:type>
+            <maml:name>DateTime</maml:name>
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+      </command:syntaxItem>
+      <command:syntaxItem>
+        <maml:name>Search-WtWinGetPackage</maml:name>
+        <command:parameter required="true" variableLength="true" globbing="false" pipelineInput="False" position="0" aliases="none">
+          <maml:name>All</maml:name>
+          <maml:description>
+            <maml:para>Specify you want all packages returned</maml:para>
+          </maml:description>
+          <command:parameterValue required="true" variableLength="false">SwitchParameter</command:parameterValue>
+          <dev:type>
+            <maml:name>SwitchParameter</maml:name>
+          </dev:type>
+          <dev:defaultValue>False</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="1" aliases="none">
+          <maml:name>UpdatedAfter</maml:name>
+          <maml:description>
+            <maml:para>Only return packages updated after this date</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">DateTime</command:parameterValue>
+          <dev:type>
+            <maml:name>DateTime</maml:name>
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
       </command:syntaxItem>
     </command:syntax>
     <command:parameters>
       <command:parameter required="true" variableLength="true" globbing="false" pipelineInput="True (ByPropertyName, ByValue)" position="0" aliases="none">
-        <maml:name>PackageId</maml:name>
+        <maml:name>SearchQuery</maml:name>
         <maml:description>
-          <maml:para>Part of the package ID, 2 characters minimum</maml:para>
+          <maml:para>Search query, used in wildcard search</maml:para>
         </maml:description>
         <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
         <dev:type>
@@ -2015,14 +2051,36 @@ You could run this on a weekly bases.
         </dev:type>
         <dev:defaultValue>None</dev:defaultValue>
       </command:parameter>
+      <command:parameter required="true" variableLength="true" globbing="false" pipelineInput="False" position="0" aliases="none">
+        <maml:name>All</maml:name>
+        <maml:description>
+          <maml:para>Specify you want all packages returned</maml:para>
+        </maml:description>
+        <command:parameterValue required="true" variableLength="false">SwitchParameter</command:parameterValue>
+        <dev:type>
+          <maml:name>SwitchParameter</maml:name>
+        </dev:type>
+        <dev:defaultValue>False</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="1" aliases="none">
+        <maml:name>UpdatedAfter</maml:name>
+        <maml:description>
+          <maml:para>Only return packages updated after this date</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">DateTime</command:parameterValue>
+        <dev:type>
+          <maml:name>DateTime</maml:name>
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
     </command:parameters>
     <command:returnValues>
       <command:returnValue>
         <dev:type>
-          <maml:name>Winget.CommunityRepository.Models.WingetEntry</maml:name>
+          <maml:name>Winget.CommunityRepository.Models.WingetEntryExtended</maml:name>
         </dev:type>
         <maml:description>
-          <maml:para>Winget.CommunityRepository.Models.WingetEntry</maml:para>
+          <maml:para>Winget.CommunityRepository.Models.WingetEntryExtended</maml:para>
         </maml:description>
       </command:returnValue>
     </command:returnValues>
@@ -2031,7 +2089,15 @@ You could run this on a weekly bases.
         <maml:title>-----------------------------  Search for `fire`  ------------------------------</maml:title>
         <dev:code>PS C:\&gt; Search-WtWinGetPackage fire</dev:code>
         <dev:remarks>
-          <maml:para>Searching in the online index, by a part of the package id.
+          <maml:para>Searching in the online index.
+</maml:para>
+        </dev:remarks>
+      </command:example>
+      <command:example>
+        <maml:title>-------------------------  All packages updated after  -------------------------</maml:title>
+        <dev:code>PS C:\&gt; Search-WtWinGetPackage -All -UpdatedAfter "2025-02-25" | Format-Table -Property PackageId,Version,LastUpdate</dev:code>
+        <dev:remarks>
+          <maml:para>All packages updated after 2025-02-25
 </maml:para>
         </dev:remarks>
       </command:example>

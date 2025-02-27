@@ -68,15 +68,15 @@ namespace WingetIntune.Tests
             var version = "18.7.0";
             var processManager = Substitute.For<IProcessManager>();
             processManager.RunProcessAsync("winget",
-                $"show --id {packageId} --version {version} --exact --accept-source-agreements --disable-interactivity",
+                $"show --id {packageId} --version {version} --exact --accept-source-agreements",
                 Arg.Any<CancellationToken>(), false)
                 .Returns(Task.FromResult(new ProcessResult(0, WingetManagerTestConstants.ohMyPoshOutput, string.Empty)));
 
             var wingetManager = new WingetManager(logger, processManager, null);
-            var info = await wingetManager.GetPackageInfoAsync(packageId, version, null);
+            var info = await wingetManager.GetPackageInfoAsync(packageId, version, null, CancellationToken.None);
 
             await processManager.Received().RunProcessAsync("winget",
-                $"show --id {packageId} --version {version} --exact --accept-source-agreements --disable-interactivity",
+                $"show --id {packageId} --version {version} --exact --accept-source-agreements",
                 Arg.Any<CancellationToken>(), false);
 
 
@@ -136,7 +136,7 @@ namespace WingetIntune.Tests
             var packageId = "9MZ1SNWT0N5D";
             var processManager = Substitute.For<IProcessManager>();
             processManager.RunProcessAsync("winget",
-                $"show --id {packageId} --exact --accept-source-agreements --disable-interactivity",
+                $"show --id {packageId} --exact --accept-source-agreements",
                 Arg.Any<CancellationToken>(), false)
                 .Returns(Task.FromResult(new ProcessResult(0, WingetManagerTestConstants.powershellOutput, string.Empty)));
 
@@ -144,7 +144,7 @@ namespace WingetIntune.Tests
             var info = await wingetManager.GetPackageInfoAsync(packageId, null, null);
 
             await processManager.Received().RunProcessAsync("winget",
-                $"show --id {packageId} --exact --accept-source-agreements --disable-interactivity",
+                $"show --id {packageId} --exact --accept-source-agreements",
                 Arg.Any<CancellationToken>(), false);
 
 
@@ -165,7 +165,7 @@ namespace WingetIntune.Tests
             var packageId = "JanDeDobbeleer.OhMyPosh";
             var processManager = Substitute.For<IProcessManager>();
             processManager.RunProcessAsync("winget",
-                $"show --id {packageId} --exact --accept-source-agreements --disable-interactivity",
+                $"show --id {packageId} --exact --accept-source-agreements",
                 Arg.Any<CancellationToken>(), false)
                 .Returns(Task.FromResult(new ProcessResult(10, string.Empty, "Something went terribly wrong")));
 
@@ -173,7 +173,7 @@ namespace WingetIntune.Tests
             await Assert.ThrowsAsync<Exception>(() => wingetManager.GetPackageInfoAsync(packageId, null, null));
 
             await processManager.Received().RunProcessAsync("winget",
-                $"show --id {packageId} --exact --accept-source-agreements --disable-interactivity",
+                $"show --id {packageId} --exact --accept-source-agreements",
                 Arg.Any<CancellationToken>(), false);
 
         }
@@ -202,7 +202,7 @@ namespace WingetIntune.Tests
             {
                 arguments += " --force";
             }
-            arguments += " --silent --accept-package-agreements --accept-source-agreements --disable-interactivity";
+            arguments += " --silent --accept-package-agreements --accept-source-agreements";
             var processManager = Substitute.For<IProcessManager>();
             processManager.RunProcessAsync("winget",
                 arguments,
@@ -244,7 +244,7 @@ namespace WingetIntune.Tests
             {
                 arguments += " --force";
             }
-            arguments += " --silent --accept-package-agreements --accept-source-agreements --disable-interactivity";
+            arguments += " --silent --accept-package-agreements --accept-source-agreements";
             var processManager = Substitute.For<IProcessManager>();
             processManager.RunProcessAsync("winget",
                 arguments,

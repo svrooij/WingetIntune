@@ -257,7 +257,7 @@ public class DeployWtWin32App : BaseIntuneCmdlet
 
         if (!string.IsNullOrEmpty(OverrideAppName))
         {
-            App.DisplayName = OverrideAppName;
+            App!.DisplayName = OverrideAppName;
         }
 
         logger?.LogInformation("Uploading Win32App {DisplayName} to Intune with file {IntuneWinFile}", App!.DisplayName, IntuneWinFile);

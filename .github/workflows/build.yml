@@ -159,8 +159,8 @@ jobs:
   publish-nuget:
     name: 📦 Publish WinTuner to nuget
     runs-on: ubuntu-latest
-    #if: startsWith(github.ref, 'refs/tags/')
-    if: ${{ false }}
+    if: startsWith(github.ref, 'refs/tags/')
+    #if: ${{ false }}
     needs: [test, testps]
     steps:
     - name: 👨‍💻 Check-out code

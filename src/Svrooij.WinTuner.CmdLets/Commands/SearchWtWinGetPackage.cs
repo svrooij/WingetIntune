@@ -1,6 +1,7 @@
 ﻿using Svrooij.PowerShell.DependencyInjection;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Management.Automation;
 using System.Threading;
 using System.Threading.Tasks;
@@ -12,25 +13,65 @@ namespace Svrooij.WinTuner.CmdLets.Commands;
 /// <para type="description">Search for WinGet packages, but faster. This uses the an [online index](https://wintuner.app/docs/related/winget-package-index).</para>
 /// </summary>
 /// <psOrder>9</psOrder>
+/// <parameterSet>
+/// <para type="name">SearchQuery</para>
+/// <para type="description">Filter packages based on search query. Used as `contains` on name, id and tags.</para>
+/// </parameterSet>
+/// <parameterSet>
+/// <para type="name">All</para>
+/// <para type="description">Return all packages, **be carefull** 7000+ packages is a large collection!</para>
+/// </parameterSet>
 /// <example>
 /// <para type="name">Search for `fire`</para>
-/// <para type="description">Searching in the online index, by a part of the package id.</para>
+/// <para type="description">Searching in the online index.</para>
 /// <code>Search-WtWinGetPackage fire</code>
 /// </example>
+/// <example>
+/// <para type="name">All packages updated after</para>
+/// <para type="description">All packages updated after a specific datetime `2025-02-25` in this case</para>
+/// <code>Search-WtWinGetPackage -All -UpdatedAfter "2025-02-25" | Format-Table -Property PackageId,Version,LastUpdate</code>
+/// </example>
 [Cmdlet(VerbsCommon.Search, "WtWinGetPackage", HelpUri = "https://wintuner.app/docs/wintuner-powershell/Search-WtWingetPackage")]
-[OutputType(typeof(Winget.CommunityRepository.Models.WingetEntry))]
+[OutputType(typeof(Winget.CommunityRepository.Models.WingetEntryExtended))]
 public class SearchWtWinGetPackage : DependencyCmdlet<Startup>
 {
     /// <summary>
-    /// 
+    /// Filter packages by query string, used as `contains` on package id, name and tags.
     /// </summary>
     [Parameter(
         Mandatory = true,
         Position = 0,
+        ParameterSetName = nameof(SearchQuery),
         ValueFromPipeline = true,
         ValueFromPipelineByPropertyName = true,
-        HelpMessage = "Part of the package ID, 2 characters minimum")]
-    public string? PackageId { get; set; }
+        HelpMessage = "Search query, used in wildcard search")]
+    [Alias("PackageId", "Name")]
+    public string? SearchQuery { get; set; }
+
+    /// <summary>
+    /// Show all packages, be care full 7000+ pacakges is a lot.
+    /// </summary>
+    [Parameter(
+        Mandatory = true,
+        Position = 0,
+        ParameterSetName = nameof(All),
+        HelpMessage = "Specify you want all packages returned")]
+    public SwitchParameter All { get; set; } = false;
+
+    /// <summary>
+    /// Only return packages updated after this date
+    /// </summary>
+    [Parameter(
+    Mandatory = false,
+    Position = 1,
+    ParameterSetName = nameof(All),
+    HelpMessage = "Only return packages updated after this date")]
+    [Parameter(
+    Mandatory = false,
+    Position = 1,
+    ParameterSetName = nameof(SearchQuery),
+    HelpMessage = "Only return packages updated after this date")]
+    public DateTime? UpdatedAfter { get; set; }
 
     [ServiceDependency]
     private Winget.CommunityRepository.WingetRepository wingetRepository;
@@ -38,11 +79,16 @@ public class SearchWtWinGetPackage : DependencyCmdlet<Startup>
     /// <inheritdoc />
     public override async Task ProcessRecordAsync(CancellationToken cancellationToken)
     {
-        if (string.IsNullOrWhiteSpace(PackageId) || PackageId.Length <= 1)
+        if (ParameterSetName == nameof(SearchQuery) && (string.IsNullOrWhiteSpace(SearchQuery) || SearchQuery.Length <= 1))
         {
-            throw new ArgumentException("PackageId is required");
+            throw new ArgumentException("Search query is required, and has to be at least 2 chars");
         }
-        var packages = await wingetRepository.SearchPackage(PackageId ?? throw new ArgumentNullException(nameof(PackageId)), cancellationToken);
+        var packages = await wingetRepository.SearchPackage(SearchQuery, cancellationToken);
+
+        if (packages.Any() && UpdatedAfter.HasValue)
+        {
+            packages = packages.Where(p => p.LastUpdate > UpdatedAfter).ToArray();
+        }
 
         WriteObject(packages, true);
     }

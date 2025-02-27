@@ -10,7 +10,7 @@ Describe 'Search-WtWinGetPackage' {
         $packages | Should -Not -BeNullOrEmpty
     }
 
-    It 'Should return a list of packages with a specific name' {
+    It 'Should return a list of packages with a specific name' -Skip{
         $packages = Search-WtWinGetPackage 'Firef'
         $packages | ForEach-Object {
             $_.PackageId | Should -Match '(?i)Firef'

@@ -4,7 +4,7 @@ namespace WingetIntune.Implementations;
 
 public static class WingetHelper
 {
-    internal const string ArgDisableInteractivity = "--disable-interactivity";
+    //internal const string ArgDisableInteractivity = "--disable-interactivity";
     internal const string ArgExact = "--exact";
     internal const string ArgForce = "--force";
     internal const string ArgId = "--id";
@@ -53,7 +53,9 @@ public static class WingetHelper
         args.Add(ArgSilent);
         args.Add(ArgPackageAgreements);
         args.Add(ArgSourceAgreements);
-        args.Add(ArgDisableInteractivity);
+        // Removed because it's not supported in the current version of winget
+        // see: https://github.com/svrooij/WingetIntune/issues/170
+        // args.Add(ArgDisableInteractivity);
 
         if (installerContext == InstallerContext.User)
         {
@@ -90,7 +92,7 @@ public static class WingetHelper
         }
         args.Add(ArgExact);
         args.Add(ArgSourceAgreements);
-        args.Add(ArgDisableInteractivity);
+        //args.Add(ArgDisableInteractivity);
         return string.Join(" ", args);
     }
 
@@ -117,7 +119,7 @@ public static class WingetHelper
 
         args.Add(ArgSilent);
         args.Add(ArgSourceAgreements);
-        args.Add(ArgDisableInteractivity);
+        //args.Add(ArgDisableInteractivity);
 
         if (installerContext == InstallerContext.User)
         {
@@ -162,7 +164,7 @@ public static class WingetHelper
         args.Add(ArgSilent);
         args.Add(ArgPackageAgreements);
         args.Add(ArgSourceAgreements);
-        args.Add(ArgDisableInteractivity);
+        //args.Add(ArgDisableInteractivity);
 
         if (installerContext == InstallerContext.User)
         {

@@ -63,7 +63,7 @@ public partial class WingetManager : IWingetRepository
         LogGetPackageInfo(id, version);
         var showArgs = WingetHelper.GetShowArgumentsForPackage(id, version, source);
         var result = await processManager.RunProcessAsync("winget", showArgs, cancellationToken);
-        if (result.ExitCode != 0)
+        if (result?.ExitCode != 0)
         {
             var exception = CreateExceptionForFailedProcess(result);
             LogErrorGetPackageInfo(exception, id, version, result.Error);
