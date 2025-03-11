@@ -177,7 +177,7 @@ public partial class IntuneManager
         var intuneFile = await intunePackager.CreatePackage(packageTempFolder, packageFolder, packageInfo.InstallerFilename!, packageInfo, packageOptions.PartialPackage, cancellationToken: cancellationToken);
         await DownloadLogoAsync(packageFolder, packageInfo.PackageIdentifier!, cancellationToken);
 
-        var detectionScript = IntuneManagerConstants.PsDetectionCommandTemplate.Replace("{packageId}", packageInfo.PackageIdentifier!).Replace("{version}", packageInfo.Version);
+        var detectionScript = IntuneManagerConstants.GetPsDetectionCommand(packageInfo.PackageIdentifier!, packageInfo.Version!);
         await fileManager.WriteAllTextAsync(
             Path.Combine(packageFolder, "detection.ps1"),
             detectionScript,

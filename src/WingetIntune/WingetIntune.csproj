@@ -21,6 +21,8 @@
     <None Include="..\..\.editorconfig" Link=".editorconfig" />
     <None Include="..\..\README.md" Pack="true" PackagePath="\README.md" />
     <None Include="..\..\LICENSE.txt" Pack="true" PackagePath="\LICENSE.txt" />
+	<None Remove="Scripts\*.ps1" />
+	<EmbeddedResource Include="Scripts\*.ps1" />
   </ItemGroup>
 
   <ItemGroup>
