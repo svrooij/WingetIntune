@@ -57,6 +57,11 @@ Exit 5
         return script.Replace("{packageId}", packageId).Replace("{version}", version);
     }
 
+    internal static string GetPsGetWingetCmd()
+    {
+        return getResourceScript("FunctionGetWingetCmd.ps1");
+    }
+
     private static string getResourceScript(string filename)
     {
         var assembly = Assembly.GetExecutingAssembly();

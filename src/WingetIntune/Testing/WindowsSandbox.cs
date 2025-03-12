@@ -17,17 +17,25 @@ public class WindowsSandbox
     private readonly ILogger<WindowsSandbox> logger;
     private readonly Packager packager;
     private readonly IProcessManager processManager;
+    private readonly IFileManager fileManager;
+
+    // See https://github.com/microsoft/winget-cli/releases
+    private const string WingetInstallerDownloadFormat = "https://github.com/microsoft/winget-cli/releases/download/{0}/Microsoft.DesktopAppInstaller_8wekyb3d8bbwe.msixbundle";
+    private const string WingetPackageName = "Microsoft.DesktopAppInstaller_8wekyb3d8bbwe.msixbundle";
+    private const string WingetVersion = "v1.10.340";
+    private const string WingetInstallerDependenciesFormat = "https://github.com/microsoft/winget-cli/releases/download/{0}/DesktopAppInstaller_Dependencies.zip";
 
     /// <summary>
     /// 
     /// </summary>
     /// <param name="loggerFactory"></param>
     /// <param name="processManager"></param>
-    public WindowsSandbox(ILoggerFactory loggerFactory, IProcessManager processManager)
+    public WindowsSandbox(ILoggerFactory loggerFactory, IProcessManager processManager, IFileManager fileManager)
     {
         this.logger = loggerFactory.CreateLogger<WindowsSandbox>();
         this.packager = new Packager(loggerFactory.CreateLogger<Packager>());
         this.processManager = processManager;
+        this.fileManager = fileManager;
     }
 
     /// <summary>
@@ -44,7 +52,6 @@ public class WindowsSandbox
     {
         var outputFolder = Path.Combine(Path.GetTempPath(), "wintuner-sandbox", Guid.NewGuid().ToString());
         logger.LogInformation("Preparing sandbox file for {IntuneWinFile}", intuneWinFile);
-        //logger.LogInformation("Preparing sandbox file for {PackageId} {Version}", packageInfo.PackageIdentifier, packageInfo.Version);
 
         var installerFolder = Path.Combine(outputFolder, "installer");
         var logsFolder = Path.Combine(outputFolder, "logs");
@@ -52,18 +59,18 @@ public class WindowsSandbox
         Directory.CreateDirectory(installerFolder);
         Directory.CreateDirectory(logsFolder);
         var info = await packager.Unpack(intuneWinFile, installerFolder, cancellationToken);
-        logger.LogDebug("Unpackaged intunewin file {intuneWinFile} to {installerFolder} contained installer {InstallerFilename}", intuneWinFile, installerFolder, info?.SetupFile);
+        logger.LogDebug("Unpackaged intunewin file {IntuneWinFile} to {InstallerFolder} contained installer {InstallerFilename}", intuneWinFile, installerFolder, info?.SetupFile);
         installerFilename ??= info!.SetupFile!;
         if (!File.Exists(Path.Combine(installerFolder, installerFilename)))
         {
             throw new FileNotFoundException("Installer in the unpacked folder", installerFilename!);
         }
-
+        await PrepareSandboxDependencies(cancellationToken: cancellationToken);
         var sandboxFile = Path.Combine(outputFolder, "sandbox.wsb");
         await WriteSandboxConfig(sandboxFile, installerFolder, logsFolder);
         var scriptFolder = Path.Combine(installerFolder, "wt_scripts");
         await WriteTestScript(scriptFolder, installerFilename, installerArguments, timeout);
-
+        
         return sandboxFile;
     }
 
@@ -80,7 +87,7 @@ public class WindowsSandbox
     {
         var outputFolder = Path.Combine(Path.GetTempPath(), "wintuner-sandbox", Guid.NewGuid().ToString());
         var installerFolder = Directory.GetParent(setupFile)!.FullName;
-        logger.LogInformation("Preparing sandbox file for {setupFile}", setupFile);
+        logger.LogInformation("Preparing sandbox file for {SetupFile}", setupFile);
 
         var scriptFolder = Path.Combine(outputFolder, "wt_scripts");
         var logsFolder = Path.Combine(outputFolder, "logs");
@@ -92,11 +99,11 @@ public class WindowsSandbox
         {
             throw new FileNotFoundException("Installer file not found", setupFile);
         }
-
+        await PrepareSandboxDependencies(cancellationToken: cancellationToken);
         var sandboxFile = Path.Combine(outputFolder, "sandbox.wsb");
         await WriteSandboxConfig(sandboxFile, installerFolder, logsFolder, scriptFolder);
         await WriteTestScript(scriptFolder, Path.GetFileName(setupFile), installerArguments, timeout);
-
+        
         return sandboxFile;
     }
 
@@ -133,6 +140,12 @@ public class WindowsSandbox
             stringBuilder.AppendLine("      <ReadOnly>true</ReadOnly>");
             stringBuilder.AppendLine("    </MappedFolder>");
         }
+        var depsFolder = Path.Combine(Path.GetTempPath(), "wintuner-sandbox", "deps");
+        stringBuilder.AppendLine("    <MappedFolder>");
+        stringBuilder.AppendLine($"      <HostFolder>{depsFolder}</HostFolder>");
+        stringBuilder.AppendLine("      <SandboxFolder>c:\\Users\\WDAGUtilityAccount\\Downloads\\dependencies</SandboxFolder>");
+        stringBuilder.AppendLine("      <ReadOnly>true</ReadOnly>");
+        stringBuilder.AppendLine("    </MappedFolder>");
         stringBuilder.AppendLine("  </MappedFolders>");
 
         // Startup command
@@ -168,6 +181,7 @@ public class WindowsSandbox
         sb.AppendLine("@echo off");
         sb.AppendLine("start /wait /low powershell.exe -ExecutionPolicy Bypass -File \"C:\\Users\\WDAGUtilityAccount\\Downloads\\Wintuner\\wt_scripts\\install.ps1\"");
         sb.AppendLine();
+        sb.AppendLine("c:\\Windows\\System32\\notepad.exe c:\\Users\\WDAGUtilityAccount\\Desktop\\logs\\wintuner.log");
         Directory.CreateDirectory(scriptFolder);
         await File.WriteAllTextAsync(Path.Combine(scriptFolder, "startup.cmd"), sb.ToString());
 
@@ -177,16 +191,48 @@ public class WindowsSandbox
         // and collect the installed apps
         // This script will also shutdown the sandbox after the installation (if a timeout above -1 is provided)
         sb.AppendLine("Start-Transcript -Path c:\\Users\\WDAGUtilityAccount\\Desktop\\logs\\wintuner.log -Append -Force");
+        
+        sb.AppendLine("Write-Host \"Installing winget\"");
+        sb.AppendLine("$ProgressPreference = 'SilentlyContinue'");
+        sb.AppendLine("Import-Module -Name Appx");
+        sb.AppendLine("# Maybe set the x64 part correctly?");
+        sb.AppendLine("$dependencies = Get-ChildItem -Path c:\\Users\\WDAGUtilityAccount\\Downloads\\dependencies\\x64\\ -Filter \"*.appx\" -Name");
+        sb.AppendLine("foreach ($dependency in $dependencies) {");
+        sb.AppendLine("    Write-Host \"Installing $dependency\"");
+        sb.AppendLine("    Add-AppxPackage -Path c:\\Users\\WDAGUtilityAccount\\Downloads\\dependencies\\x64\\$dependency");
+        sb.AppendLine("}");
+
+        string[] appx = new string[] { WingetPackageName };
+        foreach (var filename in appx)
+        {
+
+            sb.AppendLine($"Write-Host \"Excuting Add-AppxPackage downloads\\dependencies\\{filename}\"");
+            sb.AppendLine($"Add-AppxPackage -Path c:\\Users\\WDAGUtilityAccount\\Downloads\\dependencies\\{filename}");
+            sb.AppendLine("Start-Sleep -Seconds 2");
+        }
+        sb.AppendLine();
+        sb.AppendLine(Intune.IntuneManagerConstants.GetPsGetWingetCmd());
+        sb.AppendLine();
+        sb.AppendLine("Write-Host \"Winget installed\"");
+        sb.AppendLine("Write-Host \"Installing notepad\"");
+        sb.AppendLine("Copy-Item -Path c:\\Users\\WDAGUtilityAccount\\Downloads\\dependencies\\notepad.exe -Destination c:\\Windows\\System32\\notepad.exe -Force");
+        sb.AppendLine("cmd /c assoc .txt=txtfile");
+        sb.AppendLine("cmd /c assoc .log=txtfile");
+        sb.AppendLine("cmd /c ftype txtfile=c:\\Windows\\System32\\notepad.exe %1");
+        sb.AppendLine("$ProgressPreference = 'Continue'");
+
+        sb.AppendLine("Write-Host \"Notepad reinstalled\"");
         sb.AppendLine("Write-Host \"Starting installation\"");
         sb.AppendLine($"Write-Host \"Installer: {installerFilename}\"");
         sb.AppendLine($"Write-Host \"Arguments: {installerArguments}\"");
 
         // execute the installer and capture the exit code in powershell
-        //sb.AppendLine($"& \"c:\\Users\\WDAGUtilityAccount\\Downloads\\Wintuner\\{installerFilename}\" {installerArguments}");
-        //sb.AppendLine("& cmd exit /b 5"); // This is a dummy command to test the exit code
-        //sb.AppendLine("$exitCode = $LASTEXITCODE");
 
-        if (string.IsNullOrWhiteSpace(installerArguments))
+        if (installerFilename.EndsWith(".msi"))
+        {
+            sb.AppendLine($"$setupProcess = Start-Process -FilePath \"c:\\windows\\system32\\msiexec.exe\" -ArgumentList \"/i c:\\Users\\WDAGUtilityAccount\\Downloads\\Wintuner\\{installerFilename} /qn /quiet /norestart \" -Wait -PassThru");
+        }
+        else if (string.IsNullOrWhiteSpace(installerArguments))
         {
             sb.AppendLine($"$setupProcess = Start-Process -FilePath \"c:\\Users\\WDAGUtilityAccount\\Downloads\\Wintuner\\{installerFilename}\" -Wait -PassThru");
         }
@@ -201,9 +247,10 @@ public class WindowsSandbox
         // write the exit code to a file
         sb.AppendLine("$exitCode | Out-File -FilePath c:\\Users\\WDAGUtilityAccount\\Desktop\\logs\\exitcode.txt");
         sb.AppendLine("Write-Host \"App installed, collecting installed apps\"");
-        sb.AppendLine("$apps = $(Get-WmiObject -Class Win32_InstalledWin32Program | Select-Object -Property Version,Vendor,Name)");
-        sb.AppendLine("$apps | Format-Table -AutoSize");
-        sb.AppendLine("$apps | Export-Csv -Path c:\\Users\\WDAGUtilityAccount\\Desktop\\logs\\installed.csv -NoTypeInformation");
+        // Cannot collect installed apps, it throws unauthorized exception
+        //sb.AppendLine("$apps = $(Get-WmiObject -Class Win32_InstalledWin32Program | Select-Object -Property Version,Vendor,Name)");
+        //sb.AppendLine("$apps | Format-Table -AutoSize");
+        //sb.AppendLine("$apps | Export-Csv -Path c:\\Users\\WDAGUtilityAccount\\Desktop\\logs\\installed.csv -NoTypeInformation");
         sb.AppendLine("Write-Host \"Installed apps collected\"");
         sb.AppendLine("Stop-Transcript");
         if (timeout is not null && timeout >= 0)
@@ -225,6 +272,37 @@ public class WindowsSandbox
         await File.WriteAllTextAsync(Path.Combine(scriptFolder, "install.ps1"), sb.ToString());
     }
 
+    private async Task PrepareSandboxDependencies(bool fetchWinget = true, CancellationToken cancellationToken = default)
+    {
+        var folder = Path.Combine(Path.GetTempPath(), "wintuner-sandbox", "deps");
+        if (!Directory.Exists(folder))
+        {
+            Directory.CreateDirectory(folder);
+        }
+
+        if (fetchWinget)
+        {
+            var wingetFile = Path.Combine(folder, WingetPackageName);
+            if (!fileManager.FileExists(wingetFile))
+            {
+                await fileManager.DownloadFileAsync(string.Format(WingetInstallerDownloadFormat, WingetVersion), wingetFile);
+            }
+
+            var wingetDependencies = Path.Combine(folder, "DesktopAppInstaller_Dependencies.zip");
+            if (!fileManager.FileExists(wingetDependencies))
+            {
+                await fileManager.DownloadFileAsync(string.Format(WingetInstallerDependenciesFormat, WingetVersion), wingetDependencies);
+                await fileManager.ExtractFileToFolderAsync(wingetDependencies, folder, cancellationToken);
+            }
+        }
+
+        var notepadFile = Path.Combine(folder, "notepad.exe");
+        if (!fileManager.FileExists(notepadFile))
+        {
+            File.Copy(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.System), "notepad.exe"), notepadFile);
+        }
+    }
+
     /// <summary>
     /// Runs a sandbox file
     /// </summary>
@@ -234,9 +312,9 @@ public class WindowsSandbox
     /// <returns></returns>
     public async Task<SandboxResult?> RunSandbox(string sandboxFile, bool cleanup, CancellationToken cancellationToken)
     {
-        logger.LogInformation("Running sandbox {sandboxFile}", sandboxFile);
+        logger.LogInformation("Running sandbox {SsandboxFile}", sandboxFile);
         var processResult = await processManager.RunProcessAsync("WindowsSandbox.exe", sandboxFile, cancellationToken);
-        logger.LogInformation("Sandbox exited with exitcode {exitCode}", processResult.ExitCode);
+        logger.LogInformation("Sandbox exited with exitcode {ExitCode}", processResult.ExitCode);
         bool shouldProcess = true;
         SandboxResult? result = null;
         if (processResult.ExitCode == -2147024713)
@@ -244,18 +322,32 @@ public class WindowsSandbox
             logger.LogWarning("Sandbox failed to start, this is likely because the host does not support virtualization or already started");
             shouldProcess = false;
         }
-        await Task.Delay(1500, cancellationToken);
+
+        logger.LogInformation("Press enter when you closed the sandbox");
+        Console.ReadLine();
+        //try
+        //{
+        //    await Task.Delay(600_000, cancellationToken);
+        //} catch
+        //{
+            
+        //}
+
+
+        logger.LogInformation("Processing results and closing");
+
 
         if (shouldProcess)
         {
+            var cancelToken = cancellationToken.IsCancellationRequested ? CancellationToken.None : cancellationToken;
             var logDirectory = Path.Combine(Path.GetDirectoryName(sandboxFile)!, "logs");
             var logFile = Path.Combine(logDirectory, "wintuner.log");
             var exitCodeFile = Path.Combine(logDirectory, "exitcode.txt");
             result = new SandboxResult
             {
-                ExitCode = File.Exists(exitCodeFile) && int.TryParse(await File.ReadAllTextAsync(exitCodeFile, cancellationToken), out int exitCode) ? exitCode : 0,
-                Log = File.Exists(logFile) ? await File.ReadAllTextAsync(logFile, cancellationToken) : null,
-                InstalledApps = await ParseInstalledApps(Path.Combine(logDirectory, "installed.csv"), cancellationToken)
+                ExitCode = File.Exists(exitCodeFile) && int.TryParse(await File.ReadAllTextAsync(exitCodeFile, cancelToken), out int exitCode) ? exitCode : 0,
+                Log = File.Exists(logFile) ? await File.ReadAllTextAsync(logFile, cancelToken) : null,
+                InstalledApps = await ParseInstalledApps(Path.Combine(logDirectory, "installed.csv"), cancelToken)
             };
         }
 
@@ -270,7 +362,8 @@ public class WindowsSandbox
 
     private async Task<IEnumerable<SandboxInstalledApps>?> ParseInstalledApps(string filename, CancellationToken cancellationToken = default)
     {
-
+        // No longer working because of Unauthorized exception in Sandbox
+        return null;
         // the file is a csv with headers Version,Vendor,Name and uses , as separator
         // Parse the file if it exists
         if (!File.Exists(filename))

@@ -173,12 +173,12 @@ public class TestWtIntuneWin : DependencyCmdlet<Startup>
         {
             logger?.LogDebug("Loading package details from RootPackageFolder {RootPackageFolder}, PackageId {PackageId}, Version {Version}", RootPackageFolder, PackageId, Version);
             PackageFolder = Path.Combine(RootPackageFolder!, PackageId!, Version!);
-            logger?.LogDebug("Loading package details from folder {packageFolder}", PackageFolder);
+            logger?.LogDebug("Loading package details from folder {PackageFolder}", PackageFolder);
         }
 
         if (PackageFolder is not null)
         {
-            logger?.LogInformation("Loading package details from folder {packageFolder}", PackageFolder);
+            logger?.LogInformation("Loading package details from folder {PackageFolder}", PackageFolder);
             var packageInfo = await metadataManager!.LoadPackageInfoFromFolderAsync(PackageFolder, cancellationToken);
             InstallerFilename = packageInfo.InstallerFilename;
             // If the installer arguments are not set, use the ones from the package info.
@@ -194,7 +194,7 @@ public class TestWtIntuneWin : DependencyCmdlet<Startup>
         }
 
         var sandboxFile = await sandbox!.PrepareSandboxFileForPackage(IntuneWinFile!, InstallerFilename, InstallerArguments, timeout: Sleep, cancellationToken: cancellationToken);
-        logger?.LogDebug("Sandbox file created at {sandboxFile}", sandboxFile);
+        logger?.LogDebug("Sandbox file created at {SandboxFile}", sandboxFile);
         var result = await sandbox.RunSandbox(sandboxFile, Clean, cancellationToken);
         if (result is null)
         {
