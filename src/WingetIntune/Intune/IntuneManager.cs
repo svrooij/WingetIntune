@@ -130,7 +130,7 @@ public partial class IntuneManager
         var packageTempFolder = fileManager.CreateFolderForPackage(tempFolder, packageInfo.PackageIdentifier!, packageInfo.Version!);
         var packageFolder = fileManager.CreateFolderForPackage(outputFolder, packageInfo.PackageIdentifier!, packageInfo.Version!);
 
-        if (SupportedInstallers.Contains(packageInfo.InstallerType) && packageOptions.PackageScript != true)
+        if (SupportedInstallers.Contains(packageInfo.InstallerType) && !packageOptions.PackageScript)
         {
             _ = await DownloadInstallerAsync(packageTempFolder, packageInfo, cancellationToken);
         }
@@ -177,7 +177,7 @@ public partial class IntuneManager
         var intuneFile = await intunePackager.CreatePackage(packageTempFolder, packageFolder, packageInfo.InstallerFilename!, packageInfo, packageOptions.PartialPackage, cancellationToken: cancellationToken);
         await DownloadLogoAsync(packageFolder, packageInfo.PackageIdentifier!, cancellationToken);
 
-        var detectionScript = IntuneManagerConstants.PsDetectionCommandTemplate.Replace("{packageId}", packageInfo.PackageIdentifier!).Replace("{version}", packageInfo.Version);
+        var detectionScript = IntuneManagerConstants.GetPsDetectionCommand(packageInfo.PackageIdentifier!, packageInfo.Version!);
         await fileManager.WriteAllTextAsync(
             Path.Combine(packageFolder, "detection.ps1"),
             detectionScript,
@@ -284,15 +284,15 @@ public partial class IntuneManager
         }
 
         var tempFolder = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
-        logger.LogDebug("Extracting intunewin file {file} to {tempFolder}", intuneFilePath, tempFolder);
-        fileManager.ExtractFileToFolder(intuneFilePath, tempFolder);
+        logger.LogDebug("Extracting intunewin file {File} to {TempFolder}", intuneFilePath, tempFolder);
+        await fileManager.ExtractFileToFolderAsync(intuneFilePath, tempFolder, cancellationToken);
 
         var info = IntuneMetadata.GetApplicationInfo(await fileManager.ReadAllBytesAsync(IntuneMetadata.GetMetadataPath(tempFolder), cancellationToken))!;
         var intuneFileData = await fileManager.ReadAllBytesAsync(IntuneMetadata.GetContentsPath(tempFolder), cancellationToken);
 
         var contentVersion = await graphServiceClient.Intune_CreateWin32LobAppContentVersionAsync(appId, cancellationToken);
 
-        logger.LogDebug("Created content version {id}", contentVersion!.Id);
+        logger.LogDebug("Created content version {Id}", contentVersion!.Id);
 
         var mobileAppContentFileRequest = new MobileAppContentFile
         {
@@ -303,11 +303,11 @@ public partial class IntuneManager
             Manifest = null,
         };
 
-        logger.LogDebug("Creating content file {name} {size} {sizeEncrypted}", mobileAppContentFileRequest.Name, mobileAppContentFileRequest.Size, mobileAppContentFileRequest.SizeEncrypted);
+        logger.LogDebug("Creating content file {Name} {Size} {SizeEncrypted}", mobileAppContentFileRequest.Name, mobileAppContentFileRequest.Size, mobileAppContentFileRequest.SizeEncrypted);
 
         var mobileAppContentFile = await graphServiceClient.Intune_CreateWin32LobAppContentVersionFileAsync(appId, contentVersion.Id!, mobileAppContentFileRequest, cancellationToken);
 
-        logger.LogDebug("Created content file {id}", mobileAppContentFile?.Id);
+        logger.LogDebug("Created content file {Id}", mobileAppContentFile?.Id);
         // Wait for a bit (it's generating the azure storage uri)
         await Task.Delay(3000, cancellationToken);
 
@@ -316,21 +316,21 @@ public partial class IntuneManager
             mobileAppContentFile!.Id!,
             cancellationToken);
 
-        logger.LogDebug("Loaded content file {id} {blobUri}", updatedMobileAppContentFile?.Id, updatedMobileAppContentFile?.AzureStorageUri);
+        logger.LogDebug("Loaded content file {Id} {BlobUri}", updatedMobileAppContentFile?.Id, updatedMobileAppContentFile?.AzureStorageUri);
 
         await azureFileUploader.UploadFileToAzureAsync(
             IntuneMetadata.GetContentsPath(tempFolder),
             new Uri(updatedMobileAppContentFile!.AzureStorageUri!),
             cancellationToken);
 
-        logger.LogDebug("Uploaded content file {id} {blobUri}", updatedMobileAppContentFile.Id, updatedMobileAppContentFile.AzureStorageUri);
+        logger.LogDebug("Uploaded content file {Id} {BlobUri}", updatedMobileAppContentFile.Id, updatedMobileAppContentFile.AzureStorageUri);
         fileManager.DeleteFileOrFolder(tempFolder);
 
         await Task.Delay(5000, cancellationToken);
 
         var encryptionInfo = mapper.ToFileEncryptionInfo(info.EncryptionInfo);
 
-        logger.LogDebug("Mapped encryption info {encryptionInfo}", JsonSerializer.Serialize(encryptionInfo));
+        logger.LogDebug("Mapped encryption info {EncryptionInfo}", JsonSerializer.Serialize(encryptionInfo));
 
         // Commit the file
         await graphServiceClient.Intune_CommitWin32LobAppContentVersionFileAsync(appId,
@@ -339,11 +339,11 @@ public partial class IntuneManager
             encryptionInfo,
             cancellationToken);
 
-        logger.LogDebug("Committed content file {id}", mobileAppContentFile.Id);
+        logger.LogDebug("Committed content file {Id}", mobileAppContentFile.Id);
 
         MobileAppContentFile? commitedFile = await graphServiceClient.Intune_WaitForFinalCommitStateAsync(appId, contentVersion!.Id!, mobileAppContentFile!.Id!, cancellationToken);
 
-        logger.LogInformation("Added content version {contentVersionId} to app {appId}", contentVersion.Id, appId);
+        logger.LogInformation("Added content version {ContentVersionId} to app {AppId}", contentVersion.Id, appId);
         return contentVersion.Id!;
     }
 
@@ -388,7 +388,7 @@ public partial class IntuneManager
         }
         catch (ODataError ex)
         {
-            logger.LogError(ex, "Error publishing app {message}", ex.Error?.Message);
+            logger.LogError(ex, "Error publishing app {Message}", ex.Error?.Message);
             throw;
         }
         catch (Exception ex)
@@ -414,7 +414,7 @@ public partial class IntuneManager
         ArgumentException.ThrowIfNullOrEmpty(appId);
         ArgumentNullException.ThrowIfNull(categories);
 #endif
-        logger.LogInformation("Adding categories {categories} to app {appId}", string.Join(",", categories), appId);
+        logger.LogInformation("Adding categories {Categories} to app {AppId}", string.Join(",", categories), appId);
 
         try
         {
@@ -438,7 +438,7 @@ public partial class IntuneManager
         try
         {
             var assignments = await GraphWorkflows.AssignAppAsync(graphServiceClient, appId, requiredFor, availableFor, uninstallFor, addAutoUpdateSetting, cancellationToken);
-            logger.LogInformation("Assigned app {appId} to {assignmentCount} assignments", appId, assignments);
+            logger.LogInformation("Assigned app {AppId} to {AssignmentCount} assignments", appId, assignments);
         }
         catch (Exception ex)
         {
@@ -484,7 +484,7 @@ public partial class IntuneManager
         }
         catch (Exception ex)
         {
-            logger?.LogError(ex, "Error getting product code from {setupFile} ignoring error, is this actually an MSI? Provide 'MsiProductCode'", setupFile);
+            logger?.LogError(ex, "Error getting product code from {SetupFile} ignoring error, is this actually an MSI? Provide 'MsiProductCode'", setupFile);
         }
 
         return (null, null);
@@ -517,7 +517,7 @@ public partial class IntuneManager
         var sb = new StringBuilder();
         if (packageInfo.InstallerType.IsMsi() || !string.IsNullOrEmpty(packageInfo.MsiProductCode))
         {
-            logger.LogInformation("Writing detection info with msi details {packageId} {productCode}", packageInfo.PackageIdentifier, packageInfo.MsiProductCode!);
+            logger.LogInformation("Writing detection info with msi details {PackageId} {ProductCode}", packageInfo.PackageIdentifier, packageInfo.MsiProductCode!);
 
             sb.AppendFormat("Package {0} {1} from {2}\r\n", packageInfo.PackageIdentifier, packageInfo.Version, packageInfo.Source);
             sb.AppendLine();
@@ -529,7 +529,7 @@ public partial class IntuneManager
             sb.Clear();
         }
 
-        logger.LogInformation("Writing package readme for package {packageId}", packageInfo.PackageIdentifier);
+        logger.LogInformation("Writing package readme for package {PackageId}", packageInfo.PackageIdentifier);
         sb.AppendFormat("Package {0} {1} from {2}\r\n", packageInfo.PackageIdentifier, packageInfo.Version, packageInfo.Source);
         sb.AppendLine();
         sb.AppendFormat("Display name: {0}\r\n", packageInfo.DisplayName);

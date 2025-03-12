@@ -258,6 +258,8 @@ public class DeployWtWin32App : BaseIntuneCmdlet
         if (!string.IsNullOrEmpty(OverrideAppName))
         {
             App!.DisplayName = OverrideAppName;
+            App.BackingStore.InitializationCompleted = false;
+            App.BackingStore.ReturnOnlyChangedValues = false;
         }
 
         logger?.LogInformation("Uploading Win32App {DisplayName} to Intune with file {IntuneWinFile}", App!.DisplayName, IntuneWinFile);
@@ -292,7 +294,7 @@ public class DeployWtWin32App : BaseIntuneCmdlet
         var newApp = isPartialPackage
             ? await graphAppUploader!.CreateNewAppAsync(graphServiceClient, App!, IntuneWinFile!, metadataFilename!, logoPath: LogoPath, cancellationToken: cancellationToken)
             : await graphAppUploader!.CreateNewAppAsync(graphServiceClient, App!, IntuneWinFile!, LogoPath, cancellationToken);
-        logger?.LogInformation("Created Win32App {DisplayName} with id {appId}", newApp!.DisplayName, newApp.Id);
+        logger?.LogInformation("Created Win32App {DisplayName} with id {AppId}", newApp!.DisplayName, newApp.Id);
 
         // Check if we need to supersede an app
         if (GraphId is not null)
@@ -303,7 +305,7 @@ public class DeployWtWin32App : BaseIntuneCmdlet
         {
             if (Categories is not null && Categories.Any())
             {
-                logger?.LogInformation("Adding categories to app {appId}", newApp!.Id);
+                logger?.LogInformation("Adding categories to app {AppId}", newApp!.Id);
                 await graphServiceClient.AddIntuneCategoriesToAppAsync(newApp!.Id!, Categories, cancellationToken);
             }
 
@@ -311,7 +313,7 @@ public class DeployWtWin32App : BaseIntuneCmdlet
                 (RequiredFor is not null && RequiredFor.Any()) ||
                 (UninstallFor is not null && UninstallFor.Any()))
             {
-                logger?.LogInformation("Assigning app {appId} to groups", newApp!.Id);
+                logger?.LogInformation("Assigning app {AppId} to groups", newApp!.Id);
                 await graphServiceClient.AssignAppAsync(newApp!.Id!, RequiredFor, AvailableFor, UninstallFor, false, cancellationToken);
             }
         }
@@ -337,7 +339,7 @@ public class DeployWtWin32App : BaseIntuneCmdlet
     /// <returns></returns>
     private static async Task SupersedeApp(ILogger logger, GraphServiceClient graphServiceClient, string newAppId, string oldAppId, CancellationToken cancellationToken)
     {
-        logger?.LogDebug("Loading old app {oldAppId} to superseed", oldAppId);
+        logger?.LogDebug("Loading old app {OldAppId} to superseed", oldAppId);
         var oldApp = await graphServiceClient.DeviceAppManagement.MobileApps[oldAppId].GetAsync(req =>
         {
             req.QueryParameters.Expand = new string[] { "categories", "assignments" };
@@ -345,7 +347,7 @@ public class DeployWtWin32App : BaseIntuneCmdlet
 
         if (oldApp is GraphModels.Win32LobApp oldWin32App)
         {
-            logger?.LogInformation("Superseeding app {oldAppId} with {appId}", oldAppId, newAppId);
+            logger?.LogInformation("Superseeding app {OldAppId} with {AppId}", oldAppId, newAppId);
             var batch = new Microsoft.Graph.BatchRequestContentCollection(graphServiceClient);
             // Add supersedence relationship to new app
             await batch.AddBatchRequestStepAsync(graphServiceClient.DeviceAppManagement.MobileApps[newAppId].UpdateRelationships.ToPostRequestInformation(new Microsoft.Graph.Beta.DeviceAppManagement.MobileApps.Item.UpdateRelationships.UpdateRelationshipsPostRequestBody

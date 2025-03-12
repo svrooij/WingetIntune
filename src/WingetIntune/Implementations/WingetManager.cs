@@ -156,16 +156,16 @@ public partial class WingetManager : IWingetRepository
         return $"https://github.com/microsoft/winget-pkgs/raw/master/manifests/{id[0].ToString().ToLower()}/{string.Join("/", idParts)}/{version}/{sanitizedId}{addition}.yaml";
     }
 
-    private static Exception CreateExceptionForFailedProcess(ProcessResult processResult)
+    private static Exception CreateExceptionForFailedProcess(ProcessResult? processResult)
     {
-        if (processResult.ExitCode == 0)
+        if (processResult?.ExitCode == 0)
         {
             throw new ArgumentException("Process exited with exitcode 0");
         }
 
         var exception = new Exception("Winget exited with non-zero exitcode");
-        exception.Data.Add("ExitCode", processResult.ExitCode);
-        exception.Data.Add("Error", processResult.Error);
+        exception.Data.Add("ExitCode", processResult?.ExitCode);
+        exception.Data.Add("Error", processResult?.Error);
         return exception;
     }
 
