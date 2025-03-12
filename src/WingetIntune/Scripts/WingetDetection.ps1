@@ -47,26 +47,30 @@ $wingetOutput = & $wingetCmd "list" "--id" $packageId "--exact" "--accept-source
 
 if($wingetOutput -is [array]) {
     $lastRow = $wingetOutput[$wingetOutput.Length -1]
-    if ($lastRow.Contains("$packageId $version")) {
+    if ($lastRow.Contains("$packageId $version") or $lastRow.Contains($packageId) and $lastRow.Contains($version)) {
         Write-Host "$($packageId) version $($version) is installed"
         Write-Host "Exiting with code 0"
         Exit 0
     } elseif ($lastRow.Contains($packageId)) {
-        [reflection.assembly]::LoadWithPartialName("System.Version")
-        $i = $lastRow.IndexOf(" $packageId ") + $packageId.Length + 1
-        $nextSpace = $lastRow.IndexOf(" ", $i + 1)
-        $installedVersion = $lastRow.Substring($i+1, $nextSpace - $i -1)
-        $versionExpected = New-Object System.Version($version)
-        $versionInstalled = New-Object System.Version($installedVersion)
-        Write-Host "$($packageId) version $($installedVersion) is installed"
-        $result = $versionExpected.CompareTo($versionInstalled);
-        if (1 -eq $result) {
-            Write-Host "Installed version is lower"
-            Write-Host "Exiting with code 5"
-            Exit 5
+        try {
+            [reflection.assembly]::LoadWithPartialName("System.Version")
+            $i = $lastRow.IndexOf(" $packageId ") + $packageId.Length + 1
+            $nextSpace = $lastRow.IndexOf(" ", $i + 1)
+            $installedVersion = $lastRow.Substring($i+1, $nextSpace - $i -1)
+            $versionExpected = New-Object System.Version($version)
+            $versionInstalled = New-Object System.Version($installedVersion)
+            Write-Host "$($packageId) version $($installedVersion) is installed"
+            $result = $versionExpected.CompareTo($versionInstalled);
+            if (1 -eq $result) {
+                Write-Host "Installed version is lower"
+                Write-Host "Exiting with code 5"
+                Exit 5
+            }
+            Write-Host "Exiting with code 0"
+            Exit 0
+        } catch {
+            Write-Host "Unable to compare versions (why is this not a semver?)"
         }
-        Write-Host "Exiting with code 0"
-        Exit 0
     }
 }
 

@@ -224,7 +224,7 @@ public class WindowsSandbox
         sb.AppendLine("Write-Host \"Notepad reinstalled\"");
         sb.AppendLine("Write-Host \"Starting installation\"");
         sb.AppendLine($"Write-Host \"Installer: {installerFilename}\"");
-        sb.AppendLine($"Write-Host \"Arguments: {installerArguments}\"");
+        sb.AppendLine($"Write-Host \"Arguments: {installerArguments?.Replace("\"", "`\"")}\"");
 
         // execute the installer and capture the exit code in powershell
 
@@ -238,7 +238,7 @@ public class WindowsSandbox
         }
         else
         {
-            sb.AppendLine($"$setupProcess = Start-Process -FilePath \"c:\\Users\\WDAGUtilityAccount\\Downloads\\Wintuner\\{installerFilename}\" -ArgumentList \"{installerArguments}\" -Wait -PassThru");
+            sb.AppendLine($"$setupProcess = Start-Process -FilePath \"c:\\Users\\WDAGUtilityAccount\\Downloads\\Wintuner\\{installerFilename}\" -ArgumentList \"{installerArguments?.Replace("\"", "'")}\" -Wait -PassThru");
         }
 
         sb.AppendLine("$exitCode = $setupProcess.ExitCode");
