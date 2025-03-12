@@ -70,7 +70,7 @@ public class WindowsSandbox
         await WriteSandboxConfig(sandboxFile, installerFolder, logsFolder);
         var scriptFolder = Path.Combine(installerFolder, "wt_scripts");
         await WriteTestScript(scriptFolder, installerFilename, installerArguments, timeout);
-        
+
         return sandboxFile;
     }
 
@@ -103,7 +103,7 @@ public class WindowsSandbox
         var sandboxFile = Path.Combine(outputFolder, "sandbox.wsb");
         await WriteSandboxConfig(sandboxFile, installerFolder, logsFolder, scriptFolder);
         await WriteTestScript(scriptFolder, Path.GetFileName(setupFile), installerArguments, timeout);
-        
+
         return sandboxFile;
     }
 
@@ -191,7 +191,7 @@ public class WindowsSandbox
         // and collect the installed apps
         // This script will also shutdown the sandbox after the installation (if a timeout above -1 is provided)
         sb.AppendLine("Start-Transcript -Path c:\\Users\\WDAGUtilityAccount\\Desktop\\logs\\wintuner.log -Append -Force");
-        
+
         sb.AppendLine("Write-Host \"Installing winget\"");
         sb.AppendLine("$ProgressPreference = 'SilentlyContinue'");
         sb.AppendLine("Import-Module -Name Appx");
@@ -330,7 +330,7 @@ public class WindowsSandbox
         //    await Task.Delay(600_000, cancellationToken);
         //} catch
         //{
-            
+
         //}
 
 
