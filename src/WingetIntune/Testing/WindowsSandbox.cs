@@ -399,7 +399,7 @@ public class WindowsSandbox
 
         public override string ToString()
         {
-            return InstalledApps?.Count() > 0 ? $"ExitCode: {ExitCode}, Installed apps {string.Join(", ", InstalledApps.Select(i => i.Name))}" : $"Exit code: {ExitCode}";
+            return InstalledApps?.Any() == true ? $"ExitCode: {ExitCode}, Installed apps {string.Join(", ", InstalledApps.Select(i => i.Name))}" : $"Exit code: {ExitCode}";
         }
 
     }
