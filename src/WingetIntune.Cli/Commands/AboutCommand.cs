@@ -26,8 +26,9 @@ internal class AboutCommand : Command
         Console.WriteLine("# command: wintuner");
         Console.WriteLine("#");
         Console.WriteLine("# version: {0}", Assembly.GetExecutingAssembly()?.GetName()?.Version?.ToString());
+        Console.WriteLine("# ⚠️ This CLI is no longer supported, migrate to the PowerShell version");
         Console.WriteLine("# Repo: https://github.com/svrooij/wingetintune");
-        Console.WriteLine("# Docs: https://wintuner.app/docs/category/wintuner---cli");
+        Console.WriteLine("# Docs: https://wintuner.app/docs/category/wintuner-powershell");
         Console.WriteLine("#");
         Console.WriteLine("# dotnet tool update --global SvRooij.Winget-Intune.Cli");
         Console.WriteLine("#");

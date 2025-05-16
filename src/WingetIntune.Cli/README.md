@@ -8,7 +8,7 @@
 
 [![WinTuner Mascot](https://wintuner.app/img/wintuner-mascotte-two_100.png)](https://wintuner.app/)
 
-Take any app from WinGet and upload it to Intune in minutes. This app is available as [PowerShell module](#wintuner-powershell-module).
+Take any app from WinGet and upload it to Intune in minutes. This app is available as [PowerShell module](#wintuner-powershell-module)
 
 - Downloading the installer and the logo
 - Creating an `intunewin` file automatically
@@ -18,6 +18,9 @@ Take any app from WinGet and upload it to Intune in minutes. This app is availab
 [![LinkedIn Profile][badge_linkedin]][link_linkedin]
 [![Follow on BlueSky][badge_bsky]][link_bsky]
 [![Check my blog][badge_blog]][link_blog]
+
+> [!NOTE]
+> This application is depreceated, please move to the [PowerShell module](https://wintuner.app/docs/category/wintuner-powershell).
 
 ## WinTuner PowerShell Module
 
@@ -48,9 +51,11 @@ If you want to contribute to this project, please check out the [contributing](h
 
 [badge_blog]: https://img.shields.io/badge/blog-svrooij.io-blue?style=for-the-badge
 [badge_linkedin]: https://img.shields.io/badge/LinkedIn-stephanvanrooij-blue?style=for-the-badge&logo=linkedin
+[badge_mastodon]: https://img.shields.io/mastodon/follow/109502876771613420?domain=https%3A%2F%2Fdotnet.social&label=%40svrooij%40dotnet.social&logo=mastodon&logoColor=white&style=for-the-badge
 [badge_bsky]: https://img.shields.io/badge/Bluesky-svrooij.io-0285FF?style=for-the-badge&logo=bluesky&logoColor=white
 [link_blog]: https://svrooij.io/
 [link_linkedin]: https://www.linkedin.com/in/stephanvanrooij
+[link_mastodon]: https://dotnet.social/@svrooij
 [link_bsky]: https://bsky.app/profile/svrooij.io
 
 [badge_license]: https://img.shields.io/github/license/svrooij/WingetIntune?style=for-the-badge
