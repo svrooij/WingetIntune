@@ -21,6 +21,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "build", "build", "{DF47944D
 	ProjectSection(SolutionItems) = preProject
 		.editorconfig = .editorconfig
 		.github\workflows\build.yml = .github\workflows\build.yml
+		.github\workflows\codeql.yml = .github\workflows\codeql.yml
+		.github\workflows\proxy.yml = .github\workflows\proxy.yml
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{70C0FC9B-4495-43AC-AB67-331201AEAA52}"
