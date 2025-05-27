@@ -95,7 +95,7 @@ public partial class WingetRepository
         var response = await httpClient.GetAsync(IndexUri!, cancellationToken);
         response.EnsureSuccessStatusCode();
         Entries = await response.Content.ReadFromJsonAsync<List<Models.WingetEntryExtended>>(cancellationToken: cancellationToken);
-        
+
 
         if (!string.IsNullOrEmpty(cacheFile))
         {
