@@ -66,7 +66,7 @@ public partial class WingetManager : IWingetRepository
         if (result?.ExitCode != 0)
         {
             var exception = CreateExceptionForFailedProcess(result);
-            LogErrorGetPackageInfo(exception, id, version, result.Error);
+            LogErrorGetPackageInfo(exception, id, version, result?.Error);
             throw exception;
         }
 
@@ -74,7 +74,7 @@ public partial class WingetManager : IWingetRepository
         if (info is null || string.IsNullOrWhiteSpace(info.PackageIdentifier))
         {
             var exception = new Exception($"Winget output not parsed, locale might be unsupported {id} {version}");
-            LogErrorGetPackageInfo(exception, id, version, result.Error + result.Output);
+            LogErrorGetPackageInfo(exception, id, version, result?.Error + result?.Output);
             throw exception;
         }
 
@@ -202,7 +202,7 @@ public partial class WingetManager : IWingetRepository
     private partial void LogGetPackageInfoFromManifest(string id, string? version);
 
     [LoggerMessage(EventId = 100, Level = LogLevel.Warning, Message = "Error getting package info for {id} {version}:\r\n{error}")]
-    private partial void LogErrorGetPackageInfo(Exception exception, string id, string? version, string error);
+    private partial void LogErrorGetPackageInfo(Exception exception, string id, string? version, string? error);
 
     [LoggerMessage(EventId = 101, Level = LogLevel.Warning, Message = "Error checking installed {id} {version}:\r\n{error}")]
     private partial void LogErrorCheckInstalled(Exception exception, string id, string? version, string error);
