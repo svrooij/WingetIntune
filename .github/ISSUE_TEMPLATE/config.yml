@@ -1,6 +1,6 @@
 blank_issues_enabled: false
 contact_links:
-  - name: I have a question about WingetIntune (CLI)
+  - name: I have a question about WinTuner
     url: https://github.com/svrooij/WingetIntune/discussions/categories/q-a
     about: "Use the Q & A section in discussions to ask your questions"
   - name: Feature requests
@@ -12,3 +12,6 @@ contact_links:
   - name: Blog
     url: https://svrooij.io
     about: Check my blog for more interesting posts
+  - name: WinTuner CLI
+    url: https://github.com/svrooij/WingetIntune/discussions/195
+    about: CLI is removed, migrate to PowerShell module

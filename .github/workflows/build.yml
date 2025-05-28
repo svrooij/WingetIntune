@@ -160,56 +160,6 @@ jobs:
         with:
           files: ${{ github.workspace }}/testresults/*.xml
 
-  publish-nuget:
-    name: 📦 Publish WinTuner to nuget
-    runs-on: ubuntu-latest
-    if: startsWith(github.ref, 'refs/tags/')
-    #if: ${{ false }}
-    needs: [test, testps]
-    steps:
-    - name: 👨‍💻 Check-out code
-      uses: actions/checkout@v4
-      with:
-        fetch-depth: 0
-
-    - name: 👨‍🔧 Setup .NET Core SDK
-      uses: actions/setup-dotnet@v4
-      with:
-        dotnet-version: |
-          8.x
-          9.x
-
-    - name: 🔍 Enable problem matchers
-      run: echo "::add-matcher::.github/matchers/dotnet.json"
-
-    - name: 🦸‍♂️ Restore steriods
-      uses: actions/cache@v4
-      with:
-        path: ~/.nuget/packages
-        # Look to see if there is a cache hit for the corresponding requirements file
-        key: ${{ runner.os }}-nuget-${{ hashFiles('**/packages.lock.json') }}
-        restore-keys: |
-          ${{ runner.os }}-nuget
-
-    - name: 🎒 Install Kiota
-      run: dotnet tool install --global Microsoft.OpenApi.Kiota
-
-    - name: 🎒 Load packages (and generate api client)
-      run: dotnet restore
-
-    - name: 🛠️ Build code
-      shell: pwsh
-      run: dotnet build ./src/WingetIntune.Cli/WingetIntune.Cli.csproj --configuration Release --no-restore -p:Version=$("${{ github.ref_name }}".Substring(1))
-
-    - name: 📦 Pack WinTuner CLI
-      shell: pwsh
-      run: dotnet pack ./src/WingetIntune.Cli/WingetIntune.Cli.csproj --configuration Release --no-build -p:Version=$("${{ github.ref_name }}".Substring(1))
-
-    - name: ✈️ Publish Svrooij.Winget-Intune.Cli to nuget.org
-      run: dotnet nuget push ./src/WingetIntune.Cli/bin/Release/SvRooij.Winget-Intune.Cli.*.nupkg -k $NUGET_AUTH_TOKEN -s https://api.nuget.org/v3/index.json
-      env:
-        NUGET_AUTH_TOKEN: ${{ secrets.NUGET_TOKEN }}
-
   publish-psgallery:
     name: 📦 Publish WinTuner to PowerShell Gallery
     runs-on: ubuntu-latest
