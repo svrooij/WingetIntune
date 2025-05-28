@@ -29,8 +29,12 @@ public partial class DefaultFileManager : IFileManager
             Directory.CreateDirectory(path);
     }
 
-    public string CreateFolderForPackage(string parentFolder, string packageName, string packageVersion)
+    public string CreateFolderForPackage(string parentFolder, string packageName, string packageVersion, bool arm = false)
     {
+        if (arm)
+        {
+            packageVersion = $"{packageVersion}-arm64";
+        }
         LogCreatingFolder(parentFolder, packageName, packageVersion);
         string folder = Path.Combine(parentFolder, packageName, packageVersion);
         if (!Directory.Exists(folder))

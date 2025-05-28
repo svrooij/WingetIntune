@@ -6,7 +6,7 @@ public interface IFileManager
 
     void CreateFolder(string path);
 
-    string CreateFolderForPackage(string parentFolder, string packageName, string packageVersion);
+    string CreateFolderForPackage(string parentFolder, string packageName, string packageVersion, bool arm = false);
 
     void DeleteFileOrFolder(string path);
 

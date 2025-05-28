@@ -35,8 +35,8 @@ public class IntuneManagerTests
         var logoPath = Path.GetFullPath(Path.Combine(outputPackageFolder, "..", "logo.png"));
 
         var fileManager = Substitute.For<IFileManager>();
-        fileManager.CreateFolderForPackage(tempFolder, packageId, version).Returns(Path.Combine(tempFolder, packageId, version));
-        fileManager.CreateFolderForPackage(outputFolder, packageId, version).Returns(Path.Combine(outputFolder, packageId, version));
+        fileManager.CreateFolderForPackage(tempFolder, packageId, version, false).Returns(Path.Combine(tempFolder, packageId, version));
+        fileManager.CreateFolderForPackage(outputFolder, packageId, version, false).Returns(Path.Combine(outputFolder, packageId, version));
         fileManager.DownloadFileAsync(installer.InstallerUrl!.ToString(), installerPath, null, true, false, Arg.Any<CancellationToken>())
             .Returns(Task.CompletedTask);
         fileManager.DownloadFileAsync($"https://api.winstall.app/icons/{packageId}.png", logoPath, null, false, false, Arg.Any<CancellationToken>())
@@ -85,8 +85,8 @@ The Azure command-line interface (Azure CLI) is a set of commands used to create
 
         await intuneManager.GenerateInstallerPackage(tempFolder, outputFolder, IntuneTestConstants.azureCliPackageInfo, new PackageOptions { Architecture = Models.Architecture.X64, InstallerContext = InstallerContext.User }, CancellationToken.None);
 
-        fileManager.Received().CreateFolderForPackage(tempFolder, packageId, version);
-        fileManager.Received().CreateFolderForPackage(outputFolder, packageId, version);
+        fileManager.Received().CreateFolderForPackage(tempFolder, packageId, version, false);
+        fileManager.Received().CreateFolderForPackage(outputFolder, packageId, version, false);
         await fileManager.Received().DownloadFileAsync(installer.InstallerUrl!.ToString(), installerPath, null, true, false, Arg.Any<CancellationToken>());
         await fileManager.Received().DownloadFileAsync($"https://api.winstall.app/icons/{packageId}.png", logoPath, null, false, false, Arg.Any<CancellationToken>());
         await fileManager.Received().WriteAllBytesAsync(Path.Combine(outputPackageFolder, "app.json"), Arg.Any<byte[]>(), Arg.Any<CancellationToken>());
