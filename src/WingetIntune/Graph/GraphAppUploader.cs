@@ -137,6 +137,33 @@ public class GraphAppUploader
         }
     }
 
+    public async Task<Win32LobApp?> CreateNewContentVersionAsync(GraphServiceClient graphServiceClient, string appId, string intuneWinFile, CancellationToken cancellationToken = default)
+    {
+        var tempFolder = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
+
+        try
+        {
+            await fileManager.ExtractFileToFolderAsync(intuneWinFile, tempFolder, cancellationToken);
+            var metadataFile = IntuneMetadata.GetMetadataPath(tempFolder);
+            var partialIntuneWinFile = IntuneMetadata.GetContentsPath(tempFolder);
+
+            if (!fileManager.FileExists(metadataFile))
+            {
+                throw new FileNotFoundException("Metadata file not found", metadataFile);
+            }
+            if (!fileManager.FileExists(intuneWinFile))
+            {
+                throw new FileNotFoundException("IntuneWin file not found", partialIntuneWinFile);
+            }
+
+            return await CreateNewContentVersionAsync(graphServiceClient, appId, partialIntuneWinFile, metadataFile, cancellationToken);
+        }
+        finally
+        {
+            fileManager.DeleteFileOrFolder(tempFolder);
+        }
+    }
+
     public async Task<Win32LobApp?> CreateNewContentVersionAsync(GraphServiceClient graphServiceClient, string appId, string partialIntuneWinFile, string metadataFile, CancellationToken cancellationToken = default)
     {
 #if NET8_0_OR_GREATER

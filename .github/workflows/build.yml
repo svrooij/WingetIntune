@@ -36,7 +36,9 @@ jobs:
       - name: 👨‍🔧 Setup .NET Core SDK
         uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: 8.x
+          dotnet-version: |
+            8.x
+            9.x
 
       - name: 🔍 Enable problem matchers
         run: echo "::add-matcher::.github/matchers/dotnet.json"
@@ -89,7 +91,9 @@ jobs:
       - name: 👨‍🔧 Setup .NET Core SDK
         uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: 8.x
+          dotnet-version: |
+            8.x
+            9.x
 
       - name: 🔍 Enable problem matchers
         run: echo "::add-matcher::.github/matchers/dotnet.json"
@@ -171,7 +175,9 @@ jobs:
     - name: 👨‍🔧 Setup .NET Core SDK
       uses: actions/setup-dotnet@v4
       with:
-        dotnet-version: 8.x
+        dotnet-version: |
+          8.x
+          9.x
 
     - name: 🔍 Enable problem matchers
       run: echo "::add-matcher::.github/matchers/dotnet.json"
@@ -218,7 +224,9 @@ jobs:
     - name: 👨‍🔧 Setup .NET Core SDK
       uses: actions/setup-dotnet@v4
       with:
-        dotnet-version: 8.x
+        dotnet-version: |
+          8.x
+          9.x
 
     - name: 🔍 Enable problem matchers
       run: echo "::add-matcher::.github/matchers/dotnet.json"

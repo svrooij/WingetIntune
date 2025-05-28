@@ -22,7 +22,8 @@
     # Minimum version of the Windows PowerShell engine required by this module.
     # This module is build on net8.0 which requires PowerShell 7.4
     # May 5th 2024 Bring back support for PowerShell 7.2 (which seems to be the only supported version in Azure Runbooks)
-    PowerShellVersion = '7.2'
+    # May 27th 2025 Remove support for PowerShell 7.2, as it is no longer supported by Microsoft. (sorry Azure Runbooks users, argue with Microsoft.))
+    PowerShellVersion = '7.4'
 
     # Minimum version of the .NET Framework required by this module.
     # DotNetFrameworkVersion = '4.7.2'

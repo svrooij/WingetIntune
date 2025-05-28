@@ -53,12 +53,23 @@ public class NewIntuneWinPackage : DependencyCmdlet<Startup>
         HelpMessage = "Destination folder, should be outside the source folder")]
     public string? DestinationPath { get; set; }
 
+    /// <summary>
+    /// <para type="description">Create partial package</para>
+    /// </summary>
+    [Parameter(
+        Mandatory = false,
+        Position = 3,
+        DontShow = true,
+        ValueFromPipeline = true,
+        ValueFromPipelineByPropertyName = true,
+        HelpMessage = "Create partial package, this will not zip the final IntuneWin. So it does not need extracting before uploading.")]
+    public SwitchParameter PartialPackage { get; set; }
 
     [ServiceDependency]
     private ILogger<NewIntuneWinPackage>? _logger;
 
     [ServiceDependency]
-    private SvRooij.ContentPrep.Packager? _packager;
+    private WingetIntune.Interfaces.IIntunePackager? _packager;
     /// <inheritdoc/>
     public override async Task ProcessRecordAsync(CancellationToken cancellationToken)
     {
@@ -72,7 +83,7 @@ public class NewIntuneWinPackage : DependencyCmdlet<Startup>
             }
             _logger?.LogInformation("Creating package for {setupFile}", setupFile);
 
-            await _packager!.CreatePackage(SourcePath!, setupFile, DestinationPath!, cancellationToken: cancellationToken);
+            await _packager!.CreatePackage(SourcePath!, DestinationPath!, setupFile, partialPackage: PartialPackage, cancellationToken: cancellationToken);
         }
         catch (Exception ex)
         {

@@ -8,7 +8,6 @@ namespace Winget.CommunityRepository;
 public partial class WingetRepository
 {
     public const string OpenSourceIndexUri = "https://raw.githubusercontent.com/svrooij/winget-pkgs-index/main/index.v2.json";
-    public const string DefaultIndexUri = "https://cdn.winget.microsoft.com/cache/source.msix";
     public bool UseRespository { get; set; }
     public Uri IndexUri { get; set; } = new(OpenSourceIndexUri);
     protected readonly HttpClient httpClient;
@@ -58,9 +57,14 @@ public partial class WingetRepository
         var results = Entries!
             .Where(e => e.Name?.Contains(query, StringComparison.OrdinalIgnoreCase) == true
                 || e.PackageId!.Contains(query, StringComparison.OrdinalIgnoreCase)
-                || e.Tags?.Any(t => t.Contains(query, StringComparison.OrdinalIgnoreCase)) == true
             )
             .ToArray();
+        if (results.Length == 0)
+        {
+            results = Entries!
+                .Where(e => e.Tags?.Any(t => t.Contains(query, StringComparison.OrdinalIgnoreCase)) == true)
+                .ToArray();
+        }
         return results;
     }
 
@@ -87,18 +91,11 @@ public partial class WingetRepository
             }
         }
 
-        if (UseRespository)
-        {
-            LogLoadingPackageIndexFromRepository(DefaultIndexUri);
-            Entries = await LoadEntriesFromSqlLite(cancellationToken, DefaultIndexUri);
-        }
-        else
-        {
-            LogLoadingPackageIndex(IndexUri);
-            var response = await httpClient.GetAsync(IndexUri!, cancellationToken);
-            response.EnsureSuccessStatusCode();
-            Entries = await response.Content.ReadFromJsonAsync<List<Models.WingetEntryExtended>>(cancellationToken: cancellationToken);
-        }
+        LogLoadingPackageIndex(IndexUri);
+        var response = await httpClient.GetAsync(IndexUri!, cancellationToken);
+        response.EnsureSuccessStatusCode();
+        Entries = await response.Content.ReadFromJsonAsync<List<Models.WingetEntryExtended>>(cancellationToken: cancellationToken);
+
 
         if (!string.IsNullOrEmpty(cacheFile))
         {
@@ -110,11 +107,6 @@ public partial class WingetRepository
         }
 
         return Entries!;
-    }
-
-    protected virtual ValueTask<List<Models.WingetEntryExtended>> LoadEntriesFromSqlLite(CancellationToken cancellationToken, string url = DefaultIndexUri)
-    {
-        throw new NotImplementedException("Use the Winget.CommunityRepository.Ef package to use this method");
     }
 
     [LoggerMessage(EventId = 100, Level = LogLevel.Information, Message = "Processing {numberOfEntries} of {totalEntries}")]

@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net6.0</TargetFramework>
+    <TargetFramework>net8.0</TargetFramework>
     <AssemblyName>Svrooij.WinTuner.CmdLets</AssemblyName>
     <LangVersion>10.0</LangVersion>
     <SatelliteResourceLanguages>en</SatelliteResourceLanguages>
@@ -14,9 +14,9 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Azure.Identity" Version="1.13.1" />
+    <PackageReference Include="Azure.Identity" Version="1.14.0" />
     <PackageReference Include="Svrooij.PowerShell.DependencyInjection" Version="1.1.4" />
-    <PackageReference Include="Microsoft.PowerShell.SDK" Version="7.2.24">
+    <PackageReference Include="Microsoft.PowerShell.SDK" Version="7.4.10">
       <PrivateAssets>All</PrivateAssets>
     </PackageReference>
   </ItemGroup>
