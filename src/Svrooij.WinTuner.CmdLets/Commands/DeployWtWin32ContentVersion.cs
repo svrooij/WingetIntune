@@ -7,7 +7,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Kiota.Abstractions.Authentication;
 using WingetIntune.Graph;
-using WingetIntune.Intune;
 
 namespace Svrooij.WinTuner.CmdLets.Commands;
 /// <summary>
@@ -55,10 +54,7 @@ public class DeployWtWin32ContentVersion : BaseIntuneCmdlet
     private GraphAppUploader? graphAppUploader;
 
     [ServiceDependency]
-    private MetadataManager? metadataManager;
-
-    [ServiceDependency]
-    private WingetIntune.Graph.GraphClientFactory? gcf;
+    private GraphClientFactory? gcf;
 
     private bool isPartialPackage;
     private string? metadataFilename;
