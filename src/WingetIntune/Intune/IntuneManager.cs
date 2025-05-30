@@ -68,7 +68,7 @@ public partial class IntuneManager
         }
         LogGeneratePackage(packageInfo.PackageIdentifier!, packageInfo.Version!, packageInfo.Architecture, packageInfo.InstallerContext, outputFolder);
         var packageTempFolder = fileManager.CreateFolderForPackage(tempFolder, packageInfo.PackageIdentifier!, packageInfo.Version!);
-        var packageFolder = fileManager.CreateFolderForPackage(outputFolder, packageInfo.PackageIdentifier!, packageInfo.Version!);
+        var packageFolder = fileManager.CreateFolderForPackage(outputFolder, packageInfo.PackageIdentifier!, packageInfo.Version!, packageInfo.Architecture == Architecture.Arm64);
         var installerPath = await DownloadInstallerAsync(packageTempFolder, packageInfo, cancellationToken);
         LoadMsiDetails(installerPath, ref packageInfo, packageOptions.OverrideArguments, packageOptions.MsiProductCode, packageOptions.MsiVersion);
         var intunePackage = await intunePackager.CreatePackage(packageTempFolder, packageFolder, packageInfo.InstallerFilename!, packageInfo, packageOptions.PartialPackage, cancellationToken: cancellationToken);
@@ -128,7 +128,7 @@ public partial class IntuneManager
         ArgumentNullException.ThrowIfNull(packageInfo);
 #endif
         var packageTempFolder = fileManager.CreateFolderForPackage(tempFolder, packageInfo.PackageIdentifier!, packageInfo.Version!);
-        var packageFolder = fileManager.CreateFolderForPackage(outputFolder, packageInfo.PackageIdentifier!, packageInfo.Version!);
+        var packageFolder = fileManager.CreateFolderForPackage(outputFolder, packageInfo.PackageIdentifier!, packageInfo.Version!, packageInfo.Architecture == Architecture.Arm64);
 
         if (SupportedInstallers.Contains(packageInfo.InstallerType) && !packageOptions.PackageScript)
         {

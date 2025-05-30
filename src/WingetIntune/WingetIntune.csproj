@@ -19,7 +19,7 @@
 
   <ItemGroup>
     <None Include="..\..\.editorconfig" Link=".editorconfig" />
-    <None Include="..\..\README.md" Pack="true" PackagePath="\README.md" />
+    <None Include="README.md" Pack="true" PackagePath="\README.md" />
     <None Include="..\..\LICENSE.txt" Pack="true" PackagePath="\LICENSE.txt" />
 	<None Remove="Scripts\*.ps1" />
 	<EmbeddedResource Include="Scripts\*.ps1" />
@@ -32,8 +32,8 @@
     <PackageReference Include="Microsoft.Extensions.Http" Version="8.0.1" />
     <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="8.0.3" />
     <PackageReference Include="Microsoft.Extensions.Options" Version="8.0.2" />
-    <PackageReference Include="Microsoft.Graph.Beta" Version="5.78.0-preview" />
-    <PackageReference Include="Microsoft.Graph.Core" Version="3.2.3" />
+    <PackageReference Include="Microsoft.Graph.Beta" Version="5.109.0-preview" />
+    <PackageReference Include="Microsoft.Graph.Core" Version="3.2.4" />
     <PackageReference Include="Microsoft.Identity.Client.Broker" Version="4.72.1" />
     <PackageReference Include="Microsoft.Identity.Client.Extensions.Msal" Version="4.72.1" />
     <PackageReference Include="OpenMcdf" Version="[2.3.1]" />

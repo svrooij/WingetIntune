@@ -8,6 +8,7 @@ namespace WingetIntune.Models;
 [Mapper]
 internal partial class Mapper
 {
+    private const string ArmSuffix = " (ARM64)";
     public Win32LobApp ToWin32LobApp(PackageInfo packageInfo)
     {
         if (packageInfo is null)
@@ -21,6 +22,16 @@ internal partial class Mapper
         }
 
         var app = _ToWin32LobApp(packageInfo);
+        if (app is null)
+        {
+            throw new InvalidOperationException("Failed to map PackageInfo to Win32LobApp");
+        }
+
+        if (packageInfo.Architecture == Architecture.Arm64)
+        {
+            app.DisplayName = $"{app.DisplayName}{ArmSuffix}"; // Ensure ARM64 apps are clearly marked
+        }
+
         app.DisplayVersion = packageInfo.Version;
         app.InstallExperience = new Win32LobAppInstallExperience()
         {
@@ -45,7 +56,23 @@ internal partial class Mapper
                 new Win32LobAppReturnCode { Type = Win32LobAppReturnCodeType.Retry, ReturnCode = 1618 }
         };
 
-        app.ApplicableArchitectures = ToGraphArchitecture(packageInfo.Architecture);
+        //app.AllowedArchitectures = ToGraphArchitecture(packageInfo.Architecture);
+        app.ApplicableArchitectures = ToSimpleGraphArchitecture(packageInfo.Architecture);
+
+        // Let's add a requirmentRule for this architecture, so we can filter out the apps that are not applicable for the current architecture
+        if (packageInfo.Architecture == Architecture.Arm64)
+        {
+            app.RequirementRules ??= new List<Win32LobAppRequirement>();
+            app.RequirementRules.Add(new Win32LobAppRegistryRequirement
+            {
+                Check32BitOn64System = false,
+                DetectionType = Win32LobAppRegistryDetectionType.String,
+                DetectionValue = "ARM64",
+                KeyPath = @"HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\Session Manager\Environment",
+                Operator = Win32LobAppDetectionOperator.Equal,
+                ValueName = "PROCESSOR_ARCHITECTURE"
+            });
+        }
 
         if (packageInfo.MsiProductCode is not null && packageInfo.MsiVersion is not null) // packageInfo.InstallerType.IsMsi() 
         {
@@ -106,6 +133,15 @@ internal partial class Mapper
         _ => WindowsArchitecture.None
     };
 
+    private static WindowsArchitecture ToSimpleGraphArchitecture(Architecture? architecture) => architecture switch
+    {
+        Architecture.Arm64 => WindowsArchitecture.X64, // I know feels really strange, needed until "AllowedArchitectures" is activated for all tenants
+        Architecture.X86 => WindowsArchitecture.X86 | WindowsArchitecture.X64,
+        Architecture.X64 => WindowsArchitecture.X64,
+        Architecture.Neutral => WindowsArchitecture.X86 | WindowsArchitecture.X64,
+        _ => WindowsArchitecture.None
+    };
+
     internal partial WingetIntune.Graph.FileEncryptionInfo ToFileEncryptionInfo(ApplicationInfoEncryptionInfo packageInfo);
 
     //internal partial Microsoft.Graph.Beta.Models.FileEncryptionInfo ToGraphEncryptionInfo(ApplicationInfoEncryptionInfo packageInfo);
@@ -115,7 +151,7 @@ internal partial class Mapper
         ArgumentNullException.ThrowIfNull(win32LobApp, nameof(win32LobApp));
 
         var (packageId, _) = win32LobApp.Notes.ExtractPackageIdAndSourceFromNotes();
-        return new IntuneApp
+        var app = new IntuneApp
         {
             PackageId = packageId!,
             Name = win32LobApp.DisplayName!,
@@ -124,7 +160,7 @@ internal partial class Mapper
             SupersededAppCount = win32LobApp.SupersededAppCount,
             SupersedingAppCount = win32LobApp.SupersedingAppCount,
             InstallerContext = win32LobApp.InstallExperience?.RunAsAccount == RunAsAccountType.User ? InstallerContext.User : InstallerContext.System,
-            Architecture = win32LobApp.ApplicableArchitectures switch
+            Architecture = (win32LobApp.AllowedArchitectures ?? win32LobApp.ApplicableArchitectures) switch
             {
                 WindowsArchitecture.Arm64 => Architecture.Arm64,
                 WindowsArchitecture.X64 => Architecture.X64,
@@ -132,6 +168,13 @@ internal partial class Mapper
                 _ => Architecture.Neutral
             }
         };
+
+        if (app.Architecture == Architecture.X64 && app.Name.EndsWith(ArmSuffix))
+        {
+            app.Architecture = Architecture.Arm64;
+        }
+
+        return app;
     }
 }
 

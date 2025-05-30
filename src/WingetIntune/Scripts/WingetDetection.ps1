@@ -47,7 +47,7 @@ $wingetOutput = & $wingetCmd "list" "--id" $packageId "--exact" "--accept-source
 
 if($wingetOutput -is [array]) {
     $lastRow = $wingetOutput[$wingetOutput.Length -1]
-    if ($lastRow.Contains("$packageId $version") or $lastRow.Contains($packageId) and $lastRow.Contains($version)) {
+    if ($lastRow.Contains("$packageId $version") -or ($lastRow.Contains($packageId) -and $lastRow.Contains($version))) {
         Write-Host "$($packageId) version $($version) is installed"
         Write-Host "Exiting with code 0"
         Exit 0

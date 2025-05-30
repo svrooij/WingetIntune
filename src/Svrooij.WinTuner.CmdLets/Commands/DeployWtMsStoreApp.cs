@@ -119,6 +119,23 @@ public class DeployWtMsStoreApp : BaseIntuneCmdlet
 #if NET8_0_OR_GREATER
         ArgumentException.ThrowIfNullOrWhiteSpace(PackageId);
 #endif
+
+        if (PackageId!.StartsWith("https://apps.microsoft.com/detail/", StringComparison.OrdinalIgnoreCase))
+        {
+            var match = System.Text.RegularExpressions.Regex.Match(PackageId, @"detail/([^?]+)", System.Text.RegularExpressions.RegexOptions.None, TimeSpan.FromSeconds(1));
+            if (match.Success)
+            {
+                PackageId = match.Groups[1].Value;
+                logger!.LogInformation("Extracted package id {PackageId} from URL", PackageId);
+            }
+            else
+            {
+                var ex = new ArgumentException("PackageId is not a valid Microsoft Store URL", nameof(PackageId));
+                logger!.LogError(ex, "Only urls that start with 'https://apps.microsoft.com/' can be parsed");
+                return;
+            }
+        }
+
         logger!.LogInformation("Uploading MSStore app {PackageId} to Intune", PackageId);
         var graphServiceClient = gcf!.CreateClient(provider);
         try
