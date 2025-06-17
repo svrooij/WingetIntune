@@ -10,7 +10,7 @@ $version = "{version}"
 # --------------------------- End parameters ---------------------------------
 
 # ------------------------------------Start script, do not edit below -----------------------------------------
-# Start-Transcript -Path "$env:ProgramData\Microsoft\IntuneManagementExtension\Logs\$packageId-detection.log" -Force
+Start-Transcript -Path "$env:ProgramData\Microsoft\IntuneManagementExtension\Logs\$packageId-detection.log" -Force
 Write-Host "Starting $packageId $version detection"
 
 # Need to get the full path of winget, because detection script is run in a different context
