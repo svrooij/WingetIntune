@@ -10,8 +10,8 @@ $version = "{version}"
 # --------------------------- End parameters ---------------------------------
 
 # ------------------------------------Start script, do not edit below -----------------------------------------
-Start-Transcript -Path "$env:ProgramData\Microsoft\IntuneManagementExtension\Logs\$packageId-detection.log" -Force
-Write-Host "Starting $packageId detection"
+# Start-Transcript -Path "$env:ProgramData\Microsoft\IntuneManagementExtension\Logs\$packageId-detection.log" -Force
+Write-Host "Starting $packageId $version detection"
 
 # Need to get the full path of winget, because detection script is run in a different context
 Function Get-WingetCmd {
@@ -36,44 +36,99 @@ Function Get-WingetCmd {
     return $WingetCmd
 }
 
+# Convert command output to array of values
+Function Get-ColumnValuesFromWingetOutput {
+    param (
+        [array]$Output
+    )
+    if ($Output -is [string]) {
+        return @($Output) # Convert single string to array
+    }
+
+    if ($Output -is [array] -and $Output.Length -gt 2) {
+        # $Output is an array, first row is header, last row is data
+        # this will break if multiple lines are returned, but that should not happen with --exact
+        #$headerRow = $Output[$Output.Length - 3]
+        $headerRow = $Output | Where-Object { $_ -match '^[A-Za-z]' } | Select-Object -First 1
+        $lastRow = $Output[$Output.Length - 1]
+
+        # Find the start index of each column by searching for non-space transitions
+        $columnStarts = @()
+        for ($i = 0; $i -lt $headerRow.Length; $i++) {
+            if (($i -eq 0 -or $headerRow[$i - 1] -eq ' ') -and $headerRow[$i] -ne ' ') {
+                $columnStarts += $i
+            }
+        }
+
+        # Add the end of the line as the last column boundary
+        $columnStarts += $lastRow.Length
+
+        # Extract column values from the data row
+        $columns = @()
+        for ($i = 0; $i -lt $columnStarts.Count - 1; $i++) {
+            $start = $columnStarts[$i]
+            $length = $columnStarts[$i + 1] - $start
+            $columns += $lastRow.Substring($start, $length).Trim()
+        }
+
+        return $columns
+    }
+    else {
+        Write-Host "Unexpected output format from winget list command"
+        return @()
+    }
+}
+
+Function Compare-Versions {
+    param (
+        [string]$versionExpected,
+        [string]$versionInstalled
+    )
+    try {
+        $vi = [version]$versionInstalled
+        $ve = [version]$versionExpected
+        return $vi.CompareTo($ve)
+    } catch {
+        # Fallback to string comparison if version parsing fails
+        return $versionInstalled.CompareTo($versionExpected)
+    }
+}
+
 $wingetCmd = Get-WingetCmd
 if ($null -eq $wingetCmd) {
-    Write-Host "winget not detected"
-    Write-Host "Exiting with code 1"
+    Write-Host "winget not detected, exiting with code 1"
     Exit 1
 }
 
 $wingetOutput = & $wingetCmd "list" "--id" $packageId "--exact" "--accept-source-agreements"
 
-if($wingetOutput -is [array]) {
-    $lastRow = $wingetOutput[$wingetOutput.Length -1]
-    if ($lastRow.Contains("$packageId $version") -or ($lastRow.Contains($packageId) -and $lastRow.Contains($version))) {
-        Write-Host "$($packageId) version $($version) is installed"
-        Write-Host "Exiting with code 0"
-        Exit 0
-    } elseif ($lastRow.Contains($packageId)) {
-        try {
-            [reflection.assembly]::LoadWithPartialName("System.Version")
-            $i = $lastRow.IndexOf(" $packageId ") + $packageId.Length + 1
-            $nextSpace = $lastRow.IndexOf(" ", $i + 1)
-            $installedVersion = $lastRow.Substring($i+1, $nextSpace - $i -1)
-            $versionExpected = New-Object System.Version($version)
-            $versionInstalled = New-Object System.Version($installedVersion)
-            Write-Host "$($packageId) version $($installedVersion) is installed"
-            $result = $versionExpected.CompareTo($versionInstalled);
-            if (1 -eq $result) {
-                Write-Host "Installed version is lower"
-                Write-Host "Exiting with code 5"
-                Exit 5
-            }
-            Write-Host "Exiting with code 0"
+if($wingetOutput -is [array]) { # the output will be either an array of lines or a string when it is just one line.
+
+    $columns = Get-ColumnValuesFromWingetOutput -Output $wingetOutput
+    if ($columns.Length -lt 4) {
+        Write-Host "Got invalid column count $($columns.Length) expected at least 4, exiting with code 10"
+        Exit 10
+    }
+
+    if ($columns[1] -eq $packageId) {
+        if ($null -eq $version -or $version -eq "") {
+            Write-Host "$($packageId) version $($columns[2]) is installed, exiting with code 0"
             Exit 0
-        } catch {
-            Write-Host "Unable to compare versions (why is this not a semver?)"
+        }
+        if ($columns[2] -eq $version) {
+            Write-Host "$($packageId) version $($version) is installed, exiting with code 0"
+            Exit 0
+        }
+        $versionValue = Compare-Versions -versionExpected $version -versionInstalled $columns[2]
+        if ($versionValue -lt 0) {
+            Write-Host "$($packageId) is installed but $($columns[2]) is lower than expected $($version), exit code 4"
+            Exit 4
+        } else {
+            Write-Host "$($packageId) is installed $($columns[2]) is equal of higher than expected $($version), exit code 0"
+            Exit 0
         }
     }
 }
 
-Write-Host "$($packageId) not detected using winget"
-Write-Host "Exiting with code 10"
+Write-Host "$($packageId) not detected using winget, exiting with code 10"
 Exit 10
