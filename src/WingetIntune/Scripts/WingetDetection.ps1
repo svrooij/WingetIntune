@@ -81,16 +81,16 @@ Function Get-ColumnValuesFromWingetOutput {
 
 Function Compare-Versions {
     param (
-        [string]$versionExpected,
-        [string]$versionInstalled
+        [string]$VersionExpected,
+        [string]$VersionInstalled
     )
     try {
-        $vi = [version]$versionInstalled
-        $ve = [version]$versionExpected
+        $vi = [version]$VersionInstalled
+        $ve = [version]$VersionExpected
         return $vi.CompareTo($ve)
     } catch {
         # Fallback to string comparison if version parsing fails
-        return $versionInstalled.CompareTo($versionExpected)
+        return $VersionInstalled.CompareTo($VersionExpected)
     }
 }
 
@@ -107,6 +107,8 @@ if($wingetOutput -is [array]) { # the output will be either an array of lines or
     $columns = Get-ColumnValuesFromWingetOutput -Output $wingetOutput
     if ($columns.Length -lt 4) {
         Write-Host "Got invalid column count $($columns.Length) expected at least 4, exiting with code 10"
+        Write-Host "Winget output:"
+        Write-Host "$($wingetOutput)"
         Exit 10
     }
 
@@ -119,7 +121,7 @@ if($wingetOutput -is [array]) { # the output will be either an array of lines or
             Write-Host "$($packageId) version $($version) is installed, exiting with code 0"
             Exit 0
         }
-        $versionValue = Compare-Versions -versionExpected $version -versionInstalled $columns[2]
+        $versionValue = Compare-Versions -VersionExpected $version -VersionInstalled $columns[2]
         if ($versionValue -lt 0) {
             Write-Host "$($packageId) is installed but $($columns[2]) is lower than expected $($version), exit code 4"
             Exit 4
@@ -131,4 +133,6 @@ if($wingetOutput -is [array]) { # the output will be either an array of lines or
 }
 
 Write-Host "$($packageId) not detected using winget, exiting with code 10"
+Write-Host "Winget output:"
+Write-Host "$($wingetOutput)"
 Exit 10
