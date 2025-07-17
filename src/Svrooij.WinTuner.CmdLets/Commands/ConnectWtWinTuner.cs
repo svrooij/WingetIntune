@@ -308,7 +308,7 @@ public class ConnectWtWinTuner : DependencyCmdlet<Startup>
                                 Name = "WinTuner-PowerShell-CC",
                                 UnsafeAllowUnencryptedStorage = true,
                             }
-                        }), isCaeEnabled: false, scopes: scope);
+                        }), isCaeEnabled: false, scopes: DefaultClientCredentialScope);
             }
             else
             {
