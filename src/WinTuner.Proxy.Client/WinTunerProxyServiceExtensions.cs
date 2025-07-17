@@ -22,7 +22,7 @@ public static class WinTunerProxyServiceExtensions
     private static IServiceCollection AddKiotaHandlers(this IServiceCollection services)
     {
         // Dynamically load the Kiota handlers from the Client Factory
-        var kiotaHandlers = KiotaClientFactory.GetDefaultHandlerTypes();
+        var kiotaHandlers = KiotaClientFactory.GetDefaultHandlerActivatableTypes();
         // And register them in the DI container
         foreach (var handler in kiotaHandlers)
         {
@@ -35,7 +35,7 @@ public static class WinTunerProxyServiceExtensions
     private static IHttpClientBuilder AttachKiotaHandlers(this IHttpClientBuilder builder)
     {
         // Dynamically load the Kiota handlers from the Client Factory
-        var kiotaHandlers = KiotaClientFactory.GetDefaultHandlerTypes();
+        var kiotaHandlers = KiotaClientFactory.GetDefaultHandlerActivatableTypes();
         // And attach them to the http client builder
         foreach (var handler in kiotaHandlers)
         {
