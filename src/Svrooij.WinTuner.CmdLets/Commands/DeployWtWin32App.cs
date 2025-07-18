@@ -142,7 +142,6 @@ public class DeployWtWin32App : BaseIntuneCmdlet
     /// <para type="description">The graph id of the app to supersede</para>
     /// </summary>
     [Parameter(DontShow = true, HelpMessage = "Graph ID of the app to supersede", Position = 30, Mandatory = false)]
-    [Alias("AppId")]
     public string? GraphId { get; set; }
 
     /// <summary>
