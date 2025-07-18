@@ -770,6 +770,17 @@ Connect-WtWinTuner -UseDefaultCredentials</dev:code>
           </dev:type>
           <dev:defaultValue>None</dev:defaultValue>
         </command:parameter>
+        <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="30" aliases="none">
+          <maml:name>KeepAssignments</maml:name>
+          <maml:description>
+            <maml:para>Keep assignments on app that is superseded</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">SwitchParameter</command:parameterValue>
+          <dev:type>
+            <maml:name>SwitchParameter</maml:name>
+          </dev:type>
+          <dev:defaultValue>False</dev:defaultValue>
+        </command:parameter>
         <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="100" aliases="none">
           <maml:name>OverrideAppName</maml:name>
           <maml:description>
@@ -883,6 +894,17 @@ Connect-WtWinTuner -UseDefaultCredentials</dev:code>
           </dev:type>
           <dev:defaultValue>None</dev:defaultValue>
         </command:parameter>
+        <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="30" aliases="none">
+          <maml:name>KeepAssignments</maml:name>
+          <maml:description>
+            <maml:para>Keep assignments on app that is superseded</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">SwitchParameter</command:parameterValue>
+          <dev:type>
+            <maml:name>SwitchParameter</maml:name>
+          </dev:type>
+          <dev:defaultValue>False</dev:defaultValue>
+        </command:parameter>
         <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="100" aliases="none">
           <maml:name>OverrideAppName</maml:name>
           <maml:description>
@@ -973,6 +995,17 @@ Connect-WtWinTuner -UseDefaultCredentials</dev:code>
             <maml:name>String</maml:name>
           </dev:type>
           <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="30" aliases="none">
+          <maml:name>KeepAssignments</maml:name>
+          <maml:description>
+            <maml:para>Keep assignments on app that is superseded</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">SwitchParameter</command:parameterValue>
+          <dev:type>
+            <maml:name>SwitchParameter</maml:name>
+          </dev:type>
+          <dev:defaultValue>False</dev:defaultValue>
         </command:parameter>
         <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="100" aliases="none">
           <maml:name>OverrideAppName</maml:name>
@@ -1086,6 +1119,17 @@ Connect-WtWinTuner -UseDefaultCredentials</dev:code>
           <maml:name>String</maml:name>
         </dev:type>
         <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="30" aliases="none">
+        <maml:name>KeepAssignments</maml:name>
+        <maml:description>
+          <maml:para>Keep assignments on app that is superseded</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">SwitchParameter</command:parameterValue>
+        <dev:type>
+          <maml:name>SwitchParameter</maml:name>
+        </dev:type>
+        <dev:defaultValue>False</dev:defaultValue>
       </command:parameter>
       <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="11" aliases="none">
         <maml:name>Categories</maml:name>

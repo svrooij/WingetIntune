@@ -12,8 +12,7 @@ using WingetIntune.Graph;
 using WingetIntune.Intune;
 using GraphModels = Microsoft.Graph.Beta.Models;
 using System.Linq;
-using Microsoft.Kiota.Abstractions.Serialization;
-using Microsoft.Kiota.Abstractions.Extensions;
+using WinTuner.Proxy.Client;
 using WingetIntune.Extensions;
 
 namespace Svrooij.WinTuner.CmdLets.Commands;
@@ -147,6 +146,13 @@ public class DeployWtWin32App : BaseIntuneCmdlet
     public string? GraphId { get; set; }
 
     /// <summary>
+    /// <para type="description">If set to true the old apps will stay assigned to the user.</para>
+    /// </summary>
+    [Parameter(DontShow = true, HelpMessage = "Keep assignments on app that is superseded", Position = 30, Mandatory = false)]
+    [Alias("AppId")]
+    public SwitchParameter KeepAssignments { get; set; }
+
+    /// <summary>
     /// <para type="description">Categories to add to the app</para>
     /// </summary>
     [Parameter(Mandatory = false,
@@ -196,12 +202,17 @@ public class DeployWtWin32App : BaseIntuneCmdlet
     [ServiceDependency]
     private WingetIntune.Graph.GraphClientFactory? gcf;
 
+    [ServiceDependency]
+    private WinTunerProxyClient? proxyClient;
+
     private bool isPartialPackage;
     private string? metadataFilename;
 
     /// <inheritdoc/>
     protected override async Task ProcessAuthenticatedAsync(IAuthenticationProvider provider, CancellationToken cancellationToken)
     {
+        proxyClient?.TriggerEvent(ConnectWtWinTuner.SessionId, nameof(DeployWtWin32App), appVersion: ConnectWtWinTuner.AppVersion, packageId: PackageId, cancellationToken: cancellationToken);
+
         if (App is null)
         {
             if (ParameterSetName == ParameterSetWinGet)
@@ -299,7 +310,7 @@ public class DeployWtWin32App : BaseIntuneCmdlet
         // Check if we need to supersede an app
         if (GraphId is not null)
         {
-            await SupersedeApp(logger!, graphServiceClient, newApp!.Id!, GraphId, cancellationToken);
+            await SupersedeApp(logger!, graphServiceClient, newApp!.Id!, GraphId, KeepAssignments, cancellationToken);
         }
         else
         {
@@ -314,7 +325,8 @@ public class DeployWtWin32App : BaseIntuneCmdlet
                 (UninstallFor is not null && UninstallFor.Any()))
             {
                 logger?.LogInformation("Assigning app {AppId} to groups", newApp!.Id);
-                await graphServiceClient.AssignAppAsync(newApp!.Id!, RequiredFor, AvailableFor, UninstallFor, false, cancellationToken);
+                // By default the Auto Update is enabled for the new app, be sure to update this on old apps.
+                await graphServiceClient.AssignAppAsync(newApp!.Id!, RequiredFor, AvailableFor, UninstallFor, true, cancellationToken);
             }
         }
 
@@ -335,9 +347,10 @@ public class DeployWtWin32App : BaseIntuneCmdlet
     /// <param name="graphServiceClient"></param>
     /// <param name="newAppId"></param>
     /// <param name="oldAppId"></param>
+    /// <param name="keepOldAssignments"></param>
     /// <param name="cancellationToken"></param>
     /// <returns></returns>
-    private static async Task SupersedeApp(ILogger logger, GraphServiceClient graphServiceClient, string newAppId, string oldAppId, CancellationToken cancellationToken)
+    private static async Task SupersedeApp(ILogger logger, GraphServiceClient graphServiceClient, string newAppId, string oldAppId, bool keepOldAssignments, CancellationToken cancellationToken)
     {
         logger?.LogDebug("Loading old app {OldAppId} to superseed", oldAppId);
         var oldApp = await graphServiceClient.DeviceAppManagement.MobileApps[oldAppId].GetAsync(req =>
@@ -381,8 +394,12 @@ public class DeployWtWin32App : BaseIntuneCmdlet
                 {
                     if (assignment.Intent == GraphModels.InstallIntent.Available && assignment.Settings is null)
                     {
-                        assignment.Settings = new GraphModels.Win32LobAppAssignmentSettings { Notifications = GraphModels.Win32LobAppNotification.ShowReboot };
-                        assignment.Settings.AdditionalData.Add("autoUpdateSettings", new Win32LobAppAutoUpdateSettings());
+                        assignment.Settings = new GraphModels.Win32LobAppAssignmentSettings
+                        {
+                            Notifications = GraphModels.Win32LobAppNotification.ShowReboot,
+                            AutoUpdateSettings = new GraphModels.Win32LobAppAutoUpdateSettings { AutoUpdateSupersededAppsState = GraphModels.Win32LobAutoUpdateSupersededAppsState.Enabled }
+                        };
+
                     }
                 }
 
@@ -392,10 +409,14 @@ public class DeployWtWin32App : BaseIntuneCmdlet
                 }));
 
                 // Remove assignments from old app
-                await batch.AddBatchRequestStepAsync(graphServiceClient.DeviceAppManagement.MobileApps[oldAppId].Assign.ToPostRequestInformation(new Microsoft.Graph.Beta.DeviceAppManagement.MobileApps.Item.Assign.AssignPostRequestBody
+                if (!keepOldAssignments)
                 {
-                    MobileAppAssignments = new System.Collections.Generic.List<GraphModels.MobileAppAssignment>()
-                }));
+                    await batch.AddBatchRequestStepAsync(graphServiceClient.DeviceAppManagement.MobileApps[oldAppId].Assign.ToPostRequestInformation(new Microsoft.Graph.Beta.DeviceAppManagement.MobileApps.Item.Assign.AssignPostRequestBody
+                    {
+                        MobileAppAssignments = new System.Collections.Generic.List<GraphModels.MobileAppAssignment>()
+                    }));
+                }
+
             }
 
             // Execute batch

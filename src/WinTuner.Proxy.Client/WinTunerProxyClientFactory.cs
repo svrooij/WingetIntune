@@ -13,6 +13,7 @@ internal class WinTunerProxyClientFactory
         if (this.options.BaseAddress is not null)
         {
             this.httpClient.BaseAddress = this.options.BaseAddress;
+            this.httpClient.DefaultRequestHeaders.Add("User-Agent", "WinTuner.Proxy.Client/1.0");
         }
     }
 

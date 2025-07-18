@@ -72,6 +72,8 @@ public class ConnectWtWinTuner : DependencyCmdlet<Startup>
     private static readonly string[] DefaultScopes = { "DeviceManagementConfiguration.ReadWrite.All", "DeviceManagementApps.ReadWrite.All" };
 
     internal static IAuthenticationProvider? AuthenticationProvider { get; private set; }
+    internal static string? SessionId { get; private set; }
+    internal static string AppVersion { get; } = typeof(ConnectWtWinTuner).Assembly.GetName().Version?.ToString() ?? "1.0.0";
 
     /// <summary>
     /// Use a managed identity to connect to Intune
@@ -264,6 +266,7 @@ public class ConnectWtWinTuner : DependencyCmdlet<Startup>
     /// <inheritdoc />
     public override async Task ProcessRecordAsync(CancellationToken cancellationToken)
     {
+        ConnectWtWinTuner.SessionId ??= Guid.NewGuid().ToString();
         _logger?.LogInformation("Connecting to Intune using {ParameterSetName}", ParameterSetName);
         AuthenticationProvider = CreateAuthenticationProvider(cancellationToken);
 
