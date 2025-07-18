@@ -64,14 +64,57 @@ public static class GraphWorkflows
         return assignments.Count;
     }
 
+    public static async Task<bool> EnableAppAutoUpdateOnExistingAssignmentsAsync(this GraphServiceClient graphServiceClient, string appId, CancellationToken cancellationToken)
+    {
+        #if NET8_0_OR_GREATER
+        ArgumentNullException.ThrowIfNull(graphServiceClient);
+        ArgumentException.ThrowIfNullOrEmpty(appId);
+        ArgumentNullException.ThrowIfNull(cancellationToken);
+        #endif
+
+        var app = await graphServiceClient.DeviceAppManagement.MobileApps[appId].GetAsync(req =>
+        {
+            req.QueryParameters.Expand = new[] { "assignments" };
+        }, cancellationToken: cancellationToken);
+
+        if (app is null || app.Assignments is null || !app.Assignments.Any())
+        {
+            return false; // No assignments found
+        }
+
+        var newAssignments = app.Assignments;
+        foreach(var assignment in newAssignments)
+        {
+            if (assignment.Intent == InstallIntent.Available )
+            {
+                assignment.Settings ??= new Win32LobAppAssignmentSettings();
+                if (assignment.Settings is Win32LobAppAssignmentSettings win32Settings)
+                {
+                    win32Settings.Notifications = Win32LobAppNotification.ShowReboot;
+                    win32Settings.AutoUpdateSettings ??= new Win32LobAppAutoUpdateSettings();
+                    win32Settings.AutoUpdateSettings.AutoUpdateSupersededAppsState = Win32LobAutoUpdateSupersededAppsState.Enabled;
+                }
+            }
+        }
+
+        await graphServiceClient.DeviceAppManagement.MobileApps[appId].Assign.PostAsync(new Microsoft.Graph.Beta.DeviceAppManagement.MobileApps.Item.Assign.AssignPostRequestBody
+        {
+            MobileAppAssignments = newAssignments
+        }, cancellationToken: cancellationToken);
+        return true;
+    }
+
     private static List<MobileAppAssignment> GenerateAssignments(string[] groups, InstallIntent intent, bool addSetting = false)
     {
         List<MobileAppAssignment> assignments = new List<MobileAppAssignment>();
         MobileAppAssignmentSettings? settings = null;
         if (intent == InstallIntent.Available && addSetting)
         {
-            settings = new Win32LobAppAssignmentSettings { Notifications = Win32LobAppNotification.ShowReboot };
-            settings.AdditionalData.Add("autoUpdateSettings", new Win32LobAppAutoUpdateSettings());
+            settings = new Win32LobAppAssignmentSettings
+            {
+                Notifications = Win32LobAppNotification.ShowReboot,
+                AutoUpdateSettings = new Win32LobAppAutoUpdateSettings { AutoUpdateSupersededAppsState = Win32LobAutoUpdateSupersededAppsState.Enabled }
+            };
         }
         if (groups is not null && groups.Any())
         {
@@ -98,11 +141,8 @@ public static class GraphWorkflows
         {
             Intent = intent,
             Target = target,
+            Settings = settings
         };
-        if (settings is not null)
-        {
-            a.AdditionalData.Add("settings", settings);
-        }
         return a;
     }
 }

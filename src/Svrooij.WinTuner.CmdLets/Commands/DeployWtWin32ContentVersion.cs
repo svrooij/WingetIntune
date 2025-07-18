@@ -7,6 +7,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Kiota.Abstractions.Authentication;
 using WingetIntune.Graph;
+using WinTuner.Proxy.Client;
 
 namespace Svrooij.WinTuner.CmdLets.Commands;
 /// <summary>
@@ -56,6 +57,9 @@ public class DeployWtWin32ContentVersion : BaseIntuneCmdlet
     [ServiceDependency]
     private GraphClientFactory? gcf;
 
+    [ServiceDependency]
+    private WinTunerProxyClient? winTunerProxyClient;
+
     private bool isPartialPackage;
     private string? metadataFilename;
 
@@ -94,6 +98,7 @@ public class DeployWtWin32ContentVersion : BaseIntuneCmdlet
             : await graphAppUploader!.CreateNewContentVersionAsync(graphServiceClient, AppId!, IntuneWinFile, cancellationToken);
         logger?.LogInformation("Uploaded new content version {ContentVersion} for {AppId}", newApp?.CommittedContentVersion, AppId);
 
+        winTunerProxyClient?.TriggerEvent(ConnectWtWinTuner.SessionId, nameof(DeployWtWin32ContentVersion), appVersion: ConnectWtWinTuner.AppVersion, packageId: newApp?.DisplayName, cancellationToken: cancellationToken);
 
 
         WriteObject(newApp?.CommittedContentVersion);

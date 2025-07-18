@@ -16,7 +16,7 @@
   <ItemGroup>
     <PackageReference Include="Azure.Identity" Version="1.14.2" />
     <PackageReference Include="Svrooij.PowerShell.DependencyInjection" Version="1.1.4" />
-    <PackageReference Include="Microsoft.PowerShell.SDK" Version="7.4.10">
+    <PackageReference Include="Microsoft.PowerShell.SDK" Version="7.4.11">
       <PrivateAssets>All</PrivateAssets>
     </PackageReference>
   </ItemGroup>

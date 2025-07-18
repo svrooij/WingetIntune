@@ -37,8 +37,12 @@ public partial class DefaultFileManager : IFileManager
         }
         LogCreatingFolder(parentFolder, packageName, packageVersion);
         string folder = Path.Combine(parentFolder, packageName, packageVersion);
-        if (!Directory.Exists(folder))
-            Directory.CreateDirectory(folder);
+        if (Directory.Exists(folder))
+        {
+            // If the directory already exists, delete it to ensure a clean state
+            Directory.Delete(folder, recursive: true);
+        }
+        Directory.CreateDirectory(folder);
         return folder;
     }
 

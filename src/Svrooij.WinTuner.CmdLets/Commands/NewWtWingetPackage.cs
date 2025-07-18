@@ -4,6 +4,7 @@ using System.IO;
 using System.Management.Automation;
 using System.Threading;
 using System.Threading.Tasks;
+using WinTuner.Proxy.Client;
 
 namespace Svrooij.WinTuner.CmdLets.Commands;
 /// <summary>
@@ -176,6 +177,9 @@ public class NewWtWingetPackage : DependencyCmdlet<Startup>
     [ServiceDependency]
     private WingetIntune.IntuneManager intuneManager;
 
+    [ServiceDependency]
+    private WinTunerProxyClient? proxyClient;
+
     /// <inheritdoc/>
     public override async Task ProcessRecordAsync(CancellationToken cancellationToken)
     {
@@ -192,7 +196,7 @@ public class NewWtWingetPackage : DependencyCmdlet<Startup>
         }
 
         logger.LogInformation("Packaging package {PackageId} {Version}", PackageId, Version);
-
+        proxyClient?.TriggerEvent(ConnectWtWinTuner.SessionId, nameof(NewWtWingetPackage), appVersion: ConnectWtWinTuner.AppVersion, packageId: PackageId, cancellationToken: cancellationToken);
         var packageInfo = await repository.GetPackageInfoAsync(PackageId!, Version, source: "winget", cancellationToken: cancellationToken);
 
         if (packageInfo != null)

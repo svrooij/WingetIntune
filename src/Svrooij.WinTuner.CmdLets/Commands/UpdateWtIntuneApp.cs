@@ -90,6 +90,10 @@ public class UpdateWtIntuneApp : BaseIntuneCmdlet
         {
             logger?.LogInformation("Assigning app {appId} to groups", AppId);
             await graphServiceClient.AssignAppAsync(AppId!, RequiredFor, AvailableFor, UninstallFor, EnableAutoUpdate, cancellationToken);
+        } else if (EnableAutoUpdate.IsPresent)
+        {
+            logger?.LogInformation("Enabling auto update for app {appId}", AppId);
+            await graphServiceClient.EnableAppAutoUpdateOnExistingAssignmentsAsync(AppId!, cancellationToken);
         }
 
         // Load the app to get the relationships

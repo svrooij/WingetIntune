@@ -15,6 +15,7 @@
     <PackageTags>Intune;Winget</PackageTags>
     <SatelliteResourceLanguages>en</SatelliteResourceLanguages>
     <NoWarn>CS8618;CS0649</NoWarn>
+	<SuppressTfmSupportBuildWarnings>true</SuppressTfmSupportBuildWarnings>
   </PropertyGroup>
 
   <ItemGroup>
