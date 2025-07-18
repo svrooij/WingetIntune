@@ -399,7 +399,7 @@ public class DeployWtWin32App : BaseIntuneCmdlet
                             Notifications = GraphModels.Win32LobAppNotification.ShowReboot,
                             AutoUpdateSettings = new GraphModels.Win32LobAppAutoUpdateSettings { AutoUpdateSupersededAppsState = GraphModels.Win32LobAutoUpdateSupersededAppsState.Enabled }
                         };
-                        
+
                     }
                 }
 
@@ -416,7 +416,7 @@ public class DeployWtWin32App : BaseIntuneCmdlet
                         MobileAppAssignments = new System.Collections.Generic.List<GraphModels.MobileAppAssignment>()
                     }));
                 }
-                
+
             }
 
             // Execute batch

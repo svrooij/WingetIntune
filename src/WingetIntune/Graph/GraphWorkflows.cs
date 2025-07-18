@@ -66,11 +66,11 @@ public static class GraphWorkflows
 
     public static async Task<bool> EnableAppAutoUpdateOnExistingAssignmentsAsync(this GraphServiceClient graphServiceClient, string appId, CancellationToken cancellationToken)
     {
-        #if NET8_0_OR_GREATER
+#if NET8_0_OR_GREATER
         ArgumentNullException.ThrowIfNull(graphServiceClient);
         ArgumentException.ThrowIfNullOrEmpty(appId);
         ArgumentNullException.ThrowIfNull(cancellationToken);
-        #endif
+#endif
 
         var app = await graphServiceClient.DeviceAppManagement.MobileApps[appId].GetAsync(req =>
         {
@@ -83,9 +83,9 @@ public static class GraphWorkflows
         }
 
         var newAssignments = app.Assignments;
-        foreach(var assignment in newAssignments)
+        foreach (var assignment in newAssignments)
         {
-            if (assignment.Intent == InstallIntent.Available )
+            if (assignment.Intent == InstallIntent.Available)
             {
                 assignment.Settings ??= new Win32LobAppAssignmentSettings();
                 if (assignment.Settings is Win32LobAppAssignmentSettings win32Settings)
