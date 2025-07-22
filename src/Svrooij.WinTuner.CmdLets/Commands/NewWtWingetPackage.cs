@@ -196,7 +196,7 @@ public class NewWtWingetPackage : DependencyCmdlet<Startup>
         }
 
         logger.LogInformation("Packaging package {PackageId} {Version}", PackageId, Version);
-        proxyClient?.TriggerEvent(ConnectWtWinTuner.SessionId, nameof(NewWtWingetPackage), appVersion: ConnectWtWinTuner.AppVersion, packageId: PackageId, cancellationToken: cancellationToken);
+        proxyClient?.TriggerEvent(ConnectWtWinTuner.SessionId, nameof(NewWtWingetPackage), appVersion: ConnectWtWinTuner.AppVersion, packageId: PackageId, cancellationToken: CancellationToken.None);
         var packageInfo = await repository.GetPackageInfoAsync(PackageId!, Version, source: "winget", cancellationToken: cancellationToken);
 
         if (packageInfo != null)

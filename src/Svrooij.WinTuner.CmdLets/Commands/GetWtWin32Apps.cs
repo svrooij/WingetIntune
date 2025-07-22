@@ -42,18 +42,31 @@ public class GetWtWin32Apps : BaseIntuneCmdlet
     public bool? Update { get; set; }
 
     /// <summary>
-    /// <para type="description">Filter based on SupersedingAppCount</para>
+    /// <para type="description">Filter on if this app is superseded. `true` means only show apps that are superseded. `false` means only show apps that are not superseded</para>
     /// </summary>
     [Parameter(Mandatory = false,
-               HelpMessage = "Filter based on SupersedingAppCount")]
+               HelpMessage = "Filter on if this app is superseded. `true` means only show apps that are superseded. `false` means only show apps that are not superseded")]
     public bool? Superseded { get; set; }
 
     /// <summary>
-    /// <para type="description">Filter based on SupersedingAppCount</para>
+    /// <para type="description">Filter on if this app is superseding other apps. `true` means only show apps that are superseding at least 1 app. `false` means only show apps that are not superseding any app</para>
     /// </summary>
     [Parameter(Mandatory = false,
-                      HelpMessage = "Filter based on SupersedingAppCount")]
+                      HelpMessage = "Filter on if this app is superseding other apps. `true` means only show apps that are superseding at least 1 app. `false` means only show apps that are not superseding any app")]
     public bool? Superseding { get; set; }
+
+    /// <summary>
+    /// <para type="description">Server-side filter on displayName contains.</para>
+    /// </summary>
+    [Parameter(Mandatory = false,
+                      HelpMessage = "Server-side filter on displayName contains.")]
+    public string? NameContains { get; set; }
+
+    /// <summary>
+    /// <para type="description">Server-side filter on isAssigned.</para>
+    /// </summary>
+    [Parameter(Mandatory = false, HelpMessage = "Server-side filter on isAssigned.")]
+    public bool? IsAssigned { get; set; }
 
     [ServiceDependency]
     private ILogger<GetWtWin32Apps>? logger;
@@ -70,7 +83,7 @@ public class GetWtWin32Apps : BaseIntuneCmdlet
         logger?.LogInformation("Getting list of published apps");
 
         var graphServiceClient = gcf!.CreateClient(provider);
-        var apps = await graphServiceClient.DeviceAppManagement.MobileApps.GetWinTunerAppsAsync(cancellationToken);
+        var apps = await graphServiceClient.DeviceAppManagement.MobileApps.GetWinTunerAppsAsync(NameContains, isAssigned: IsAssigned, cancellationToken: cancellationToken);
 
         List<Models.WtWin32App> result = new();
 
@@ -88,6 +101,7 @@ public class GetWtWin32Apps : BaseIntuneCmdlet
                 InstallerContext = app.InstallerContext,
                 Architecture = app.Architecture,
                 LatestVersion = version,
+                IsAssigned = app.IsAssigned,
             });
         }
 
@@ -98,13 +112,19 @@ public class GetWtWin32Apps : BaseIntuneCmdlet
 
         if (Superseded.HasValue)
         {
-            result = result.Where(x => x.SupersedingAppCount > 0 == Superseded.Value).ToList();
+            result = result.Where(x => x.SupersededAppCount > 0 == Superseded.Value).ToList();
         }
 
         if (Superseding.HasValue)
         {
-            result = Superseding.Value ? result.Where(x => x.SupersededAppCount > 0).ToList() : result.Where(x => x.SupersededAppCount == 0).ToList();
+            result = Superseding.Value
+                ? result.Where(x => x.SupersedingAppCount > 0).ToList()
+                : result.Where(x => x.SupersedingAppCount == 0).ToList();
         }
+
+        // Sort the results by Name and CurrentVersion
+        // Server side the results are alread sorted by Name, but sorting on CurrentVersion is not possible server side, so we do it here.
+        result = result.OrderBy(x => x.Name).ThenBy(x => x.CurrentVersion).ToList();
 
         WriteObject(result, true);
     }

@@ -98,7 +98,7 @@ public class DeployWtWin32ContentVersion : BaseIntuneCmdlet
             : await graphAppUploader!.CreateNewContentVersionAsync(graphServiceClient, AppId!, IntuneWinFile, cancellationToken);
         logger?.LogInformation("Uploaded new content version {ContentVersion} for {AppId}", newApp?.CommittedContentVersion, AppId);
 
-        winTunerProxyClient?.TriggerEvent(ConnectWtWinTuner.SessionId, nameof(DeployWtWin32ContentVersion), appVersion: ConnectWtWinTuner.AppVersion, packageId: newApp?.DisplayName, cancellationToken: cancellationToken);
+        winTunerProxyClient?.TriggerEvent(ConnectWtWinTuner.SessionId, nameof(DeployWtWin32ContentVersion), appVersion: ConnectWtWinTuner.AppVersion, packageId: newApp?.DisplayName, cancellationToken: CancellationToken.None);
 
 
         WriteObject(newApp?.CommittedContentVersion);

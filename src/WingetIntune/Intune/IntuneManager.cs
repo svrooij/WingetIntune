@@ -398,15 +398,6 @@ public partial class IntuneManager
         }
     }
 
-    public Task<IEnumerable<IntuneApp>> GetPublishedAppsAsync(IntunePublishOptions options, CancellationToken cancellationToken = default)
-    {
-        ArgumentNullException.ThrowIfNull(options);
-
-        GraphServiceClient graphServiceClient = CreateGraphClientFromOptions(options);
-
-        return graphServiceClient.DeviceAppManagement.MobileApps.GetWinTunerAppsAsync(cancellationToken);
-    }
-
     private async Task AddCategoriesToApp(GraphServiceClient graphServiceClient, string appId, string[] categories, CancellationToken cancellationToken)
     {
 #if NET8_0_OR_GREATER

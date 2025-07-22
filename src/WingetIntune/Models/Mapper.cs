@@ -166,7 +166,8 @@ internal partial class Mapper
                 WindowsArchitecture.X64 => Architecture.X64,
                 WindowsArchitecture.X86 => Architecture.X86,
                 _ => Architecture.Neutral
-            }
+            },
+            IsAssigned = win32LobApp.IsAssigned ?? false // This is not part of the Win32LobApp, but used in the cmdlet to filter apps that are assigned to a device or user
         };
 
         if (app.Architecture == Architecture.X64 && app.Name.EndsWith(ArmSuffix))

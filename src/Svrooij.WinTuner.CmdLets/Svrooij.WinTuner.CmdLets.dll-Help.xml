@@ -1462,7 +1462,7 @@ Connect-WtWinTuner -UseDefaultCredentials</dev:code>
         <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="0" aliases="none">
           <maml:name>Superseded</maml:name>
           <maml:description>
-            <maml:para>Filter based on SupersedingAppCount</maml:para>
+            <maml:para>Filter on if this app is superseded. `true` means only show apps that are superseded. `false` means only show apps that are not superseded</maml:para>
           </maml:description>
           <command:parameterValue required="false" variableLength="false">Boolean</command:parameterValue>
           <dev:type>
@@ -1473,7 +1473,29 @@ Connect-WtWinTuner -UseDefaultCredentials</dev:code>
         <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="0" aliases="none">
           <maml:name>Superseding</maml:name>
           <maml:description>
-            <maml:para>Filter based on SupersedingAppCount</maml:para>
+            <maml:para>Filter on if this app is superseding other apps. `true` means only show apps that are superseding at least 1 app. `false` means only show apps that are not superseding any app</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">Boolean</command:parameterValue>
+          <dev:type>
+            <maml:name>Boolean</maml:name>
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="0" aliases="none">
+          <maml:name>NameContains</maml:name>
+          <maml:description>
+            <maml:para>Server-side filter on displayName contains.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
+          <dev:type>
+            <maml:name>String</maml:name>
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="0" aliases="none">
+          <maml:name>IsAssigned</maml:name>
+          <maml:description>
+            <maml:para>Server-side filter on isAssigned.</maml:para>
           </maml:description>
           <command:parameterValue required="false" variableLength="false">Boolean</command:parameterValue>
           <dev:type>
@@ -1498,7 +1520,7 @@ Connect-WtWinTuner -UseDefaultCredentials</dev:code>
       <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="0" aliases="none">
         <maml:name>Superseded</maml:name>
         <maml:description>
-          <maml:para>Filter based on SupersedingAppCount</maml:para>
+          <maml:para>Filter on if this app is superseded. `true` means only show apps that are superseded. `false` means only show apps that are not superseded</maml:para>
         </maml:description>
         <command:parameterValue required="false" variableLength="false">Boolean</command:parameterValue>
         <dev:type>
@@ -1509,7 +1531,29 @@ Connect-WtWinTuner -UseDefaultCredentials</dev:code>
       <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="0" aliases="none">
         <maml:name>Superseding</maml:name>
         <maml:description>
-          <maml:para>Filter based on SupersedingAppCount</maml:para>
+          <maml:para>Filter on if this app is superseding other apps. `true` means only show apps that are superseding at least 1 app. `false` means only show apps that are not superseding any app</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">Boolean</command:parameterValue>
+        <dev:type>
+          <maml:name>Boolean</maml:name>
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="0" aliases="none">
+        <maml:name>NameContains</maml:name>
+        <maml:description>
+          <maml:para>Server-side filter on displayName contains.</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
+        <dev:type>
+          <maml:name>String</maml:name>
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="0" aliases="none">
+        <maml:name>IsAssigned</maml:name>
+        <maml:description>
+          <maml:para>Server-side filter on isAssigned.</maml:para>
         </maml:description>
         <command:parameterValue required="false" variableLength="false">Boolean</command:parameterValue>
         <dev:type>
