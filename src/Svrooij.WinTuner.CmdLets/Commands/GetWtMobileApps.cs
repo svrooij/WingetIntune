@@ -92,7 +92,6 @@ public class GetWtMobileApps : BaseIntuneCmdlet
             return;
         }
 
-        
         var vc = new WingetIntune.Models.StringVersionComparer();
         var result = apps.Value!.ToArray();
         await Task.Delay(100, cancellationToken); // Sometimes PowerShell does not like it when we return too fast. "Collection was modified; enumeration operation may not execute."
