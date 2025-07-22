@@ -38,12 +38,20 @@ public static class MobileAppsRequestBuilderExtensions
         }, cancellationToken: cancellationToken);
     }
 
-    public static async Task<IEnumerable<Models.IntuneApp>> GetWinTunerAppsAsync(this MobileAppsRequestBuilder builder, CancellationToken cancellationToken = default)
+    public static async Task<IEnumerable<Models.IntuneApp>> GetWinTunerAppsAsync(this MobileAppsRequestBuilder builder, string? nameContains = null, bool? isAssigned = null, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(builder);
         var response = await builder.GetAsync(config =>
         {
             config.QueryParameters.Filter = $"isof('{Win32LobType}') and (contains(notes, '[WinTuner|') or contains(notes, '[WingetIntune|'))";
+            if (!string.IsNullOrEmpty(nameContains))
+            {
+                config.QueryParameters.Filter += $" and contains(displayName, '{nameContains}')";
+            }
+            if (isAssigned is not null)
+            {
+                config.QueryParameters.Filter += $" and isAssigned eq {(isAssigned == true ? "true" : "false")}";
+            }
             config.QueryParameters.Top = 999;
             config.QueryParameters.Orderby = new[] { "displayName" };
             //config.QueryParameters.Select = new[] { "id", "displayName", "displayVersion", "notes", "supersededAppCount" };

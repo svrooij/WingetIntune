@@ -210,7 +210,7 @@ public class DeployWtWin32App : BaseIntuneCmdlet
     /// <inheritdoc/>
     protected override async Task ProcessAuthenticatedAsync(IAuthenticationProvider provider, CancellationToken cancellationToken)
     {
-        proxyClient?.TriggerEvent(ConnectWtWinTuner.SessionId, nameof(DeployWtWin32App), appVersion: ConnectWtWinTuner.AppVersion, packageId: PackageId, cancellationToken: cancellationToken);
+        proxyClient?.TriggerEvent(ConnectWtWinTuner.SessionId, nameof(DeployWtWin32App), appVersion: ConnectWtWinTuner.AppVersion, packageId: PackageId, cancellationToken: CancellationToken.None);
 
         if (App is null)
         {
