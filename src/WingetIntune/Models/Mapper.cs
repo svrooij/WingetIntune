@@ -74,7 +74,7 @@ internal partial class Mapper
             });
         }
 
-        if (packageInfo.MsiProductCode is not null && packageInfo.MsiVersion is not null) // packageInfo.InstallerType.IsMsi() 
+        if (packageInfo.MsiProductCode is not null && packageInfo.MsiVersion is not null && !packageInfo.Version!.Equals("latest", StringComparison.OrdinalIgnoreCase)) // packageInfo.InstallerType.IsMsi() 
         {
             // Not sure if this is correct, should this information always be set if available?
             if (packageInfo.InstallerType.IsMsi())

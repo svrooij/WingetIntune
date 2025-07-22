@@ -44,4 +44,9 @@ public class WingetPackage
     /// Installer arguments
     /// </summary>
     public string? InstallerArguments { get; set; }
+
+    /// <summary>
+    /// Extracted command, for Sandbox testing
+    /// </summary>
+    public string? InstallCommand { get; set; }
 }

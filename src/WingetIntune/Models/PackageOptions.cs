@@ -11,5 +11,6 @@ public class PackageOptions
     public bool PartialPackage { get; init; }
     public string? MsiProductCode { get; init; }
     public string? MsiVersion { get; init; }
+    public bool Versionless { get; set; } = false;
     public static PackageOptions Create() => new PackageOptions { Architecture = Architecture.X64, InstallerContext = InstallerContext.System, PackageScript = false };
 }
