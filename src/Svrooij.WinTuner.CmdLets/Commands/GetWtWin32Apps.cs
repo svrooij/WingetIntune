@@ -24,7 +24,7 @@ namespace Svrooij.WinTuner.CmdLets.Commands;
 /// <example>
 /// <para type="name">Update apps</para>
 /// <para type="description">Get all apps that have be an update available and are not superseeded. This executes the [New-WtWingetPackage](./New-WtWingetPackage) command.\r\nYou could run this on a weekly bases.</para>
-/// <code>$updatedApps = Get-WtWin32Apps -Update $true -Superseded $false\r\nforeach($app in $updatedApps) { New-WtWingetPackage -PackageId $($app.PackageId) -PackageFolder $rootPackageFolder -Version $($app.LatestVersion) | Deploy-WtWin32App -GraphId $($app.GraphId) }</code>
+/// <code>$updatedApps = Get-WtWin32Apps -Update $true -Superseded $false\r\nforeach($app in $updatedApps) { New-WtWingetPackage -PackageId $($app.PackageId) -PackageFolder $rootPackageFolder -Version $($app.LatestVersion) | Deploy-WtWin32App -GraphId $($app.GraphId) -KeepAssignments }</code>
 /// </example>
 /// <example>
 /// <para type="name">Remove superseeded apps</para>
@@ -120,20 +120,21 @@ public class GetWtWin32Apps : BaseIntuneCmdlet
 
         if (Superseded.HasValue)
         {
-            result = result.Where(x => x.SupersededAppCount > 0 == Superseded.Value).ToList();
+            result = result.Where(x => x.SupersedingAppCount > 0 == Superseded.Value).ToList();
         }
 
         if (Superseding.HasValue)
         {
             result = Superseding.Value
-                ? result.Where(x => x.SupersedingAppCount > 0).ToList()
-                : result.Where(x => x.SupersedingAppCount == 0).ToList();
+                ? result.Where(x => x.SupersededAppCount > 0).ToList()
+                : result.Where(x => x.SupersededAppCount == 0).ToList();
         }
 
         // Sort the results by Name and CurrentVersion
         // Server side the results are alread sorted by Name, but sorting on CurrentVersion is not possible server side, so we do it here.
-        result = result.OrderBy(x => x.Name).ThenBy(x => x.CurrentVersion).ToList();
-
+        var vc = new WingetIntune.Models.StringVersionComparer();
+        result = result.OrderBy(x => x.Name).ThenBy(x => x.CurrentVersion, vc).ToList();
+        await Task.Delay(100, cancellationToken); // Sometimes PowerShell does not like it when we return too fast. "Collection was modified; enumeration operation may not execute."
         WriteObject(result, true);
     }
 }
