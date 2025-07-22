@@ -7,6 +7,7 @@ using System.Management.Automation;
 using System.Threading;
 using System.Threading.Tasks;
 using WingetIntune.Graph;
+using WinTuner.Proxy.Client;
 
 namespace Svrooij.WinTuner.CmdLets.Commands;
 
@@ -77,12 +78,19 @@ public class GetWtWin32Apps : BaseIntuneCmdlet
     [ServiceDependency]
     private Winget.CommunityRepository.WingetRepository? repo;
 
+    [ServiceDependency]
+    private WinTunerProxyClient? proxyClient;
+
     /// <inheritdoc/>
     protected override async Task ProcessAuthenticatedAsync(IAuthenticationProvider provider, CancellationToken cancellationToken)
     {
         logger?.LogInformation("Getting list of published apps");
 
         var graphServiceClient = gcf!.CreateClient(provider);
+        proxyClient?.TriggerEvent(
+            sessionId: ConnectWtWinTuner.SessionId,
+            command: nameof(GetWtWin32Apps),
+            appVersion: ConnectWtWinTuner.AppVersion);
         var apps = await graphServiceClient.DeviceAppManagement.MobileApps.GetWinTunerAppsAsync(NameContains, isAssigned: IsAssigned, cancellationToken: cancellationToken);
 
         List<Models.WtWin32App> result = new();
