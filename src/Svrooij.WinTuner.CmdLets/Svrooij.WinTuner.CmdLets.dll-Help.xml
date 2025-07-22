@@ -1345,6 +1345,118 @@ Connect-WtWinTuner -UseDefaultCredentials</dev:code>
   </command:command>
   <command:command xmlns:maml="http://schemas.microsoft.com/maml/2004/10" xmlns:dev="http://schemas.microsoft.com/maml/dev/2004/10" xmlns:MSHelp="http://msdn.microsoft.com/mshelp" xmlns:command="http://schemas.microsoft.com/maml/dev/command/2004/10">
     <command:details>
+      <command:name>Get-WtMobileApps</command:name>
+      <command:verb>Get</command:verb>
+      <command:noun>WtMobileApps</command:noun>
+      <maml:description>
+        <maml:para>Get all apps from Intune</maml:para>
+      </maml:description>
+    </command:details>
+    <maml:description>
+      <maml:para>Load apps from Tenant. This CmdLet will return all mobile apps in Intune. The raw Graph models are returned.\r\n\r\nThis is an [**authenticated command**](./authentication), so call [Connect-WtWinTuner](./Connect-WtWinTuner) before calling this command.</maml:para>
+    </maml:description>
+    <command:syntax>
+      <command:syntaxItem>
+        <maml:name>Get-WtMobileApps</maml:name>
+        <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="0" aliases="none">
+          <maml:name>NameContains</maml:name>
+          <maml:description>
+            <maml:para>Server-side filter on displayName contains.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
+          <dev:type>
+            <maml:name>String</maml:name>
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="0" aliases="none">
+          <maml:name>IsAssigned</maml:name>
+          <maml:description>
+            <maml:para>Server-side filter on isAssigned.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">Boolean</command:parameterValue>
+          <dev:type>
+            <maml:name>Boolean</maml:name>
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="0" aliases="none">
+          <maml:name>Filter</maml:name>
+          <maml:description>
+            <maml:para>Server-side filter on filter. This is a raw OData filter expression.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
+          <dev:type>
+            <maml:name>String</maml:name>
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+      </command:syntaxItem>
+    </command:syntax>
+    <command:parameters>
+      <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="0" aliases="none">
+        <maml:name>NameContains</maml:name>
+        <maml:description>
+          <maml:para>Server-side filter on displayName contains.</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
+        <dev:type>
+          <maml:name>String</maml:name>
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="0" aliases="none">
+        <maml:name>IsAssigned</maml:name>
+        <maml:description>
+          <maml:para>Server-side filter on isAssigned.</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">Boolean</command:parameterValue>
+        <dev:type>
+          <maml:name>Boolean</maml:name>
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="0" aliases="none">
+        <maml:name>Filter</maml:name>
+        <maml:description>
+          <maml:para>Server-side filter on filter. This is a raw OData filter expression.</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
+        <dev:type>
+          <maml:name>String</maml:name>
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+    </command:parameters>
+    <command:returnValues>
+      <command:returnValue>
+        <dev:type>
+          <maml:name>Microsoft.Graph.Beta.Models.MobileApp[]</maml:name>
+        </dev:type>
+        <maml:description>
+          <maml:para>Microsoft.Graph.Beta.Models.MobileApp[]</maml:para>
+        </maml:description>
+      </command:returnValue>
+    </command:returnValues>
+    <command:examples>
+      <command:example>
+        <maml:title>--------------------------  Display all mobile apps  ---------------------------</maml:title>
+        <dev:code>PS C:\&gt; Get-WtMobileApps | Format-table -Property Id, DisplayName, IsAssigned, OdataType</dev:code>
+        <dev:remarks>
+          <maml:para>Get a list of all apps in this tenant, and format the result as a table.
+</maml:para>
+        </dev:remarks>
+      </command:example>
+    </command:examples>
+    <command:relatedLinks>
+      <maml:navigationLink>
+        <maml:linkText>Online Version</maml:linkText>
+        <maml:uri>https://wintuner.app/docs/wintuner-powershell/Get-WtMobileApps</maml:uri>
+      </maml:navigationLink>
+    </command:relatedLinks>
+  </command:command>
+  <command:command xmlns:maml="http://schemas.microsoft.com/maml/2004/10" xmlns:dev="http://schemas.microsoft.com/maml/dev/2004/10" xmlns:MSHelp="http://msdn.microsoft.com/mshelp" xmlns:command="http://schemas.microsoft.com/maml/dev/command/2004/10">
+    <command:details>
       <command:name>Get-WtToken</command:name>
       <command:verb>Get</command:verb>
       <command:noun>WtToken</command:noun>
@@ -1584,7 +1696,7 @@ Connect-WtWinTuner -UseDefaultCredentials</dev:code>
       <command:example>
         <maml:title>--------------------------------  Update apps  ---------------------------------</maml:title>
         <dev:code>PS C:\&gt; $updatedApps = Get-WtWin32Apps -Update $true -Superseded $false
-foreach($app in $updatedApps) { New-WtWingetPackage -PackageId $($app.PackageId) -PackageFolder $rootPackageFolder -Version $($app.LatestVersion) | Deploy-WtWin32App -GraphId $($app.GraphId) }</dev:code>
+foreach($app in $updatedApps) { New-WtWingetPackage -PackageId $($app.PackageId) -PackageFolder $rootPackageFolder -Version $($app.LatestVersion) | Deploy-WtWin32App -GraphId $($app.GraphId) -KeepAssignments }</dev:code>
         <dev:remarks>
           <maml:para>Get all apps that have be an update available and are not superseeded. This executes the [New-WtWingetPackage](./New-WtWingetPackage) command.
 You could run this on a weekly bases.
