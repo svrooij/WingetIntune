@@ -180,23 +180,36 @@ public class NewWtWingetPackage : DependencyCmdlet<Startup>
     [ServiceDependency]
     private WinTunerProxyClient? proxyClient;
 
+    private bool versionless = false;
+
     /// <inheritdoc/>
     public override async Task ProcessRecordAsync(CancellationToken cancellationToken)
     {
         // Fix the package id casing.
-        PackageId = (await wingetRepository!.GetPackageId(PackageId!, cancellationToken)) ?? string.Empty;
+        PackageId = (await wingetRepository!.GetPackageId(PackageId!, cancellationToken)) ?? PackageId;
         if (string.IsNullOrEmpty(PackageId))
         {
             logger.LogWarning("Package {PackageId} not found", PackageId);
             return;
         }
+
         if (string.IsNullOrEmpty(Version))
         {
             Version = await wingetRepository.GetLatestVersion(PackageId!, cancellationToken);
         }
+        else if (Version.Equals("latest", System.StringComparison.OrdinalIgnoreCase) == true)
+        {
+            Version = await wingetRepository.GetLatestVersion(PackageId!, cancellationToken);
+            versionless = PackageScript;
+        }
 
         logger.LogInformation("Packaging package {PackageId} {Version}", PackageId, Version);
-        proxyClient?.TriggerEvent(ConnectWtWinTuner.SessionId, nameof(NewWtWingetPackage), appVersion: ConnectWtWinTuner.AppVersion, packageId: PackageId, cancellationToken: CancellationToken.None);
+        var command = nameof(NewWtWingetPackage);
+        if (versionless)
+        {
+            command = $"{command}vl";
+        }
+        proxyClient?.TriggerEvent(ConnectWtWinTuner.SessionId, command, appVersion: ConnectWtWinTuner.AppVersion, packageId: PackageId, cancellationToken: CancellationToken.None);
         var packageInfo = await repository.GetPackageInfoAsync(PackageId!, Version, source: "winget", cancellationToken: cancellationToken);
 
         if (packageInfo != null)
@@ -218,6 +231,7 @@ public class NewWtWingetPackage : DependencyCmdlet<Startup>
                     PartialPackage = PartialPackage,
                     MsiProductCode = MsiProductCode,
                     MsiVersion = MsiVersion,
+                    Versionless = versionless
                 },
                 cancellationToken: cancellationToken);
 

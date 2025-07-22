@@ -128,9 +128,34 @@ public partial class IntuneManager
         ArgumentNullException.ThrowIfNull(packageInfo);
 #endif
         var packageTempFolder = fileManager.CreateFolderForPackage(tempFolder, packageInfo.PackageIdentifier!, packageInfo.Version!);
-        var packageFolder = fileManager.CreateFolderForPackage(outputFolder, packageInfo.PackageIdentifier!, packageInfo.Version!, packageInfo.Architecture == Architecture.Arm64);
+        var packageFolder = fileManager.CreateFolderForPackage(outputFolder, packageInfo.PackageIdentifier!, packageOptions.Versionless ? "latest" : packageInfo.Version!, packageInfo.Architecture == Architecture.Arm64);
 
-        if (SupportedInstallers.Contains(packageInfo.InstallerType) && !packageOptions.PackageScript)
+        if (packageOptions.Versionless)
+        {
+            var installScript = IntuneManagerConstants.GetWingetInstallCmd(packageInfo.PackageIdentifier!);
+            await fileManager.WriteAllTextAsync(
+                Path.Combine(packageTempFolder, "install.ps1"),
+                installScript,
+                cancellationToken);
+            await fileManager.WriteAllTextAsync(
+                Path.Combine(packageFolder, "install.ps1"),
+                installScript,
+                cancellationToken);
+            packageInfo.InstallCommandLine = $"%windir%\\sysnative\\windowspowershell\\v1.0\\powershell.exe -WindowStyle Hidden -ExecutionPolicy Bypass -File install.ps1";
+            packageInfo.InstallerFilename = "install.ps1";
+
+            var uninstallScript = IntuneManagerConstants.GetWingetUninstallCmd(packageInfo.PackageIdentifier!);
+            await fileManager.WriteAllTextAsync(
+                Path.Combine(packageTempFolder, "uninstall.ps1"),
+                uninstallScript,
+                cancellationToken);
+            await fileManager.WriteAllTextAsync(
+                Path.Combine(packageFolder, "uninstall.ps1"),
+                uninstallScript,
+                cancellationToken);
+            packageInfo.UninstallCommandLine = $"%windir%\\sysnative\\windowspowershell\\v1.0\\powershell.exe -WindowStyle Hidden -ExecutionPolicy Bypass -File uninstall.ps1";
+        }
+        else if (SupportedInstallers.Contains(packageInfo.InstallerType) && !packageOptions.PackageScript)
         {
             _ = await DownloadInstallerAsync(packageTempFolder, packageInfo, cancellationToken);
         }
@@ -177,17 +202,34 @@ public partial class IntuneManager
         var intuneFile = await intunePackager.CreatePackage(packageTempFolder, packageFolder, packageInfo.InstallerFilename!, packageInfo, packageOptions.PartialPackage, cancellationToken: cancellationToken);
         await DownloadLogoAsync(packageFolder, packageInfo.PackageIdentifier!, cancellationToken);
 
-        var detectionScript = IntuneManagerConstants.GetPsDetectionCommand(packageInfo.PackageIdentifier!, packageInfo.Version!);
+        var detectionScript = IntuneManagerConstants.GetPsDetectionCommand(packageInfo.PackageIdentifier!, packageOptions.Versionless ? "" : packageInfo.Version!);
         await fileManager.WriteAllTextAsync(
             Path.Combine(packageFolder, "detection.ps1"),
             detectionScript,
             cancellationToken);
         packageInfo.DetectionScript = detectionScript;
-
+        if (packageOptions.Versionless)
+        {
+            // For a versionless package you don't want the version in the package info.
+            packageInfo.Version = "latest";
+        }
         await WritePackageInfo(packageFolder, packageInfo, cancellationToken);
         await WriteReadmeAsync(packageFolder, packageInfo, cancellationToken);
 
-        return new WingetPackage(packageInfo, packageFolder, intuneFile) { InstallerFile = packageInfo.InstallerFilename, InstallerArguments = packageInfo.InstallCommandLine?.Substring(packageInfo.InstallerFilename?.Length + 3 ?? 0) };
+        var result = new WingetPackage(packageInfo, packageFolder, intuneFile)
+        {
+            InstallerFile = packageInfo.InstallerFilename,
+            InstallerArguments = packageInfo.InstallCommandLine!.StartsWith(packageInfo.InstallerFilename!)
+                ? packageInfo.InstallCommandLine!.Substring(packageInfo.InstallerFilename!.Length)
+                : packageInfo.InstallCommandLine,
+
+        };
+        if (result.InstallerArguments!.StartsWith(IntuneManagerConstants.PowerShellPath))
+        {
+            result.InstallerArguments = result.InstallerArguments.Substring(IntuneManagerConstants.PowerShellPath.Length + 1);
+            result.InstallCommand = IntuneManagerConstants.PowerShellPath;
+        }
+        return result;
     }
 
     private static string GetPsCommandContent(string command, string successSearch, string message, string? packageId = null, string? action = null)
@@ -200,12 +242,7 @@ public partial class IntuneManager
             commandSplitted = commandSplitted.Skip(1).ToArray();
         }
         commandWithQuotes += string.Join(" ", commandSplitted.Select(x => $"\"{x}\""));
-        return IntuneManagerConstants.PsCommandTemplate
-            .Replace("{command}", commandWithQuotes)
-            .Replace("{success}", successSearch)
-            .Replace("{message}", message)
-            .Replace("{packageId}", packageId ?? Guid.NewGuid().ToString())
-            .Replace("{action}", action ?? "unknown");
+        return IntuneManagerConstants.GetPsWingetCmd(action ?? "install", commandWithQuotes, successSearch, message, packageId);
     }
 
     public Task<PackageInfo> LoadPackageInfoFromFolder(string packageFolder, string packageId, string version, CancellationToken cancellationToken = default)
