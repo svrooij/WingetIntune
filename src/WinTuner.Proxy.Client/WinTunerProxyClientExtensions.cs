@@ -17,7 +17,7 @@ public static class WinTunerProxyClientExtensions
     /// <remarks>This is a fire-and-forget method, that triggers a task in the backend.</remarks>
     public static void TriggerEvent(this WinTunerProxyClient? client, string? sessionId, string command, string? packageId = null, string? appVersion = null, CancellationToken cancellationToken = default)
     {
-        if (true || client is null) // || System.Environment.GetEnvironmentVariable(WINTUNER_TELEMETRY_OPT_OUT)?.Equals("1") == true)
+        if (client is null) // || System.Environment.GetEnvironmentVariable(WINTUNER_TELEMETRY_OPT_OUT)?.Equals("1") == true)
         {
             return;
         }
