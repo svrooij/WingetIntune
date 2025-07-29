@@ -1,10 +1,10 @@
 ﻿using Microsoft.Extensions.Logging;
-using Svrooij.PowerShell.DependencyInjection;
+using Svrooij.PowerShell.DI;
 using System.IO;
 using System.Management.Automation;
 using System.Threading;
 using System.Threading.Tasks;
-using WinTuner.Proxy.Client;
+using Svrooij.WinTuner.Proxy.Client;
 
 namespace Svrooij.WinTuner.CmdLets.Commands;
 /// <summary>
@@ -19,7 +19,8 @@ namespace Svrooij.WinTuner.CmdLets.Commands;
 /// </example>
 [Cmdlet(VerbsCommon.New, "WtWingetPackage", HelpUri = "https://wintuner.app/docs/wintuner-powershell/New-WtWingetPackage")]
 [OutputType(typeof(WingetIntune.Models.WingetPackage))]
-public class NewWtWingetPackage : DependencyCmdlet<Startup>
+[GenerateBindings]
+public partial class NewWtWingetPackage : DependencyCmdlet<Startup>
 {
     /// <summary>
     /// Package id to download
@@ -178,7 +179,7 @@ public class NewWtWingetPackage : DependencyCmdlet<Startup>
     private WingetIntune.IntuneManager intuneManager;
 
     [ServiceDependency]
-    private WinTunerProxyClient? proxyClient;
+    private Svrooij.WinTuner.Proxy.Client.WinTunerProxyClient? proxyClient;
 
     private bool versionless = false;
 

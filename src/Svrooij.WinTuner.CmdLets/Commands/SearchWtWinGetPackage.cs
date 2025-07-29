@@ -1,6 +1,5 @@
-﻿using Svrooij.PowerShell.DependencyInjection;
+﻿using Svrooij.PowerShell.DI;
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Management.Automation;
 using System.Threading;
@@ -33,7 +32,8 @@ namespace Svrooij.WinTuner.CmdLets.Commands;
 /// </example>
 [Cmdlet(VerbsCommon.Search, "WtWinGetPackage", HelpUri = "https://wintuner.app/docs/wintuner-powershell/Search-WtWingetPackage")]
 [OutputType(typeof(Winget.CommunityRepository.Models.WingetEntryExtended))]
-public class SearchWtWinGetPackage : DependencyCmdlet<Startup>
+[GenerateBindings]
+public partial class SearchWtWinGetPackage : DependencyCmdlet<Startup>
 {
     /// <summary>
     /// Filter packages by query string, used as `contains` on package id, name and tags.

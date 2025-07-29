@@ -1,5 +1,5 @@
 ﻿using Microsoft.Extensions.Logging;
-using Svrooij.PowerShell.DependencyInjection;
+using Svrooij.PowerShell.DI;
 using System.IO;
 using System.Linq;
 using System.Management.Automation;
@@ -19,6 +19,7 @@ namespace Svrooij.WinTuner.CmdLets.Commands;
 /// <code>Test-WtSetupFile -SetupFile D:\packages\xyz.exe -Installer "all your arguments"</code>
 /// </example>
 [Cmdlet(VerbsDiagnostic.Test, "WtSetupFile", HelpUri = "https://wintuner.app/docs/wintuner-powershell/Test-WtSetupFile/")]
+[GenerateBindings]
 public class TestWtSetupFile : DependencyCmdlet<Startup>
 {
     [ServiceDependency]

@@ -1,5 +1,5 @@
 ﻿using Microsoft.Extensions.Logging;
-using Svrooij.PowerShell.DependencyInjection;
+using Svrooij.PowerShell.DI;
 using System;
 using System.IO;
 using System.Management.Automation;
@@ -17,7 +17,8 @@ namespace Svrooij.WinTuner.CmdLets.Commands;
 /// <code>Unprotect-IntuneWinPackage -SourceFile C:\Temp\Source\MyApp.intunewin -DestinationPath C:\Temp\Destination</code>
 /// </example>
 [Cmdlet(VerbsSecurity.Unprotect, "IntuneWinPackage", HelpUri = "https://wintuner.app/docs/wintuner-powershell/contentprep/Unprotect-IntuneWinPackage")]
-public class UnprotectIntuneWinPackage : DependencyCmdlet<Startup>
+[GenerateBindings]
+public partial class UnprotectIntuneWinPackage : DependencyCmdlet<Startup>
 {
     /// <summary>
     /// <para type="description">The location of the .intunewin file</para>

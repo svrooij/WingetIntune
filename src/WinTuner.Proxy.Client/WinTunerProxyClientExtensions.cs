@@ -1,6 +1,6 @@
 ﻿using Microsoft.Kiota.Abstractions;
 
-namespace WinTuner.Proxy.Client;
+namespace Svrooij.WinTuner.Proxy.Client;
 public static class WinTunerProxyClientExtensions
 {
     public const string WINTUNER_TELEMETRY_OPT_OUT = nameof(WINTUNER_TELEMETRY_OPT_OUT);

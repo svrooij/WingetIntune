@@ -1,6 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
 using Microsoft.Graph.Beta.Models;
-using Svrooij.PowerShell.DependencyInjection;
+using Svrooij.PowerShell.DI;
 using System.Linq;
 using System.Management.Automation;
 using System.Threading;
@@ -21,6 +21,7 @@ namespace Svrooij.WinTuner.CmdLets.Commands;
 /// </example>
 [Cmdlet(VerbsData.Update, "WtIntuneApp", HelpUri = "https://wintuner.app/docs/wintuner-powershell/Update-WtIntuneApp")]
 [OutputType(typeof(MobileApp))]
+[GenerateBindings]
 public class UpdateWtIntuneApp : BaseIntuneCmdlet
 {
     /// <summary>

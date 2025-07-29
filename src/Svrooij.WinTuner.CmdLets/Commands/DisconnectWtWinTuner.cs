@@ -1,5 +1,5 @@
 ﻿using Microsoft.Extensions.Logging;
-using Svrooij.PowerShell.DependencyInjection;
+using Svrooij.PowerShell.DI;
 using System.Management.Automation;
 using System.Threading;
 using System.Threading.Tasks;

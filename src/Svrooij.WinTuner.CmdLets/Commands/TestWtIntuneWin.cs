@@ -1,5 +1,5 @@
 ﻿using Microsoft.Extensions.Logging;
-using Svrooij.PowerShell.DependencyInjection;
+using Svrooij.PowerShell.DI;
 using System;
 using System.IO;
 using System.Linq;
@@ -21,6 +21,7 @@ namespace Svrooij.WinTuner.CmdLets.Commands;
 /// <code>Test-WtIntuneWin -PackageFolder &quot;D:\packages\JanDeDobbeleer.OhMyPosh\22.0.3&quot;</code>
 /// </example>
 [Cmdlet(VerbsDiagnostic.Test, "WtIntuneWin", DefaultParameterSetName = nameof(PackageFolder), HelpUri = "https://wintuner.app/docs/wintuner-powershell/Test-WtIntuneWin/")]
+[GenerateBindings]
 public class TestWtIntuneWin : DependencyCmdlet<Startup>
 {
     private const string ParameterSetWinGet = "WinGet";
@@ -161,10 +162,10 @@ public class TestWtIntuneWin : DependencyCmdlet<Startup>
     private ILogger<TestWtIntuneWin>? logger;
 
     [ServiceDependency]
-    private WindowsSandbox? sandbox;
+    private WingetIntune.Testing.WindowsSandbox? sandbox;
 
     [ServiceDependency]
-    private MetadataManager? metadataManager;
+    private WingetIntune.Intune.MetadataManager? metadataManager;
 
     /// <inheritdoc/>
     public override async Task ProcessRecordAsync(CancellationToken cancellationToken)

@@ -1,6 +1,7 @@
 ﻿using Microsoft.Kiota.Abstractions.Authentication;
-using Svrooij.PowerShell.DependencyInjection;
+using Svrooij.PowerShell.DI;
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
